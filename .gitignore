@@ -1,0 +1,7 @@
+/wallet
+/target
+/src/main/frontend/build
+/src/main/frontend/
+
+.env
+logs.log
