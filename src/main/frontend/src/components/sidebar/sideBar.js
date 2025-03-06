@@ -82,13 +82,13 @@ const Sidebar = ({
                             <li key={index} className="relative">
                                 <button
                                     onClick={() => setSelectedItem(item.label)}
-                                    className="flex items-center w-full h-12 hover:bg-gray-800 transition-colors duration-200 group"
+                                    className="flex items-center w-full h-12 hover:bg-gray-600 rounded-md transition-colors duration-200 group"
                                 >
                                     {selectedItem === item.label && (
                                         <div
-                                            className="absolute inset-0 rounded-md bg-opacity-10"
-                                            style={{ backgroundColor: accentColor }}
-                                        />
+                                            className="absolute inset-0 rounded-md bg-opacity-10 ${isOpen ? 'opacity-100' : 'opacity-0 w"
+                                            style={{ backgroundColor: accentColor }}>
+                                        </div>
                                     )}
 
                                     <div className="w-16 flex-shrink-0 grid place-items-center ">
