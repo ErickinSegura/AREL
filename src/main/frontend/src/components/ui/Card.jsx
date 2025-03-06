@@ -18,7 +18,9 @@ const CardTitle = ({ className, ...props }) => {
         <h3
             className={`text-2xl font-semibold leading-none tracking-tight ${className}`}
             {...props}
-        />
+        >
+            {props.children}
+        </h3>
     );
 };
 
