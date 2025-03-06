@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import API_LIST from '../API';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { Button, CircularProgress, Avatar } from '@mui/material';
 import Moment from 'react-moment';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const Sprints = () => {
     // States for managing data and UI
@@ -20,10 +20,41 @@ const Sprints = () => {
         finished: false
     });
 
-    // Filter items by status
-    const toDoItems = items.filter(item => !item.done && !item.inProgress);
-    const inProgressItems = items.filter(item => !item.done && item.inProgress);
-    const finishedItems = items.filter(item => item.done);
+    // Categorized items
+    const [columns, setColumns] = useState({
+        toDo: {
+            name: 'To Do',
+            items: []
+        },
+        inProgress: {
+            name: 'In Progress',
+            items: []
+        },
+        finished: {
+            name: 'Finished',
+            items: []
+        }
+    });
+
+    // Update columns when items change
+    useEffect(() => {
+        if (items.length) {
+            setColumns({
+                toDo: {
+                    name: 'To Do',
+                    items: items.filter(item => !item.done && !item.inProgress)
+                },
+                inProgress: {
+                    name: 'In Progress',
+                    items: items.filter(item => !item.done && item.inProgress)
+                },
+                finished: {
+                    name: 'Finished',
+                    items: items.filter(item => item.done)
+                }
+            });
+        }
+    }, [items]);
 
     // Fetch items from API on component mount
     useEffect(() => {
@@ -52,6 +83,53 @@ const Sprints = () => {
                 }
             );
     }, []);
+
+    // Handle drag end
+    const onDragEnd = (result) => {
+        if (!result.destination) return;
+
+        const { source, destination } = result;
+
+        // If dropped in the same column at the same position
+        if (source.droppableId === destination.droppableId &&
+            source.index === destination.index) {
+            return;
+        }
+
+        // Get the dragged item
+        const sourceColumn = columns[source.droppableId];
+        const destColumn = columns[destination.droppableId];
+        const draggedItem = sourceColumn.items[source.index];
+
+        // Remove from source column
+        const newSourceItems = Array.from(sourceColumn.items);
+        newSourceItems.splice(source.index, 1);
+
+        // Add to destination column
+        const newDestItems = Array.from(destColumn.items);
+        newDestItems.splice(destination.index, 0, draggedItem);
+
+        // Update columns state
+        const newColumns = {
+            ...columns,
+            [source.droppableId]: {
+                ...sourceColumn,
+                items: newSourceItems
+            },
+            [destination.droppableId]: {
+                ...destColumn,
+                items: newDestItems
+            }
+        };
+
+        setColumns(newColumns);
+
+        // Update item status in the backend
+        const inProgress = destination.droppableId === 'inProgress';
+        const done = destination.droppableId === 'finished';
+
+        updateItemStatus(draggedItem.id, draggedItem.description, inProgress, done);
+    };
 
     // Add a new item
     const addItem = (text, status) => {
@@ -158,83 +236,6 @@ const Sprints = () => {
             );
     };
 
-    // Move item to next column
-    const moveForward = (item) => {
-        if (!item.inProgress && !item.done) {
-            updateItemStatus(item.id, item.description, true, false);
-        } else if (item.inProgress && !item.done) {
-            updateItemStatus(item.id, item.description, false, true);
-        }
-    };
-
-    // Move item to previous column
-    const moveBackward = (item) => {
-        if (item.done) {
-            updateItemStatus(item.id, item.description, true, false);
-        } else if (item.inProgress) {
-            updateItemStatus(item.id, item.description, false, false);
-        }
-    };
-
-    // Render a task card
-    const renderCard = (item, columnType) => {
-        return (
-            <div key={item.id} className="bg-white p-4 rounded-lg shadow mb-3">
-                <div className="flex justify-between items-start">
-                    <div className="w-full">
-                        <h3 className="font-medium mb-2">{item.description}</h3>
-                        <div className="text-xs text-gray-500 mb-2">
-                            <span>Sprint 1</span>
-                            <span className="ml-2">
-                                <Moment format="MMM Do hh:mm:ss">{item.createdAt}</Moment>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex justify-between items-center mt-2">
-                    <div className="flex space-x-2">
-                        {columnType !== 'toDo' && (
-                            <Button
-                                variant="outlined"
-                                size="small"
-                                startIcon={<ArrowLeftIcon />}
-                                onClick={() => moveBackward(item)}
-                            >
-                                Move Back
-                            </Button>
-                        )}
-                        {columnType !== 'finished' && (
-                            <Button
-                                variant="outlined"
-                                size="small"
-                                endIcon={<ArrowRightIcon />}
-                                onClick={() => moveForward(item)}
-                            >
-                                Move Forward
-                            </Button>
-                        )}
-                        {columnType === 'finished' && (
-                            <Button
-                                variant="outlined"
-                                color="error"
-                                size="small"
-                                startIcon={<DeleteIcon />}
-                                onClick={() => deleteItem(item.id)}
-                            >
-                                Delete
-                            </Button>
-                        )}
-                    </div>
-                    <Avatar
-                        src="/api/placeholder/32/32"
-                        alt="User"
-                        sx={{ width: 28, height: 28 }}
-                    />
-                </div>
-            </div>
-        );
-    };
-
     // Render an "Add Item" form
     const renderAddForm = (columnType) => {
         return (
@@ -298,91 +299,103 @@ const Sprints = () => {
                     <CircularProgress />
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* To Do Column */}
-                    <div className="bg-gray-100 rounded-lg p-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-lg font-semibold">To Do</h2>
-                            <span className="bg-gray-200 px-2 py-1 rounded text-sm">
-                                {toDoItems.length}
-                            </span>
-                        </div>
+                <DragDropContext onDragEnd={onDragEnd}>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {Object.entries(columns).map(([columnId, column]) => (
+                            <div key={columnId} className="bg-gray-100 rounded-lg p-4">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-lg font-semibold">{column.name}</h2>
+                                    <span className="bg-gray-200 px-2 py-1 rounded text-sm">
+                                        {column.items.length}
+                                    </span>
+                                </div>
 
-                        {showAddForm.toDo ? (
-                            renderAddForm('toDo')
-                        ) : (
-                            <Button
-                                fullWidth
-                                variant="outlined"
-                                className="mb-4"
-                                startIcon={<AddIcon />}
-                                onClick={() => setShowAddForm({ ...showAddForm, toDo: true })}
-                            >
-                                Add Item
-                            </Button>
-                        )}
+                                {showAddForm[columnId] ? (
+                                    renderAddForm(columnId)
+                                ) : (
+                                    <Button
+                                        fullWidth
+                                        variant="outlined"
+                                        className="mb-4"
+                                        startIcon={<AddIcon />}
+                                        onClick={() => setShowAddForm({ ...showAddForm, [columnId]: true })}
+                                    >
+                                        Add Item
+                                    </Button>
+                                )}
 
-                        <div className="space-y-3">
-                            {toDoItems.map(item => renderCard(item, 'toDo'))}
-                        </div>
+                                <Droppable droppableId={columnId}>
+                                    {(provided) => (
+                                        <div
+                                            ref={provided.innerRef}
+                                            {...provided.droppableProps}
+                                            className="space-y-3 min-h-64"
+                                        >
+                                            {column.items.map((item, index) => (
+                                                <Draggable
+                                                    key={item.id}
+                                                    draggableId={item.id.toString()}
+                                                    index={index}
+                                                >
+                                                    {(provided, snapshot) => (
+                                                        <div
+                                                            ref={provided.innerRef}
+                                                            {...provided.draggableProps}
+                                                            className={`bg-white p-4 rounded-lg shadow mb-3 ${
+                                                                snapshot.isDragging ? 'opacity-75 shadow-lg' : ''
+                                                            }`}
+                                                        >
+                                                            <div className="flex justify-between items-start">
+                                                                <div className="w-full">
+                                                                    <div className="flex items-center">
+                                                                        <div
+                                                                            {...provided.dragHandleProps}
+                                                                            className="cursor-move mr-2"
+                                                                        >
+                                                                            <DragIndicatorIcon fontSize="small" />
+                                                                        </div>
+                                                                        <h3 className="font-medium">{item.description}</h3>
+                                                                    </div>
+                                                                    <div className="text-xs text-gray-500 mt-2 ml-6">
+                                                                        <span>Sprint 1</span>
+                                                                        <span className="ml-2">
+                                                                            <Moment format="MMM Do hh:mm:ss">{item.createdAt}</Moment>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex justify-between items-center mt-3 ml-6">
+                                                                {columnId === 'finished' && (
+                                                                    <Button
+                                                                        variant="outlined"
+                                                                        color="error"
+                                                                        size="small"
+                                                                        startIcon={<DeleteIcon />}
+                                                                        onClick={() => deleteItem(item.id)}
+                                                                    >
+                                                                        Delete
+                                                                    </Button>
+                                                                )}
+                                                                <div className="ml-auto">
+                                                                    <Avatar
+                                                                        src="/api/placeholder/32/32"
+                                                                        alt="User"
+                                                                        sx={{ width: 28, height: 28 }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </Draggable>
+                                            ))}
+                                            {provided.placeholder}
+                                        </div>
+                                    )}
+                                </Droppable>
+                            </div>
+                        ))}
                     </div>
-
-                    {/* In Progress Column */}
-                    <div className="bg-gray-100 rounded-lg p-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-lg font-semibold">In Progress</h2>
-                            <span className="bg-gray-200 px-2 py-1 rounded text-sm">
-                                {inProgressItems.length}
-                            </span>
-                        </div>
-
-                        {showAddForm.inProgress ? (
-                            renderAddForm('inProgress')
-                        ) : (
-                            <Button
-                                fullWidth
-                                variant="outlined"
-                                className="mb-4"
-                                startIcon={<AddIcon />}
-                                onClick={() => setShowAddForm({ ...showAddForm, inProgress: true })}
-                            >
-                                Add Item
-                            </Button>
-                        )}
-
-                        <div className="space-y-3">
-                            {inProgressItems.map(item => renderCard(item, 'inProgress'))}
-                        </div>
-                    </div>
-
-                    {/* Finished Column */}
-                    <div className="bg-gray-100 rounded-lg p-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-lg font-semibold">Finished</h2>
-                            <span className="bg-gray-200 px-2 py-1 rounded text-sm">
-                                {finishedItems.length}
-                            </span>
-                        </div>
-
-                        {showAddForm.finished ? (
-                            renderAddForm('finished')
-                        ) : (
-                            <Button
-                                fullWidth
-                                variant="outlined"
-                                className="mb-4"
-                                startIcon={<AddIcon />}
-                                onClick={() => setShowAddForm({ ...showAddForm, finished: true })}
-                            >
-                                Add Item
-                            </Button>
-                        )}
-
-                        <div className="space-y-3">
-                            {finishedItems.map(item => renderCard(item, 'finished'))}
-                        </div>
-                    </div>
-                </div>
+                </DragDropContext>
             )}
         </div>
     );
