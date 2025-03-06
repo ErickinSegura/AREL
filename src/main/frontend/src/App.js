@@ -1,14 +1,11 @@
 import React from 'react';
-import Sidebar from "./components/sidebar/sideBar";
-import {Overview} from "./components/overview/Overview";
+import AppLayout from './layouts/AppLayout';
+import { RouteProvider } from './contexts/RouteContext';
 
 export const App = () => {
-    return (
-        <div className="flex">
-            <Sidebar isOpen={true} />
-            <main className="flex-1">
-                <Overview/>
-            </main>
-        </div>
-    );
-}
+  return (
+    <RouteProvider>
+      <AppLayout defaultOpen={false} accentColor="#e74c3c" />
+    </RouteProvider>
+  );
+};

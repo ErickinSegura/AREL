@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight, Home, ListChecks, Clock, Calendar, Link, Settings } from 'lucide-react';
+import { useRoute } from '../../contexts/RouteContext';
+import { routes } from '../../routes';
 
 const Sidebar = ({
                      defaultOpen = false,
                      accentColor = "#e74c3c",
                      defaultSelected = "Overview"
                  }) => {
+    const { setCurrentRoute } = useRoute();
     const [isOpen, setIsOpen] = useState(defaultOpen);
     const [selectedItem, setSelectedItem] = useState(defaultSelected);
     const sidebarRef = useRef(null);
@@ -46,11 +49,18 @@ const Sidebar = ({
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    useEffect(() => {
+        const route = routes.find(r => r.label === selectedItem);
+        if (route) {
+            setCurrentRoute(route.path);
+        }
+    }, [selectedItem, setCurrentRoute]);
+
     return (
         <div
             ref={sidebarRef}
             className={`h-screen bg-gray-100 transition-all duration-300 ease-out flex flex-col fixed md:relative z-10
-            ${isOpen ? 'w-64' : 'w-16'}`}
+      ${isOpen ? 'w-64' : 'w-16'}`}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
@@ -59,7 +69,7 @@ const Sidebar = ({
                 <div className={`px-4 py-4 transition-all duration-300 h-16`}>
                     <div className={`relative h-12 transition-all duration-300 ${isOpen ? '' : 'justify-center'}`}>
                         <div className="flex items-center gap-x-4">
-                            <div className="w-8 h-8 bg-red-500 rounded-md flex-shrink-0 grid place-items-center">
+                            <div className="w-8 h-8 bg-green-300 rounded-md flex-shrink-0 grid place-items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" viewBox="0 0 24 24">
                                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
                                 </svg>
@@ -71,38 +81,52 @@ const Sidebar = ({
                             </div>
                         </div>
                     </div>
-
                 </div>
 
-                {/* Menu Items */}
                 <div className="border-t border-gray-700 mx-4 transition-all my-4"/>
                 <nav className="flex-1">
                     <ul>
                         {menuItems.map((item, index) => (
                             <li key={index} className="relative">
+                                {selectedItem === item.label && (
+                                    <div
+                                        className={'absolute inset-1.5 rounded-lg transition-all duration-300 '}
+                                        style={{ backgroundColor: accentColor }}>
+                                    </div>
+                                )}
+
                                 <button
                                     onClick={() => setSelectedItem(item.label)}
-                                    className="flex items-center w-full h-12 hover:bg-gray-600 rounded-md transition-colors duration-200 group"
+                                    className={`flex items-center w-full h-12 rounded-md transition-colors duration-200 relative z-10 group`}
                                 >
-                                    {selectedItem === item.label && (
-                                        <div
-                                            className="absolute inset-0 rounded-md bg-opacity-10 ${isOpen ? 'opacity-100' : 'opacity-0 w"
-                                            style={{ backgroundColor: accentColor }}>
-                                        </div>
-                                    )}
-
-                                    <div className="w-16 flex-shrink-0 grid place-items-center ">
-                                        <span className={`transition-colors ${selectedItem === item.label ? 'text-white' : 'text-black'}`}>
-                                            {item.icon}
+                                    <div className="w-16 flex-shrink-0 grid place-items-center">
+                                        <span className={`transition-colors ${
+                                            selectedItem === item.label
+                                                ? 'text-white'
+                                                : 'text-black group-hover:text-gray-500'
+                                        }`}>
+                                          {item.icon}
                                         </span>
                                     </div>
 
                                     <div className={`flex-1 flex items-center overflow-hidden transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0'}`}>
-                                        <span className={`text-sm ${selectedItem === item.label ? 'text-white' : 'text-black'}`}>
-                                            {item.label}
+                                        <span className={`text-sm ${
+                                            selectedItem === item.label
+                                                ? 'text-white'
+                                                : 'text-black group-hover:text-gray-500'
+                                        }`}>
+                                          {item.label}
                                         </span>
+
                                         {item.hasSubmenu && (
-                                            <ChevronRight size={16} className="ml-auto mr-4 min-w-4" />
+                                            <ChevronRight
+                                                size={16}
+                                                className={`ml-auto mr-4 min-w-4 ${
+                                                    selectedItem === item.label
+                                                        ? 'text-white'
+                                                        : 'text-black group-hover:text-gray-500'
+                                                }`}
+                                            />
                                         )}
                                     </div>
                                 </button>
