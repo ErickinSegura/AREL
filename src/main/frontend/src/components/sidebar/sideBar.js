@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight, Home, ListChecks, Clock, Calendar, Link, Settings } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
+import { FiCloudLightning, FiHome, FiSettings, FiTable, FiCalendar, FiLink, FiCodesandbox } from "react-icons/fi";
 import { useRoute } from '../../contexts/RouteContext';
 import { routes } from '../../routes';
 
 const Sidebar = ({
                      defaultOpen = false,
-                     accentColor = "#e74c3c",
+                     accentColor = "#C74634",
                      defaultSelected = "Overview"
                  }) => {
     const { setCurrentRoute } = useRoute();
@@ -15,12 +16,12 @@ const Sidebar = ({
     const timerRef = useRef(null);
 
     const menuItems = [
-        { icon: <Home size={20} />, label: 'Overview', hasSubmenu: true },
-        { icon: <ListChecks size={20} />, label: 'Backlog', hasSubmenu: true },
-        { icon: <Clock size={20} />, label: 'Sprints', hasSubmenu: true },
-        { icon: <Calendar size={20} />, label: 'Calendar', hasSubmenu: true },
-        { icon: <Link size={20} />, label: 'Shortcuts', hasSubmenu: true },
-        { icon: <Settings size={20} />, label: 'Settings', hasSubmenu: true },
+        { icon: <FiHome size={20} />, label: 'Overview', hasSubmenu: true },
+        { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: true },
+        { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: true },
+        { icon: <FiCalendar size={20} />, label: 'Calendar', hasSubmenu: true },
+        { icon: <FiLink size={20} />, label: 'Shortcuts', hasSubmenu: true },
+        { icon: <FiSettings size={20} />, label: 'Settings', hasSubmenu: true },
     ];
 
     const handleMouseEnter = () => {
@@ -69,10 +70,8 @@ const Sidebar = ({
                 <div className={`px-4 py-4 transition-all duration-300 h-16`}>
                     <div className={`relative h-12 transition-all duration-300 ${isOpen ? '' : 'justify-center'}`}>
                         <div className="flex items-center gap-x-4">
-                            <div className="w-8 h-8 bg-green-300 rounded-md flex-shrink-0 grid place-items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" viewBox="0 0 24 24">
-                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                                </svg>
+                            <div className="w-8 h-8 bg-red-800 rounded-md flex-shrink-0 grid place-items-center">
+                                <FiCodesandbox className="text-gray-50"/>
                             </div>
 
                             <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
