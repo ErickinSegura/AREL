@@ -1,5 +1,4 @@
 import React from 'react';
-import { FiCheckCircle } from 'react-icons/fi';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { Card, CardHeader, CardTitle } from '../components/ui/Card';
 import useSprintBoard from '../hooks/useSprint';

@@ -118,7 +118,7 @@ const useSprintBoard = () => {
         const inProgress = destination.droppableId === 'inProgress';
         const done = destination.droppableId === 'finished';
 
-        handleUpdateItemStatus(draggedItem.id, draggedItem.description, inProgress, done);
+        handleUpdateItemStatus(draggedItem.id, draggedItem.description, inProgress, done).then(r => r);
     };
 
     // Add a new item
