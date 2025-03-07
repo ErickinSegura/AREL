@@ -1,11 +1,10 @@
 /wallet
 /target
-/src/main/frontend/build
-/src/main/frontend/node_modules
-/src/main/frontend/package-lock.json
+/frontend/build
+/frontend/node_modules
+/frontend/package-lock.json
 
 .env
 logs.log
-/src/main/frontend/.idea
-src/main/frontend/.idea/workspace.xml
+/frontend/.idea
 *.xml
