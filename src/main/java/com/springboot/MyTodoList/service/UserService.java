@@ -56,7 +56,7 @@ public class UserService {
             user.setFirstName(newUser.getFirstName());
             user.setLastName(newUser.getLastName());
             user.setEmail(newUser.getEmail());
-            user.setRole(newUser.getRole());
+            user.setUserLevel(newUser.getUserLevel());
             user.setTelegramUsername(newUser.getTelegramUsername());
             user.setPassword(newUser.getPassword());
 

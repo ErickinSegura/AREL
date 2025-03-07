@@ -7,19 +7,23 @@ import javax.persistence.*;
     in the autonomous database
  */
 @Entity
-@Table(name = "USERTABLE")
+@Table(name = "USER_TABLE")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int ID;
+    @Column(name= "ID_USER")
+    int ID_USER;
     @Column(name = "FIRSTNAME")
     String firstName;
     @Column(name = "LASTNAME")
     String lastName;
     @Column(name = "EMAIL")
     String email;
-    @Column(name = "ROLE")
-    String role;
+
+    @ManyToOne
+    @JoinColumn(name = "USER_LEVEL", referencedColumnName = "ID_USER_LEVEL")
+    UserLevel userLevel;
+
     @Column(name = "TELEGRAMUSERNAME")
     String telegramUsername;
     @Column(name = "PASSWORD")
@@ -28,22 +32,22 @@ public class User {
     public User(){
 
     }
-    public User(int ID, String firstName, String lastName, String email, String role, String telegramUsername, String password) {
-        this.ID = ID;
+    public User(int ID, String firstName, String lastName, String email, UserLevel userLevel, String telegramUsername, String password) {
+        this.ID_USER = ID;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.role = role;
+        this.userLevel = userLevel;
         this.telegramUsername = telegramUsername;
         this.password = password;
     }
 
     public int getID() {
-        return ID;
+        return ID_USER;
     }
 
     public void setID(int ID) {
-        this.ID = ID;
+        this.ID_USER = ID;
     }
 
     public String getFirstName() {
@@ -70,12 +74,12 @@ public class User {
         return email;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setUserLevel(UserLevel userLevel) {
+        this.userLevel = userLevel;
     }
 
-    public String getRole() {
-        return role;
+    public UserLevel getUserLevel() {
+        return userLevel;
     }
 
     public String getTelegramUsername() {
@@ -97,11 +101,11 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "ID=" + ID +
+                "ID=" + ID_USER +
                 ", firstName=" + firstName +
                 ", lastName=" + lastName +
                 ", email=" + email +
-                ", role=" + role +
+                ", userLevel=" + userLevel +
                 ", telegramUsername=" + telegramUsername +
                 ", password=" + password +
                 '}';

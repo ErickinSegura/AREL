@@ -69,7 +69,8 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 					User user = Optional.ofNullable(user_response.getBody())
                     .orElseThrow(() ->new RuntimeException("User not found, or couldn't reach database."));
 
-					messageToTelegram.setText("Welcome, "+user.getFirstName()+"! Loading "+user.getRole()+" view.");
+					String user_level_label = user.getUserLevel().getLabel();
+					messageToTelegram.setText("Welcome, "+user.getFirstName()+"! Loading "+user_level_label+" view.");
 
 				} catch (Exception e) {
 					messageToTelegram.setText("Error: User "+update.getMessage().getFrom().getUserName() + " not found...");
