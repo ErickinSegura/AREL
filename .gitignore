@@ -5,3 +5,6 @@
 
 .env
 logs.log
+/src/main/frontend/.idea
+src/main/frontend/.idea/workspace.xml
+*.xml
