@@ -2,6 +2,7 @@
 /target
 /src/main/frontend/build
 /src/main/frontend/node_modules
+/src/main/frontend/package-lock.json
 
 .env
 logs.log
