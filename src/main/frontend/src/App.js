@@ -5,7 +5,7 @@ import { RouteProvider } from './contexts/RouteContext';
 export const App = () => {
   return (
     <RouteProvider>
-      <AppLayout defaultOpen={false} accentColor="#e74c3c" />
+      <AppLayout defaultOpen={false} accentColor="#C74634" />
     </RouteProvider>
   );
 };
