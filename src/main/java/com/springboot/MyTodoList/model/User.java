@@ -2,6 +2,10 @@ package com.springboot.MyTodoList.model;
 
 import javax.persistence.*;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
 /*
     representation of the USER table that exists already
     in the autonomous database
@@ -12,7 +16,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name= "ID_USER")
-    int ID_USER;
+    int id;
     @Column(name = "FIRSTNAME")
     String firstName;
     @Column(name = "LASTNAME")
@@ -28,26 +32,36 @@ public class User {
     String telegramUsername;
     @Column(name = "PASSWORD")
     String password;
+
+    @Column(name = "LAST_SEEN", columnDefinition = "TIMESTAMP")
+    LocalDateTime lastSeen;
+    @Column(name = "CREATED", columnDefinition = "TIMESTAMP")
+    LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserProject> userProjects = new HashSet<>();
     
     public User(){
 
     }
-    public User(int ID, String firstName, String lastName, String email, UserLevel userLevel, String telegramUsername, String password) {
-        this.ID_USER = ID;
+    public User(int ID, String firstName, String lastName, String email, UserLevel userLevel, String telegramUsername, String password, LocalDateTime lastSeen, LocalDateTime createdAt) {
+        this.id = ID;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.userLevel = userLevel;
         this.telegramUsername = telegramUsername;
         this.password = password;
+        this.lastSeen = lastSeen;
+        this.createdAt = createdAt;
     }
 
     public int getID() {
-        return ID_USER;
+        return id;
     }
 
     public void setID(int ID) {
-        this.ID_USER = ID;
+        this.id = ID;
     }
 
     public String getFirstName() {
@@ -98,16 +112,34 @@ public class User {
         return password;
     }
 
+    public LocalDateTime getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(LocalDateTime newDate) {
+        this.lastSeen = newDate;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime newDate) {
+        this.createdAt = newDate;
+    }
+
     @Override
     public String toString() {
         return "User{" +
-                "ID=" + ID_USER +
+                "ID=" + id +
                 ", firstName=" + firstName +
                 ", lastName=" + lastName +
                 ", email=" + email +
                 ", userLevel=" + userLevel +
                 ", telegramUsername=" + telegramUsername +
                 ", password=" + password +
+                ", lastSeen=" + lastSeen +
+                ", createdAt=" + createdAt +
                 '}';
     }
 }
