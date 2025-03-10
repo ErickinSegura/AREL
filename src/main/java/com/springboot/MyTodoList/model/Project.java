@@ -101,8 +101,8 @@ public class Project {
                 "id: " + id +
                 ", projectName: " + projectName +
                 ", desription: " + description +
-                ", color: " + color +
-                ", icon: " + icon
+                ", color: " + color.getHexColor() +
+                ", icon: " + icon.getIconName()
                 +"}";
     }
 }

@@ -189,14 +189,14 @@ public class Task {
         "id: " + ID +
         ", title: " + title +
         ", description: " + description +
-        ", type: " + type +
-        ", priority: " + priority +
-        ", state: " + state +
+        ", type: " + type.getLabel() +
+        ", priority: " + priority.getLabel() +
+        ", state: " + state.getLabel() +
         ", createdAt: " + createdAt +
         ", dueDate: " + dueDate +
-        ", assignedTo: " + assignedTo +
-        ", category: " + category +
-        ", sprint: " + sprint +
+        ", assignedTo: " + assignedTo.getRole() +":"+ assignedTo.getUser().getEmail() +
+        ", category: " + category.getName() +
+        ", sprint: " + sprint.getSprintNumber() +
         ", deleted: " + deleted +
         ", finishedDate: " + finishedDate +
         "}";

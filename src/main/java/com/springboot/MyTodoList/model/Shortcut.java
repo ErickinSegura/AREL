@@ -59,7 +59,7 @@ public class Shortcut {
         return "Shortcut:{" +
                 "id: " + ID +
                 "url: " + url +
-                ", project: " + project +
+                ", project: " + project.getName() +
                 "}";
     }
 }

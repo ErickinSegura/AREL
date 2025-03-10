@@ -73,7 +73,7 @@ public class Category {
         return "Category:{" +
                 "id: " + ID +
                 "name: " + name +
-                "project: " + project + 
+                "project: " + project.getName() + 
                 "color: " + color
                 +"}";
     }

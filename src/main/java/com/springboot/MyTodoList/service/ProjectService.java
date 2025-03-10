@@ -1,7 +1,10 @@
 package com.springboot.MyTodoList.service;
 
 import com.springboot.MyTodoList.model.Project;
+import com.springboot.MyTodoList.model.Shortcut;
 import com.springboot.MyTodoList.repository.ProjectRepository;
+import com.springboot.MyTodoList.repository.ShortcutRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +18,10 @@ public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private ShortcutRepository shortcutRepository;
+
     public List<Project> findAll(){
         List<Project> projects = projectRepository.findAll();
         return projects;
@@ -54,6 +61,10 @@ public class ProjectService {
         }else{
             return null;
         }
+    }
+
+    public List<Shortcut> getShortcutsByProjectId(int projectId) {
+        return shortcutRepository.findShortcutsByProjectId(projectId);
     }
 
 }
