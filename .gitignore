@@ -8,3 +8,4 @@
 logs.log
 /frontend/.idea
 *.xml
+.DS_Store
