@@ -12,7 +12,7 @@ import com.springboot.MyTodoList.util.BotLabels;
 
 public class KeyboardFactory {
 
-    public ReplyKeyboardMarkup createMainMenuKeyboard() {
+    public ReplyKeyboardMarkup createMainMenuKeyboardManager() {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboard = new ArrayList<>();
 
@@ -31,6 +31,21 @@ public class KeyboardFactory {
         keyboardMarkup.setKeyboard(keyboard);
         return keyboardMarkup;
     }
+
+    public ReplyKeyboardMarkup createMainMenuKeyboardDeveloper() {
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboard = new ArrayList<>();
+
+        // First row
+        KeyboardRow row = new KeyboardRow();
+        row.add(BotLabels.LIST_ALL_ITEMS.getLabel());
+        row.add(BotLabels.ADD_NEW_ITEM.getLabel());
+        keyboard.add(row);
+
+        keyboardMarkup.setKeyboard(keyboard);
+        return keyboardMarkup;
+    }
+
 
     public ReplyKeyboardMarkup createToDoListKeyboard(List<ToDoItem> allItems) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();

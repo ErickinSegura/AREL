@@ -71,12 +71,16 @@ public class CommandHandler {
 
             String userLevelLabel = user.getUserLevel().getLabel();
             message.setText("Welcome, " + user.getFirstName() + "! Loading " + userLevelLabel + " view. Jelyea");
+            if (userLevelLabel.equals("Manager")) {
+                message.setReplyMarkup(keyboardFactory.createMainMenuKeyboardManager());
+            } else if (userLevelLabel.equals("Developer")) {
+                message.setReplyMarkup(keyboardFactory.createMainMenuKeyboardDeveloper());
+            }
         } catch (Exception e) {
             message.setText("Error: User " + update.getMessage().getFrom().getUserName() + " not found...");
             logger.error("Error retrieving user: {}", e.getMessage(), e);
         }
 
-        message.setReplyMarkup(keyboardFactory.createMainMenuKeyboard());
         messageSender.sendMessage(message);
     }
 

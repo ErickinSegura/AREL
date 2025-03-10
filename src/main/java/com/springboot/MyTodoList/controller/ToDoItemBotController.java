@@ -22,23 +22,18 @@ import com.springboot.MyTodoList.util.BotLabels;
 public class ToDoItemBotController extends TelegramLongPollingBot {
 
 	private static final Logger logger = LoggerFactory.getLogger(ToDoItemBotController.class);
-	private final ToDoItemService toDoItemService;
-	private final UserService userService;
 	private final String botName;
 	private final CommandHandler commandHandler;
 	private final MessageSender messageSender;
-	private final ToDoItemBotCrudController crudController;
 
-	public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService, UserService userService) {
+    public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService, UserService userService) {
 		super(botToken);
 		logger.info("Bot Token: {}", botToken);
 		logger.info("Bot name: {}", botName);
-		this.toDoItemService = toDoItemService;
-		this.userService = userService;
 		this.botName = botName;
 		this.messageSender = new MessageSender(this);
-		this.crudController = new ToDoItemBotCrudController(toDoItemService);
-		this.commandHandler = new CommandHandler(this.messageSender, this.crudController, userService);
+        ToDoItemBotCrudController crudController = new ToDoItemBotCrudController(toDoItemService);
+		this.commandHandler = new CommandHandler(this.messageSender, crudController, userService);
 	}
 
 	@Override
