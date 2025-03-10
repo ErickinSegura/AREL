@@ -3,25 +3,21 @@ package com.springboot.MyTodoList.model;
 import javax.persistence.*;
 
 /*
-    representation of the USER_LEVEL table that exists already
+    representation of the TASK_TYPE table that exists already
     in the autonomous database
  */
 
 @Entity
-@Table(name = "USER_LEVEL")
-public class UserLevel {
+@Table(name = "TASK_PRIORITY")
+public class TaskPriority {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name= "ID_USER_LEVEL")
+    @Column(name= "ID_PRIORITY")
     int ID;
-    @Column(name = "USER_LEVEL_LABEL")
+    @Column(name = "PRIORITY")
     String label;
     
-    public UserLevel(){
-
-    }
-    
-    public UserLevel(int id, String label){ 
+    public TaskPriority(){
 
     }
 
@@ -43,7 +39,7 @@ public class UserLevel {
 
     @Override
     public String toString() {
-        return "UserLevel:{" +
+        return "TaskPriority:{" +
                 "id: " + ID +
                 "label: " + label
                 +"}";

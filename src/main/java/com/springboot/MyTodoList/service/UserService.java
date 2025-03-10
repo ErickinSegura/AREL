@@ -59,6 +59,8 @@ public class UserService {
             user.setUserLevel(newUser.getUserLevel());
             user.setTelegramUsername(newUser.getTelegramUsername());
             user.setPassword(newUser.getPassword());
+            user.setCreatedAt(newUser.getCreatedAt());
+            user.setLastSeen(newUser.getLastSeen());
 
             return userRepository.save(user);
         }else{
