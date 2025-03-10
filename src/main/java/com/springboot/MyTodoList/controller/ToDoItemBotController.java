@@ -1,22 +1,14 @@
 package com.springboot.MyTodoList.controller;
 
-import java.util.List;
-import java.util.Optional;
-
+import com.springboot.MyTodoList.service.ServiceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
+
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import com.springboot.MyTodoList.model.ToDoItem;
-import com.springboot.MyTodoList.model.User;
-import com.springboot.MyTodoList.service.ToDoItemService;
-import com.springboot.MyTodoList.service.UserService;
 import com.springboot.MyTodoList.telegram.CommandHandler;
 import com.springboot.MyTodoList.telegram.MessageSender;
-import com.springboot.MyTodoList.util.BotHelper;
 import com.springboot.MyTodoList.util.BotLabels;
 
 public class ToDoItemBotController extends TelegramLongPollingBot {
@@ -25,15 +17,16 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 	private final String botName;
 	private final CommandHandler commandHandler;
 	private final MessageSender messageSender;
+	private final ServiceManager serviceManager;
 
-    public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService, UserService userService) {
+	public ToDoItemBotController(String botToken, String botName, ServiceManager serviceManager) {
 		super(botToken);
 		logger.info("Bot Token: {}", botToken);
 		logger.info("Bot name: {}", botName);
 		this.botName = botName;
+		this.serviceManager = serviceManager;
 		this.messageSender = new MessageSender(this);
-        ToDoItemBotCrudController crudController = new ToDoItemBotCrudController(toDoItemService);
-		this.commandHandler = new CommandHandler(this.messageSender, crudController, userService);
+		this.commandHandler = new CommandHandler(this.messageSender, this.serviceManager);
 	}
 
 	@Override
