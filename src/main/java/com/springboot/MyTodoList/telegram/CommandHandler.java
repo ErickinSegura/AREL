@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 import com.springboot.MyTodoList.controller.ToDoItemBotCrudController;
 import com.springboot.MyTodoList.model.ToDoItem;
 import com.springboot.MyTodoList.model.User;
-import com.springboot.MyTodoList.service.UserService;
+import com.springboot.MyTodoList.service.ServiceManager;
 import com.springboot.MyTodoList.util.BotCommands;
 import com.springboot.MyTodoList.util.BotHelper;
 import com.springboot.MyTodoList.util.BotLabels;
@@ -24,14 +24,15 @@ public class CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 
     private final MessageSender messageSender;
+    private final ServiceManager serviceManager;
     private final ToDoItemBotCrudController crudController;
-    private final UserService userService;
     private final KeyboardFactory keyboardFactory;
 
-    public CommandHandler(MessageSender messageSender, ToDoItemBotCrudController crudController, UserService userService) {
+    public CommandHandler(MessageSender messageSender, ServiceManager serviceManager) {
         this.messageSender = messageSender;
-        this.crudController = crudController;
-        this.userService = userService;
+        this.serviceManager = serviceManager;
+        // Create a new CRUD controller using the ToDoItemService from ServiceManager
+        this.crudController = new ToDoItemBotCrudController(serviceManager.todoItem);
         this.keyboardFactory = new KeyboardFactory();
     }
 
@@ -64,7 +65,7 @@ public class CommandHandler {
 
         try {
             String username = update.getMessage().getFrom().getUserName();
-            ResponseEntity<User> userResponse = userService.getUserByTelegramUsername(username);
+            ResponseEntity<User> userResponse = serviceManager.user.getUserByTelegramUsername(username);
 
             User user = Optional.ofNullable(userResponse.getBody())
                     .orElseThrow(() -> new RuntimeException("User not found, or couldn't reach database."));
