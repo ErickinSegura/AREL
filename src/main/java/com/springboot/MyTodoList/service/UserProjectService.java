@@ -42,4 +42,8 @@ public class UserProjectService {
     public List<UserProject> getUsersByProject(int projectId) {
         return userProjectRepository.findByProjectId(projectId);
     }
+
+    public Optional<UserProject> getUserProjectByID(int userProjectId) {
+        return userProjectRepository.findById(userProjectId);
+    }
 }

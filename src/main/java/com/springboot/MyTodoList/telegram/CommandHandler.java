@@ -16,7 +16,6 @@ import com.springboot.MyTodoList.controller.ToDoItemBotCrudController;
 import com.springboot.MyTodoList.model.Project;
 import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.model.TaskState;
-import com.springboot.MyTodoList.model.ToDoItem;
 import com.springboot.MyTodoList.model.User;
 import com.springboot.MyTodoList.model.UserProject;
 import com.springboot.MyTodoList.service.ServiceManager;
@@ -64,8 +63,6 @@ public class CommandHandler {
     }
 
     public void handleCallback(long chatId, String callbackQuery, Update update) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
         logger.debug("Got callback query !!! text: " + callbackQuery);
 
         //Check callback info
@@ -74,64 +71,28 @@ public class CommandHandler {
         if (callbackQuery.equals("restart")) {
             handleStartCommand(chatId, update);
         }
-
         //Developer get info on a task
         else if (callbackQuery.startsWith("taskinfo_")) {
             //Send task info
-            try {
-                
-                String taskIdString = callbackQuery.replace("taskinfo_", "");
-                int taskId = Integer.parseInt(taskIdString);
-
-                ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
-                if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
-                    Task task = taskResponse.getBody();
-                    message.setText(task.getCoolFormatedString());
-
-                    message.setReplyMarkup(keyboardFactory.taskInfoInLineKeyboard(task));
-                } else {
-                    throw new RuntimeException("Error in server response: " + taskResponse.getStatusCode());
-                }
-            } catch (Exception e) {
-                message.setText(BotMessages.TASK_UNAVAILABLE.getMessage() + "\n\n" + e.getLocalizedMessage());
-            }
+            handleTaskInfoCallback(callbackQuery, chatId, update);
         }
-
         //Change task state
         else if (callbackQuery.startsWith("set_task_state_")){
-            try {
-
-                String[] parts = callbackQuery.split("_");
-        
-                int taskId = Integer.parseInt(parts[3]);
-                String taskState = parts[4];
-
-                ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
-
-                if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
-                    TaskState newState = new TaskState();
-                    newState.setLabel(taskState);
-
-                    Task taskToEdit = taskResponse.getBody();
-                    taskToEdit.setState(newState);
-
-                    database.task.updateTask(taskId, taskToEdit);
-
-                    message.setText("Successfully changed task to state: " + newState.formatted());
-
-                }
-
-
-            }catch (Exception e) {
-                message.setText(e.getLocalizedMessage());
-            }
+            handleSetTaskStateCallback(callbackQuery, chatId, update);
         }
+        else if (callbackQuery.startsWith("open_project")) {
+            String[] parts = callbackQuery.split("_");
+    
+            int userProjectId = Integer.parseInt(parts[3]);
+            String userLevel = parts[2];
 
-        messageSender.sendMessage(message);
+            handleOpenProjectCallback(userProjectId, userLevel, chatId);
+        }
     }
 
     // Command handlers
     public void handleStartCommand(long chatId, Update update) {
+        logger.debug("STARTING HANDLESTART COMMAND");
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
 
@@ -158,25 +119,25 @@ public class CommandHandler {
                 message.setText(BotMessages.NO_PROJECT_ASSIGNED.getMessage(user.getFirstName()));
             }
 
-            //One project assigned
-            else if (userProjectList.size() == 1) {
-                UserProject actualUserProject = userProjectList.get(0);
-                Project actualProject = actualUserProject.getProject();
-                message.setText(BotMessages.PROJECT_AVAILABLE.getMessage(user.getFirstName(), actualProject.getName(), actualUserProject.getRole()));
-
-                //Check Level and show options
-                if (userLevelLabel.equals("Manager")) {
-                    message.setReplyMarkup(keyboardFactory.createMainMenuKeyboardManager());
-                } else if (userLevelLabel.equals("Developer")) {
+            if (userLevelLabel.equals("Developer")) {
+                //Dev
+                if (userProjectList.size() == 1) { // Only 1 project assigned
+                    UserProject actualUserProject = userProjectList.get(0);
+                    Project actualProject = actualUserProject.getProject();
+                    //Get project tasks
                     List<Task> taskList = database.task.getTasksByUserProject(actualUserProject.getID());
                     message.setReplyMarkup(keyboardFactory.createInlineKeyboardFromTasks(taskList));
-                }
-            }
+                    message.setText(BotMessages.PROJECT_AVAILABLE.getMessage(user.getFirstName(), actualProject.getName(), actualUserProject.getRole()));
 
-            //Multiple project assigned
-            else if (userProjectList.size() > 1) {
-                message.setText(BotMessages.MULTIPLE_PROJECTS_AVAILABLE.getMessage(user.getFirstName()));
-                message.setReplyMarkup(keyboardFactory.multipleProjectList(userProjectList));
+                }else if(userProjectList.size() > 1) { // Multiple projects assigned
+                    message.setText(BotMessages.MULTIPLE_PROJECTS_AVAILABLE.getMessage(user.getFirstName()));
+                    message.setReplyMarkup(keyboardFactory.multipleProjectList(userProjectList, userLevelLabel));
+
+                }
+            } else if (userLevelLabel.equals("Manager")) {
+                //Manager
+                message.setText(BotMessages.WELCOME_MANAGER.getMessage(user.getFirstName()));
+                message.setReplyMarkup(keyboardFactory.multipleProjectList(userProjectList, userLevelLabel));
             }
 
         } catch (Exception e) {
@@ -187,105 +148,103 @@ public class CommandHandler {
         messageSender.sendMessage(message);
     }
 
-    public void handleDoneCommand(String messageText, long chatId) {
-        try {
-            int id = extractId(messageText);
-            ToDoItem item = crudController.getToDoItemById(id).getBody();
+    //Send task info to developer
+    public void handleTaskInfoCallback(String callbackQuery, long chatId, Update update) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        
+        try { 
+            String taskIdString = callbackQuery.replace("taskinfo_", "");
+            int taskId = Integer.parseInt(taskIdString);
 
-            if (item != null) {
-                item.setDone(true);
-                crudController.updateToDoItem(item, id);
-                BotHelper.sendMessageToTelegram(chatId, BotMessages.ITEM_DONE.getMessage(), messageSender.getBot());
+            ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
+            if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
+                Task task = taskResponse.getBody();
+                message.setText(task.getCoolFormatedString());
+
+                message.setReplyMarkup(keyboardFactory.taskInfoInLineKeyboard(task));
             } else {
-                BotHelper.sendMessageToTelegram(chatId, "Error: Item not found.", messageSender.getBot());
+                throw new RuntimeException("Error in server response: " + taskResponse.getStatusCode());
             }
         } catch (Exception e) {
-            logger.error("Error marking item as done: {}", e.getMessage(), e);
-            messageSender.sendErrorMessage(chatId);
+            message.setText(BotMessages.TASK_UNAVAILABLE.getMessage() + "\n\n" + e.getLocalizedMessage());
         }
+
+        messageSender.sendMessage(message);
     }
 
-    public void handleUndoCommand(String messageText, long chatId) {
-        try {
-            int id = extractId(messageText);
-            ToDoItem item = crudController.getToDoItemById(id).getBody();
+    public void handleSetTaskStateCallback(String callbackQuery, long chatId, Update update) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
 
-            if (item != null) {
-                item.setDone(false);
-                crudController.updateToDoItem(item, id);
-                BotHelper.sendMessageToTelegram(chatId, BotMessages.ITEM_UNDONE.getMessage(), messageSender.getBot());
-            } else {
-                BotHelper.sendMessageToTelegram(chatId, "Error: Item not found.", messageSender.getBot());
+        try {
+            String[] parts = callbackQuery.split("_");
+    
+            int taskId = Integer.parseInt(parts[3]);
+            String taskState = parts[4];
+
+            ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
+
+            if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
+                TaskState newState = new TaskState();
+                newState.setLabel(taskState);
+
+                Task taskToEdit = taskResponse.getBody();
+                taskToEdit.setState(newState);
+
+                database.task.updateTask(taskId, taskToEdit);
+
+                message.setText("Successfully changed task to state: " + newState.formatted());
+
             }
-        } catch (Exception e) {
-            logger.error("Error marking item as undone: {}", e.getMessage(), e);
-            messageSender.sendErrorMessage(chatId);
+
+        }catch (Exception e) {
+            message.setText(e.getLocalizedMessage());
         }
+
+        messageSender.sendMessage(message);
     }
 
-    public void handleDeleteCommand(String messageText, long chatId) {
-        try {
-            int id = extractId(messageText);
-            crudController.deleteToDoItem(id);
-            BotHelper.sendMessageToTelegram(chatId, BotMessages.ITEM_DELETED.getMessage(), messageSender.getBot());
-        } catch (Exception e) {
-            logger.error("Error deleting item: {}", e.getMessage(), e);
-            messageSender.sendErrorMessage(chatId);
-        }
-    }
+    public void handleOpenProjectCallback(int userProjectId, String userLevel, long chatId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
 
-    public void handleHideCommand(long chatId) {
-        BotHelper.sendMessageToTelegram(chatId, BotMessages.BYE.getMessage(), messageSender.getBot());
-    }
+        Optional<UserProject> userProjectOptional = database.userProject.getUserProjectByID(userProjectId);
+        if (userProjectOptional.isPresent()) {
+            UserProject userProject = userProjectOptional.get();
+            Project actualProject = userProject.getProject();
 
-    public void handleListCommand(long chatId) {
-        try {
-            List<ToDoItem> allItems = crudController.getAllToDoItems();
-            SendMessage message = new SendMessage();
-            message.setChatId(chatId);
-            message.setText(BotLabels.MY_TODO_LIST.getLabel());
-            message.setReplyMarkup(keyboardFactory.createToDoListKeyboard(allItems));
+            if (userLevel.equals("Developer")) {
+                //Get project tasks
+                List<Task> taskList = database.task.getTasksByUserProject(userProject.getID());
+                String noTask = "";
+                if (taskList.size() == 0 ) {
+                    noTask = "\n\nNo tasks available";
+                }
+
+                message.setReplyMarkup(keyboardFactory.createInlineKeyboardFromTasks(taskList));
+                message.setText(BotMessages.DEV_OPEN_PROJECT.getMessage(actualProject.getName(), userProject
+                .getRole()) + noTask);
+    
+            } else if (userLevel.equals("Manager")) {
+                //Mock Data
+                String dataString = "";
+                dataString = "(MOCK DATA, NOT REAL)"
+                +"\n"
+                +"<b>" + actualProject.getName() + "</b>"
+                +"\n\n"
+                +"This sprint's completed tasks:"
+                +"\n"
+                +"15/<b>29</b>"
+                +"\n\n"
+                +"Click one of the options below to see/manage this project."
+                ;
+
+                message.setText(dataString);
+                message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject());
+            }
+
             messageSender.sendMessage(message);
-        } catch (Exception e) {
-            logger.error("Error listing items: {}", e.getMessage(), e);
-            messageSender.sendErrorMessage(chatId);
         }
-    }
-
-    public void handleAddItemCommand(long chatId) {
-        try {
-            SendMessage message = new SendMessage();
-            message.setChatId(chatId);
-            message.setText(BotMessages.TYPE_NEW_TODO_ITEM.getMessage());
-            message.setReplyMarkup(new ReplyKeyboardRemove(true));
-            messageSender.sendMessage(message);
-        } catch (Exception e) {
-            logger.error("Error preparing to add item: {}", e.getMessage(), e);
-            messageSender.sendErrorMessage(chatId);
-        }
-    }
-
-    public void handleNewItemCreation(String messageText, long chatId) {
-        try {
-            ToDoItem newItem = new ToDoItem();
-            newItem.setDescription(messageText);
-            newItem.setCreation_ts(OffsetDateTime.now());
-            newItem.setDone(false);
-            crudController.addToDoItem(newItem);
-
-            SendMessage message = new SendMessage();
-            message.setChatId(chatId);
-            message.setText(BotMessages.NEW_ITEM_ADDED.getMessage());
-            messageSender.sendMessage(message);
-        } catch (Exception e) {
-            logger.error("Error creating new item: {}", e.getMessage(), e);
-            messageSender.sendErrorMessage(chatId);
-        }
-    }
-
-    // Helper methods
-    private int extractId(String messageText) {
-        String idStr = messageText.substring(0, messageText.indexOf(BotLabels.DASH.getLabel()));
-        return Integer.parseInt(idStr);
     }
 }

@@ -69,21 +69,22 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 		//Text message
 		if (commandHandler.isStartCommand(messageText)) {
 			commandHandler.handleStartCommand(chatId, update);
-		} else if (messageText.contains(BotLabels.DONE.getLabel())) {
-			commandHandler.handleDoneCommand(messageText, chatId);
-		} else if (messageText.contains(BotLabels.UNDO.getLabel())) {
-			commandHandler.handleUndoCommand(messageText, chatId);
-		} else if (messageText.contains(BotLabels.DELETE.getLabel())) {
-			commandHandler.handleDeleteCommand(messageText, chatId);
-		} else if (commandHandler.isHideCommand(messageText)) {
-			commandHandler.handleHideCommand(chatId);
-		} else if (commandHandler.isListCommand(messageText)) {
-			commandHandler.handleListCommand(chatId);
-		} else if (commandHandler.isAddItemCommand(messageText)) {
-			commandHandler.handleAddItemCommand(chatId);
-		} else {
-			commandHandler.handleNewItemCreation(messageText, chatId);
-		}
+		} //else if (messageText.contains(BotLabels.DONE.getLabel())) {
+		// 	commandHandler.handleDoneCommand(messageText, chatId);
+		// } else if (messageText.contains(BotLabels.UNDO.getLabel())) {
+		// 	commandHandler.handleUndoCommand(messageText, chatId);
+		// } else if (messageText.contains(BotLabels.DELETE.getLabel())) {
+		// 	commandHandler.handleDeleteCommand(messageText, chatId);
+		// } else if (commandHandler.isHideCommand(messageText)) {
+		// 	commandHandler.handleHideCommand(chatId);
+		// } else if (commandHandler.isListCommand(messageText)) {
+		// 	commandHandler.handleListCommand(chatId);
+		// } else if (commandHandler.isAddItemCommand(messageText)) {
+		// 	commandHandler.handleAddItemCommand(chatId);
+		// } else {
+		// 	commandHandler.handleNewItemCreation(messageText, chatId);
+		// }
+
 	}
 
 	@Override

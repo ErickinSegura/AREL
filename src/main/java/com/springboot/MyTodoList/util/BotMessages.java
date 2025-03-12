@@ -14,7 +14,9 @@ public enum BotMessages {
 	NO_PROJECT_ASSIGNED("Welcome, %s, there are no project assigned to you right now."),
 	PROJECT_AVAILABLE("%s, you are assigned to the project \"%s\" as %s. Here's your active tasks, please select one option to see/update its information."),
 	MULTIPLE_PROJECTS_AVAILABLE("%s, you have multiple projects available, please select one below."),
-	TASK_UNAVAILABLE("There was a problem getting this task's information, try again later.")
+	TASK_UNAVAILABLE("There was a problem getting this task's information, try again later."),
+	WELCOME_MANAGER("Welcome, %s. Select the project you want to manage."),
+	DEV_OPEN_PROJECT("Opening project \"%s\", you are asigned as %s. Here's your active tasks, please select one option to see/update its information.")
 	;
 
 	private String message;

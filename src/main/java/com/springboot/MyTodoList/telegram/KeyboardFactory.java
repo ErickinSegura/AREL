@@ -17,18 +17,20 @@ import com.springboot.MyTodoList.util.BotLabels;
 
 public class KeyboardFactory {
 
-    public ReplyKeyboardMarkup multipleProjectList(List<UserProject> userProjects) {
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        List<KeyboardRow> keyboard = new ArrayList<>();
+    public InlineKeyboardMarkup multipleProjectList(List<UserProject> userProjects, String userLevel) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
         for (UserProject userProject : userProjects) {
-            KeyboardRow currentRow = new KeyboardRow();
-            currentRow.add(userProject.getProject().getName());
-            keyboard.add(currentRow);
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(userProject.getProject().getName());
+            button.setCallbackData("open_project_" + userLevel + "_" + userProject.getID());  // Callback data !!
+
+            keyboard.add(List.of(button));
         }
 
-        keyboardMarkup.setKeyboard(keyboard);
-        return keyboardMarkup;
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
     }
 
     public ReplyKeyboardMarkup createMainMenuKeyboardManager() {
@@ -79,10 +81,6 @@ public class KeyboardFactory {
             keyboard.add(List.of(back));
         }
 
-        
-
-        
-
         inlineKeyboardMarkup.setKeyboard(keyboard);
         return inlineKeyboardMarkup;
     }
@@ -98,6 +96,33 @@ public class KeyboardFactory {
 
             keyboard.add(List.of(button));
         }
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup inlineKeyboardManagerOpenProject() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        InlineKeyboardButton seeBacklog = new InlineKeyboardButton();
+        seeBacklog.setText("See Backlog");
+        seeBacklog.setCallbackData("default");
+
+        InlineKeyboardButton createTask = new InlineKeyboardButton();
+        createTask.setText("Create Task");
+        createTask.setCallbackData("default");
+
+        InlineKeyboardButton seeSprint = new InlineKeyboardButton();
+        seeSprint.setText("See Sprint");
+        seeSprint.setCallbackData("default");
+
+        InlineKeyboardButton goBack = new InlineKeyboardButton();
+        goBack.setText("Go Back");
+        goBack.setCallbackData("default");
+
+        keyboard.add(List.of(seeBacklog, createTask));
+        keyboard.add(List.of(seeSprint, goBack));
 
         inlineKeyboardMarkup.setKeyboard(keyboard);
         return inlineKeyboardMarkup;
