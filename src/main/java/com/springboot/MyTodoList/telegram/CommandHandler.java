@@ -3,6 +3,7 @@ package com.springboot.MyTodoList.telegram;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +13,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 
 import com.springboot.MyTodoList.controller.ToDoItemBotCrudController;
+import com.springboot.MyTodoList.model.Project;
+import com.springboot.MyTodoList.model.Task;
+import com.springboot.MyTodoList.model.TaskState;
 import com.springboot.MyTodoList.model.ToDoItem;
 import com.springboot.MyTodoList.model.User;
+import com.springboot.MyTodoList.model.UserProject;
 import com.springboot.MyTodoList.service.ServiceManager;
 import com.springboot.MyTodoList.util.BotCommands;
 import com.springboot.MyTodoList.util.BotHelper;
@@ -24,13 +29,13 @@ public class CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 
     private final MessageSender messageSender;
-    private final ServiceManager serviceManager;
+    private final ServiceManager database;
     private final ToDoItemBotCrudController crudController;
     private final KeyboardFactory keyboardFactory;
 
     public CommandHandler(MessageSender messageSender, ServiceManager serviceManager) {
         this.messageSender = messageSender;
-        this.serviceManager = serviceManager;
+        this.database = serviceManager;
         // Create a new CRUD controller using the ToDoItemService from ServiceManager
         this.crudController = new ToDoItemBotCrudController(serviceManager.todoItem);
         this.keyboardFactory = new KeyboardFactory();
@@ -58,27 +63,124 @@ public class CommandHandler {
                 messageText.equals(BotLabels.ADD_NEW_ITEM.getLabel());
     }
 
+    public void handleCallback(long chatId, String callbackQuery, Update update) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        logger.debug("Got callback query !!! text: " + callbackQuery);
+
+        //Check callback info
+
+        //Restart
+        if (callbackQuery.equals("restart")) {
+            handleStartCommand(chatId, update);
+        }
+
+        //Developer get info on a task
+        else if (callbackQuery.startsWith("taskinfo_")) {
+            //Send task info
+            try {
+                
+                String taskIdString = callbackQuery.replace("taskinfo_", "");
+                int taskId = Integer.parseInt(taskIdString);
+
+                ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
+                if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
+                    Task task = taskResponse.getBody();
+                    message.setText(task.getCoolFormatedString());
+
+                    message.setReplyMarkup(keyboardFactory.taskInfoInLineKeyboard(task));
+                } else {
+                    throw new RuntimeException("Error in server response: " + taskResponse.getStatusCode());
+                }
+            } catch (Exception e) {
+                message.setText(BotMessages.TASK_UNAVAILABLE.getMessage() + "\n\n" + e.getLocalizedMessage());
+            }
+        }
+
+        //Change task state
+        else if (callbackQuery.startsWith("set_task_state_")){
+            try {
+
+                String[] parts = callbackQuery.split("_");
+        
+                int taskId = Integer.parseInt(parts[3]);
+                String taskState = parts[4];
+
+                ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
+
+                if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
+                    TaskState newState = new TaskState();
+                    newState.setLabel(taskState);
+
+                    Task taskToEdit = taskResponse.getBody();
+                    taskToEdit.setState(newState);
+
+                    database.task.updateTask(taskId, taskToEdit);
+
+                    message.setText("Successfully changed task to state: " + newState.formatted());
+
+                }
+
+
+            }catch (Exception e) {
+                message.setText(e.getLocalizedMessage());
+            }
+        }
+
+        messageSender.sendMessage(message);
+    }
+
     // Command handlers
     public void handleStartCommand(long chatId, Update update) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
 
         try {
-            String username = update.getMessage().getFrom().getUserName();
-            ResponseEntity<User> userResponse = serviceManager.user.getUserByTelegramUsername(username);
 
+            String username = "";
+            //Get user and privileges
+            if (update.hasMessage()) {
+                username = update.getMessage().getFrom().getUserName();
+            } else if (update.hasCallbackQuery()) {
+                username = update.getCallbackQuery().getFrom().getUserName();
+            }
+            
+            ResponseEntity<User> userResponse = database.user.getUserByTelegramUsername(username);
             User user = Optional.ofNullable(userResponse.getBody())
                     .orElseThrow(() -> new RuntimeException("User not found, or couldn't reach database."));
-
             String userLevelLabel = user.getUserLevel().getLabel();
-            message.setText("Welcome, " + user.getFirstName() + "! Loading " + userLevelLabel + " view. Jelyea");
-            if (userLevelLabel.equals("Manager")) {
-                message.setReplyMarkup(keyboardFactory.createMainMenuKeyboardManager());
-            } else if (userLevelLabel.equals("Developer")) {
-                message.setReplyMarkup(keyboardFactory.createMainMenuKeyboardDeveloper());
+            
+            //Fetch all available projects to user
+            List<UserProject> userProjectList = database.userProject.getProjectsByUser(user.getID());
+
+            //No project assigned
+            if (userProjectList.isEmpty()){
+                message.setText(BotMessages.NO_PROJECT_ASSIGNED.getMessage(user.getFirstName()));
             }
+
+            //One project assigned
+            else if (userProjectList.size() == 1) {
+                UserProject actualUserProject = userProjectList.get(0);
+                Project actualProject = actualUserProject.getProject();
+                message.setText(BotMessages.PROJECT_AVAILABLE.getMessage(user.getFirstName(), actualProject.getName(), actualUserProject.getRole()));
+
+                //Check Level and show options
+                if (userLevelLabel.equals("Manager")) {
+                    message.setReplyMarkup(keyboardFactory.createMainMenuKeyboardManager());
+                } else if (userLevelLabel.equals("Developer")) {
+                    List<Task> taskList = database.task.getTasksByUserProject(actualUserProject.getID());
+                    message.setReplyMarkup(keyboardFactory.createInlineKeyboardFromTasks(taskList));
+                }
+            }
+
+            //Multiple project assigned
+            else if (userProjectList.size() > 1) {
+                message.setText(BotMessages.MULTIPLE_PROJECTS_AVAILABLE.getMessage(user.getFirstName()));
+                message.setReplyMarkup(keyboardFactory.multipleProjectList(userProjectList));
+            }
+
         } catch (Exception e) {
-            message.setText("Error: User " + update.getMessage().getFrom().getUserName() + " not found...");
+            message.setText(e.getMessage());
             logger.error("Error retrieving user: {}", e.getMessage(), e);
         }
 

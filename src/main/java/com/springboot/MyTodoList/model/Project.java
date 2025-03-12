@@ -30,11 +30,11 @@ public class Project {
     @JoinColumn(name="ID_ICON", referencedColumnName = "ID_ICON")
     Icon icon;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Shortcut> shortcuts = new ArrayList<>();
+    //@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    //private List<Shortcut> shortcuts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UserProject> userProjects = new HashSet<>();
+    //@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    //private Set<UserProject> userProjects = new HashSet<>();
     
     public Project(){
 
@@ -87,13 +87,13 @@ public class Project {
         this.icon = icon;
     }
 
-    public List<Shortcut> getShortcuts() {
-        return shortcuts;
-    }
+    //public List<Shortcut> getShortcuts() {
+    //    return shortcuts;
+    //}
 
-    public void setShortcuts(List<Shortcut> shortcuts) {
-        this.shortcuts = shortcuts;
-    }
+    //ublic void setShortcuts(List<Shortcut> shortcuts) {
+    //    this.shortcuts = shortcuts;
+    //}
 
     @Override
     public String toString() {
@@ -101,8 +101,8 @@ public class Project {
                 "id: " + id +
                 ", projectName: " + projectName +
                 ", desription: " + description +
-                ", color: " + color +
-                ", icon: " + icon
+                ", color: " + color.getHexColor() +
+                ", icon: " + icon.getIconName()
                 +"}";
     }
 }

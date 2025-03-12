@@ -13,7 +13,7 @@ public class UserProject {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name= "ID_USER_PROJECT")
-    int ID;
+    int id;
 
     @ManyToOne
     @JoinColumn(name = "ID_USER", referencedColumnName = "ID_USER")
@@ -37,11 +37,11 @@ public class UserProject {
     }
 
     public int getID() {
-        return ID;
+        return id;
     }
 
     public void setID(int ID) {
-        this.ID = ID;
+        this.id = ID;
     }
 
     public Project getProject() {
@@ -71,7 +71,7 @@ public class UserProject {
     @Override
     public String toString() {
         return "userproyect:{" +
-                "id: " + ID +
+                "id: " + id +
                 "user: " + user +
                 "project: " + project.getName() +
                 "role: " + role
