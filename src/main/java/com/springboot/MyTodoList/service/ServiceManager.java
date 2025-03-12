@@ -14,6 +14,7 @@ public class ServiceManager {
     public final UserService user;
     public final UserProjectService userProject;
     public final ProjectService project;
+    public final TaskService task;
 
     @Autowired
     public ServiceManager(ToDoItemService todoItem, 
@@ -24,8 +25,10 @@ public class ServiceManager {
                           ColorService color,
                           IconService icon,
                           ShortcutService shortcut,
-                          UserLevelService userLevel) {
+                          UserLevelService userLevel,
+                          TaskService task) {
         this.todoItem = todoItem;
+        this.task = task;
         this.user = user;
         this.userProject = userProject;
         this.project = project;

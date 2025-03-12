@@ -31,6 +31,35 @@ public class TaskState {
 
     public void setLabel(String label) {
         this.label = label;
+
+        if (label.equals("todo")){
+            ID = 1;
+        }
+        if (label.equals("doing")){
+            ID = 2;
+        }
+        if (label.equals("done")){
+            ID = 3;
+        }
+        if (label.equals("cancelled")){
+            ID = 4;
+        }
+    }
+
+    public String formatted() {
+        if (label.equals("todo")){
+            return "To Do";
+        }
+        if (label.equals("doing")){
+            return "Doing";
+        }
+        if (label.equals("done")){
+            return "Done";
+        }
+        if (label.equals("cancelled")){
+            return "Cancelled";
+        }
+        else return label;
     }
 
     @Override

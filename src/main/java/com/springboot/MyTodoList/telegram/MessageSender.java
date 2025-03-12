@@ -17,6 +17,7 @@ public class MessageSender {
 
     public void sendMessage(SendMessage message) {
         try {
+            message.setParseMode("HTML");
             bot.execute(message);
         } catch (TelegramApiException e) {
             logger.error("Error sending message: {}", e.getMessage(), e);

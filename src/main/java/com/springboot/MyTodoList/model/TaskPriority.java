@@ -14,7 +14,7 @@ public class TaskPriority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name= "ID_PRIORITY")
     int ID;
-    @Column(name = "PRIORITY")
+    @Column(name = "PRIORITY_NAME")
     String label;
     
     public TaskPriority(){

@@ -4,13 +4,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
+import com.springboot.MyTodoList.model.Project;
+import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.model.ToDoItem;
+import com.springboot.MyTodoList.model.UserProject;
 import com.springboot.MyTodoList.util.BotLabels;
 
 public class KeyboardFactory {
+
+    public ReplyKeyboardMarkup multipleProjectList(List<UserProject> userProjects) {
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboard = new ArrayList<>();
+
+        for (UserProject userProject : userProjects) {
+            KeyboardRow currentRow = new KeyboardRow();
+            currentRow.add(userProject.getProject().getName());
+            keyboard.add(currentRow);
+        }
+
+        keyboardMarkup.setKeyboard(keyboard);
+        return keyboardMarkup;
+    }
 
     public ReplyKeyboardMarkup createMainMenuKeyboardManager() {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
@@ -32,19 +51,58 @@ public class KeyboardFactory {
         return keyboardMarkup;
     }
 
-    public ReplyKeyboardMarkup createMainMenuKeyboardDeveloper() {
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        List<KeyboardRow> keyboard = new ArrayList<>();
+    public InlineKeyboardMarkup taskInfoInLineKeyboard(Task task) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
-        // First row
-        KeyboardRow row = new KeyboardRow();
-        row.add(BotLabels.LIST_ALL_ITEMS.getLabel());
-        row.add(BotLabels.ADD_NEW_ITEM.getLabel());
-        keyboard.add(row);
+        String nextLabel = "";
+        String nextCallBack = "";
+        String currentTaskStateLabel = task.getState().getLabel();
+        if ("todo".equals(currentTaskStateLabel)) {
+            nextLabel = "Set task to \"Doing\"";
+            nextCallBack = "set_task_state_" + task.getID() + "_doing";
+        } else if ("doing".equals(currentTaskStateLabel)) {
+            nextLabel = "Set task to \"Done\"";
+            nextCallBack = "set_task_state_" + task.getID() + "_done";
+        }
 
-        keyboardMarkup.setKeyboard(keyboard);
-        return keyboardMarkup;
+        InlineKeyboardButton back = new InlineKeyboardButton();
+        back.setText("Go back");
+        back.setCallbackData("restart");
+
+        if (!nextLabel.isEmpty()) {
+            InlineKeyboardButton next = new InlineKeyboardButton();
+            next.setText(nextLabel);
+            next.setCallbackData(nextCallBack);
+            keyboard.add(List.of(next, back));
+        } else {
+            keyboard.add(List.of(back));
+        }
+
+        
+
+        
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
     }
+
+    public InlineKeyboardMarkup createInlineKeyboardFromTasks(List<Task> taskList) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        for (Task task : taskList) {
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(task.getTitle());
+            button.setCallbackData("taskinfo_" + task.getID());  // Callback data !!
+
+            keyboard.add(List.of(button));
+        }
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
 
 
     public ReplyKeyboardMarkup createToDoListKeyboard(List<ToDoItem> allItems) {

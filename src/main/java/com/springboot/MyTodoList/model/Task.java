@@ -1,6 +1,7 @@
 package com.springboot.MyTodoList.model;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.persistence.*;
 
@@ -189,16 +190,39 @@ public class Task {
         "id: " + ID +
         ", title: " + title +
         ", description: " + description +
-        ", type: " + type +
-        ", priority: " + priority +
-        ", state: " + state +
+        ", type: " + type.getLabel() +
+        ", priority: " + priority.getLabel() +
+        ", state: " + state.getLabel() +
         ", createdAt: " + createdAt +
         ", dueDate: " + dueDate +
-        ", assignedTo: " + assignedTo +
-        ", category: " + category +
-        ", sprint: " + sprint +
+        ", assignedTo: " + assignedTo.getRole() +
+        ", category: " + category.getName() +
+        ", sprint: " + sprint.getSprintNumber() +
         ", deleted: " + deleted +
         ", finishedDate: " + finishedDate +
         "}";
+    }
+
+    public String getCoolFormatedString() {
+        String dueDateString = "";
+        if (!(dueDate == null)){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM, dd");
+            dueDateString = dueDate.format(formatter);
+        } else {
+            dueDateString = "Not Set";
+        }
+
+        return "<b>"+title+"</b>"
+        +"\n\n"
+        +type.getLabel().substring(0, 1).toUpperCase() + type.getLabel().substring(1)
+        +" - "
+        +description
+        +"\n\n"
+        +"<b>Category:</b> " + category.getName()
+        +"\n"
+        +"<b>Due Date:</b> " + dueDateString
+        +"\n"
+        +"<b>State:</b> " + state.formatted()
+        ;
     }
 }

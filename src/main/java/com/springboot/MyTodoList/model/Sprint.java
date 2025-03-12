@@ -39,6 +39,14 @@ public class Sprint {
         this.ID = ID;
     }
 
+    public int getSprintNumber() {
+        return sprintNumber;
+    }
+
+    public void setSprintNumber(int sprintNumber) {
+        this.sprintNumber = sprintNumber;
+    }
+
     public Project getProject() {
         return project;
     }

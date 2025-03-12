@@ -31,22 +31,42 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 
 	@Override
 	public void onUpdateReceived(Update update) {
-		if (!update.hasMessage() || !update.getMessage().hasText()) {
-			return;
-		}
-
-		String messageText = update.getMessage().getText();
-		long chatId = update.getMessage().getChatId();
-
-		try {
-			processMessageByCommand(messageText, chatId, update);
-		} catch (Exception e) {
-			logger.error("Error processing message: {}", e.getLocalizedMessage(), e);
-			messageSender.sendErrorMessage(chatId);
+		logger.debug("got an update!!");
+		if (!update.hasCallbackQuery()) {
+			logger.debug("not a callback");
+			if (update.hasMessage()) {
+				logger.debug("it is a message");
+				if (update.getMessage().hasText()) {
+					logger.debug("has text, yeahh!!");
+					long chatId = update.getMessage().getChatId();
+					String messageText = update.getMessage().getText();
+					try {
+						processMessageByCommand(messageText, chatId, update);
+					} catch (Exception e) {
+						logger.error("Error processing message: {}", e.getLocalizedMessage(), e);
+						messageSender.sendErrorMessage(chatId);
+					}
+				}
+				else{
+					logger.debug("message has no text, doing nothing....");
+					return;
+				}
+			}
+			else {
+				logger.debug("update has no message, doing nothing....");
+				return;
+			}
+		} else {
+			//Callback present
+			String callbackQuery = update.getCallbackQuery().getData();
+			long chatId = update.getCallbackQuery().getMessage().getChatId();
+			commandHandler.handleCallback(chatId, callbackQuery, update);
 		}
 	}
 
 	private void processMessageByCommand(String messageText, long chatId, Update update) {
+		
+		//Text message
 		if (commandHandler.isStartCommand(messageText)) {
 			commandHandler.handleStartCommand(chatId, update);
 		} else if (messageText.contains(BotLabels.DONE.getLabel())) {
