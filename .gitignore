@@ -10,4 +10,4 @@ logs.log
 *.xml
 .DS_Store
 /state
-/src/main/resources/application.properties
+src/main/resources/application.properties
