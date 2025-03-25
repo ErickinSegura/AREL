@@ -12,7 +12,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 
-import com.springboot.MyTodoList.controller.ToDoItemBotCrudController;
 import com.springboot.MyTodoList.model.Project;
 import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.model.TaskState;
@@ -29,14 +28,12 @@ public class CommandHandler {
 
     private final MessageSender messageSender;
     private final ServiceManager database;
-    private final ToDoItemBotCrudController crudController;
     private final KeyboardFactory keyboardFactory;
 
     public CommandHandler(MessageSender messageSender, ServiceManager serviceManager) {
         this.messageSender = messageSender;
         this.database = serviceManager;
         // Create a new CRUD controller using the ToDoItemService from ServiceManager
-        this.crudController = new ToDoItemBotCrudController(serviceManager.todoItem);
         this.keyboardFactory = new KeyboardFactory();
     }
 

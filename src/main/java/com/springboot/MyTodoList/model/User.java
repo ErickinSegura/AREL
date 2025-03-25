@@ -135,7 +135,7 @@ public class User {
                 ", firstName=" + firstName +
                 ", lastName=" + lastName +
                 ", email=" + email +
-                ", userLevel=" + userLevel +
+                ", userLevel=" + userLevel.getLabel() +
                 ", telegramUsername=" + telegramUsername +
                 ", password=" + password +
                 ", lastSeen=" + lastSeen +
