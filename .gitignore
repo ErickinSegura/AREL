@@ -9,3 +9,5 @@ logs.log
 /frontend/.idea
 *.xml
 .DS_Store
+/state
+src/main/resources/application.properties

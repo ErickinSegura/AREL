@@ -15,6 +15,7 @@ fi
 
 export IMAGE=${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION}
 
+source .env
 mvn clean package spring-boot:repackage
 docker build -f Dockerfile -t $IMAGE .
 
