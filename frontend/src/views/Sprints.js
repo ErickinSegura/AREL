@@ -1,8 +1,8 @@
 import React from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { Card, CardHeader, CardTitle } from '../components/ui/Card';
+import { Card, CardHeader, CardTitle } from '../lib/ui/Card';
 import useSprintBoard from '../hooks/useSprint';
-import { Button } from '../components/ui/Button';
+import { Button } from '../lib/ui/Button';
 import {
     LoadingState,
     ErrorMessage,
