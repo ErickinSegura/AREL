@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { FiPlus, FiTrash2, FiEdit } from 'react-icons/fi';
 import { CircularProgress, Avatar } from '@mui/material';
 import { Draggable } from 'react-beautiful-dnd';
-import { CardContent } from '../ui/Card';
-import { Button } from '../ui/Button';
-import { Sheet } from '../ui/Sheet';
+import { CardContent } from '../../lib/ui/Card';
+import { Button } from '../../lib/ui/Button';
+import { Sheet } from '../../lib/ui/Sheet';
 
 // Loading state component
 export const LoadingState = () => (
@@ -30,8 +30,53 @@ export const ErrorMessage = ({ message }) => (
     </div>
 );
 
+// Column content component
+export const ColumnContent = ({
+                                  columnId,
+                                  column,
+                                  provided,
+                                  showAddForm,
+                                  newItemText,
+                                  setNewItemText,
+                                  isInserting,
+                                  onAddItem,
+                                  onToggleAddForm,
+                                  onDeleteItem
+                              }) => (
+    <CardContent>
+        {showAddForm[columnId] ? (
+            <AddItemForm
+                newItemText={newItemText}
+                setNewItemText={setNewItemText}
+                isInserting={isInserting}
+                onAdd={() => onAddItem(newItemText, columnId)}
+                onCancel={() => onToggleAddForm(columnId)}
+            />
+        ) : (
+            <AddItemButton onClick={() => onToggleAddForm(columnId)} />
+        )}
+
+        <div
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            className="space-y-3 min-h-64"
+        >
+            {column.items.map((item, index) => (
+                <SprintItem
+                    key={item.id}
+                    item={item}
+                    index={index}
+                    columnId={columnId}
+                    onDelete={onDeleteItem}
+                />
+            ))}
+            {provided.placeholder}
+        </div>
+    </CardContent>
+);
+
 // Add item form component
-export const AddItemForm = ({
+const AddItemForm = ({
                                 newItemText,
                                 setNewItemText,
                                 isInserting,
@@ -67,7 +112,7 @@ export const AddItemForm = ({
 );
 
 // Add item button component
-export const AddItemButton = ({ onClick }) => (
+const AddItemButton = ({ onClick }) => (
     <Button
         fullWidth
         className="mb-4"
@@ -81,7 +126,7 @@ export const AddItemButton = ({ onClick }) => (
 );
 
 // Sprint item component
-export const SprintItem = ({
+const SprintItem = ({
                                item,
                                index,
                                columnId,
@@ -205,47 +250,3 @@ export const SprintItem = ({
     );
 };
 
-// Column content component
-export const ColumnContent = ({
-                                  columnId,
-                                  column,
-                                  provided,
-                                  showAddForm,
-                                  newItemText,
-                                  setNewItemText,
-                                  isInserting,
-                                  onAddItem,
-                                  onToggleAddForm,
-                                  onDeleteItem
-                              }) => (
-    <CardContent>
-        {showAddForm[columnId] ? (
-            <AddItemForm
-                newItemText={newItemText}
-                setNewItemText={setNewItemText}
-                isInserting={isInserting}
-                onAdd={() => onAddItem(newItemText, columnId)}
-                onCancel={() => onToggleAddForm(columnId)}
-            />
-        ) : (
-            <AddItemButton onClick={() => onToggleAddForm(columnId)} />
-        )}
-
-        <div
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            className="space-y-3 min-h-64"
-        >
-            {column.items.map((item, index) => (
-                <SprintItem
-                    key={item.id}
-                    item={item}
-                    index={index}
-                    columnId={columnId}
-                    onDelete={onDeleteItem}
-                />
-            ))}
-            {provided.placeholder}
-        </div>
-    </CardContent>
-);
