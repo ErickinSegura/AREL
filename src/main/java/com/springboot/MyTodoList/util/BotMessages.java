@@ -16,7 +16,9 @@ public enum BotMessages {
 	MULTIPLE_PROJECTS_AVAILABLE("%s, you have multiple projects available, please select one below."),
 	TASK_UNAVAILABLE("There was a problem getting this task's information, try again later."),
 	WELCOME_MANAGER("Welcome, %s. Select the project you want to manage."),
-	DEV_OPEN_PROJECT("Opening project \"%s\", you are asigned as %s. Here's your active tasks, please select one option to see/update its information.")
+	DEV_OPEN_PROJECT("Opening project \"%s\", you are asigned as %s. Here's your active tasks, please select one option to see/update its information."),
+	DEFAULT_MESSAGE_START("I'm sorry, I didn't understand."),
+	DEFAULT_MESSAGE_STATE2("STATE2 Default Message, nacón...")
 	;
 
 	private String message;

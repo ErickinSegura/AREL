@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import com.springboot.MyTodoList.telegram.CommandHandler;
@@ -81,6 +82,10 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 		}
 		else if (messageText.equals("state")) {
 			inactivityManager.setUserState(update.getMessage().getFrom().getId(), UserState.STATE2);
+		}
+		else { // User entered only text
+			UserState state = inactivityManager.getUserState(update.getMessage().getFrom().getId());
+			commandHandler.handleTextInput(state, messageText, chatId);
 		}
 	}
 

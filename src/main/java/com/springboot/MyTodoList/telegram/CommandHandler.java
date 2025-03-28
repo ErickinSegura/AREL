@@ -18,6 +18,7 @@ import com.springboot.MyTodoList.model.TaskState;
 import com.springboot.MyTodoList.model.User;
 import com.springboot.MyTodoList.model.UserProject;
 import com.springboot.MyTodoList.service.ServiceManager;
+import com.springboot.MyTodoList.telegram.BotSessionManager.UserState;
 import com.springboot.MyTodoList.util.BotCommands;
 import com.springboot.MyTodoList.util.BotHelper;
 import com.springboot.MyTodoList.util.BotLabels;
@@ -243,5 +244,18 @@ public class CommandHandler {
 
             messageSender.sendMessage(message);
         }
+    }
+
+    public void handleTextInput(UserState state, String messageText, Long chatId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        if (state == UserState.START) {
+            message.setText(BotMessages.DEFAULT_MESSAGE_START.getMessage());
+        } else if (state == UserState.STATE2) {
+            message.setText(BotMessages.DEFAULT_MESSAGE_STATE2.getMessage());   
+        }
+
+        messageSender.sendMessage(message);
     }
 }
