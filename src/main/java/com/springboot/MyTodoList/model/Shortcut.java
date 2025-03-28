@@ -1,6 +1,9 @@
 package com.springboot.MyTodoList.model;
 
 import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 /*
     representation of the COLOR table that exists already
@@ -16,6 +19,8 @@ public class Shortcut {
     int ID;
     @ManyToOne
     @JoinColumn(name = "ID_PROJECT", referencedColumnName = "ID_PROJECT")
+
+    @JsonIgnore
     Project project;
 
     @Column(name="SHORTCUT_URL")

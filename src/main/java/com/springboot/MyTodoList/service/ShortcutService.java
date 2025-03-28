@@ -2,7 +2,6 @@ package com.springboot.MyTodoList.service;
 
 import com.springboot.MyTodoList.model.Shortcut;
 import com.springboot.MyTodoList.repository.ShortcutRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,12 +52,12 @@ public class ShortcutService {
         }
     }
 
-    public ResponseEntity<HttpStatus> deleteShortcut(int id) {
-        try {
+    public boolean deleteShortcut(int id){
+        try{
             shortcutRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return true;
+        }catch(Exception e){
+            return false;
         }
     }
 }
