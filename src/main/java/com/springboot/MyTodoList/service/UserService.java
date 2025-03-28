@@ -52,7 +52,7 @@ public class UserService {
         Optional<User> userData = userRepository.findById(id);
         if(userData.isPresent()){
             User user = userData.get();
-            user.setID(id);
+            user.setId(id);
             user.setFirstName(newUser.getFirstName());
             user.setLastName(newUser.getLastName());
             user.setEmail(newUser.getEmail());

@@ -1,145 +1,88 @@
 package com.springboot.MyTodoList.model;
 
-import javax.persistence.*;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-/*
-    representation of the USER table that exists already
-    in the autonomous database
- */
 @Entity
 @Table(name = "USER_TABLE")
-public class User {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name= "ID_USER")
-    int id;
+    @Column(name= "ID_USER", nullable = false, unique = true)
+    private int id;
+
     @Column(name = "FIRSTNAME")
-    String firstName;
+    private String firstName;
+
     @Column(name = "LASTNAME")
-    String lastName;
+    private String lastName;
+
     @Column(name = "EMAIL")
-    String email;
+    private String email;
 
     @ManyToOne
     @JoinColumn(name = "USER_LEVEL", referencedColumnName = "ID_USER_LEVEL")
-    UserLevel userLevel;
+    private UserLevel userLevel;
 
     @Column(name = "TELEGRAMUSERNAME")
-    String telegramUsername;
+    private String telegramUsername;
+
     @Column(name = "PASSWORD")
-    String password;
+    private String password;
 
     @Column(name = "LAST_SEEN", columnDefinition = "TIMESTAMP")
-    LocalDateTime lastSeen;
+    private LocalDateTime lastSeen;
+
     @Column(name = "CREATED", columnDefinition = "TIMESTAMP")
-    LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private Set<UserProject> userProjects = new HashSet<>();
-    
-    public User(){
 
-    }
-    public User(int ID, String firstName, String lastName, String email, UserLevel userLevel, String telegramUsername, String password, LocalDateTime lastSeen, LocalDateTime createdAt) {
-        this.id = ID;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.userLevel = userLevel;
-        this.telegramUsername = telegramUsername;
-        this.password = password;
-        this.lastSeen = lastSeen;
-        this.createdAt = createdAt;
-    }
-
-    public int getID() {
-        return id;
-    }
-
-    public void setID(int ID) {
-        this.id = ID;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getEmail() {
+    @Override
+    public String getUsername() {
         return email;
     }
 
-    public void setUserLevel(UserLevel userLevel) {
-        this.userLevel = userLevel;
-    }
-
-    public UserLevel getUserLevel() {
-        return userLevel;
-    }
-
-    public String getTelegramUsername() {
-        return telegramUsername;
-    }
-
-    public void setTelegramUsername(String telegramUsername) {
-        this.telegramUsername = telegramUsername;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public LocalDateTime getLastSeen() {
-        return lastSeen;
-    }
-
-    public void setLastSeen(LocalDateTime newDate) {
-        this.lastSeen = newDate;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime newDate) {
-        this.createdAt = newDate;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override
-    public String toString() {
-        return "User{" +
-                "ID=" + id +
-                ", firstName=" + firstName +
-                ", lastName=" + lastName +
-                ", email=" + email +
-                ", userLevel=" + userLevel.getLabel() +
-                ", telegramUsername=" + telegramUsername +
-                ", password=" + password +
-                ", lastSeen=" + lastSeen +
-                ", createdAt=" + createdAt +
-                '}';
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
