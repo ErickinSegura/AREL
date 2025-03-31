@@ -35,6 +35,16 @@ public class ShortcutController {
         return shortcutService.saveShortcut(shortcut);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Shortcut> updateShortcut(@PathVariable int id, @RequestBody Shortcut shortcut) {
+        return shortcutService.updateShortcut(id, shortcut);
+    }
+
+    @GetMapping("/project/{projectId}/ids")
+    public ResponseEntity<List<Integer>> getShortcutIdsByProject(@PathVariable int projectId) {
+        return shortcutService.getShortcutIdsByProject(projectId);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteShortcut(@PathVariable int id) {
         Boolean flag = shortcutService.deleteShortcut(id);

@@ -36,7 +36,7 @@ public class ShortcutService {
     }
 
     public ResponseEntity<List<Shortcut>> getShortcutsByProject(int projectId) {
-        List<Shortcut> shortcuts = shortcutRepository.findByProjectId(projectId);
+        List<Shortcut> shortcuts = shortcutRepository.findByProject_Id(projectId);
         if (shortcuts.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -59,5 +59,31 @@ public class ShortcutService {
         }catch(Exception e){
             return false;
         }
+    }
+
+    public ResponseEntity<Shortcut> updateShortcut(int id, Shortcut shortcutDetails) {
+        Optional<Shortcut> existingShortcut = shortcutRepository.findById(id);
+
+        if (existingShortcut.isPresent()) {
+            Shortcut shortcut = existingShortcut.get();
+
+            Shortcut updatedShortcut = shortcutRepository.save(shortcut);
+            return new ResponseEntity<>(updatedShortcut, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    public ResponseEntity<List<Integer>> getShortcutIdsByProject(int projectId) {
+        List<Shortcut> shortcuts = shortcutRepository.findByProject_Id(projectId);
+        if (shortcuts.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        List<Integer> ids = shortcuts.stream()
+                .map(Shortcut::getId)
+                .toList();
+
+        return new ResponseEntity<>(ids, HttpStatus.OK);
     }
 }
