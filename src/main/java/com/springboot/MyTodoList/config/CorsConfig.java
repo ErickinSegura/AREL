@@ -23,7 +23,7 @@ public class CorsConfig {
     public CorsFilter corsFilter(){
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:3000","https://objectstorage.us-phoenix-1.oraclecloud.com",
-                "https://petstore.swagger.io"));
+                "https://petstore.swagger.io", "http://localhost:8080"));
         config.setAllowedMethods(List.of("GET","POST","PUT","OPTIONS","DELETE","PATCH"));
         config.setAllowedOrigins(Collections.singletonList("*"));
         config.addAllowedHeader("*");

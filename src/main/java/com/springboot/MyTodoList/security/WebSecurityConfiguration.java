@@ -2,7 +2,6 @@ package com.springboot.MyTodoList.security;
 
 import com.springboot.MyTodoList.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,16 +18,15 @@ public class WebSecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationProvider authenticationProvider;
 
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
-            .authorizeRequests(authorizeRequests ->
-                authorizeRequests
-                    .antMatchers("/auth/**").permitAll()
-                    .anyRequest().authenticated()
-            )
+                .authorizeRequests(authorizeRequests ->
+                        authorizeRequests
+                                .antMatchers("/auth/**").permitAll()
+                                .anyRequest().authenticated()
+                )
                 .sessionManagement(sessionManagement -> sessionManagement
-                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
@@ -36,5 +34,4 @@ public class WebSecurityConfiguration {
 
         return http.build();
     }
-
 }
