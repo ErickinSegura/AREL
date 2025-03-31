@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
                     // Simplificado por ahora:
                     setIsAuthenticated(true);
                 } catch (error) {
-                    console.error('Error validando token:', error);
+                    console.error('Error validating token:', error);
                     localStorage.removeItem('jwt_token');
                 }
             }
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
             });
 
             if (!response.ok) {
-                throw new Error('Credenciales inválidas');
+                throw new Error('Wrong email or password');
             }
 
             const data = await response.json();
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }) => {
 
             return data;
         } catch (error) {
-            console.error('Error en login:', error);
+            console.error('Error login:', error);
             throw error;
         }
     };
@@ -99,7 +99,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {
-        throw new Error('useAuth debe ser usado dentro de un AuthProvider');
+        throw new Error('useAuth must be used inside an AuthProvider');
     }
     return context;
 };

@@ -1,78 +1,63 @@
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import React from 'react';
+import { Card, CardContent } from '../lib/ui/Card';
+import { LoginHeader, FormError, FormField, LoginButton, IconPassword, IconEmail } from '../components/auth/loginComponents';
+import { useLoginForm } from '../hooks/useLoginForm';
 
 const Login = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const { login } = useAuth();
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-
-        try {
-            await login(username, password);
-        } catch (err) {
-            setError(err.message || 'Error al iniciar sesión');
-        }
-    };
+    const { user, errors, isSubmitting, attempts, handleChange, handleSubmit } = useLoginForm();
 
     return (
-        <div className="flex items-center justify-center h-screen bg-gray-100">
-            <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-                <h1 className="text-2xl font-bold mb-6 text-center" style={{ color: '#C74634' }}>
-                    My Todo List
-                </h1>
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-6 md:p-8 lg:p-12 flex items-center justify-center">
+            <Card className="w-full max-w-5xl overflow-hidden flex flex-col md:flex-row">
+                {/* Lado izquierdo - Imagen */}
+                <div className="w-full md:w-1/2 h-48 md:h-auto bg-oracleRed flex items-center justify-center">
+                    {/* Imagen */}
+                </div>
 
-                {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
-                        <span className="block sm:inline">{error}</span>
-                    </div>
-                )}
+                {/* Lado derecho - Formulario */}
+                <div className="w-full md:w-3/4 p-6 sm:p-8 md:p-12">
+                    <div className="max-w-md mx-auto">
+                        <LoginHeader />
 
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-                            Usuario
-                        </label>
-                        <input
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            id="username"
-                            type="text"
-                            placeholder="Usuario"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            required
-                        />
-                    </div>
+                        <FormError message={errors.general} />
 
-                    <div className="mb-6">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-                            Contraseña
-                        </label>
-                        <input
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            id="password"
-                            type="password"
-                            placeholder="******************"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
+                        <CardContent className="p-0">
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                <div className="space-y-4">
+                                    <FormField
+                                        id="email"
+                                        label="Email"
+                                        type="email"
+                                        placeholder="me@arel.com"
+                                        value={user.email}
+                                        onChange={handleChange}
+                                        error={errors.email}
+                                        disabled={isSubmitting}
+                                        icon={<IconEmail />}
+                                    />
 
-                    <div className="flex items-center justify-center">
-                        <button
-                            className="text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
-                            type="submit"
-                            style={{ backgroundColor: '#C74634' }}
-                        >
-                            Iniciar Sesión
-                        </button>
+                                    <FormField
+                                        id="password"
+                                        label="Password"
+                                        type="password"
+                                        placeholder="Password"
+                                        value={user.password}
+                                        onChange={handleChange}
+                                        error={errors.password}
+                                        disabled={isSubmitting}
+                                        icon={<IconPassword />}
+                                    />
+                                </div>
+
+                                <LoginButton
+                                    isSubmitting={isSubmitting}
+                                    attempts={attempts}
+                                />
+                            </form>
+                        </CardContent>
                     </div>
-                </form>
-            </div>
+                </div>
+            </Card>
         </div>
     );
 };
