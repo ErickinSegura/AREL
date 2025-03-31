@@ -1,4 +1,3 @@
-// src/layouts/AppLayout.js
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/sidebar/sideBar';
 import { useRoute } from '../contexts/RouteContext';

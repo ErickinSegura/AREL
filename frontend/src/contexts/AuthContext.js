@@ -51,14 +51,21 @@ export const AuthProvider = ({ children }) => {
             });
 
             if (!response.ok) {
-                new Error('Credenciales inválidas');
+                throw new Error('Credenciales inválidas');
             }
 
             const data = await response.json();
 
             localStorage.setItem('jwt_token', data.token);
 
-            setUser(data.user || { email });
+            setUser({
+                email: data.user.email,
+                firstName: data.user.firstName,
+                lastName: data.user.lastName,
+                fullName: `${data.user.firstName} ${data.user.lastName}`,
+                telegramUsername: data.user.telegramUsername
+            });
+
             setIsAuthenticated(true);
 
             return data;
