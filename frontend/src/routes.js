@@ -4,8 +4,15 @@ import Sprints from './views/Sprints';
 import CalendarView from './views/Calendar';
 import Shortcuts from './views/Shortcuts';
 import AppSettings from './views/Settings';
+import Login from './views/Login';
 
 export const routes = [
+    {
+        path: '/login',
+        label: 'Login',
+        component: Login,
+        public: true
+    },
     {
         path: '/overview',
         label: 'Overview',
@@ -38,3 +45,5 @@ export const routes = [
         component: AppSettings,
     }
 ];
+
+export const sidebarRoutes = routes.filter(route => !route.public);

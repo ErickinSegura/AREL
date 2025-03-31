@@ -1,27 +1,50 @@
 import API_LIST from '../API';
 
-// Fetch all sprint items
+const fetchWithAuth = async (url, options = {}) => {
+    const token = localStorage.getItem('jwt_token');
+
+    const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers
+    };
+
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(url, {
+        ...options,
+        headers
+    });
+
+    if (response.status === 401) {
+        localStorage.removeItem('jwt_token');
+        window.location.href = '/login';
+        throw new Error('Session expired. Please login again.');
+    }
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} - ${response.statusText}`);
+    }
+
+    return response;
+};
+
 export const fetchItems = async () => {
     try {
-        const response = await fetch(API_LIST);
-
-        if (!response.ok) {
-            throw new Error('Something went wrong while fetching items');
-        }
-
+        const response = await fetchWithAuth(API_LIST);
         const result = await response.json();
 
-        // Add inProgress property to items if not already present
         return result.map(item => ({
             ...item,
             inProgress: item.inProgress === undefined ? false : item.inProgress
         }));
     } catch (error) {
+        console.error('Error fetching items:', error);
         throw error;
     }
 };
 
-// Add a new item
 export const addItem = async (text, status) => {
     try {
         const data = {
@@ -30,17 +53,10 @@ export const addItem = async (text, status) => {
             inProgress: status === 'inProgress'
         };
 
-        const response = await fetch(API_LIST, {
+        const response = await fetchWithAuth(API_LIST, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify(data),
         });
-
-        if (!response.ok) {
-            throw new Error('Something went wrong while adding item');
-        }
 
         const id = response.headers.get('location');
 
@@ -52,28 +68,24 @@ export const addItem = async (text, status) => {
             createdAt: new Date()
         };
     } catch (error) {
+        console.error('Error adding item:', error);
         throw error;
     }
 };
 
-// Delete an item
 export const deleteItem = async (deleteId) => {
     try {
-        const response = await fetch(`${API_LIST}/${deleteId}`, {
+        await fetchWithAuth(`${API_LIST}/${deleteId}`, {
             method: 'DELETE',
         });
 
-        if (!response.ok) {
-            throw new Error('Something went wrong while deleting');
-        }
-
         return deleteId;
     } catch (error) {
+        console.error('Error deleting item:', error);
         throw error;
     }
 };
 
-// Update item status
 export const updateItemStatus = async (id, description, inProgress, done) => {
     try {
         const data = {
@@ -82,20 +94,14 @@ export const updateItemStatus = async (id, description, inProgress, done) => {
             done
         };
 
-        const response = await fetch(`${API_LIST}/${id}`, {
+        await fetchWithAuth(`${API_LIST}/${id}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify(data)
         });
 
-        if (!response.ok) {
-            throw new Error('Something went wrong while updating');
-        }
-
         return { id, inProgress, done };
     } catch (error) {
+        console.error('Error updating item:', error);
         throw error;
     }
 };

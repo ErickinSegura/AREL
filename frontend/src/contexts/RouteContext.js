@@ -1,10 +1,25 @@
-import React, { createContext, useContext, useState } from 'react';
+// src/contexts/RouteContext.js
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { routes } from '../routes';
+import { useAuth } from './AuthContext';
 
 const RouteContext = createContext();
 
 export const RouteProvider = ({ children }) => {
-    const [currentRoute, setCurrentRoute] = useState(routes[0].path);
+    const [currentRoute, setCurrentRoute] = useState('/login');
+    const { isAuthenticated, isLoading } = useAuth();
+
+    useEffect(() => {
+        if (!isLoading) {
+            if (isAuthenticated) {
+                if (currentRoute === '/login') {
+                    setCurrentRoute('/overview');
+                }
+            } else {
+                setCurrentRoute('/login');
+            }
+        }
+    }, [isAuthenticated, isLoading, currentRoute]);
 
     return (
         <RouteContext.Provider value={{ currentRoute, setCurrentRoute }}>
