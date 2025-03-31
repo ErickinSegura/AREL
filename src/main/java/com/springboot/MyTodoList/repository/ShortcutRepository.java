@@ -12,6 +12,6 @@ import javax.transaction.Transactional;
 @Repository
 @Transactional
 @EnableTransactionManagement
-public interface ShortcutRepository extends JpaRepository<Shortcut,Integer> {
-    List<Shortcut> findByProjectId(int projectId);
+public interface ShortcutRepository extends JpaRepository<Shortcut, Integer> {
+    List<Shortcut> findByProject_Id(int projectId);
 }
