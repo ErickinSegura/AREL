@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight, Menu, X, LogOut } from 'lucide-react';
-import { FiCloudLightning, FiHome, FiSettings, FiTable, FiCalendar, FiLink, FiCodesandbox } from "react-icons/fi";
+import { FiCloudLightning, FiHome, FiSettings, FiTable, FiCalendar, FiLink, FiCodesandbox, FiUsers, FiActivity, FiBarChart2, FiTrendingUp, FiLock } from "react-icons/fi";
 import { useRoute } from '../../contexts/RouteContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { routes } from '../../routes';
@@ -19,14 +19,51 @@ const Sidebar = ({
     const sidebarRef = useRef(null);
     const timerRef = useRef(null);
 
-    const menuItems = [
-        { icon: <FiHome size={20} />, label: 'Overview', hasSubmenu: true },
-        { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: true },
-        { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: true },
-        { icon: <FiCalendar size={20} />, label: 'Calendar', hasSubmenu: true },
-        { icon: <FiLink size={20} />, label: 'Shortcuts', hasSubmenu: true },
-        { icon: <FiSettings size={20} />, label: 'Settings', hasSubmenu: true },
-    ];
+    // Define menu items based on user role
+    const getMenuItemsByRole = () => {
+        // Common menu items for all roles
+        const commonItems = [
+            { icon: <FiHome size={20} />, label: 'Overview', hasSubmenu: true },
+        ];
+
+        const roleSpecificItems = {
+            // Manager (userLevel: 1)
+            1: [
+                { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: true },
+                { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: true },
+                { icon: <FiBarChart2 size={20} />, label: 'Reports', hasSubmenu: true },
+                { icon: <FiUsers size={20} />, label: 'Team', hasSubmenu: true },
+            ],
+            // Developer (userLevel: 2)
+            2: [
+                { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: false },
+                { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: false },
+                { icon: <FiActivity size={20} />, label: 'My Tasks', hasSubmenu: false },
+            ],
+            // Administrator (userLevel: 3)
+            3: [
+                { icon: <FiUsers size={20} />, label: 'Users', hasSubmenu: true },
+                { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: true },
+                { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: true },
+            ]
+        };
+
+        const additionalItems = [
+            { icon: <FiCalendar size={20} />, label: 'Calendar', hasSubmenu: false },
+            { icon: <FiLink size={20} />, label: 'Shortcuts', hasSubmenu: false },
+            { icon: <FiSettings size={20} />, label: 'Settings', hasSubmenu: false },
+        ];
+
+        const userRole = user?.userLevel || 2;
+
+        return [
+            ...commonItems,
+            ...(roleSpecificItems[userRole] || []),
+            ...additionalItems
+        ];
+    };
+
+    const menuItems = getMenuItemsByRole();
 
     const handleMouseEnter = () => {
         if (!isMobile) {
@@ -94,6 +131,16 @@ const Sidebar = ({
 
     const toggleMobileMenu = () => {
         setMobileMenuOpen(!mobileMenuOpen);
+    };
+
+    // Get role name from user level
+    const getRoleName = (userLevel) => {
+        switch (userLevel) {
+            case 1: return 'Manager';
+            case 2: return 'Developer';
+            case 3: return 'Administrator';
+            default: return 'User';
+        }
     };
 
     // Mobile top navigation bar
@@ -216,6 +263,9 @@ const Sidebar = ({
                                     <div className="text-xs text-gray-600 truncate">
                                         {user ? user.email : 'user@example.com'}
                                     </div>
+                                    <div className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded mt-1 inline-block">
+                                        {user ? getRoleName(user.userLevel) : 'Developer'}
+                                    </div>
                                 </div>
                             </div>
                             {/* Botón de logout para móvil */}
@@ -329,6 +379,11 @@ const Sidebar = ({
                             <div className="text-xs text-gray-600 truncate">
                                 {user ? user.email : 'user@example.com'}
                             </div>
+                            {isOpen && (
+                                <div className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded mt-1 inline-block">
+                                    {user ? getRoleName(user.userLevel) : 'Developer'}
+                                </div>
+                            )}
                         </div>
                     </div>
 
