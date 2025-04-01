@@ -263,9 +263,6 @@ const Sidebar = ({
                                     <div className="text-xs text-gray-600 truncate">
                                         {user ? user.email : 'user@example.com'}
                                     </div>
-                                    <div className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded mt-1 inline-block">
-                                        {user ? getRoleName(user.userLevel) : 'Developer'}
-                                    </div>
                                 </div>
                             </div>
                             {/* Botón de logout para móvil */}
@@ -379,11 +376,6 @@ const Sidebar = ({
                             <div className="text-xs text-gray-600 truncate">
                                 {user ? user.email : 'user@example.com'}
                             </div>
-                            {isOpen && (
-                                <div className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded mt-1 inline-block">
-                                    {user ? getRoleName(user.userLevel) : 'Developer'}
-                                </div>
-                            )}
                         </div>
                     </div>
 
