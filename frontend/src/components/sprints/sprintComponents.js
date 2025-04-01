@@ -15,9 +15,6 @@ export const LoadingState = () => (
                 className="z-10"
                 sx={{ color: '#C74634' }}
             />
-            <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center">
-                <div className="animate-pulse bg-red-100 rounded-full w-16 h-16"></div>
-            </div>
         </div>
         <p className="mt-4 text-gray-500 animate-pulse">Loading sprint board...</p>
     </div>
