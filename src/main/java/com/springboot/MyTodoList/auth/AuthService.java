@@ -37,6 +37,7 @@ public class AuthService {
                         .firstName(user.getFirstName())
                         .lastName(user.getLastName())
                         .telegramUsername(user.getTelegramUsername())
+                        .userLevel(user.getUserLevel().getID())
                         .build())
                 .build();
     }
