@@ -48,4 +48,5 @@ public class UserLevel {
                 "label: " + label
                 +"}";
     }
+
 }

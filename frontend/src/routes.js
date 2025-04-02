@@ -8,7 +8,8 @@ import Login from './views/Login';
 import Team from './views/Team';
 import Reports from './views/Reports';
 import MyTasks from './views/MyTasks';
-import Users from './views/Users';
+import {Users} from './views/Users';
+import Register from "./views/Register";
 
 
 export const routes = [
@@ -16,7 +17,13 @@ export const routes = [
         path: '/login',
         label: 'Login',
         component: Login,
-        public: true
+        public: true,
+    },
+    {
+        path: '/register',
+        label: 'register',
+        component: Register,
+        roles: [3] // Admin only
     },
     {
         path: '/overview',
