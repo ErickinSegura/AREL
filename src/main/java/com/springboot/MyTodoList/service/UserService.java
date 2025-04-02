@@ -48,6 +48,12 @@ public class UserService {
             return false;
         }
     }
+
+    public User findByEmail(String email) {
+        Optional<User> userData = userRepository.findByEmail(email);
+        return userData.orElse(null);
+    }
+
     public User updateUser(int id, User newUser){
         Optional<User> userData = userRepository.findById(id);
         if(userData.isPresent()){

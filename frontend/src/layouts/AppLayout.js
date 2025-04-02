@@ -3,6 +3,7 @@ import Sidebar from '../components/sidebar/sideBar';
 import { useRoute } from '../contexts/RouteContext';
 import { routes, sidebarRoutes } from '../routes';
 import { useAuth } from '../contexts/AuthContext';
+import { PageLoading } from "../lib/ui/Loading";
 
 const AppLayout = ({ defaultOpen = false, accentColor = "#C74634" }) => {
     const { currentRoute } = useRoute();
@@ -25,7 +26,7 @@ const AppLayout = ({ defaultOpen = false, accentColor = "#C74634" }) => {
     }, []);
 
     if (isLoading) {
-        return <div className="flex items-center justify-center h-screen">Cargando...</div>;
+        return <PageLoading message={"Loading..."} />;
     }
 
     return (

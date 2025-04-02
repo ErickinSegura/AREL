@@ -13,24 +13,29 @@ export const AuthProvider = ({ children }) => {
 
             if (token) {
                 try {
-                    // Futuramente, vamos a validar el token con el servidor
-                    // const response = await fetch('/auth/validate', {
-                    //   headers: { 'Authorization': `Bearer ${token}` }
-                    // });
+                    const response = await fetch('/auth/me', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
 
-                    // if (response.ok) {
-                    //   const userData = await response.json();
-                    //   setUser(userData);
-                    //   setIsAuthenticated(true);
-                    // } else {
-                    //   localStorage.removeItem('jwt_token');
-                    // }
-
-                    // Simplificado por ahora:
-                    setIsAuthenticated(true);
+                    if (response.ok) {
+                        const userData = await response.json();
+                        setUser({
+                            email: userData.email,
+                            firstName: userData.firstName,
+                            lastName: userData.lastName,
+                            fullName: `${userData.firstName} ${userData.lastName}`,
+                            telegramUsername: userData.telegramUsername,
+                            userLevel: userData.userLevel
+                        });
+                        setIsAuthenticated(true);
+                    } else {
+                        localStorage.removeItem('jwt_token');
+                        setIsAuthenticated(false);
+                    }
                 } catch (error) {
                     console.error('Error validating token:', error);
                     localStorage.removeItem('jwt_token');
+                    setIsAuthenticated(false);
                 }
             }
 

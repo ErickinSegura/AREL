@@ -19,9 +19,7 @@ const Sidebar = ({
     const sidebarRef = useRef(null);
     const timerRef = useRef(null);
 
-    // Define menu items based on user role
     const getMenuItemsByRole = () => {
-        // Common menu items for all roles
         const commonItems = [
             { icon: <FiHome size={20} />, label: 'Overview', hasSubmenu: true },
         ];
@@ -43,8 +41,9 @@ const Sidebar = ({
             // Administrator (userLevel: 3)
             3: [
                 { icon: <FiUsers size={20} />, label: 'Users', hasSubmenu: true },
-                { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: true },
-                { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: true },
+                { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: false },
+                //{ icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: true },
+                //{ icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: true },
             ]
         };
 
