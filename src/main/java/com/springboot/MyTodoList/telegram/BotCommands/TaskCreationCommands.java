@@ -166,18 +166,25 @@ public class TaskCreationCommands {
 
     //Save Task (Task Creation)
     public void handleSave(Long chatId, UserState state) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
         TaskState newState = new TaskState();
         newState.setID(1);
         newState.setLabel("todo");
 
         Task task = state.getTask();
-        task.setState(newState);
 
-        database.task.addTask(task);
+        if (task != null) {
+            task.setState(newState);
+            database.task.addTask(task);
+            message.setText(BotMessages.SAVE_TASK.getMessage());
 
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText(BotMessages.SAVE_TASK.getMessage());
+            state.setTask(null);
+        } else {
+            message.setText(BotMessages.SENT_AGAIN_EXCEPTION.getMessage());
+        }
+
         messageSender.sendMessage(message);
     }
 

@@ -1,7 +1,6 @@
 package com.springboot.MyTodoList.model;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import javax.persistence.*;
 
@@ -39,8 +38,8 @@ public class Task {
     @Column(name = "CREATION_DATE", columnDefinition = "TIMESTAMP")
     LocalDateTime createdAt;
 
-    @Column(name = "DUE_DATE", columnDefinition = "TIMESTAMP")
-    LocalDateTime dueDate;
+    @Column(name = "ESTIMATED_HOURS")
+    Integer estimatedHours;
 
     @Column(name = "PROJECT_ID", columnDefinition = "ID_PROJECT")
     Long projectId;
@@ -61,15 +60,15 @@ public class Task {
     @Column(name = "DELETED")
     boolean deleted;
 
-    @Column(name = "FINISHED_DATE", columnDefinition = "TIMESTAMP")
-    LocalDateTime finishedDate;
+    @Column(name = "REAL_HOURS")
+    Integer realHours;
 
     
     public Task(){
     }
 
     public Task(String title, String description, TaskType type, TaskPriority priority, TaskState state, 
-                LocalDateTime createdAt, LocalDateTime dueDate, UserProject assignedTo, Category category, 
+                LocalDateTime createdAt, int estimatedHours, int realHours, UserProject assignedTo, Category category, 
                 Long sprint, Long projectId) {
         this.title = title;
         this.description = description;
@@ -77,7 +76,8 @@ public class Task {
         this.priority = priority;
         this.state = state;
         this.createdAt = createdAt;
-        this.dueDate = dueDate;
+        this.estimatedHours = estimatedHours;
+        this.realHours = realHours;
         this.assignedTo = assignedTo;
         this.category = category;
         this.sprint = sprint;
@@ -141,12 +141,12 @@ public class Task {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getDueDate() {
-        return dueDate;
+    public int getEstimatedHours() {
+        return estimatedHours;
     }
 
-    public void setDueDate(LocalDateTime dueDate) {
-        this.dueDate = dueDate;
+    public void setEstimatedHours(int hours) {
+        this.estimatedHours = hours;
     }
 
     public UserProject getAssignedTo() {
@@ -181,12 +181,12 @@ public class Task {
         this.deleted = deleted;
     }
 
-    public LocalDateTime getFinishedDate() {
-        return finishedDate;
+    public int getRealHours() {
+        return realHours;
     }
 
-    public void setFinishedDate(LocalDateTime finishedDate) {
-        this.finishedDate = finishedDate;
+    public void setRealHours(int hours) {
+        this.realHours = hours;
     }
 
     public Long getProjectId(){
@@ -207,26 +207,19 @@ public class Task {
         ", priority: " + priority.getLabel() +
         ", state: " + state.getLabel() +
         ", createdAt: " + createdAt +
-        ", dueDate: " + dueDate +
         ", assignedTo: " + assignedTo.getRole() +
         ", category: " + category.getName() +
         ", sprint: " + sprint +
         ", project: " + projectId + 
         ", deleted: " + deleted +
-        ", finishedDate: " + finishedDate +
+        ", estimatedHours: " + estimatedHours +
+        ", realHours: " + realHours +
         "}";
     }
 
     public String getCoolFormatedString() {
 
         //Null checks
-        String dueDateString = "";
-        if (!(dueDate == null)){
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM, dd");
-            dueDateString = dueDate.format(formatter);
-        } else {
-            dueDateString = "Not Set";
-        }
 
         return "<b>"+title+"</b>"
         +"\n\n"
@@ -236,7 +229,7 @@ public class Task {
         +"\n\n"
         +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
         +"\n"
-        +"<b>Due Date:</b> " + dueDateString
+        +"<b>Estimated Hours:</b> " + estimatedHours
         +"\n"
         +"<b>State:</b> " + (state != null ? state.formatted() : "No State")
         ;
