@@ -5,9 +5,11 @@ import useSprintBoard from '../hooks/useSprint';
 import { Button } from '../lib/ui/Button';
 import {
     LoadingState,
-    ErrorMessage,
     ColumnContent
 } from '../components/sprints/sprintComponents';
+
+import { ErrorMessage } from "../lib/ui/Loading";
+
 
 const Sprints = () => {
     const {

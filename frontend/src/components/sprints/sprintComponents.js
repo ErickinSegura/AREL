@@ -1,36 +1,17 @@
 import React, { useState } from 'react';
 import { FiPlus, FiTrash2, FiEdit } from 'react-icons/fi';
-import { CircularProgress, Avatar } from '@mui/material';
+import { Avatar } from '@mui/material';
 import { Draggable } from 'react-beautiful-dnd';
 import { CardContent } from '../../lib/ui/Card';
 import { Button } from '../../lib/ui/Button';
 import { Sheet } from '../../lib/ui/Sheet';
+import {PageLoading} from "../../lib/ui/Loading";
 
-// Loading state component
 export const LoadingState = () => (
-    <div className="flex flex-col items-center justify-center my-12 py-12">
-        <div className="relative">
-            <CircularProgress
-                size={60}
-                className="z-10"
-                sx={{ color: '#C74634' }}
-            />
-            <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center">
-                <div className="animate-pulse bg-red-100 rounded-full w-16 h-16"></div>
-            </div>
-        </div>
-        <p className="mt-4 text-gray-500 animate-pulse">Loading sprint board...</p>
-    </div>
+    <PageLoading message={"Loading Sprint Board..."} />
 );
 
-// Error message component
-export const ErrorMessage = ({ message }) => (
-    <div className="bg-red-100 p-4 rounded-lg mb-4">
-        <p className="text-red-700">Error: {message}</p>
-    </div>
-);
 
-// Column content component
 export const ColumnContent = ({
                                   columnId,
                                   column,

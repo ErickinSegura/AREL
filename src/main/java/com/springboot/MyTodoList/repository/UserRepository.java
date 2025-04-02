@@ -14,4 +14,8 @@ import java.util.Optional;
 @EnableTransactionManagement
 public interface UserRepository extends JpaRepository<User,Integer> {
     Optional<User> findByTelegramUsername(String telegramUsername);
+    Optional<User> findByEmail(String email);
+
+    boolean existsByTelegramUsername(String telegramUsername);
+    boolean existsByEmail(String email);
 }

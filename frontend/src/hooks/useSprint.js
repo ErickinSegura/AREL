@@ -3,7 +3,6 @@ import { fetchItems, addItem as apiAddItem, deleteItem as apiDeleteItem, updateI
 import { FiList, FiClock, FiCheckCircle } from 'react-icons/fi';
 
 const useSprintBoard = () => {
-    // States for managing data and UI
     const [isLoading, setLoading] = useState(false);
     const [isInserting, setInserting] = useState(false);
     const [items, setItems] = useState([]);
@@ -15,7 +14,6 @@ const useSprintBoard = () => {
         finished: false
     });
 
-    // Categorized items
     const [columns, setColumns] = useState({
         toDo: {
             name: 'To Do',
@@ -34,7 +32,6 @@ const useSprintBoard = () => {
         }
     });
 
-    // Update columns when items change
     useEffect(() => {
         if (items.length) {
             setColumns({
