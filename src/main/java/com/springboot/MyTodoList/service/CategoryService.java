@@ -28,7 +28,7 @@ public class CategoryService {
         }
     }
 
-    public ResponseEntity<List<Category>> getCategoriesByProject(int projectId) {
+    public ResponseEntity<List<Category>> getCategoriesByProject(Long projectId) {
         List<Category> shortcuts = categoryRepository.findByProjectId(projectId);
         if (shortcuts.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -60,7 +60,7 @@ public class CategoryService {
             Category category = categoryData.get();
     
             category.setName(categoryDetails.getName());
-            category.setProject(categoryDetails.getProject());
+            category.setProjectId(categoryDetails.getProjectId());
             category.setColor(categoryDetails.getColor());
     
             Category updatedCategory = categoryRepository.save(category);

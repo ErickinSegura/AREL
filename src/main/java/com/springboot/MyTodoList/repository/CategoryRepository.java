@@ -15,5 +15,5 @@ import javax.transaction.Transactional;
 @Transactional
 @EnableTransactionManagement
 public interface CategoryRepository extends JpaRepository<Category,Integer> {
-    List<Category> findByProjectId(int projectId);
+    List<Category> findByProjectId(Long projectId);
 }

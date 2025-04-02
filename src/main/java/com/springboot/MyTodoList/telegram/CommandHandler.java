@@ -1,6 +1,7 @@
 package com.springboot.MyTodoList.telegram;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,13 +15,17 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 
 import com.springboot.MyTodoList.model.Project;
 import com.springboot.MyTodoList.model.Task;
+import com.springboot.MyTodoList.model.TaskPriority;
 import com.springboot.MyTodoList.model.TaskState;
+import com.springboot.MyTodoList.model.TaskType;
 import com.springboot.MyTodoList.model.User;
 import com.springboot.MyTodoList.model.UserProject;
+import com.springboot.MyTodoList.model.Category;
 import com.springboot.MyTodoList.service.ServiceManager;
+import com.springboot.MyTodoList.telegram.BotSessionManager.InactivityManager;
 import com.springboot.MyTodoList.telegram.BotSessionManager.UserState;
+import com.springboot.MyTodoList.telegram.BotSessionManager.UserStateType;
 import com.springboot.MyTodoList.util.BotCommands;
-import com.springboot.MyTodoList.util.BotHelper;
 import com.springboot.MyTodoList.util.BotLabels;
 import com.springboot.MyTodoList.util.BotMessages;
 
@@ -30,10 +35,12 @@ public class CommandHandler {
     private final MessageSender messageSender;
     private final ServiceManager database;
     private final KeyboardFactory keyboardFactory;
+    private final InactivityManager inactivityManager;
 
-    public CommandHandler(MessageSender messageSender, ServiceManager serviceManager) {
+    public CommandHandler(MessageSender messageSender, ServiceManager serviceManager, InactivityManager inactivityManager) {
         this.messageSender = messageSender;
         this.database = serviceManager;
+        this.inactivityManager = inactivityManager;
         // Create a new CRUD controller using the ToDoItemService from ServiceManager
         this.keyboardFactory = new KeyboardFactory();
     }
@@ -60,7 +67,7 @@ public class CommandHandler {
                 messageText.equals(BotLabels.ADD_NEW_ITEM.getLabel());
     }
 
-    public void handleCallback(long chatId, String callbackQuery, Update update) {
+    public void handleCallback(long chatId, String callbackQuery, Update update, UserState state) {
         logger.debug("Got callback query !!! text: " + callbackQuery);
 
         //Check callback info
@@ -86,6 +93,154 @@ public class CommandHandler {
 
             handleOpenProjectCallback(userProjectId, userLevel, chatId);
         }
+        else if (callbackQuery.startsWith("create_task_project_")) {
+            handleCreateTask(callbackQuery, chatId);
+        }
+        else if (callbackQuery.startsWith("set_statetask_category_")) {
+            handleSetCategory(chatId, callbackQuery, state);
+        }
+        else if (callbackQuery.startsWith("set_statetask_type_")) {
+            String[] parts = callbackQuery.split("_");
+            int type_id = Integer.parseInt(parts[3]);
+            String type_label = parts[4];
+
+            handleSetType(chatId, state, type_id, type_label);
+        }
+        else if (callbackQuery.startsWith("set_statetask_priority_")) {
+            String[] parts = callbackQuery.split("_");
+            int priorityId = Integer.parseInt(parts[3]);
+            String priorityLabel = parts[4];
+
+            handleSetPriority(chatId, state, priorityId, priorityLabel);
+            previewTask(chatId, state);
+        }
+        else if (callbackQuery.equals("save_task")) {
+            //Save task
+            handleSave(chatId, state);
+        }
+        else if (callbackQuery.equals("cancel_task_creation")) {
+            //Cancel everything
+            handleCancel(chatId, state);
+            handleStartCommand(chatId, update);
+        }
+    }
+
+    public void handleSave(Long chatId, UserState state) {
+        TaskState newState = new TaskState();
+        newState.setID(1);
+        newState.setLabel("todo");
+
+        Task task = state.getTask();
+        task.setState(newState);
+
+        database.task.addTask(task);
+
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(BotMessages.SAVE_TASK.getMessage());
+        messageSender.sendMessage(message);
+    }
+
+    public void handleCancel(Long chatId, UserState state) {
+        //Delete task
+        state.setTask(null);
+
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(BotMessages.CANCEL_TASK_CREATION.getMessage());
+        messageSender.sendMessage(message);
+    }
+
+    public void previewTask(Long chatId, UserState state) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        Task actualTask = state.getTask();
+        message.setText(BotMessages.CREATE_TASK_PREVIEW.getMessage(actualTask.previewString()));
+        message.setReplyMarkup(keyboardFactory.inlineKeyboardPreview());
+
+        messageSender.sendMessage(message);
+    }
+
+    public void handleSetPriority(Long chatId, UserState state, int id, String label) {
+        //CreateType
+        TaskPriority newPriority = new TaskPriority();
+        newPriority.setID(id);
+        newPriority.setLabel(label);
+
+        //Assign to Task
+        Task actualTask = state.getTask();
+        actualTask.setPriority(newPriority);
+        state.setTask(actualTask);
+    }
+
+    public void handleSetType(Long chatId, UserState state, int id, String label) {
+        //Create Type
+        TaskType newType = new TaskType();
+        newType.setID(id);
+        newType.setLabel(label);
+
+        //Assign to Task
+        Task actualTask = state.getTask();
+        actualTask.setType(newType);
+        state.setTask(actualTask);
+
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(BotMessages.CREATE_TASK_SET_PRIORITY.getMessage());
+        message.setReplyMarkup(keyboardFactory.inlineKeyboardPrioritySet());
+        messageSender.sendMessage(message);
+    }
+
+    public void handleSetCategory(Long chatId, String callbackQuery, UserState state) {
+        SendMessage message = new SendMessage();
+            message.setChatId(chatId);
+
+            String[] parts = callbackQuery.split("_");
+            int categoryId = Integer.parseInt(parts[3]);
+
+            if (inactivityManager.isUserActive(chatId)) {
+                ResponseEntity<Category> categoryResponse = database.category.getCategoryByID(categoryId);
+
+                Task actualTask = state.getTask();
+
+                if (categoryResponse.getStatusCode().is2xxSuccessful() && categoryResponse.hasBody()) {
+                    Category category = categoryResponse.getBody();
+                    
+                    //Set task category
+                    actualTask.setCategory(category);
+                    state.setTask(actualTask);
+                    message.setText(BotMessages.CREATE_TASK_SET_TYPE.getMessage());
+                    message.setReplyMarkup(keyboardFactory.inlineKeyboardTypeSet());
+                    state.setState(UserStateType.CREATE_TASK_ENTER_TYPE);
+
+                } else {
+                    message.setText(BotMessages.COULDNT_GET_CATEGORY.getMessage());
+                }
+            }else {
+                //Invalid input
+                message.setText(BotMessages.CREATE_TASK_INACTIVE.getMessage());
+            }
+
+            messageSender.sendMessage(message);
+    }
+
+    public void handleCreateTask(String callbackQuery, Long chatId) {
+        UserState userState = inactivityManager.getUserState(chatId);
+        int lastUnderscore = callbackQuery.lastIndexOf('_');
+        String projectIDString = callbackQuery.substring(lastUnderscore + 1);
+        Long projectId = Long.valueOf(projectIDString);
+        
+        Task actualTask = userState.getTask();
+        actualTask.setProject(projectId);
+        userState.setTask(actualTask);
+        userState.setState(UserStateType.CREATE_TASK_ENTER_NAME);
+
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(BotMessages.CREATE_TASK_ENTER_NAME.getMessage());
+        
+        messageSender.sendMessage(message);
     }
 
     // Command handlers
@@ -239,21 +394,71 @@ public class CommandHandler {
                 ;
 
                 message.setText(dataString);
-                message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject());
+                message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(actualProject.getID()));
             }
 
             messageSender.sendMessage(message);
         }
     }
 
+    public void handleSetTitle(UserState state, String messageText) {
+        //Save task title
+        Task actualTask = state.getTask();
+        actualTask.setTitle(messageText);
+        state.setTask(actualTask);
+
+        //Next, user will enter description
+        state.setState(UserStateType.CREATE_TASK_ENTER_DESCRIPTION);
+    }
+
+    public List<Category> handleSetDescription(UserState state, String messageText) {
+        List<Category> categoryList = new ArrayList<>();
+
+        //Save task description
+        Task actualTask = state.getTask();
+        actualTask.setDescription(messageText);
+        state.setTask(actualTask);
+
+        //Get Categories
+        Long projectId = state.getTask().getProjectId();
+        ResponseEntity<List<Category>> categoryListResponse = database.category.getCategoriesByProject(projectId);
+        if (categoryListResponse.getStatusCode().is2xxSuccessful() && categoryListResponse.hasBody()) {
+            categoryList = categoryListResponse.getBody();
+        }
+
+        //Next, user will enter category
+        state.setState(UserStateType.CREATE_TASK_ENTER_CATEGORY);
+
+        return categoryList;
+    }
+
+    public void handleSetCategory(UserState state, String messageText) {
+        
+    }
+
     public void handleTextInput(UserState state, String messageText, Long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
 
-        if (state == UserState.START) {
+        if (state.getState() == UserStateType.START) {
             message.setText(BotMessages.DEFAULT_MESSAGE_START.getMessage());
-        } else if (state == UserState.STATE2) {
+        } else if (state.getState() == UserStateType.STATE2) {
             message.setText(BotMessages.DEFAULT_MESSAGE_STATE2.getMessage());   
+
+        } else if (state.getState() == UserStateType.CREATE_TASK_ENTER_NAME) {
+            message.setText(BotMessages.CREATE_TASK_ENTER_DESCRIPTION.getMessage());
+            handleSetTitle(state, messageText);
+            
+        } else if (state.getState() == UserStateType.CREATE_TASK_ENTER_DESCRIPTION) {
+            message.setText(BotMessages.CREATE_TASK_SET_CATEGORY.getMessage());
+            List<Category> categories = handleSetDescription(state, messageText);
+            message.setReplyMarkup(keyboardFactory.inlineKeyboardCategorySet(categories));
+        } else if (state.getState() == UserStateType.CREATE_TASK_ENTER_CATEGORY) {
+            message.setText(messageText);
+
+        //default
+        } else {
+            message.setText(BotMessages.DEFAULT_MESSAGE_START.getMessage());
         }
 
         messageSender.sendMessage(message);

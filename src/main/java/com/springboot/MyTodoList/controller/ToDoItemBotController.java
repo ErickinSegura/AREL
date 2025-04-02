@@ -14,6 +14,7 @@ import com.springboot.MyTodoList.telegram.CommandHandler;
 import com.springboot.MyTodoList.telegram.MessageSender;
 import com.springboot.MyTodoList.telegram.BotSessionManager.InactivityManager;
 import com.springboot.MyTodoList.telegram.BotSessionManager.UserState;
+import com.springboot.MyTodoList.telegram.BotSessionManager.UserStateType;
 
 public class ToDoItemBotController extends TelegramLongPollingBot {
 
@@ -31,8 +32,8 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 		this.botName = botName;
 		this.serviceManager = serviceManager;
 		this.messageSender = new MessageSender(this);
-		this.commandHandler = new CommandHandler(this.messageSender, this.serviceManager);
-		this.inactivityManager = new InactivityManager();
+		this.inactivityManager = new InactivityManager(messageSender);
+		this.commandHandler = new CommandHandler(this.messageSender, this.serviceManager, this.inactivityManager);
 	}
 
 	@Override
@@ -48,9 +49,9 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 					long chatId = update.getMessage().getChatId();
 					String messageText = update.getMessage().getText();
 					try {
+						inactivityManager.receivedMessageFrom(chatId);
 						processMessageByCommand(messageText, chatId, update);
-						inactivityManager.receivedMessageFrom(update.getMessage().getFrom().getId());
-						logger.debug("USER_STATE_LOG: "+inactivityManager.getUserState(update.getMessage().getFrom().getId()).toString());
+						logger.debug("USER_STATE_LOG: "+inactivityManager.getUserState(chatId).getState().toString());
 					} catch (Exception e) {
 						logger.error("Error processing message: {}", e.getLocalizedMessage(), e);
 						messageSender.sendErrorMessage(chatId);
@@ -67,10 +68,14 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 			}
 		} else {
 			//Callback present
-			String callbackQuery = update.getCallbackQuery().getData();
 			long chatId = update.getCallbackQuery().getMessage().getChatId();
-			commandHandler.handleCallback(chatId, callbackQuery, update);
-			inactivityManager.receivedMessageFrom(update.getCallbackQuery().getFrom().getId());
+			inactivityManager.receivedMessageFrom(chatId);
+
+			String callbackQuery = update.getCallbackQuery().getData();
+			UserState state = inactivityManager.getUserState(chatId);
+			
+			commandHandler.handleCallback(chatId, callbackQuery, update, state);
+			inactivityManager.receivedMessageFrom(chatId);
 		}
 	}
 
@@ -81,10 +86,10 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 			commandHandler.handleStartCommand(chatId, update);
 		}
 		else if (messageText.equals("state")) {
-			inactivityManager.setUserState(update.getMessage().getFrom().getId(), UserState.STATE2);
+			inactivityManager.setUserState(chatId, UserStateType.STATE2);
 		}
 		else { // User entered only text
-			UserState state = inactivityManager.getUserState(update.getMessage().getFrom().getId());
+			UserState state = inactivityManager.getUserState(chatId);
 			commandHandler.handleTextInput(state, messageText, chatId);
 		}
 	}

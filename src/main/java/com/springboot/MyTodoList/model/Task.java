@@ -42,6 +42,9 @@ public class Task {
     @Column(name = "DUE_DATE", columnDefinition = "TIMESTAMP")
     LocalDateTime dueDate;
 
+    @Column(name = "PROJECT_ID", columnDefinition = "ID_PROJECT")
+    Long projectId;
+
     @ManyToOne
     @JoinColumn(name = "ASSIGNED_TO", referencedColumnName = "ID_USER_PROJECT")
     UserProject assignedTo;
@@ -50,9 +53,10 @@ public class Task {
     @JoinColumn(name = "CATEGORY", referencedColumnName = "ID_CATEGORY")
     Category category;
 
-    @ManyToOne
-    @JoinColumn(name = "SPRINT_ID", referencedColumnName = "ID_SPRINT")
-    Sprint sprint;
+    //@ManyToOne
+    //@JoinColumn(name = "SPRINT_ID", referencedColumnName = "ID_SPRINT")
+    @Column(name = "SPRINT_ID")
+    Long sprint;
 
     @Column(name = "DELETED")
     boolean deleted;
@@ -66,7 +70,7 @@ public class Task {
 
     public Task(String title, String description, TaskType type, TaskPriority priority, TaskState state, 
                 LocalDateTime createdAt, LocalDateTime dueDate, UserProject assignedTo, Category category, 
-                Sprint sprint) {
+                Long sprint, Long projectId) {
         this.title = title;
         this.description = description;
         this.type = type;
@@ -78,6 +82,7 @@ public class Task {
         this.category = category;
         this.sprint = sprint;
         this.deleted = false;
+        this.projectId = projectId;
     }
 
     public int getID() {
@@ -160,12 +165,12 @@ public class Task {
         this.category = category;
     }
 
-    public Sprint getSprint() {
+    public Long getSprintId() {
         return sprint;
     }
 
-    public void setSprint(Sprint sprint) {
-        this.sprint = sprint;
+    public void setSprintId(Long sprintId) {
+        this.sprint = sprintId;
     }
 
     public boolean isDeleted() {
@@ -184,6 +189,14 @@ public class Task {
         this.finishedDate = finishedDate;
     }
 
+    public Long getProjectId(){
+        return projectId;
+    }
+
+    public void setProject(Long newProjectId) {
+        this.projectId = newProjectId;
+    }
+
     @Override
     public String toString() {
         return "Task:{" +
@@ -197,13 +210,16 @@ public class Task {
         ", dueDate: " + dueDate +
         ", assignedTo: " + assignedTo.getRole() +
         ", category: " + category.getName() +
-        ", sprint: " + sprint.getSprintNumber() +
+        ", sprint: " + sprint +
+        ", project: " + projectId + 
         ", deleted: " + deleted +
         ", finishedDate: " + finishedDate +
         "}";
     }
 
     public String getCoolFormatedString() {
+
+        //Null checks
         String dueDateString = "";
         if (!(dueDate == null)){
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM, dd");
@@ -214,15 +230,43 @@ public class Task {
 
         return "<b>"+title+"</b>"
         +"\n\n"
-        +type.getLabel().substring(0, 1).toUpperCase() + type.getLabel().substring(1)
+        +type.formattedString()
         +" - "
         +description
         +"\n\n"
-        +"<b>Category:</b> " + category.getName()
+        +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
         +"\n"
         +"<b>Due Date:</b> " + dueDateString
         +"\n"
-        +"<b>State:</b> " + state.formatted()
+        +"<b>State:</b> " + (state != null ? state.formatted() : "No State")
         ;
+    }
+
+    public String previewString() {
+
+        //Null checks
+        String dueDateString = "";
+        if (!(dueDate == null)){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM, dd");
+            dueDateString = dueDate.format(formatter);
+        } else {
+            dueDateString = "Not Set";
+        }
+
+        return "<b>"+title+"</b>"
+        +"\n\n"
+        +type.formattedString()
+        +" - "
+        +description
+        +"\n\n"
+        +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
+        +"\n"
+        +"<b>Priority:</b> " + priority.formattedString()
+        ;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 }

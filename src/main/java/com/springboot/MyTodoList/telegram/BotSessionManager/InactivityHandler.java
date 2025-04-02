@@ -18,7 +18,7 @@ public class InactivityHandler {
     public InactivityHandler(Runnable deleteCallback) {
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
         this.deleteCallback = deleteCallback;
-        this.state = UserState.START;
+        this.state = new UserState();
         resetInactividad(); // Reactivate
     }
 
