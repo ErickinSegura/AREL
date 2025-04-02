@@ -37,7 +37,7 @@ public class SprintService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         
-        return new ResponseEntity<>(activeSprintIds.getFirst(), HttpStatus.OK);
+        return new ResponseEntity<>(activeSprintIds.get(0), HttpStatus.OK);
         //return ResponseEntity.ok(activeSprintIds.get(0));  // 200 OK
     }
 
@@ -48,7 +48,7 @@ public class SprintService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         
-        return new ResponseEntity<>(projectIdList.getFirst(), HttpStatus.OK);
+        return new ResponseEntity<>(projectIdList.get(0), HttpStatus.OK);
     }
 
 }

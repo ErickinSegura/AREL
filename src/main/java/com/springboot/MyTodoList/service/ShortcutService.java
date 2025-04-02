@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ShortcutService {
@@ -82,7 +83,7 @@ public class ShortcutService {
 
         List<Integer> ids = shortcuts.stream()
                 .map(Shortcut::getId)
-                .toList();
+                .collect(Collectors.toList());
 
         return new ResponseEntity<>(ids, HttpStatus.OK);
     }

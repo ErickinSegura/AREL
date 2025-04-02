@@ -80,7 +80,7 @@ public class Project {
         this.icon = icon;
     }
 
-    public int getActiveSprintId() { 
+    public Integer getActiveSprintId() {
         return activeSprint;
     }
 
