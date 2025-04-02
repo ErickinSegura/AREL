@@ -4,10 +4,6 @@ import java.time.LocalDateTime;
 
 import javax.persistence.*;
 
-import org.springframework.http.ResponseEntity;
-
-import com.springboot.MyTodoList.service.SprintService;
-
 /*
     representation of the TASK_TYPE table that exists already
     in the autonomous database
