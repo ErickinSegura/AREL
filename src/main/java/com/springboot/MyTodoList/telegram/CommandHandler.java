@@ -280,7 +280,7 @@ public class CommandHandler {
             String userLevelLabel = user.getUserLevel().getLabel();
             
             //Fetch all available projects to user
-            List<UserProject> userProjectList = database.userProject.getProjectsByUser(user.getID());
+            List<UserProject> userProjectList = database.userProject.getProjectsByUser(user.getId());
 
             //No project assigned
             if (userProjectList.isEmpty()){
