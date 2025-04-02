@@ -10,6 +10,12 @@ export const useLoginForm = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [attempts, setAttempts] = useState(0);
     const { login } = useAuth();
+    const [showPassword, setShowPassword] = useState(false);
+
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(prev => !prev);
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -68,7 +74,10 @@ export const useLoginForm = () => {
         errors,
         isSubmitting,
         attempts,
+        showPassword,
+        togglePasswordVisibility,
         handleChange,
         handleSubmit
     };
 };
+

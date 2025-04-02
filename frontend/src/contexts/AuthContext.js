@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, {createContext, useContext, useEffect, useState} from 'react';
 
 const AuthContext = createContext();
 
@@ -88,6 +88,27 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const register = async (firstName, lastName, email, telegramUsername, password) => {
+        try {
+            const response = await fetch('/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ firstName, lastName, email, telegramUsername, password }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Error registering');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error registering:', error);
+            throw error;
+        }
+    }
+
     const logout = () => {
         localStorage.removeItem('jwt_token');
         setUser(null);
@@ -101,6 +122,7 @@ export const AuthProvider = ({ children }) => {
                 isLoading,
                 user,
                 login,
+                register,
                 logout
             }}
         >

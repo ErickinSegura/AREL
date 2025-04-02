@@ -4,11 +4,13 @@ import { UserCard, UserDetailsSheet } from '../components/users/usersComponents'
 import { LoadingSpinner, ErrorMessage } from '../lib/ui/Loading';
 import { Button } from '../lib/ui/Button';
 import { PlusCircle } from 'lucide-react';
+import { useRoute } from '../contexts/RouteContext';
 
 export const Users = () => {
     const { users, loading, error } = useUsers();
     const [selectedUser, setSelectedUser] = useState(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
+    const { setCurrentRoute } = useRoute();
 
     const openUserDetails = (user) => {
         setSelectedUser(user);
@@ -17,6 +19,10 @@ export const Users = () => {
 
     const handleRemoveUser = async (userId) => {
         console.log('Remove user with ID:', userId);
+    };
+
+    const navigateToRegister = () => {
+        setCurrentRoute('/register');
     };
 
     if (loading) return <LoadingSpinner message="Loading users..." centered />;
@@ -29,6 +35,7 @@ export const Users = () => {
                 <Button
                     variant="remarked"
                     startIcon={<PlusCircle size={16} />}
+                    onClick={navigateToRegister} // Agregamos el manejador de eventos onClick
                 >
                     Add User
                 </Button>
