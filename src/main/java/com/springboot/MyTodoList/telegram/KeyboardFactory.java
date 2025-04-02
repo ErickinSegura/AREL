@@ -2,7 +2,6 @@ package com.springboot.MyTodoList.telegram;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -10,9 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import com.springboot.MyTodoList.model.Category;
-import com.springboot.MyTodoList.model.Project;
 import com.springboot.MyTodoList.model.Task;
-import com.springboot.MyTodoList.model.ToDoItem;
 import com.springboot.MyTodoList.model.UserProject;
 import com.springboot.MyTodoList.util.BotLabels;
 

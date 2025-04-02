@@ -29,7 +29,8 @@ public enum BotMessages {
 	CREATE_TASK_PREVIEW("Excelent! Now confirm that the information below is correct:\n\n%s"),
 	CREATE_TASK_SET_PRIORITY("Now, enter the priority for this ticket:"),
 	CANCEL_TASK_CREATION("Cancelling creation (TODO: EDIT, NOT CANCEL)"),
-	SAVE_TASK("Task was saved successfully in this project's backlog. Need something else? Please /start again.")
+	SAVE_TASK("Task was saved successfully in this project's backlog. Need something else? Please /start again."),
+	ERROR_DATABASE("There was an error reaching this information, please try again later.")
 	;
 
 	private String message;

@@ -243,16 +243,6 @@ public class Task {
     }
 
     public String previewString() {
-
-        //Null checks
-        String dueDateString = "";
-        if (!(dueDate == null)){
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM, dd");
-            dueDateString = dueDate.format(formatter);
-        } else {
-            dueDateString = "Not Set";
-        }
-
         return "<b>"+title+"</b>"
         +"\n\n"
         +type.formattedString()

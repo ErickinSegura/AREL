@@ -7,8 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -31,6 +29,7 @@ public class TaskController {
         }
     }
     //@CrossOrigin
+    @SuppressWarnings("rawtypes")
     @PostMapping(value = "/task")
     public ResponseEntity addToDoItem(@RequestBody Task task) throws Exception{
         Task td = taskService.addTask(task);
@@ -43,6 +42,7 @@ public class TaskController {
                 .headers(responseHeaders).build();
     }
     //@CrossOrigin
+    @SuppressWarnings("rawtypes")
     @PutMapping(value = "/task/{id}")
     public ResponseEntity updateToDoItem(@RequestBody Task task, @PathVariable int id){
         try{
@@ -50,7 +50,7 @@ public class TaskController {
             System.out.println(task1.toString());
             return new ResponseEntity<>(task1,HttpStatus.OK);
         }catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
     //@CrossOrigin
