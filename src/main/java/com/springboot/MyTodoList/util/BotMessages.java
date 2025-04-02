@@ -31,7 +31,11 @@ public enum BotMessages {
 	CANCEL_TASK_CREATION("Cancelling creation (TODO: EDIT, NOT CANCEL)"),
 	SAVE_TASK("Task was saved successfully in this project's backlog. Need something else? Please /start again."),
 	ERROR_DATABASE("There was an error reaching this information, please try again later."),
-	SENT_AGAIN_EXCEPTION("You've already sent this ticket.")
+	SENT_AGAIN_EXCEPTION("You've already sent this ticket."),
+	LIST_SPRINT("Here's the list of tasks assigned to this sprint, click one to see it's information."),
+	NO_ACTIVE_SPRINT("The is no active sprint."),
+	ASSIGN_USER_TO_TASK("Select someone to assign this task to."),
+	ASSIGNED_SUCCESSFULLY("Task assigned successfully.")
 	;
 
 	private String message;

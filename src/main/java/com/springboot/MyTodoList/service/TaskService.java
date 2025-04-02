@@ -55,4 +55,8 @@ public class TaskService {
     public List<Task> getTasksByUserProject(int assignedToID) {
         return taskRepository.findByAssignedToId(assignedToID);
     }
+
+    public List<Task> getTasksBySprintID(int sprintID) {
+        return taskRepository.findBySprint(sprintID);
+    }
 }

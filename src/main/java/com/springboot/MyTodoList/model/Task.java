@@ -4,6 +4,10 @@ import java.time.LocalDateTime;
 
 import javax.persistence.*;
 
+import org.springframework.http.ResponseEntity;
+
+import com.springboot.MyTodoList.service.SprintService;
+
 /*
     representation of the TASK_TYPE table that exists already
     in the autonomous database
@@ -42,7 +46,7 @@ public class Task {
     Integer estimatedHours;
 
     @Column(name = "PROJECT_ID", columnDefinition = "ID_PROJECT")
-    Long projectId;
+    Integer projectId;
 
     @ManyToOne
     @JoinColumn(name = "ASSIGNED_TO", referencedColumnName = "ID_USER_PROJECT")
@@ -55,7 +59,7 @@ public class Task {
     //@ManyToOne
     //@JoinColumn(name = "SPRINT_ID", referencedColumnName = "ID_SPRINT")
     @Column(name = "SPRINT_ID")
-    Long sprint;
+    int sprint;
 
     @Column(name = "DELETED")
     boolean deleted;
@@ -68,8 +72,8 @@ public class Task {
     }
 
     public Task(String title, String description, TaskType type, TaskPriority priority, TaskState state, 
-                LocalDateTime createdAt, int estimatedHours, int realHours, UserProject assignedTo, Category category, 
-                Long sprint, Long projectId) {
+                LocalDateTime createdAt, Integer estimatedHours, Integer realHours, UserProject assignedTo, Category category, 
+                int sprint, int projectId) {
         this.title = title;
         this.description = description;
         this.type = type;
@@ -141,11 +145,11 @@ public class Task {
         this.createdAt = createdAt;
     }
 
-    public int getEstimatedHours() {
+    public Integer getEstimatedHours() {
         return estimatedHours;
     }
 
-    public void setEstimatedHours(int hours) {
+    public void setEstimatedHours(Integer hours) {
         this.estimatedHours = hours;
     }
 
@@ -165,11 +169,11 @@ public class Task {
         this.category = category;
     }
 
-    public Long getSprintId() {
+    public int getSprintId() {
         return sprint;
     }
 
-    public void setSprintId(Long sprintId) {
+    public void setSprintId(int sprintId) {
         this.sprint = sprintId;
     }
 
@@ -181,19 +185,19 @@ public class Task {
         this.deleted = deleted;
     }
 
-    public int getRealHours() {
+    public Integer getRealHours() {
         return realHours;
     }
 
-    public void setRealHours(int hours) {
+    public void setRealHours(Integer hours) {
         this.realHours = hours;
     }
 
-    public Long getProjectId(){
+    public Integer getProjectId(){
         return projectId;
     }
 
-    public void setProject(Long newProjectId) {
+    public void setProject(int newProjectId) {
         this.projectId = newProjectId;
     }
 

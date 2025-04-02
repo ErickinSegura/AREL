@@ -76,7 +76,10 @@ public class CommandHandler {
         //Developer get info on a task
         else if (callbackQuery.startsWith("taskinfo_")) {
             //Send task info
-            handleTaskInfoCallback(callbackQuery, chatId, update);
+            handleTaskInfoCallback(callbackQuery, chatId);
+        }
+        else if (callbackQuery.startsWith("taskManager_")){
+            handleManagerTaskOpen(callbackQuery, chatId);
         }
         //Change task state
         else if (callbackQuery.startsWith("set_task_state_")){
@@ -120,6 +123,141 @@ public class CommandHandler {
             createTask.handleCancel(chatId, state);
             handleStartCommand(chatId, update);
         }
+        else if (callbackQuery.startsWith("open_actual_sprint")) {
+            String[] parts = callbackQuery.split("_");
+            int projectId = Integer.parseInt(parts[3]);
+
+            showSprint(chatId, projectId);
+        }
+        else if (callbackQuery.startsWith("open_assign_task_")) {
+            String[] parts = callbackQuery.split("_");
+            int task_id = Integer.parseInt(parts[3]);
+
+            handleAssignTask(chatId, task_id);
+        }
+        else if (callbackQuery.startsWith("assign_task_")){
+            String[] parts = callbackQuery.split("_");
+            int task_id = Integer.parseInt(parts[2]);
+            int userProjectId = Integer.parseInt(parts[4]);
+
+            assignTask(chatId, task_id, userProjectId);
+        }
+    }
+
+    public void assignTask(Long chatId, int taskId, int userProjectId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        Optional<UserProject> userProjectResponse = database.userProject.getUserProjectByID(userProjectId);
+        ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
+
+        if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
+            Task task = taskResponse.getBody();
+            if (task != null) {
+                if (userProjectResponse.isPresent()) {
+                    task.setAssignedTo(userProjectResponse.get());
+                    Task result = database.task.updateTask(task.getID(), task);
+                    if (result != null ) {
+                        message.setText(BotMessages.ASSIGNED_SUCCESSFULLY.getMessage());
+                    }else {
+                        message.setText(BotMessages.ERROR_DATABASE.getMessage());
+                    }                    
+                }
+            }else {
+                message.setText(BotMessages.ERROR_DATABASE.getMessage());
+            }
+        }
+
+
+        messageSender.sendMessage(message);
+    }
+
+    public void handleAssignTask(Long chatId, int task_id) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        //Get User List
+        ResponseEntity<Task> taskResponse = database.task.getTaskById(task_id);
+        if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
+            Task task = taskResponse.getBody();
+            if (task != null) {
+                int projectId = getProjectIdFromTask(task);
+                
+                List<UserProject> users = database.userProject.getUsersByProject(projectId);
+                message.setText(BotMessages.ASSIGN_USER_TO_TASK.getMessage());
+                message.setReplyMarkup(keyboardFactory.assignTaskInlineMarkup(users, task_id));
+
+            }else{
+                message.setText(BotMessages.ERROR_DATABASE.getMessage());
+            }
+        }
+
+        messageSender.sendMessage(message);
+    }
+
+    public Integer getProjectIdFromTask(Task task) {
+        if (task.getProjectId() != null) {
+            return task.getProjectId();
+        } else {
+            ResponseEntity<Integer> idResponse = database.sprint.getProjectbyId(task.getSprintId());
+            if (idResponse.getStatusCode().is2xxSuccessful() && idResponse.hasBody()) {
+                Integer id = idResponse.getBody();
+                return id;
+            }
+            else {
+                return null;
+            }
+        }
+    }
+
+    public void handleManagerTaskOpen(String callbackQuery, Long chatId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        
+        try { 
+            String taskIdString = callbackQuery.replace("taskManager_", "");
+            int taskId = Integer.parseInt(taskIdString);
+
+            ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
+            if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
+                Task task = taskResponse.getBody();
+                if (task != null) {
+                    message.setText(task.getCoolFormatedString());
+                    message.setReplyMarkup(keyboardFactory.taskInfoManagerKeyboard(task));
+                } else {
+                    message.setText(BotMessages.ERROR_DATABASE.getMessage());
+                }
+            } else {
+                throw new RuntimeException("Error in server response: " + taskResponse.getStatusCode());
+            }
+        } catch (Exception e) {
+            message.setText(BotMessages.TASK_UNAVAILABLE.getMessage() + "\n\n" + e.getLocalizedMessage());
+        }
+
+        messageSender.sendMessage(message);
+    }
+
+    public void showSprint(Long chatId, int projectId) {
+        Integer activeSprint = database.project.getActiveSprint(projectId);
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        if (activeSprint != null) {
+            List<Task> sprintTasks = database.task.getTasksBySprintID(activeSprint);
+
+            if (sprintTasks.size() > 0) {
+                message.setText(BotMessages.LIST_SPRINT.getMessage());
+                message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerTaskList(sprintTasks));
+            } else {
+                //Null, no active sprint
+                message.setText(BotMessages.NO_ACTIVE_SPRINT.getMessage());
+            }
+        }else {
+            //Null, no active sprint
+            message.setText(BotMessages.NO_ACTIVE_SPRINT.getMessage());
+        }
+
+        messageSender.sendMessage(message);
     }
 
     public void handleStartCommand(long chatId, Update update) {
@@ -179,7 +317,7 @@ public class CommandHandler {
     }
 
     //Send task info to developer
-    public void handleTaskInfoCallback(String callbackQuery, long chatId, Update update) {
+    public void handleTaskInfoCallback(String callbackQuery, long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         
