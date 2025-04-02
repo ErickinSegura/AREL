@@ -16,4 +16,6 @@ import javax.transaction.Transactional;
 @EnableTransactionManagement
 public interface TaskRepository extends JpaRepository<Task,Integer> {
     List<Task> findByAssignedToId(int assignedToId);
+
+    List<Task> findBySprint(int sprintId);
 }

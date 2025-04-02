@@ -24,16 +24,20 @@ public class Project {
     @ManyToOne
     @JoinColumn(name="ID_ICON", referencedColumnName = "ID_ICON")
     Icon icon;
+
+    @Column(name = "ACTIVE_SPRINT")
+    Integer activeSprint;
     
     public Project(){
 
     }
     
-    public Project(String projectName, String description, Color color, Icon icon) {
+    public Project(String projectName, String description, Color color, Icon icon, Integer activeSprint) {
         this.projectName = projectName;
         this.description = description;
         this.icon = icon;
         this.color = color;
+        this.activeSprint = activeSprint;
     }
 
     public int getID() {
@@ -74,6 +78,14 @@ public class Project {
 
     public void setIcon(Icon icon) {
         this.icon = icon;
+    }
+
+    public int getActiveSprintId() { 
+        return activeSprint;
+    }
+
+    public void setActiveSprint(int sprintId) {
+        this.activeSprint = sprintId;
     }
 
     @Override

@@ -37,7 +37,7 @@ public class TaskCreationCommands {
         UserState userState = inactivityManager.getUserState(chatId);
         int lastUnderscore = callbackQuery.lastIndexOf('_');
         String projectIDString = callbackQuery.substring(lastUnderscore + 1);
-        Long projectId = Long.valueOf(projectIDString);
+        int projectId = Integer.parseInt(projectIDString);
         
         Task actualTask = userState.getTask();
         actualTask.setProject(projectId);
@@ -72,7 +72,7 @@ public class TaskCreationCommands {
         state.setTask(actualTask);
 
         //Get Categories
-        Long projectId = state.getTask().getProjectId();
+        int projectId = state.getTask().getProjectId();
         ResponseEntity<List<Category>> categoryListResponse = database.category.getCategoriesByProject(projectId);
         if (categoryListResponse.getStatusCode().is2xxSuccessful() && categoryListResponse.hasBody()) {
             categoryList = categoryListResponse.getBody();

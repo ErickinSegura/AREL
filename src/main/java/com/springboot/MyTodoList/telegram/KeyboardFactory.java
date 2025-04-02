@@ -31,6 +31,22 @@ public class KeyboardFactory {
         return inlineKeyboardMarkup;
     }
 
+    public InlineKeyboardMarkup assignTaskInlineMarkup(List<UserProject> userProjects, Integer task_id) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        for (UserProject userProject : userProjects) {
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(userProject.getRole());
+            button.setCallbackData("assign_task_" + task_id + "_user_" + userProject.getID());  // Callback data !!
+
+            keyboard.add(List.of(button));
+        }
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
     public ReplyKeyboardMarkup createMainMenuKeyboardManager() {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboard = new ArrayList<>();
@@ -83,6 +99,48 @@ public class KeyboardFactory {
         return inlineKeyboardMarkup;
     }
 
+    public InlineKeyboardMarkup taskInfoManagerKeyboard(Task task) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        String nextLabel = "";
+        String nextCallBack = "";
+        String currentTaskStateLabel = task.getState().getLabel();
+        if ("todo".equals(currentTaskStateLabel)) {
+            nextLabel = "Set task to \"Doing\"";
+            nextCallBack = "set_task_state_" + task.getID() + "_doing";
+        } else if ("doing".equals(currentTaskStateLabel)) {
+            nextLabel = "Set task to \"Done\"";
+            nextCallBack = "set_task_state_" + task.getID() + "_done";
+        }
+
+        InlineKeyboardButton back = new InlineKeyboardButton();
+        back.setText("Remove from Sprint");
+        back.setCallbackData("removeTask");
+        //TODO: REMOVE TASK, QUITAR DE SPRINT MOVER A BACKLOG
+
+        if (!nextLabel.isEmpty()) {
+            InlineKeyboardButton next = new InlineKeyboardButton();
+            next.setText(nextLabel);
+            next.setCallbackData(nextCallBack);
+            keyboard.add(List.of(next, back));
+        } else {
+            keyboard.add(List.of(back));
+        }
+
+        UserProject assignation = task.getAssignedTo();
+        if (assignation == null) {
+            InlineKeyboardButton assign = new InlineKeyboardButton();
+            assign.setText("Assign Task");
+            assign.setCallbackData("open_assign_task_"+task.getID());
+
+            keyboard.add(List.of(assign));
+        }
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
     public InlineKeyboardMarkup createInlineKeyboardFromTasks(List<Task> taskList) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -91,6 +149,22 @@ public class KeyboardFactory {
             InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText(task.getTitle());
             button.setCallbackData("taskinfo_" + task.getID());  // Callback data !!
+
+            keyboard.add(List.of(button));
+        }
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup inlineKeyboardManagerTaskList(List<Task> taskList) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        for (Task task : taskList) {
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(task.getTitle());
+            button.setCallbackData("taskManager_" + task.getID());  // Callback data !!
 
             keyboard.add(List.of(button));
         }
@@ -113,11 +187,11 @@ public class KeyboardFactory {
 
         InlineKeyboardButton seeSprint = new InlineKeyboardButton();
         seeSprint.setText("See Sprint");
-        seeSprint.setCallbackData("default");
+        seeSprint.setCallbackData("open_actual_sprint_"+String.valueOf(projectID));
 
         InlineKeyboardButton goBack = new InlineKeyboardButton();
         goBack.setText("Go Back");
-        goBack.setCallbackData("default");
+        goBack.setCallbackData("restart");
 
         keyboard.add(List.of(seeBacklog, createTask));
         keyboard.add(List.of(seeSprint, goBack));
