@@ -51,18 +51,18 @@ public class UserController {
 
     // Keep other essential methods
     @PostMapping(value = "/userlist")
-    public ResponseEntity addUser(@RequestBody User user) throws Exception{
+    public ResponseEntity<User> addUser(@RequestBody User user) throws Exception{
         User us = userService.addUser(user);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping(value = "userlist/{id}")
-    public ResponseEntity updateUser(@RequestBody User user, @PathVariable int id){
+    public ResponseEntity<User> updateUser(@RequestBody User user, @PathVariable int id){
         try{
             User us = userService.updateUser(id, user);
             return new ResponseEntity<>(us, HttpStatus.OK);
         }catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 

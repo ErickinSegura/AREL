@@ -60,7 +60,7 @@ public class CategoryService {
             Category category = categoryData.get();
     
             category.setName(categoryDetails.getName());
-            category.setProject(categoryDetails.getProject());
+            category.setProjectId(categoryDetails.getProjectId());
             category.setColor(categoryDetails.getColor());
     
             Category updatedCategory = categoryRepository.save(category);

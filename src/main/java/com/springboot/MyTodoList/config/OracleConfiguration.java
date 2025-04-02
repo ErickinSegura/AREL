@@ -23,8 +23,8 @@ import java.sql.SQLException;
 @Configuration
 public class OracleConfiguration {
     Logger logger = LoggerFactory.getLogger(DbSettings.class);
-    @Autowired
-    private DbSettings dbSettings;
+    //@Autowired
+    //private DbSettings dbSettings;
     @Autowired
     private Environment env;
     @Bean

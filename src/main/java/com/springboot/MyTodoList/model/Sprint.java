@@ -1,5 +1,7 @@
 package com.springboot.MyTodoList.model;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.*;
 
 /*
@@ -15,19 +17,26 @@ public class Sprint {
     @Column(name= "ID_SPRINT")
     int ID;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_PROJECT", referencedColumnName = "ID_PROJECT")
-    Project project;
+    //@ManyToOne
+    //@JoinColumn(name = "ID_PROJECT", referencedColumnName = "ID_PROJECT")
+    @Column(name = "ID_PROJECT")
+    int project;
 
     @Column(name = "SPRINT_NUMBER")
     int sprintNumber;
+
+    @Column(name = "START_DATE", columnDefinition = "TIMESTAMP")
+    LocalDateTime startDate;
+
+    @Column(name = "END_DATE", columnDefinition = "TIMESTAMP")
+    LocalDateTime endDate;
     
     public Sprint(){
 
     }
     
-    public Sprint(Project project, int sprintNumber){ 
-        this.project = project;
+    public Sprint(int projectId, int sprintNumber){ 
+        this.project = projectId;
         this.sprintNumber = sprintNumber;
     }
 
@@ -47,19 +56,35 @@ public class Sprint {
         this.sprintNumber = sprintNumber;
     }
 
-    public Project getProject() {
+    public int getProject() {
         return project;
     }
 
-    public void setProject(Project project) {
-        this.project = project;
+    public void setProject(int projectId) {
+        this.project = projectId;
+    }
+
+    public LocalDateTime getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDateTime date) {
+        this.startDate = date;
+    }
+
+    public LocalDateTime getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDateTime date) {
+        this.endDate = date;
     }
 
     @Override
     public String toString() {
         return "Sprint:{" +
                 "id: " + ID +
-                "project: " + project.getName() +
+                "project: " + project +
                 "number: " + sprintNumber
                 +"}";
     }

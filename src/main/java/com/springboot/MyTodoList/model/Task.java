@@ -1,9 +1,12 @@
 package com.springboot.MyTodoList.model;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import javax.persistence.*;
+
+import org.springframework.http.ResponseEntity;
+
+import com.springboot.MyTodoList.service.SprintService;
 
 /*
     representation of the TASK_TYPE table that exists already
@@ -39,8 +42,11 @@ public class Task {
     @Column(name = "CREATION_DATE", columnDefinition = "TIMESTAMP")
     LocalDateTime createdAt;
 
-    @Column(name = "DUE_DATE", columnDefinition = "TIMESTAMP")
-    LocalDateTime dueDate;
+    @Column(name = "ESTIMATED_HOURS")
+    Integer estimatedHours;
+
+    @Column(name = "PROJECT_ID", columnDefinition = "ID_PROJECT")
+    Integer projectId;
 
     @ManyToOne
     @JoinColumn(name = "ASSIGNED_TO", referencedColumnName = "ID_USER_PROJECT")
@@ -50,34 +56,37 @@ public class Task {
     @JoinColumn(name = "CATEGORY", referencedColumnName = "ID_CATEGORY")
     Category category;
 
-    @ManyToOne
-    @JoinColumn(name = "SPRINT_ID", referencedColumnName = "ID_SPRINT")
-    Sprint sprint;
+    //@ManyToOne
+    //@JoinColumn(name = "SPRINT_ID", referencedColumnName = "ID_SPRINT")
+    @Column(name = "SPRINT_ID")
+    int sprint;
 
     @Column(name = "DELETED")
     boolean deleted;
 
-    @Column(name = "FINISHED_DATE", columnDefinition = "TIMESTAMP")
-    LocalDateTime finishedDate;
+    @Column(name = "REAL_HOURS")
+    Integer realHours;
 
     
     public Task(){
     }
 
     public Task(String title, String description, TaskType type, TaskPriority priority, TaskState state, 
-                LocalDateTime createdAt, LocalDateTime dueDate, UserProject assignedTo, Category category, 
-                Sprint sprint) {
+                LocalDateTime createdAt, Integer estimatedHours, Integer realHours, UserProject assignedTo, Category category, 
+                int sprint, int projectId) {
         this.title = title;
         this.description = description;
         this.type = type;
         this.priority = priority;
         this.state = state;
         this.createdAt = createdAt;
-        this.dueDate = dueDate;
+        this.estimatedHours = estimatedHours;
+        this.realHours = realHours;
         this.assignedTo = assignedTo;
         this.category = category;
         this.sprint = sprint;
         this.deleted = false;
+        this.projectId = projectId;
     }
 
     public int getID() {
@@ -136,12 +145,12 @@ public class Task {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getDueDate() {
-        return dueDate;
+    public Integer getEstimatedHours() {
+        return estimatedHours;
     }
 
-    public void setDueDate(LocalDateTime dueDate) {
-        this.dueDate = dueDate;
+    public void setEstimatedHours(Integer hours) {
+        this.estimatedHours = hours;
     }
 
     public UserProject getAssignedTo() {
@@ -160,12 +169,12 @@ public class Task {
         this.category = category;
     }
 
-    public Sprint getSprint() {
+    public int getSprintId() {
         return sprint;
     }
 
-    public void setSprint(Sprint sprint) {
-        this.sprint = sprint;
+    public void setSprintId(int sprintId) {
+        this.sprint = sprintId;
     }
 
     public boolean isDeleted() {
@@ -176,12 +185,20 @@ public class Task {
         this.deleted = deleted;
     }
 
-    public LocalDateTime getFinishedDate() {
-        return finishedDate;
+    public Integer getRealHours() {
+        return realHours;
     }
 
-    public void setFinishedDate(LocalDateTime finishedDate) {
-        this.finishedDate = finishedDate;
+    public void setRealHours(Integer hours) {
+        this.realHours = hours;
+    }
+
+    public Integer getProjectId(){
+        return projectId;
+    }
+
+    public void setProject(int newProjectId) {
+        this.projectId = newProjectId;
     }
 
     @Override
@@ -194,35 +211,49 @@ public class Task {
         ", priority: " + priority.getLabel() +
         ", state: " + state.getLabel() +
         ", createdAt: " + createdAt +
-        ", dueDate: " + dueDate +
         ", assignedTo: " + assignedTo.getRole() +
         ", category: " + category.getName() +
-        ", sprint: " + sprint.getSprintNumber() +
+        ", sprint: " + sprint +
+        ", project: " + projectId + 
         ", deleted: " + deleted +
-        ", finishedDate: " + finishedDate +
+        ", estimatedHours: " + estimatedHours +
+        ", realHours: " + realHours +
         "}";
     }
 
     public String getCoolFormatedString() {
-        String dueDateString = "";
-        if (!(dueDate == null)){
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM, dd");
-            dueDateString = dueDate.format(formatter);
-        } else {
-            dueDateString = "Not Set";
-        }
+
+        //Null checks
 
         return "<b>"+title+"</b>"
         +"\n\n"
-        +type.getLabel().substring(0, 1).toUpperCase() + type.getLabel().substring(1)
+        +type.formattedString()
         +" - "
         +description
         +"\n\n"
-        +"<b>Category:</b> " + category.getName()
+        +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
         +"\n"
-        +"<b>Due Date:</b> " + dueDateString
+        +"<b>Estimated Hours:</b> " + estimatedHours
         +"\n"
-        +"<b>State:</b> " + state.formatted()
+        +"<b>State:</b> " + (state != null ? state.formatted() : "No State")
         ;
+    }
+
+    public String previewString() {
+        return "<b>"+title+"</b>"
+        +"\n\n"
+        +type.formattedString()
+        +" - "
+        +description
+        +"\n\n"
+        +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
+        +"\n"
+        +"<b>Priority:</b> " + priority.formattedString()
+        ;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 }

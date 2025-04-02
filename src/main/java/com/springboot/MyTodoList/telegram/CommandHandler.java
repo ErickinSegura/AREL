@@ -1,25 +1,26 @@
 package com.springboot.MyTodoList.telegram;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 
 import com.springboot.MyTodoList.model.Project;
 import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.model.TaskState;
 import com.springboot.MyTodoList.model.User;
 import com.springboot.MyTodoList.model.UserProject;
+import com.springboot.MyTodoList.model.Category;
 import com.springboot.MyTodoList.service.ServiceManager;
+import com.springboot.MyTodoList.telegram.BotCommands.TaskCreationCommands;
+import com.springboot.MyTodoList.telegram.BotSessionManager.InactivityManager;
+import com.springboot.MyTodoList.telegram.BotSessionManager.UserState;
+import com.springboot.MyTodoList.telegram.BotSessionManager.UserStateType;
 import com.springboot.MyTodoList.util.BotCommands;
-import com.springboot.MyTodoList.util.BotHelper;
 import com.springboot.MyTodoList.util.BotLabels;
 import com.springboot.MyTodoList.util.BotMessages;
 
@@ -29,12 +30,16 @@ public class CommandHandler {
     private final MessageSender messageSender;
     private final ServiceManager database;
     private final KeyboardFactory keyboardFactory;
+    //private final InactivityManager inactivityManager;
+    private final TaskCreationCommands createTask;
 
-    public CommandHandler(MessageSender messageSender, ServiceManager serviceManager) {
+    public CommandHandler(MessageSender messageSender, ServiceManager serviceManager, InactivityManager inactivityManager) {
         this.messageSender = messageSender;
         this.database = serviceManager;
+        //this.inactivityManager = inactivityManager;
         // Create a new CRUD controller using the ToDoItemService from ServiceManager
         this.keyboardFactory = new KeyboardFactory();
+        this.createTask = new TaskCreationCommands(database, messageSender, inactivityManager);
     }
 
     // Command check methods
@@ -59,7 +64,7 @@ public class CommandHandler {
                 messageText.equals(BotLabels.ADD_NEW_ITEM.getLabel());
     }
 
-    public void handleCallback(long chatId, String callbackQuery, Update update) {
+    public void handleCallback(long chatId, String callbackQuery, Update update, UserState state) {
         logger.debug("Got callback query !!! text: " + callbackQuery);
 
         //Check callback info
@@ -71,7 +76,10 @@ public class CommandHandler {
         //Developer get info on a task
         else if (callbackQuery.startsWith("taskinfo_")) {
             //Send task info
-            handleTaskInfoCallback(callbackQuery, chatId, update);
+            handleTaskInfoCallback(callbackQuery, chatId);
+        }
+        else if (callbackQuery.startsWith("taskManager_")){
+            handleManagerTaskOpen(callbackQuery, chatId);
         }
         //Change task state
         else if (callbackQuery.startsWith("set_task_state_")){
@@ -85,11 +93,174 @@ public class CommandHandler {
 
             handleOpenProjectCallback(userProjectId, userLevel, chatId);
         }
+        else if (callbackQuery.startsWith("create_task_project_")) {
+            createTask.handleCreateTask(callbackQuery, chatId);
+        }
+        else if (callbackQuery.startsWith("set_statetask_category_")) {
+            createTask.handleSetCategory(chatId, callbackQuery, state);
+        }
+        else if (callbackQuery.startsWith("set_statetask_type_")) {
+            String[] parts = callbackQuery.split("_");
+            int type_id = Integer.parseInt(parts[3]);
+            String type_label = parts[4];
+
+            createTask.handleSetType(chatId, state, type_id, type_label);
+        }
+        else if (callbackQuery.startsWith("set_statetask_priority_")) {
+            String[] parts = callbackQuery.split("_");
+            int priorityId = Integer.parseInt(parts[3]);
+            String priorityLabel = parts[4];
+
+            createTask.handleSetPriority(chatId, state, priorityId, priorityLabel);
+            createTask.previewTask(chatId, state);
+        }
+        else if (callbackQuery.equals("save_task")) {
+            //Save task
+            createTask.handleSave(chatId, state);
+        }
+        else if (callbackQuery.equals("cancel_task_creation")) {
+            //Cancel everything
+            createTask.handleCancel(chatId, state);
+            handleStartCommand(chatId, update);
+        }
+        else if (callbackQuery.startsWith("open_actual_sprint")) {
+            String[] parts = callbackQuery.split("_");
+            int projectId = Integer.parseInt(parts[3]);
+
+            showSprint(chatId, projectId);
+        }
+        else if (callbackQuery.startsWith("open_assign_task_")) {
+            String[] parts = callbackQuery.split("_");
+            int task_id = Integer.parseInt(parts[3]);
+
+            handleAssignTask(chatId, task_id);
+        }
+        else if (callbackQuery.startsWith("assign_task_")){
+            String[] parts = callbackQuery.split("_");
+            int task_id = Integer.parseInt(parts[2]);
+            int userProjectId = Integer.parseInt(parts[4]);
+
+            assignTask(chatId, task_id, userProjectId);
+        }
     }
 
-    // Command handlers
+    public void assignTask(Long chatId, int taskId, int userProjectId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        Optional<UserProject> userProjectResponse = database.userProject.getUserProjectByID(userProjectId);
+        ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
+
+        if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
+            Task task = taskResponse.getBody();
+            if (task != null) {
+                if (userProjectResponse.isPresent()) {
+                    task.setAssignedTo(userProjectResponse.get());
+                    Task result = database.task.updateTask(task.getID(), task);
+                    if (result != null ) {
+                        message.setText(BotMessages.ASSIGNED_SUCCESSFULLY.getMessage());
+                    }else {
+                        message.setText(BotMessages.ERROR_DATABASE.getMessage());
+                    }                    
+                }
+            }else {
+                message.setText(BotMessages.ERROR_DATABASE.getMessage());
+            }
+        }
+
+
+        messageSender.sendMessage(message);
+    }
+
+    public void handleAssignTask(Long chatId, int task_id) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        //Get User List
+        ResponseEntity<Task> taskResponse = database.task.getTaskById(task_id);
+        if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
+            Task task = taskResponse.getBody();
+            if (task != null) {
+                int projectId = getProjectIdFromTask(task);
+                
+                List<UserProject> users = database.userProject.getUsersByProject(projectId);
+                message.setText(BotMessages.ASSIGN_USER_TO_TASK.getMessage());
+                message.setReplyMarkup(keyboardFactory.assignTaskInlineMarkup(users, task_id));
+
+            }else{
+                message.setText(BotMessages.ERROR_DATABASE.getMessage());
+            }
+        }
+
+        messageSender.sendMessage(message);
+    }
+
+    public Integer getProjectIdFromTask(Task task) {
+        if (task.getProjectId() != null) {
+            return task.getProjectId();
+        } else {
+            ResponseEntity<Integer> idResponse = database.sprint.getProjectbyId(task.getSprintId());
+            if (idResponse.getStatusCode().is2xxSuccessful() && idResponse.hasBody()) {
+                Integer id = idResponse.getBody();
+                return id;
+            }
+            else {
+                return null;
+            }
+        }
+    }
+
+    public void handleManagerTaskOpen(String callbackQuery, Long chatId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        
+        try { 
+            String taskIdString = callbackQuery.replace("taskManager_", "");
+            int taskId = Integer.parseInt(taskIdString);
+
+            ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
+            if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
+                Task task = taskResponse.getBody();
+                if (task != null) {
+                    message.setText(task.getCoolFormatedString());
+                    message.setReplyMarkup(keyboardFactory.taskInfoManagerKeyboard(task));
+                } else {
+                    message.setText(BotMessages.ERROR_DATABASE.getMessage());
+                }
+            } else {
+                throw new RuntimeException("Error in server response: " + taskResponse.getStatusCode());
+            }
+        } catch (Exception e) {
+            message.setText(BotMessages.TASK_UNAVAILABLE.getMessage() + "\n\n" + e.getLocalizedMessage());
+        }
+
+        messageSender.sendMessage(message);
+    }
+
+    public void showSprint(Long chatId, int projectId) {
+        Integer activeSprint = database.project.getActiveSprint(projectId);
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        if (activeSprint != null) {
+            List<Task> sprintTasks = database.task.getTasksBySprintID(activeSprint);
+
+            if (sprintTasks.size() > 0) {
+                message.setText(BotMessages.LIST_SPRINT.getMessage());
+                message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerTaskList(sprintTasks));
+            } else {
+                //Null, no active sprint
+                message.setText(BotMessages.NO_ACTIVE_SPRINT.getMessage());
+            }
+        }else {
+            //Null, no active sprint
+            message.setText(BotMessages.NO_ACTIVE_SPRINT.getMessage());
+        }
+
+        messageSender.sendMessage(message);
+    }
+
     public void handleStartCommand(long chatId, Update update) {
-        logger.debug("STARTING HANDLESTART COMMAND");
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
 
@@ -146,7 +317,7 @@ public class CommandHandler {
     }
 
     //Send task info to developer
-    public void handleTaskInfoCallback(String callbackQuery, long chatId, Update update) {
+    public void handleTaskInfoCallback(String callbackQuery, long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         
@@ -157,9 +328,12 @@ public class CommandHandler {
             ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
             if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
                 Task task = taskResponse.getBody();
-                message.setText(task.getCoolFormatedString());
-
-                message.setReplyMarkup(keyboardFactory.taskInfoInLineKeyboard(task));
+                if (task != null) {
+                    message.setText(task.getCoolFormatedString());
+                    message.setReplyMarkup(keyboardFactory.taskInfoInLineKeyboard(task));
+                } else {
+                    message.setText(BotMessages.ERROR_DATABASE.getMessage());
+                }
             } else {
                 throw new RuntimeException("Error in server response: " + taskResponse.getStatusCode());
             }
@@ -170,6 +344,7 @@ public class CommandHandler {
         messageSender.sendMessage(message);
     }
 
+    //Set State to a Task
     public void handleSetTaskStateCallback(String callbackQuery, long chatId, Update update) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
@@ -185,14 +360,13 @@ public class CommandHandler {
             if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
                 TaskState newState = new TaskState();
                 newState.setLabel(taskState);
-
                 Task taskToEdit = taskResponse.getBody();
-                taskToEdit.setState(newState);
-
-                database.task.updateTask(taskId, taskToEdit);
-
-                message.setText("Successfully changed task to state: " + newState.formatted());
-
+                
+                if (taskToEdit != null) {
+                    taskToEdit.setState(newState);
+                    database.task.updateTask(taskId, taskToEdit);
+                    message.setText("Successfully changed task to state: " + newState.formatted());
+                }
             }
 
         }catch (Exception e) {
@@ -202,6 +376,7 @@ public class CommandHandler {
         messageSender.sendMessage(message);
     }
 
+    //Open project information
     public void handleOpenProjectCallback(int userProjectId, String userLevel, long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
@@ -238,10 +413,38 @@ public class CommandHandler {
                 ;
 
                 message.setText(dataString);
-                message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject());
+                message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(actualProject.getID()));
             }
 
             messageSender.sendMessage(message);
         }
+    }
+
+    public void handleTextInput(UserState state, String messageText, Long chatId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        if (state.getState() == UserStateType.START) {
+            message.setText(BotMessages.DEFAULT_MESSAGE_START.getMessage());
+        } else if (state.getState() == UserStateType.STATE2) {
+            message.setText(BotMessages.DEFAULT_MESSAGE_STATE2.getMessage());   
+
+        } else if (state.getState() == UserStateType.CREATE_TASK_ENTER_NAME) {
+            message.setText(BotMessages.CREATE_TASK_ENTER_DESCRIPTION.getMessage());
+            createTask.handleSetTitle(state, messageText);
+            
+        } else if (state.getState() == UserStateType.CREATE_TASK_ENTER_DESCRIPTION) {
+            message.setText(BotMessages.CREATE_TASK_SET_CATEGORY.getMessage());
+            List<Category> categories = createTask.handleSetDescription(state, messageText);
+            message.setReplyMarkup(keyboardFactory.inlineKeyboardCategorySet(categories));
+        } else if (state.getState() == UserStateType.CREATE_TASK_ENTER_CATEGORY) {
+            message.setText(messageText);
+
+        //default
+        } else {
+            message.setText(BotMessages.DEFAULT_MESSAGE_START.getMessage());
+        }
+
+        messageSender.sendMessage(message);
     }
 }

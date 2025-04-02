@@ -1,10 +1,5 @@
 package com.springboot.MyTodoList.model;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import javax.persistence.*;
 
 /*
@@ -30,21 +25,19 @@ public class Project {
     @JoinColumn(name="ID_ICON", referencedColumnName = "ID_ICON")
     Icon icon;
 
-    //@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    //private List<Shortcut> shortcuts = new ArrayList<>();
-
-    //@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    //private Set<UserProject> userProjects = new HashSet<>();
+    @Column(name = "ACTIVE_SPRINT")
+    Integer activeSprint;
     
     public Project(){
 
     }
     
-    public Project(String projectName, String description, Color color, Icon icon) {
+    public Project(String projectName, String description, Color color, Icon icon, Integer activeSprint) {
         this.projectName = projectName;
         this.description = description;
         this.icon = icon;
         this.color = color;
+        this.activeSprint = activeSprint;
     }
 
     public int getID() {
@@ -87,13 +80,13 @@ public class Project {
         this.icon = icon;
     }
 
-    //public List<Shortcut> getShortcuts() {
-    //    return shortcuts;
-    //}
+    public int getActiveSprintId() { 
+        return activeSprint;
+    }
 
-    //ublic void setShortcuts(List<Shortcut> shortcuts) {
-    //    this.shortcuts = shortcuts;
-    //}
+    public void setActiveSprint(int sprintId) {
+        this.activeSprint = sprintId;
+    }
 
     @Override
     public String toString() {

@@ -1,6 +1,8 @@
 package com.springboot.MyTodoList.model;
 
 import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /*
     representation of the COLOR table that exists already
@@ -10,32 +12,33 @@ import javax.persistence.*;
 @Entity
 @Table(name = "SHORTCUT")
 public class Shortcut {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name= "ID_SHORTCUT")
-    int ID;
+    private int id;
+
     @ManyToOne
     @JoinColumn(name = "ID_PROJECT", referencedColumnName = "ID_PROJECT")
-    Project project;
+    @JsonIgnore // Evita error 500 por serialización recursiva
+    private Project project;
 
-    @Column(name="SHORTCUT_URL")
-    String url;
-    
-    public Shortcut(){
+    @Column(name = "SHORTCUT_URL")
+    private String url;
 
-    }
-    
-    public Shortcut(Project project, String url){ 
+    public Shortcut() {}
+
+    public Shortcut(Project project, String url) {
         this.project = project;
         this.url = url;
     }
 
-    public int getID() {
-        return ID;
+    public int getId() {
+        return id;
     }
 
-    public void setID(int ID) {
-        this.ID = ID;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public Project getProject() {
@@ -54,11 +57,16 @@ public class Shortcut {
         this.url = url;
     }
 
+    @JsonProperty("projectId")
+    public int getProjectId() {
+        return project != null ? project.getID() : 0;
+    }
+
     @Override
     public String toString() {
         return "Shortcut:{" +
-                "id: " + ID +
-                "url: " + url +
+                "id: " + id +
+                ", url: " + url +
                 ", project: " + project +
                 "}";
     }

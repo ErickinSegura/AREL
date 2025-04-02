@@ -1,7 +1,6 @@
 package com.springboot.MyTodoList.service;
 
 import com.springboot.MyTodoList.model.Task;
-import com.springboot.MyTodoList.model.UserProject;
 import com.springboot.MyTodoList.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -57,4 +56,7 @@ public class TaskService {
         return taskRepository.findByAssignedToId(assignedToID);
     }
 
+    public List<Task> getTasksBySprintID(int sprintID) {
+        return taskRepository.findBySprint(sprintID);
+    }
 }
