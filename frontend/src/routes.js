@@ -8,7 +8,7 @@ import Login from './views/Login';
 import Team from './views/Team';
 import Reports from './views/Reports';
 import MyTasks from './views/MyTasks';
-import Users from './views/Users';
+import {Users} from './views/Users';
 
 
 export const routes = [
