@@ -35,7 +35,7 @@ public class UserController {
     public ResponseEntity addUser(@RequestBody User user) throws Exception{
         User us = userService.addUser(user);
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("location",""+us.getID());
+        responseHeaders.set("location",""+us.getId());
         responseHeaders.set("Access-Control-Expose-Headers","location");
         //URI location = URI.create(""+td.getID())
 
