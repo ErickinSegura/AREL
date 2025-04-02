@@ -33,6 +33,11 @@ public class TaskType {
         return label;
     }
 
+    public String formattedString() {
+        if (label == null || label.isEmpty()) return "";
+        return label.substring(0, 1).toUpperCase() + label.substring(1);
+    }
+
     public void setLabel(String label) {
         this.label = label;
     }

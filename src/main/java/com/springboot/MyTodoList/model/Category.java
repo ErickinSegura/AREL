@@ -17,9 +17,10 @@ public class Category {
     @Column(name = "CATEGORY_NAME")
     String name;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_PROJECT", referencedColumnName = "ID_PROJECT")
-    Project project;
+    //@ManyToOne
+    //@JoinColumn(name = "ID_PROJECT", referencedColumnName = "ID_PROJECT")
+    @Column(name = "ID_PROJECT")
+    Long projectId;
 
     @ManyToOne
     @JoinColumn(name = "ID_COLOR", referencedColumnName = "ID_COLOR")
@@ -30,9 +31,9 @@ public class Category {
 
     }
     
-    public Category(String name, Project project, Color color){ 
+    public Category(String name, Long project, Color color){ 
         this.name = name;
-        this.project = project;
+        this.projectId = project;
         this.color = color;
     }
 
@@ -52,12 +53,12 @@ public class Category {
         this.name = name;
     }
 
-    public Project getProject() {
-        return project;
+    public Long getProjectId() {
+        return projectId;
     }
 
-    public void setProject(Project project) {
-        this.project = project;
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
     }
 
     public Color getColor() {
@@ -73,8 +74,8 @@ public class Category {
         return "Category:{" +
                 "id: " + ID +
                 "name: " + name +
-                "project: " + project + 
-                "color: " + color
+                "project: " + projectId + 
+                "color: " + color.getHexColor()
                 +"}";
     }
 }

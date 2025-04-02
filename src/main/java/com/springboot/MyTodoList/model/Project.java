@@ -1,10 +1,5 @@
 package com.springboot.MyTodoList.model;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import javax.persistence.*;
 
 /*
@@ -29,12 +24,6 @@ public class Project {
     @ManyToOne
     @JoinColumn(name="ID_ICON", referencedColumnName = "ID_ICON")
     Icon icon;
-
-    //@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    //private List<Shortcut> shortcuts = new ArrayList<>();
-
-    //@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    //private Set<UserProject> userProjects = new HashSet<>();
     
     public Project(){
 
@@ -86,14 +75,6 @@ public class Project {
     public void setIcon(Icon icon) {
         this.icon = icon;
     }
-
-    //public List<Shortcut> getShortcuts() {
-    //    return shortcuts;
-    //}
-
-    //ublic void setShortcuts(List<Shortcut> shortcuts) {
-    //    this.shortcuts = shortcuts;
-    //}
 
     @Override
     public String toString() {

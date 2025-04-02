@@ -7,8 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -32,7 +30,7 @@ public class UserController {
     }
     //@CrossOrigin
     @PostMapping(value = "/userlist")
-    public ResponseEntity addUser(@RequestBody User user) throws Exception{
+    public ResponseEntity<User> addUser(@RequestBody User user) throws Exception{
         User us = userService.addUser(user);
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set("location",""+us.getID());
@@ -44,13 +42,13 @@ public class UserController {
     }
     //@CrossOrigin
     @PutMapping(value = "userlist/{id}")
-    public ResponseEntity updateUser(@RequestBody User user, @PathVariable int id){
+    public ResponseEntity<User> updateUser(@RequestBody User user, @PathVariable int id){
         try{
             User us = userService.updateUser(id, user);
             System.out.println(us.toString());
             return new ResponseEntity<>(us,HttpStatus.OK);
         }catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
     //@CrossOrigin

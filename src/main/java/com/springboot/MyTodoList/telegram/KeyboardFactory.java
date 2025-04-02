@@ -2,16 +2,14 @@ package com.springboot.MyTodoList.telegram;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
-import com.springboot.MyTodoList.model.Project;
+import com.springboot.MyTodoList.model.Category;
 import com.springboot.MyTodoList.model.Task;
-import com.springboot.MyTodoList.model.ToDoItem;
 import com.springboot.MyTodoList.model.UserProject;
 import com.springboot.MyTodoList.util.BotLabels;
 
@@ -101,7 +99,7 @@ public class KeyboardFactory {
         return inlineKeyboardMarkup;
     }
 
-    public InlineKeyboardMarkup inlineKeyboardManagerOpenProject() {
+    public InlineKeyboardMarkup inlineKeyboardManagerOpenProject(int projectID) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
@@ -111,7 +109,7 @@ public class KeyboardFactory {
 
         InlineKeyboardButton createTask = new InlineKeyboardButton();
         createTask.setText("Create Task");
-        createTask.setCallbackData("default");
+        createTask.setCallbackData("create_task_project_"+String.valueOf(projectID));
 
         InlineKeyboardButton seeSprint = new InlineKeyboardButton();
         seeSprint.setText("See Sprint");
@@ -128,58 +126,95 @@ public class KeyboardFactory {
         return inlineKeyboardMarkup;
     }
 
+    public InlineKeyboardMarkup inlineKeyboardCategorySet(List<Category> categories) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
+        for (Category category : categories) {
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(category.getName());
+            button.setCallbackData("set_statetask_category_" + category.getID());  // Callback data !!
 
-    public ReplyKeyboardMarkup createToDoListKeyboard(List<ToDoItem> allItems) {
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        List<KeyboardRow> keyboard = new ArrayList<>();
-
-        // Top navigation row
-        KeyboardRow mainScreenRowTop = new KeyboardRow();
-        mainScreenRowTop.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
-        keyboard.add(mainScreenRowTop);
-
-        // Add item row
-        KeyboardRow firstRow = new KeyboardRow();
-        firstRow.add(BotLabels.ADD_NEW_ITEM.getLabel());
-        keyboard.add(firstRow);
-
-        // List title row
-        KeyboardRow myTodoListTitleRow = new KeyboardRow();
-        myTodoListTitleRow.add(BotLabels.MY_TODO_LIST.getLabel());
-        keyboard.add(myTodoListTitleRow);
-
-        // Active items
-        List<ToDoItem> activeItems = allItems.stream()
-                .filter(item -> !item.isDone())
-                .collect(Collectors.toList());
-
-        for (ToDoItem item : activeItems) {
-            KeyboardRow currentRow = new KeyboardRow();
-            currentRow.add(item.getDescription());
-            currentRow.add(item.getID() + BotLabels.DASH.getLabel() + BotLabels.DONE.getLabel());
-            keyboard.add(currentRow);
+            keyboard.add(List.of(button));
         }
 
-        // Done items
-        List<ToDoItem> doneItems = allItems.stream()
-                .filter(ToDoItem::isDone)
-                .collect(Collectors.toList());
-
-        for (ToDoItem item : doneItems) {
-            KeyboardRow currentRow = new KeyboardRow();
-            currentRow.add(item.getDescription());
-            currentRow.add(item.getID() + BotLabels.DASH.getLabel() + BotLabels.UNDO.getLabel());
-            currentRow.add(item.getID() + BotLabels.DASH.getLabel() + BotLabels.DELETE.getLabel());
-            keyboard.add(currentRow);
-        }
-
-        // Bottom navigation row
-        KeyboardRow mainScreenRowBottom = new KeyboardRow();
-        mainScreenRowBottom.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
-        keyboard.add(mainScreenRowBottom);
-
-        keyboardMarkup.setKeyboard(keyboard);
-        return keyboardMarkup;
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
     }
+
+    public InlineKeyboardMarkup inlineKeyboardTypeSet() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        InlineKeyboardButton task = new InlineKeyboardButton();
+        task.setText("Task");
+        task.setCallbackData("set_statetask_type_4_task");
+
+        InlineKeyboardButton bug = new InlineKeyboardButton();
+        bug.setText("Bug");
+        bug.setCallbackData("set_statetask_type_1_bug");
+
+        InlineKeyboardButton fix = new InlineKeyboardButton();
+        fix.setText("Fix");
+        fix.setCallbackData("set_statetask_type_2_fix");
+
+        InlineKeyboardButton issue = new InlineKeyboardButton();
+        issue.setText("Issue");
+        issue.setCallbackData("set_statetask_type_3_issue");
+
+        keyboard.add(List.of(task, fix));
+        keyboard.add(List.of(bug, issue));
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup inlineKeyboardPrioritySet() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        InlineKeyboardButton low = new InlineKeyboardButton();
+        low.setText("Low");
+        low.setCallbackData("set_statetask_priority_1_low");
+
+        InlineKeyboardButton medium = new InlineKeyboardButton();
+        medium.setText("Medium");
+        medium.setCallbackData("set_statetask_priority_2_medium");
+
+        InlineKeyboardButton high = new InlineKeyboardButton();
+        high.setText("High");
+        high.setCallbackData("set_statetask_priority_3_high");
+
+        InlineKeyboardButton critical = new InlineKeyboardButton();
+        critical.setText("Critical");
+        critical.setCallbackData("set_statetask_priority_4_critical");
+
+        keyboard.add(List.of(low));
+        keyboard.add(List.of(medium));
+        keyboard.add(List.of(high));
+        keyboard.add(List.of(critical));
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup inlineKeyboardPreview() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        InlineKeyboardButton save = new InlineKeyboardButton();
+        save.setText("Save");
+        save.setCallbackData("save_task");
+
+        InlineKeyboardButton cancel = new InlineKeyboardButton();
+        cancel.setText("Cancel");
+        cancel.setCallbackData("cancel_task_creation");
+
+        keyboard.add(List.of(save));
+        keyboard.add(List.of(cancel));
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
 }
