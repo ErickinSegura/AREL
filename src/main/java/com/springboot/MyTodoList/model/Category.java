@@ -20,7 +20,7 @@ public class Category {
     //@ManyToOne
     //@JoinColumn(name = "ID_PROJECT", referencedColumnName = "ID_PROJECT")
     @Column(name = "ID_PROJECT")
-    Long projectId;
+    Integer projectId;
 
     @ManyToOne
     @JoinColumn(name = "ID_COLOR", referencedColumnName = "ID_COLOR")
@@ -31,7 +31,7 @@ public class Category {
 
     }
     
-    public Category(String name, Long project, Color color){ 
+    public Category(String name, Integer project, Color color){ 
         this.name = name;
         this.projectId = project;
         this.color = color;
@@ -53,11 +53,11 @@ public class Category {
         this.name = name;
     }
 
-    public Long getProjectId() {
+    public Integer getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(Long projectId) {
+    public void setProjectId(Integer projectId) {
         this.projectId = projectId;
     }
 
