@@ -83,7 +83,7 @@ public class CommandHandler {
         }
         //Change task state
         else if (callbackQuery.startsWith("set_task_state_")){
-            handleSetTaskStateCallback(callbackQuery, chatId, update);
+            handleSetTaskStateCallback(callbackQuery, chatId, update, state);
         }
         else if (callbackQuery.startsWith("open_project")) {
             String[] parts = callbackQuery.split("_");
@@ -140,11 +140,11 @@ public class CommandHandler {
             int task_id = Integer.parseInt(parts[2]);
             int userProjectId = Integer.parseInt(parts[4]);
 
-            assignTask(chatId, task_id, userProjectId);
+            assignTask(chatId, task_id, userProjectId, state);
         }
     }
 
-    public void assignTask(Long chatId, int taskId, int userProjectId) {
+    public void assignTask(Long chatId, int taskId, int userProjectId, UserState state) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
 
@@ -156,12 +156,11 @@ public class CommandHandler {
             if (task != null) {
                 if (userProjectResponse.isPresent()) {
                     task.setAssignedTo(userProjectResponse.get());
-                    Task result = database.task.updateTask(task.getID(), task);
-                    if (result != null ) {
-                        message.setText(BotMessages.ASSIGNED_SUCCESSFULLY.getMessage());
-                    }else {
-                        message.setText(BotMessages.ERROR_DATABASE.getMessage());
-                    }                    
+
+                    state.setAssignationTask(task);
+                    message.setText(BotMessages.ASSIGNED_SUCCESSFULLY.getMessage());
+                    state.setState(UserStateType.ASSIGN_TASK_ENTER_ESTIMATED_HOURS);
+              
                 }
             }else {
                 message.setText(BotMessages.ERROR_DATABASE.getMessage());
@@ -345,7 +344,7 @@ public class CommandHandler {
     }
 
     //Set State to a Task
-    public void handleSetTaskStateCallback(String callbackQuery, long chatId, Update update) {
+    public void handleSetTaskStateCallback(String callbackQuery, long chatId, Update update, UserState state) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
 
@@ -364,8 +363,18 @@ public class CommandHandler {
                 
                 if (taskToEdit != null) {
                     taskToEdit.setState(newState);
-                    database.task.updateTask(taskId, taskToEdit);
-                    message.setText("Successfully changed task to state: " + newState.formatted());
+                    if (newState.formatted().equals("Done")) {
+                        state.setCompletionTask(taskToEdit);
+                        message.setText("Congratulations on completing your ticket! Now enter how many hours took you to complete it:");
+                        state.setState(UserStateType.COMPLETE_TASK_ENTER_REAL_HOURS);
+                    }else {
+                        Task result = database.task.updateTask(taskId, taskToEdit);
+                        if (result != null) {
+                            message.setText("Successfully changed task to state: " + newState.formatted());
+                        } else {
+                            message.setText(BotMessages.ERROR_DATABASE.getMessage());
+                        }
+                    }
                 }
             }
 
@@ -439,9 +448,31 @@ public class CommandHandler {
             message.setReplyMarkup(keyboardFactory.inlineKeyboardCategorySet(categories));
         } else if (state.getState() == UserStateType.CREATE_TASK_ENTER_CATEGORY) {
             message.setText(messageText);
+        } else if (state.getState() == UserStateType.ASSIGN_TASK_ENTER_ESTIMATED_HOURS) {
+            Task taskToEdit = state.getAssignationTask();
+            taskToEdit.setEstimatedHours(Integer.parseInt(messageText));
 
+            Task result = database.task.updateTask(taskToEdit.getID(), taskToEdit);
+            if (result != null) {
+                message.setText(BotMessages.ESTIMATED_HOURS_ASSIGNED_SUCCESSFULLY.getMessage());
+            }else{
+                message.setText(BotMessages.ERROR_DATABASE.getMessage());
+            }
+        } else if (state.getState() == UserStateType.COMPLETE_TASK_ENTER_REAL_HOURS) {
+
+            Task taskToAssignRealHours = state.getCompletionTask();
+            taskToAssignRealHours.setRealHours(Integer.parseInt(messageText));
+
+            Task result = database.task.updateTask(taskToAssignRealHours.getID(), taskToAssignRealHours);
+            if (result != null) {
+                message.setText(BotMessages.REAL_HOURS_ASSIGNED_SUCCESSFULLY.getMessage());
+            } else {
+                message.setText(BotMessages.ERROR_DATABASE.getMessage());
+            }
+
+        }
         //default
-        } else {
+        else {
             message.setText(BotMessages.DEFAULT_MESSAGE_START.getMessage());
         }
 

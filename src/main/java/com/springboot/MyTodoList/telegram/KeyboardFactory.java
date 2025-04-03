@@ -186,14 +186,15 @@ public class KeyboardFactory {
         createTask.setCallbackData("create_task_project_"+String.valueOf(projectID));
 
         InlineKeyboardButton seeSprint = new InlineKeyboardButton();
-        seeSprint.setText("See Sprint");
+        seeSprint.setText("See Tasks");
         seeSprint.setCallbackData("open_actual_sprint_"+String.valueOf(projectID));
 
         InlineKeyboardButton goBack = new InlineKeyboardButton();
         goBack.setText("Go Back");
         goBack.setCallbackData("restart");
 
-        keyboard.add(List.of(seeBacklog, createTask));
+        //keyboard.add(List.of(seeBacklog, createTask));
+        keyboard.add(List.of(createTask));
         keyboard.add(List.of(seeSprint, goBack));
 
         inlineKeyboardMarkup.setKeyboard(keyboard);

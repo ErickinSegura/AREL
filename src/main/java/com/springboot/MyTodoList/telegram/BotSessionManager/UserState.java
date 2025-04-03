@@ -8,14 +8,24 @@ public class UserState {
     //For Task Creation
     private Task activeTask;
 
+    //For Task Assignation (Estimated hours)
+    private Task assignationTask;
+
+    //For Task completion (Real hours)
+    private Task completionTask;
+
     public UserState() {
         this.state = UserStateType.START;
         activeTask = new Task();
+        assignationTask = new Task();
+        completionTask = new Task();
     }
 
     public UserState(UserStateType state){
         this.state = state;
         activeTask = new Task();
+        assignationTask = new Task();
+        completionTask = new Task();
     }
 
     public UserStateType getState() {
@@ -32,6 +42,22 @@ public class UserState {
 
     public void setTask(Task updatedTask) {
         this.activeTask = updatedTask;
+    }
+
+    public Task getAssignationTask() {
+        return assignationTask;
+    }
+
+    public void setAssignationTask(Task updatedTask) {
+        this.assignationTask = updatedTask;
+    }
+
+    public Task getCompletionTask() {
+        return completionTask;
+    }
+
+    public void setCompletionTask(Task updatedTask) {
+        this.completionTask = updatedTask;
     }
 
     

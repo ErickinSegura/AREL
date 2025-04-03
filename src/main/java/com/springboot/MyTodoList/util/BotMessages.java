@@ -35,7 +35,9 @@ public enum BotMessages {
 	LIST_SPRINT("Here's the list of tasks assigned to this sprint, click one to see it's information."),
 	NO_ACTIVE_SPRINT("The is no active sprint."),
 	ASSIGN_USER_TO_TASK("Select someone to assign this task to."),
-	ASSIGNED_SUCCESSFULLY("Task assigned successfully.")
+	ASSIGNED_SUCCESSFULLY("Now, enter the estimated amount of hours needed to complete this task: "),
+	ESTIMATED_HOURS_ASSIGNED_SUCCESSFULLY("Thank you! Task assigned successfully."),
+	REAL_HOURS_ASSIGNED_SUCCESSFULLY("Thank you! Your answer was sent succesfully.")
 	;
 
 	private String message;
