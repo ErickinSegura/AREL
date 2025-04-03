@@ -59,7 +59,7 @@ public class Task {
     //@ManyToOne
     //@JoinColumn(name = "SPRINT_ID", referencedColumnName = "ID_SPRINT")
     @Column(name = "SPRINT_ID")
-    int sprint;
+    Integer sprint;
 
     @Column(name = "DELETED")
     boolean deleted;
@@ -169,7 +169,7 @@ public class Task {
         this.category = category;
     }
 
-    public int getSprintId() {
+    public Integer getSprintId() {
         return sprint;
     }
 
@@ -211,7 +211,7 @@ public class Task {
         ", priority: " + priority.getLabel() +
         ", state: " + state.getLabel() +
         ", createdAt: " + createdAt +
-        ", assignedTo: " + assignedTo.getRole() +
+        ", assignedTo: " + (assignedTo != null ? assignedTo.getRole() : "not assigned") +
         ", category: " + category.getName() +
         ", sprint: " + sprint +
         ", project: " + projectId + 

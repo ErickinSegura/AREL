@@ -3,6 +3,8 @@ package com.springboot.MyTodoList.telegram.BotCommands;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -12,6 +14,7 @@ import com.springboot.MyTodoList.model.TaskPriority;
 import com.springboot.MyTodoList.model.TaskState;
 import com.springboot.MyTodoList.model.TaskType;
 import com.springboot.MyTodoList.service.ServiceManager;
+import com.springboot.MyTodoList.telegram.CommandHandler;
 import com.springboot.MyTodoList.telegram.KeyboardFactory;
 import com.springboot.MyTodoList.telegram.MessageSender;
 import com.springboot.MyTodoList.telegram.BotSessionManager.InactivityManager;
@@ -20,6 +23,8 @@ import com.springboot.MyTodoList.telegram.BotSessionManager.UserStateType;
 import com.springboot.MyTodoList.util.BotMessages;
 
 public class TaskCreationCommands {
+    private static final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
+
     private final ServiceManager database;
     private final MessageSender messageSender;
     private final KeyboardFactory keyboardFactory;
@@ -177,6 +182,8 @@ public class TaskCreationCommands {
 
         if (task != null) {
             task.setState(newState);
+            
+            logger.debug("TASK_LOG_TASK_LOG: "+task.toString());
             database.task.addTask(task);
             message.setText(BotMessages.SAVE_TASK.getMessage());
 
