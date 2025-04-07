@@ -197,7 +197,7 @@ const Sidebar = ({
                         {getProjectIcon(contextSelectedProject.icon?.iconName)}
                     </div>
 
-                    {/* Contenedor para el texto con ancho limitado */}
+
                     <div className={`flex-1 overflow-hidden transition-all duration-300 ${!isMobile && !isOpen ? 'opacity-0 w-0' : 'opacity-100'}`}>
                         <div className="text-base font-medium text-black truncate flex items-center">
                             <span className="truncate max-w-32">{contextSelectedProject.projectName}</span>
@@ -377,8 +377,19 @@ const Sidebar = ({
             {/* Project Section */}
             <div className="flex flex-col h-full">
                 <div className={`px-4 py-4 transition-all duration-300 h-16`}>
-                    <div className="flex items-center justify-center h-12">
-                        <ProjectSelector />
+                    <div className={`relative h-12 transition-all duration-300 ${isOpen ? '' : 'justify-center'}`}>
+                        {isOpen ? (
+                            <ProjectSelector />
+                        ) : (
+                            <div className="flex items-center gap-x-4">
+                                <div
+                                    className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center"
+                                    style={{ backgroundColor: contextSelectedProject?.color?.hexColor || '#ff0000' }}
+                                >
+                                    {getProjectIcon(contextSelectedProject?.icon?.iconName)}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
