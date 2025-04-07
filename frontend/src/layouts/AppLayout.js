@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Sidebar from '../components/sidebar/sideBar';
+import Sidebar from '../views/Sidebar';
 import { useRoute } from '../contexts/RouteContext';
 import { routes, sidebarRoutes } from '../routes';
 import { useAuth } from '../contexts/AuthContext';
