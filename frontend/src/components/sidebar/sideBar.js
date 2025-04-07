@@ -23,14 +23,12 @@ const Sidebar = ({
     const timerRef = useRef(null);
     const projectDropdownRef = useRef(null);
 
-    // Use the selectedProject from context rather than keeping local state
     useEffect(() => {
         if (projects && projects.length > 0 && !contextSelectedProject) {
             setSelectedProject(projects[0]);
         }
     }, [projects, contextSelectedProject, setSelectedProject]);
 
-    // Cerrar el dropdown cuando la sidebar se colapsa
     useEffect(() => {
         if (!isOpen) {
             setProjectDropdownOpen(false);
@@ -43,20 +41,17 @@ const Sidebar = ({
         ];
 
         const roleSpecificItems = {
-            // Manager (userLevel: 1)
             1: [
                 { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: true },
                 { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: true },
                 { icon: <FiBarChart2 size={20} />, label: 'Reports', hasSubmenu: true },
                 { icon: <FiUsers size={20} />, label: 'Team', hasSubmenu: true },
             ],
-            // Developer (userLevel: 2)
             2: [
                 { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: false },
                 { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: false },
                 { icon: <FiActivity size={20} />, label: 'My Tasks', hasSubmenu: false },
             ],
-            // Administrator (userLevel: 3)
             3: [
                 { icon: <FiUsers size={20} />, label: 'Users', hasSubmenu: true },
                 { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: false },
@@ -108,12 +103,10 @@ const Sidebar = ({
     };
 
     const selectProject = (project) => {
-        // Use context function to update the global selected project
         setSelectedProject(project);
         setProjectDropdownOpen(false);
     };
 
-    // Cerrar el dropdown cuando se hace clic fuera de él
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (projectDropdownRef.current && !projectDropdownRef.current.contains(event.target)) {
@@ -139,9 +132,7 @@ const Sidebar = ({
             }
         };
 
-        // Initial check
         handleResize();
-
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
@@ -154,7 +145,6 @@ const Sidebar = ({
     }, [selectedItem, setCurrentRoute]);
 
     useEffect(() => {
-        // Disable body scroll when mobile menu is open
         if (mobileMenuOpen) {
             document.body.style.overflow = 'hidden';
         } else {
@@ -170,17 +160,14 @@ const Sidebar = ({
         setMobileMenuOpen(!mobileMenuOpen);
     };
 
-    // Obtener un icono basado en el nombre del icono del proyecto
     const getProjectIcon = (iconName) => {
         switch (iconName) {
             case 'folder': return <FiFolder />;
             case 'codesandbox': return <FiCodesandbox />;
-            // Añadir más casos para otros iconos
             default: return <FiCodesandbox />;
         }
     };
 
-    // Componente para renderizar el selector de proyectos
     const ProjectSelector = ({ isMobile = false }) => {
         if (!contextSelectedProject) return null;
 
@@ -188,27 +175,29 @@ const Sidebar = ({
             <div ref={projectDropdownRef} className="relative w-full">
                 <button
                     onClick={toggleProjectDropdown}
-                    className={`flex items-center gap-x-2 w-full ${isMobile ? 'py-2' : ''} hover:bg-gray-200 rounded-md transition-colors px-2`}
+                    className={`flex items-center ${
+                        !isMobile && !isOpen ? 'justify-center' : ''
+                    } w-full ${isMobile ? 'py-2' : 'py-1.5'} hover:bg-gray-200 rounded-md transition-all duration-300`}
                 >
                     <div
-                        className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center"
-                        style={{ backgroundColor: contextSelectedProject.color?.hexColor || '#ff0000' }}
+                        className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center transition-all duration-300 text-white"
+                        style={{ backgroundColor: contextSelectedProject.color?.hexColor || '#4e4e4e' }}
                     >
                         {getProjectIcon(contextSelectedProject.icon?.iconName)}
                     </div>
 
-
-                    <div className={`flex-1 overflow-hidden transition-all duration-300 ${!isMobile && !isOpen ? 'opacity-0 w-0' : 'opacity-100'}`}>
-                        <div className="text-base font-medium text-black truncate flex items-center">
-                            <span className="truncate max-w-32">{contextSelectedProject.projectName}</span>
+                    <div className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                        !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
+                    }`}>
+                        <div className="text-base font-medium text-black truncate flex justify-around items-center">
+                            <span className="truncate w-5/6">{contextSelectedProject.projectName}</span>
                             <ChevronDown size={16} className="ml-1 flex-shrink-0" />
                         </div>
                     </div>
                 </button>
 
-                {/* Dropdown de proyectos */}
                 {projectDropdownOpen && (
-                    <div className={`absolute ${isMobile ? 'left-0' : isOpen ? 'left-0 right-0' : 'left-14'} top-full mt-1 bg-white rounded-md shadow-lg z-50 py-1 max-h-60 overflow-y-auto w-64`}>
+                    <div className={`absolute left-0 right-0 top-full mt-1 bg-white rounded-md shadow-lg z-50 py-1 max-h-60 overflow-y-auto w-full`}>
                         <div className="text-xs text-gray-500 px-3 py-1 uppercase">Proyectos</div>
                         {projects && projects.map((project) => (
                             <button
@@ -233,7 +222,6 @@ const Sidebar = ({
         );
     };
 
-    // Mobile top navigation bar
     if (isMobile) {
         return (
             <>
@@ -251,7 +239,6 @@ const Sidebar = ({
                     </div>
                 </div>
 
-                {/* Mobile menu overlay with animation */}
                 <div
                     className={`fixed inset-0 bg-black z-30 transition-opacity duration-300 ${
                         mobileMenuOpen ? 'opacity-40' : 'opacity-0 pointer-events-none'
@@ -259,7 +246,6 @@ const Sidebar = ({
                     onClick={toggleMobileMenu}
                 />
 
-                {/* Slide-in menu from left with animation */}
                 <div
                     className={`fixed left-0 top-0 bottom-0 w-64 bg-white shadow-xl z-40 transform transition-transform duration-300 ease-in-out ${
                         mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
@@ -330,7 +316,6 @@ const Sidebar = ({
                             ))}
                         </ul>
 
-                        {/* User Section */}
                         <div className="border-t border-gray-200 mx-4 mt-4 mb-2">
                             <div className="flex items-center h-16">
                                 <img
@@ -347,7 +332,6 @@ const Sidebar = ({
                                     </div>
                                 </div>
                             </div>
-                            {/* Botón de logout para móvil */}
                             <button
                                 onClick={handleLogout}
                                 className="flex items-center w-full py-2 px-3 mb-8 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -359,42 +343,30 @@ const Sidebar = ({
                     </nav>
                 </div>
 
-                {/* Content padding for fixed header */}
                 <div className="h-16" />
             </>
         );
     }
 
-    // Desktop sidebar
     return (
         <div
             ref={sidebarRef}
             className={`h-screen bg-gray-100 transition-all duration-300 ease-out flex flex-col fixed md:relative z-10
-                ${isOpen ? 'w-64' : 'w-16'}`}
+                ${isOpen ? 'w-64' : 'w-16'} items-center`}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
-            {/* Project Section */}
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-full w-full">
                 <div className={`px-4 py-4 transition-all duration-300 h-16`}>
-                    <div className={`relative h-12 transition-all duration-300 ${isOpen ? '' : 'justify-center'}`}>
-                        {isOpen ? (
-                            <ProjectSelector />
-                        ) : (
-                            <div className="flex items-center gap-x-4">
-                                <div
-                                    className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center"
-                                    style={{ backgroundColor: contextSelectedProject?.color?.hexColor || '#ff0000' }}
-                                >
-                                    {getProjectIcon(contextSelectedProject?.icon?.iconName)}
-                                </div>
-                            </div>
-                        )}
+                    <div className={`relative h-12 transition-all duration-300 flex items-center ${
+                        !isOpen ? 'justify-center' : ''
+                    }`}>
+                        <ProjectSelector />
                     </div>
                 </div>
 
                 <div className="border-t border-gray-700 mx-4 transition-all my-4"/>
-                <nav className="flex-1">
+                <nav className="flex-1 w-full">
                     <ul>
                         {menuItems.map((item, index) => (
                             <li key={index} className="relative">
@@ -445,7 +417,6 @@ const Sidebar = ({
                     </ul>
                 </nav>
 
-                {/* User Section con botón de logout */}
                 <div className="border-t border-gray-700 mx-4 transition-all mt-4 mb-2">
                     <div className="flex items-center h-16">
                         <img
@@ -463,7 +434,6 @@ const Sidebar = ({
                         </div>
                     </div>
 
-                    {/* Botón de logout para escritorio */}
                     {isOpen && (
                         <button
                             onClick={handleLogout}
@@ -474,7 +444,6 @@ const Sidebar = ({
                         </button>
                     )}
 
-                    {/* Ícono de logout cuando la barra está colapsada */}
                     {!isOpen && (
                         <button
                             onClick={handleLogout}

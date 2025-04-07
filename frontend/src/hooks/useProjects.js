@@ -23,7 +23,7 @@ const useProjectsData = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const defaultColor = { hexColor: "#808080" };
+    const defaultColor = { hexColor: "#4e4e4e" };
     const defaultIcon = { iconName: "folder" };
 
     useEffect(() => {
