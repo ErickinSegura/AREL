@@ -1,10 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 import { ProjectService } from '../api/projectService';
 
+const ProjectContext = createContext();
+
+export const ProjectProvider = ({ children }) => {
+    const projectsData = useProjectsData();
+
+    return (
+        <ProjectContext.Provider value={projectsData}>
+            {children}
+        </ProjectContext.Provider>
+    );
+};
+
 export const useProjects = () => {
+    return useContext(ProjectContext);
+};
+
+const useProjectsData = () => {
     const [projects, setProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
-    const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -17,17 +32,23 @@ export const useProjects = () => {
                 setLoading(true);
                 const data = await ProjectService.getProjects();
 
-                const adaptedProjects = data.map(project => ({
-                    id: project.id,
-                    projectName: project.name || "Unnamed Project",
-                    description: project.description || "No description available",
-                    color: project.color || defaultColor,
-                    icon: project.icon || defaultIcon,
-                    activeSprint: project.activeSprintId
-                }));
+                const adaptedProjects = data.map(project => {
+                    const colorValue = project.color
+                        ? { hexColor: `#${project.color.hexColor}` }
+                        : defaultColor;
+
+                    return {
+                        id: project.id,
+                        projectName: project.name || "Unnamed Project",
+                        description: project.description || "No description available",
+                        color: colorValue,
+                        icon: project.icon || defaultIcon,
+                        activeSprint: project.activeSprintId
+                    };
+                });
 
                 setProjects(adaptedProjects);
-                if (adaptedProjects.length > 0) {
+                if (adaptedProjects.length > 0 && !selectedProject) {
                     setSelectedProject(adaptedProjects[0]);
                 }
             } catch (error) {
@@ -41,38 +62,15 @@ export const useProjects = () => {
         fetchProjects();
     }, []);
 
-    const toggleProjectDropdown = (e) => {
-        e.stopPropagation();
-        setProjectDropdownOpen(!projectDropdownOpen);
-    };
-
     const selectProject = (project) => {
         setSelectedProject(project);
-        setProjectDropdownOpen(false);
-        // Dispatch an event or use context to notify other components of the project change
-        window.dispatchEvent(new CustomEvent('projectChanged', { detail: project }));
     };
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (projectDropdownOpen && !event.target.closest('.project-dropdown')) {
-                setProjectDropdownOpen(false);
-            }
-        };
-
-        document.addEventListener('click', handleClickOutside);
-        return () => {
-            document.removeEventListener('click', handleClickOutside);
-        };
-    }, [projectDropdownOpen]);
 
     return {
         projects,
         selectedProject,
-        projectDropdownOpen,
+        setSelectedProject: selectProject,
         loading,
-        error,
-        toggleProjectDropdown,
-        selectProject
+        error
     };
 };
