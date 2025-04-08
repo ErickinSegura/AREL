@@ -54,15 +54,22 @@ public class CategoryService {
         }
     }
 
-    public ResponseEntity<Category> updateCategory(int id, Category categoryDetails) {
+    /**
+     * Actualiza una categoría existente en la base de datos.
+     * 
+     * @param id El identificador único de la categoría a actualizar.
+     * @param categoryDetails Los detalles de la categoría que se van a actualizar.
+     * @return ResponseEntity con la categoría actualizada si se encuentra, o un error HTTP 404 si no se encuentra.
+     */
+    public ResponseEntity<Category> updateCategory(final int id, final Category categoryDetails) {
         Optional<Category> categoryData = categoryRepository.findById(id);
         if (categoryData.isPresent()) {
             Category category = categoryData.get();
-    
+
             category.setName(categoryDetails.getName());
             category.setProjectId(categoryDetails.getProjectId());
             category.setColor(categoryDetails.getColor());
-    
+
             Category updatedCategory = categoryRepository.save(category);
             return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
         } else {

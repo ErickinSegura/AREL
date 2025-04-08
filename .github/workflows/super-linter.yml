@@ -29,3 +29,6 @@ jobs:
           VALIDATE_JAVASCRIPT_ES: true
           DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_LOCAL: true
+        with:
+          LINTER_RULES_PATH: './src/main/java/'
