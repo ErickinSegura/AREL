@@ -30,5 +30,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_LOCAL: true
           CHECKSTYLE_CONFIG: './src/main/java/com/springboot/MyTodoList/checkstyle.xml'
-        with:
-          LINTER_RULES_PATH: './src/main/java/com/springboot/MyTodoList/checkstyle.xml'
