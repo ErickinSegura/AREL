@@ -44,6 +44,8 @@ public class TaskService {
         Optional<Task> taskData = taskRepository.findById(id);
         if(taskData.isPresent()){
             Task taskItem = taskData.get();
+            taskItem.setSprintId(task.getSprintId());
+            taskItem.setProject(task.getProjectId());
             BeanUtils.copyProperties(task, taskItem, "id");
             return taskRepository.save(taskItem);
             
@@ -58,5 +60,9 @@ public class TaskService {
 
     public List<Task> getTasksBySprintID(int sprintID) {
         return taskRepository.findBySprint(sprintID);
+    }
+
+    public List<Task> getBacklog(int projectId) {
+        return taskRepository.getBacklogTasks(projectId);
     }
 }

@@ -15,12 +15,12 @@ public class Sprint {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name= "ID_SPRINT")
-    int ID;
+    Integer ID;
 
     //@ManyToOne
     //@JoinColumn(name = "ID_PROJECT", referencedColumnName = "ID_PROJECT")
     @Column(name = "ID_PROJECT")
-    int project;
+    Integer project;
 
     @Column(name = "SPRINT_NUMBER")
     int sprintNumber;
@@ -35,16 +35,16 @@ public class Sprint {
 
     }
     
-    public Sprint(int projectId, int sprintNumber){ 
+    public Sprint(Integer projectId, int sprintNumber){ 
         this.project = projectId;
         this.sprintNumber = sprintNumber;
     }
 
-    public int getID() {
+    public Integer getID() {
         return ID;
     }
 
-    public void setID(int ID) {
+    public void setID(Integer ID) {
         this.ID = ID;
     }
 
@@ -56,11 +56,11 @@ public class Sprint {
         this.sprintNumber = sprintNumber;
     }
 
-    public int getProject() {
+    public Integer getProject() {
         return project;
     }
 
-    public void setProject(int projectId) {
+    public void setProject(Integer projectId) {
         this.project = projectId;
     }
 
