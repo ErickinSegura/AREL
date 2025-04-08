@@ -29,4 +29,4 @@ jobs:
           DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_LOCAL: true
-          CHECKSTYLE_CONFIG: './src/main/java/com/springboot/MyTodoList/checkstyle.xml'
+          JAVA_CHECKSTYLE_CONFIG_FILE: './src/main/java/com/springboot/MyTodoList/checkstyle.xml'
