@@ -41,7 +41,7 @@ public class Task {
     @Column(name = "ESTIMATED_HOURS")
     Integer estimatedHours;
 
-    @Column(name = "PROJECT_ID", columnDefinition = "ID_PROJECT")
+    @Column(name = "PROJECT_ID")
     Integer projectId;
 
     @ManyToOne
@@ -69,7 +69,7 @@ public class Task {
 
     public Task(String title, String description, TaskType type, TaskPriority priority, TaskState state, 
                 LocalDateTime createdAt, Integer estimatedHours, Integer realHours, UserProject assignedTo, Category category, 
-                int sprint, int projectId) {
+                Integer sprint, Integer projectId) {
         this.title = title;
         this.description = description;
         this.type = type;
@@ -169,7 +169,7 @@ public class Task {
         return sprint;
     }
 
-    public void setSprintId(int sprintId) {
+    public void setSprintId(Integer sprintId) {
         this.sprint = sprintId;
     }
 
@@ -193,7 +193,7 @@ public class Task {
         return projectId;
     }
 
-    public void setProject(int newProjectId) {
+    public void setProject(Integer newProjectId) {
         this.projectId = newProjectId;
     }
 
@@ -229,7 +229,29 @@ public class Task {
         +"\n\n"
         +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
         +"\n"
-        +"<b>Estimated Hours:</b> " + estimatedHours
+        +"<b>Estimated Hours:</b> " + (estimatedHours != null ? estimatedHours : "Not set")
+        +"\n"
+        +"<b>State:</b> " + (state != null ? state.formatted() : "No State")
+        ;
+    }
+
+    public String managerFormattedString() {
+
+        //Null checks
+        String role = assignedTo.getRole();
+        User assigned = assignedTo.getUser();
+
+        return "<b>"+title+"</b>"
+        +"\n\n"
+        +type.formattedString()
+        +" - "
+        +description
+        +"\n\n"
+        +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
+        +"\n"
+        +"<b>Estimated Hours:</b> " + (estimatedHours != null ? estimatedHours : "Not set")
+        +"\n"
+        +"<b>Assigned to:</b> " + role + " (" + assigned.getFirstName() + " " + assigned.getLastName() + ")"
         +"\n"
         +"<b>State:</b> " + (state != null ? state.formatted() : "No State")
         ;

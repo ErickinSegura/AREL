@@ -11,6 +11,7 @@ public enum BotMessages {
 	TYPE_NEW_TODO_ITEM("Type a new todo item below and press the send button (blue arrow) on the rigth-hand side."),
 	NEW_ITEM_ADDED("New item added! Select /todolist to return to the list of todo items, or /start to go to the main screen."),
 	BYE("Bye! Select /start to resume!"),
+
 	NO_PROJECT_ASSIGNED("Welcome, %s, there are no project assigned to you right now."),
 	PROJECT_AVAILABLE("%s, you are assigned to the project \"%s\" as %s. Here's your active tasks, please select one option to see/update its information."),
 	MULTIPLE_PROJECTS_AVAILABLE("%s, you have multiple projects available, please select one below."),
@@ -37,7 +38,13 @@ public enum BotMessages {
 	ASSIGN_USER_TO_TASK("Select someone to assign this task to."),
 	ASSIGNED_SUCCESSFULLY("Now, enter the estimated amount of hours needed to complete this task: "),
 	ESTIMATED_HOURS_ASSIGNED_SUCCESSFULLY("Thank you! Task assigned successfully."),
-	REAL_HOURS_ASSIGNED_SUCCESSFULLY("Thank you! Your answer was sent succesfully.")
+	REAL_HOURS_ASSIGNED_SUCCESSFULLY("Thank you! Your answer was sent succesfully."),
+	NO_ITEMS_IN_BACKLOG("I couldn't find any items in this project backlog, consider creating a new task first."),
+	OPENED_BACKLOG("Here's the tickets in this backlog, select one to see its information or add them to a sprint."),
+	OPENED_SPRINTS("Here are the available sprints for this project."),
+	NO_SPRINTS_AVAILABLE("There are no available sprints for this project"),
+	OPENED_SPRINT("Showing information for Sprint %s. \n\n%s"),
+	SUCCESSFULLY_MOVED_TO_BACKLOG("Successfully moved task to this project's backlog.")
 	;
 
 	private String message;

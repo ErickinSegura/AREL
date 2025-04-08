@@ -1,6 +1,8 @@
 package com.springboot.MyTodoList.telegram;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -10,6 +12,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import com.springboot.MyTodoList.model.Project;
+import com.springboot.MyTodoList.model.Sprint;
 import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.model.TaskState;
 import com.springboot.MyTodoList.model.User;
@@ -23,6 +26,9 @@ import com.springboot.MyTodoList.telegram.BotSessionManager.UserStateType;
 import com.springboot.MyTodoList.util.BotCommands;
 import com.springboot.MyTodoList.util.BotLabels;
 import com.springboot.MyTodoList.util.BotMessages;
+
+import oracle.net.aso.m;
+
 
 public class CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
@@ -142,6 +148,155 @@ public class CommandHandler {
 
             assignTask(chatId, task_id, userProjectId, state);
         }
+        else if (callbackQuery.startsWith("see_backlog_")) {
+            String[] parts = callbackQuery.split("_");
+            int projectId = Integer.parseInt(parts[2]);
+
+            openBacklog(chatId, projectId);
+        }
+        else if (callbackQuery.startsWith("open_backlog_item_")) {
+            String[] parts = callbackQuery.split("_");
+            int taskId = Integer.parseInt(parts[3]);
+
+            openBacklogItem(chatId, taskId);
+        }
+        else if (callbackQuery.startsWith("open_sprints_")) { //Available Sprints from a project
+            String[] parts = callbackQuery.split("_");
+            int projectId = Integer.parseInt(parts[2]);
+
+            sprintList(chatId, projectId);
+        }
+        else if (callbackQuery.startsWith("open_sprint_")) {
+            String[] parts = callbackQuery.split("_");
+            int sprintId = Integer.parseInt(parts[2]);
+
+            openSprint(chatId, sprintId);
+        }
+        else if (callbackQuery.startsWith("move_task_backlog_")) {
+            String[] parts = callbackQuery.split("_");
+            int taskId = Integer.parseInt(parts[3]);
+
+            moveTaskToBacklog(chatId, taskId);
+        }
+    }
+
+    public void moveTaskToBacklog(Long chatId, int taskId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(BotMessages.ERROR_DATABASE.getMessage());
+
+        ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
+        if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()){
+            Task task = taskResponse.getBody();
+
+            if (task != null) {
+                Integer projectID = getProjectIdFromTask(task);
+                logger.debug("FOUND PROJECTID is " + projectID);
+                task.setSprintId(null);
+                task.setProject(projectID);
+
+                Task result = database.task.updateTask(taskId, task);
+
+                if (result != null ) {
+                    message.setText(BotMessages.SUCCESSFULLY_MOVED_TO_BACKLOG.getMessage());
+                }
+            }
+        }
+
+        messageSender.sendMessage(message);
+    }
+
+    public void openSprint(Long chatId, int sprintId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(BotMessages.ERROR_DATABASE.getMessage());
+
+        List<Task> sprintTasks = database.task.getTasksBySprintID(sprintId);
+        ResponseEntity<Sprint> sprintResponse = database.sprint.getSprintsbyID(sprintId);
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH);
+
+        if (sprintResponse.getStatusCode().is2xxSuccessful() && sprintResponse.hasBody()) {
+            Sprint sprint = sprintResponse.getBody();
+            if (sprint != null) {
+
+                String sprintInfo = "";
+                sprintInfo = "<b>Start Date: </b>" +  sprint.getStartDate().format(format) + "\n<b>End Date: </b>" + sprint.getEndDate().format(format);
+
+                if (sprintTasks.size() > 0) {
+                    sprintInfo = sprintInfo + "\n\nClick on one of the tasks below to see its information";
+                    message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerTaskList(sprintTasks));
+                } else {
+                    sprintInfo = sprintInfo + "\n\nThis sprint has no assigned tasks";
+                }
+
+                message.setText(BotMessages.OPENED_SPRINT.getMessage(sprint.getSprintNumber(), sprintInfo));   
+
+            }
+        }
+
+
+        messageSender.sendMessage(message);
+    }
+
+    public void sprintList(Long chatId, int projectId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        ResponseEntity<List<Sprint>> sprintResponse = database.sprint.getAvailableSprints(projectId);
+
+        if (sprintResponse.getStatusCode().is2xxSuccessful() && sprintResponse.hasBody()){
+            List<Sprint> sprintList = sprintResponse.getBody();
+            if (sprintList != null && !sprintList.isEmpty() && sprintList.size()>0) {
+                message.setText(BotMessages.OPENED_SPRINTS.getMessage());
+
+                int currentSprint = database.project.getActiveSprint(projectId);
+                message.setReplyMarkup(keyboardFactory.sprintList(sprintList, currentSprint));
+            }else {
+                message.setText(BotMessages.NO_SPRINTS_AVAILABLE.getMessage());
+            }
+        }else {
+            message.setText(BotMessages.ERROR_DATABASE.getMessage());
+        }
+
+        messageSender.sendMessage(message);
+    }
+
+    public void openBacklogItem(Long chatId, int taskId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
+
+        if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
+            Task task = taskResponse.getBody();
+            if (task != null) {
+                message.setText(task.getCoolFormatedString());
+                message.setReplyMarkup(keyboardFactory.taskInfoBacklog(task));
+    
+            }else {
+                message.setText(BotMessages.ERROR_DATABASE.getMessage());
+            }
+        }
+        
+        
+
+        messageSender.sendMessage(message);
+    }
+
+    public void openBacklog(Long chatId, int projectId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        List<Task> backlog = database.task.getBacklog(projectId);
+        if (backlog.size() > 0 && !backlog.isEmpty()) {
+
+            message.setText(BotMessages.OPENED_BACKLOG.getMessage());
+            message.setReplyMarkup(keyboardFactory.inlineKeyboardBacklogList(backlog));
+
+        }else {
+            message.setText(BotMessages.NO_ITEMS_IN_BACKLOG.getMessage());
+        }
+
+        messageSender.sendMessage(message);
     }
 
     public void assignTask(Long chatId, int taskId, int userProjectId, UserState state) {
@@ -198,10 +353,9 @@ public class CommandHandler {
         if (task.getProjectId() != null) {
             return task.getProjectId();
         } else {
-            ResponseEntity<Integer> idResponse = database.sprint.getProjectbyId(task.getSprintId());
-            if (idResponse.getStatusCode().is2xxSuccessful() && idResponse.hasBody()) {
-                Integer id = idResponse.getBody();
-                return id;
+            Integer idResponse = database.sprint.getProjectbyId(task.getSprintId());
+            if (idResponse != null) {
+                return idResponse;
             }
             else {
                 return null;
@@ -221,7 +375,7 @@ public class CommandHandler {
             if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
                 Task task = taskResponse.getBody();
                 if (task != null) {
-                    message.setText(task.getCoolFormatedString());
+                    message.setText(task.managerFormattedString());
                     message.setReplyMarkup(keyboardFactory.taskInfoManagerKeyboard(task));
                 } else {
                     message.setText(BotMessages.ERROR_DATABASE.getMessage());
