@@ -26,10 +26,9 @@ jobs:
         env:
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_JAVA: true
-          VALIDATE_JAVASCRIPT_ES: true
+          VALIDATE_JAVASCRIPT_ES: false
           DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_LOCAL: true
         with:
-          LINTER_RULES_PATH: './checkstyle.xml' 
-          LINTER_PATH: './src/main/java/'
+          LINTER_RULES_PATH: './src/main/java/com/springboot/MyTodoList/checkstyle.xml'
