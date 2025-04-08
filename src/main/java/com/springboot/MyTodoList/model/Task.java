@@ -238,8 +238,11 @@ public class Task {
     public String managerFormattedString() {
 
         //Null checks
-        String role = assignedTo.getRole();
-        User assigned = assignedTo.getUser();
+        String stringRole = "Not set";
+        if (assignedTo != null) {
+            User assigned = assignedTo.getUser();
+            stringRole = assignedTo.getRole() + " (" + assigned.getFirstName() + " " + assigned.getLastName() + ")";
+        }
 
         return "<b>"+title+"</b>"
         +"\n\n"
@@ -251,7 +254,7 @@ public class Task {
         +"\n"
         +"<b>Estimated Hours:</b> " + (estimatedHours != null ? estimatedHours : "Not set")
         +"\n"
-        +"<b>Assigned to:</b> " + role + " (" + assigned.getFirstName() + " " + assigned.getLastName() + ")"
+        +"<b>Assigned to:</b> " + stringRole
         +"\n"
         +"<b>State:</b> " + (state != null ? state.formatted() : "No State")
         ;

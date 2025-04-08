@@ -30,8 +30,8 @@ public class SprintService {
         }
     }
 
-    public ResponseEntity<Integer> getActiveSprintId() {
-        List<Integer> activeSprintIds = sprintRepository.findActiveSprintIds();
+    public ResponseEntity<Integer> getActiveSprintId(Integer projectId) {
+        List<Integer> activeSprintIds = sprintRepository.findActiveSprintIds(projectId);
         
         if (activeSprintIds.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
