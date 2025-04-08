@@ -8,7 +8,7 @@
 logs.log
 /frontend/.idea
 *.xml
-!src/main/java/com/springboot/MyTodoList/checkstyle.xml
+!.github/linters/sun_checks.xml
 !checkstyle.xml
 .DS_Store
 /state
