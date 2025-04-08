@@ -28,5 +28,5 @@ jobs:
           VALIDATE_JAVA: true
           DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUN_LOCAL: true
-          JAVA_CHECKSTYLE_CONFIG_FILE: './src/main/java/com/springboot/MyTodoList/checkstyle.xml'
+          CHECKSTYLE_CONFIG_FILE: checkstyle.xml
+          LOG_LEVEL: DEBUG
