@@ -28,5 +28,4 @@ jobs:
           VALIDATE_JAVA: true
           DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CHECKSTYLE_CONFIG_FILE: checkstyle.xml
           LOG_LEVEL: DEBUG
