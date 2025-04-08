@@ -15,7 +15,7 @@ public class Sprint {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name= "ID_SPRINT")
-    int ID;
+    Integer ID;
 
     //@ManyToOne
     //@JoinColumn(name = "ID_PROJECT", referencedColumnName = "ID_PROJECT")
@@ -40,11 +40,11 @@ public class Sprint {
         this.sprintNumber = sprintNumber;
     }
 
-    public int getID() {
+    public Integer getID() {
         return ID;
     }
 
-    public void setID(int ID) {
+    public void setID(Integer ID) {
         this.ID = ID;
     }
 

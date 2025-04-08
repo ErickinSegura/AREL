@@ -195,6 +195,23 @@ public class KeyboardFactory {
         return inlineKeyboardMarkup;
     }
 
+    public InlineKeyboardMarkup confirmAddThisSprint(int taskId) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        InlineKeyboardButton confirm = new InlineKeyboardButton();
+        confirm.setText("Yes, confirm");
+        confirm.setCallbackData("confirm_this_sprint_"+taskId);
+
+        InlineKeyboardButton next = new InlineKeyboardButton();
+        next.setText("No, add to next Sprint");
+        next.setCallbackData("add_next_sprint_"+taskId);
+        keyboard.add(List.of(confirm, next));
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
     public InlineKeyboardMarkup createInlineKeyboardFromTasks(List<Task> taskList) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();

@@ -27,9 +27,6 @@ import com.springboot.MyTodoList.util.BotCommands;
 import com.springboot.MyTodoList.util.BotLabels;
 import com.springboot.MyTodoList.util.BotMessages;
 
-import oracle.net.aso.m;
-
-
 public class CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 
@@ -72,6 +69,7 @@ public class CommandHandler {
 
     public void handleCallback(long chatId, String callbackQuery, Update update, UserState state) {
         logger.debug("Got callback query !!! text: " + callbackQuery);
+        String[] parts = callbackQuery.split("_");
 
         //Check callback info
 
@@ -92,8 +90,6 @@ public class CommandHandler {
             handleSetTaskStateCallback(callbackQuery, chatId, update, state);
         }
         else if (callbackQuery.startsWith("open_project")) {
-            String[] parts = callbackQuery.split("_");
-    
             int userProjectId = Integer.parseInt(parts[3]);
             String userLevel = parts[2];
 
@@ -106,14 +102,12 @@ public class CommandHandler {
             createTask.handleSetCategory(chatId, callbackQuery, state);
         }
         else if (callbackQuery.startsWith("set_statetask_type_")) {
-            String[] parts = callbackQuery.split("_");
             int type_id = Integer.parseInt(parts[3]);
             String type_label = parts[4];
 
             createTask.handleSetType(chatId, state, type_id, type_label);
         }
         else if (callbackQuery.startsWith("set_statetask_priority_")) {
-            String[] parts = callbackQuery.split("_");
             int priorityId = Integer.parseInt(parts[3]);
             String priorityLabel = parts[4];
 
@@ -130,59 +124,144 @@ public class CommandHandler {
             handleStartCommand(chatId, update);
         }
         else if (callbackQuery.startsWith("open_actual_sprint")) {
-            String[] parts = callbackQuery.split("_");
             int projectId = Integer.parseInt(parts[3]);
 
             showSprint(chatId, projectId);
         }
         else if (callbackQuery.startsWith("open_assign_task_")) {
-            String[] parts = callbackQuery.split("_");
             int task_id = Integer.parseInt(parts[3]);
 
             handleAssignTask(chatId, task_id);
         }
         else if (callbackQuery.startsWith("assign_task_")){
-            String[] parts = callbackQuery.split("_");
             int task_id = Integer.parseInt(parts[2]);
             int userProjectId = Integer.parseInt(parts[4]);
 
             assignTask(chatId, task_id, userProjectId, state);
         }
         else if (callbackQuery.startsWith("see_backlog_")) {
-            String[] parts = callbackQuery.split("_");
             int projectId = Integer.parseInt(parts[2]);
 
             openBacklog(chatId, projectId);
         }
         else if (callbackQuery.startsWith("open_backlog_item_")) {
-            String[] parts = callbackQuery.split("_");
             int taskId = Integer.parseInt(parts[3]);
 
             openBacklogItem(chatId, taskId);
         }
         else if (callbackQuery.startsWith("open_sprints_")) { //Available Sprints from a project
-            String[] parts = callbackQuery.split("_");
             int projectId = Integer.parseInt(parts[2]);
 
             sprintList(chatId, projectId);
         }
         else if (callbackQuery.startsWith("open_sprint_")) {
-            String[] parts = callbackQuery.split("_");
             int sprintId = Integer.parseInt(parts[2]);
 
             openSprint(chatId, sprintId);
         }
         else if (callbackQuery.startsWith("move_task_backlog_")) {
-            String[] parts = callbackQuery.split("_");
             int taskId = Integer.parseInt(parts[3]);
 
             moveTaskToBacklog(chatId, taskId);
         }
+        else if (callbackQuery.startsWith("add_next_sprint_")) {
+            int taskId = Integer.parseInt(parts[3]);
+
+            addToNextSprint(chatId, taskId);
+        }
+        else if (callbackQuery.startsWith("add_this_sprint_")) {
+            int taskId = Integer.parseInt(parts[3]);
+
+            askConfirmation(chatId, taskId);
+        }
+        else if (callbackQuery.startsWith("confirm_this_sprint_")){
+            int taskId = Integer.parseInt(parts[3]);
+
+            addToThisSprint(chatId, taskId);
+        }
+    }
+
+    public void addToThisSprint(Long chatId, int taskId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        message.setText(BotMessages.ADDING_TO_CURRENT_SPRINT.getMessage());
+        messageSender.sendMessage(message);
+
+        message.setText(BotMessages.ERROR_DATABASE.getMessage());
+
+        ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
+        if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
+            Task task = taskResponse.getBody();
+            if (task != null){
+                int projectID = task.getProjectId();
+                ResponseEntity<Integer> sprintIdResponse = database.sprint.getActiveSprintId(projectID);
+                if (sprintIdResponse.getStatusCode().is2xxSuccessful() && sprintIdResponse.hasBody()) {
+                    Integer sprintId = sprintIdResponse.getBody();
+                    if (sprintId != null) {
+                        task.setSprintId(sprintId);
+                        Task response = database.task.updateTask(taskId, task);
+                        if (response != null) {
+                            message.setText(BotMessages.SUCCESFFULLY_MOVED_TO_CURRENT_SPRINT.getMessage());
+                            message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(projectID));
+                        }
+                    }
+                }
+            }
+        }
+
+        messageSender.sendMessage(message);
+    }
+    
+    public void askConfirmation(Long chatId, int taskId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(BotMessages.ASK_CONFIRMATION_RUNNING_SPRINT.getMessage());
+        message.setReplyMarkup(keyboardFactory.confirmAddThisSprint(taskId));
+        messageSender.sendMessage(message);
+    }
+
+    public void addToNextSprint(Long chatId, int taskId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        message.setText(BotMessages.ADDING_TO_NEXT_SPRINT.getMessage());
+        messageSender.sendMessage(message);
+
+        message.setText(BotMessages.ERROR_DATABASE.getMessage());
+
+        ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
+        if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
+            Task task = taskResponse.getBody();
+            if (task != null) {
+                Integer idProject = getProjectIdFromTask(task);
+                Optional<Sprint> sprintResponse = database.sprint.getNextSprint(idProject);
+                if (sprintResponse.isPresent()) {
+                    Sprint sprint = sprintResponse.get();
+
+                    Integer sprintID = sprint.getID();
+                    task.setSprintId(sprintID);
+
+                    Task response = database.task.updateTask(taskId, task);
+
+                    if (response != null) {
+                        message.setText(BotMessages.SUCCESSFULLY_MOVED_TO_NEXT_SPRINT.getMessage(sprint.getSprintNumber()));
+                        message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(idProject));
+                    }
+
+                }
+            }
+        }
+
+        messageSender.sendMessage(message);
     }
 
     public void moveTaskToBacklog(Long chatId, int taskId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
+        message.setText(BotMessages.MOVING_TO_BACKLOG.getMessage());
+        messageSender.sendMessage(message);
+
         message.setText(BotMessages.ERROR_DATABASE.getMessage());
 
         ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
@@ -199,6 +278,7 @@ public class CommandHandler {
 
                 if (result != null ) {
                     message.setText(BotMessages.SUCCESSFULLY_MOVED_TO_BACKLOG.getMessage());
+                    message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(projectID));
                 }
             }
         }
@@ -233,7 +313,6 @@ public class CommandHandler {
 
             }
         }
-
 
         messageSender.sendMessage(message);
     }
@@ -276,8 +355,6 @@ public class CommandHandler {
                 message.setText(BotMessages.ERROR_DATABASE.getMessage());
             }
         }
-        
-        
 
         messageSender.sendMessage(message);
     }
