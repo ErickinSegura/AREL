@@ -21,7 +21,7 @@ jobs:
           # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
 
-      - name: Lint Code Base
+      - name: Lint Execution
         uses: github/super-linter@v4
         env:
           VALIDATE_ALL_CODEBASE: true
@@ -31,4 +31,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_LOCAL: true
         with:
-          LINTER_RULES_PATH: './src/main/java/'
+          LINTER_RULES_PATH: './checkstyle.xml' 
+          LINTER_PATH: './src/main/java/'
