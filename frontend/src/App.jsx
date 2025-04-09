@@ -11,6 +11,7 @@ const App = () => {
         <AppLayout defaultOpen={false} accentColor="#C74634" />
       </RouteProvider>
     </AuthProvider>
+    
   );
 };
 

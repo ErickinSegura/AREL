@@ -10,7 +10,7 @@ const Shortcuts = () => {
       <p>Contenido de la vista Shortcuts</p>
       <PDFDownloadLink document={<PDF />} fileName="report.pdf">
         <Button variant="remarked" color="error">
-            Save Information
+            Save as PDF
         </Button>
       </PDFDownloadLink>
     </div>

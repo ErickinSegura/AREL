@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FiPlus, FiTrash2, FiEdit } from 'react-icons/fi';
 import { Avatar } from '@mui/material';
-import { Draggable } from 'react-beautiful-dnd';
+import { Draggable } from '@hello-pangea/dnd';
 import { CardContent } from '../../lib/ui/Card';
 import { Button } from '../../lib/ui/Button';
 import { Sheet } from '../../lib/ui/Sheet';
