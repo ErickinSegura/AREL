@@ -96,7 +96,6 @@ export const useOverviewData = () => {
             perf => currentSprint && perf.sprintNumber === currentSprint.sprintNumber
         );
 
-        // Generate sample tasks based on user performances
         const tasks = [];
         let taskId = 1;
 

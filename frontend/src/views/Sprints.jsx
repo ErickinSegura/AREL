@@ -1,5 +1,5 @@
 import React from 'react';
-import { DragDropContext, Droppable } from '@hello-pangea/dnd';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { Card, CardHeader, CardTitle } from '../lib/ui/Card';
 import useSprintBoard from '../hooks/useSprint';
 import { Button } from '../lib/ui/Button';
