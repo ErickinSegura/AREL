@@ -45,7 +45,6 @@ public class TaskService {
         if(taskData.isPresent()){
             Task taskItem = taskData.get();
             taskItem.setSprintId(task.getSprintId());
-            taskItem.setProject(task.getProjectId());
             BeanUtils.copyProperties(task, taskItem, "id");
             return taskRepository.save(taskItem);
             

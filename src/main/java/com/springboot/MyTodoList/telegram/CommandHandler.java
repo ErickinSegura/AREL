@@ -433,13 +433,16 @@ public class CommandHandler {
         if (task.getProjectId() != null) {
             return task.getProjectId();
         } else {
-            Integer idResponse = database.sprint.getProjectbyId(task.getSprintId());
-            if (idResponse != null) {
-                return idResponse;
-            }
-            else {
-                return null;
-            }
+            return null;
+            //Probably not necesary
+
+            // Integer idResponse = database.sprint.getProjectbyId(task.getSprintId());
+            // if (idResponse != null) {
+            //     return idResponse;
+            // }
+            // else {
+            //     return null;
+            // }
         }
     }
 
