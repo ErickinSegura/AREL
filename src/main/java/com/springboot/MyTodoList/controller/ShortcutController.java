@@ -13,8 +13,12 @@ import java.util.List;
 @RequestMapping("/shortcuts")
 public class ShortcutController {
 
+    private final ShortcutService shortcutService;
+
     @Autowired
-    private ShortcutService shortcutService;
+    public ShortcutController(ShortcutService shortcutService) {
+        this.shortcutService = shortcutService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Shortcut>> getAllShortcuts() {
@@ -43,6 +47,11 @@ public class ShortcutController {
     @GetMapping("/project/{projectId}/ids")
     public ResponseEntity<List<Integer>> getShortcutIdsByProject(@PathVariable int projectId) {
         return shortcutService.getShortcutIdsByProject(projectId);
+    }
+
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<List<Shortcut>> getShortcutsByProject(@PathVariable int projectId) {
+        return shortcutService.getShortcutsByProject(projectId);
     }
 
     @DeleteMapping("/{id}")
