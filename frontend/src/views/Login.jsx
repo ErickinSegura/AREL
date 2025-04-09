@@ -54,26 +54,26 @@ const Login = () => {
                                     />
 
                                     <div className="relative">
-                                    <FormField
-                                        id="password"
-                                        name="password"
-                                        label="Password"
-                                        type={showPassword ? "text" : "password"}
-                                        placeholder="password"
-                                        value={user.password}
-                                        onChange={handleChange}
-                                        error={errors.password}
-                                        disabled={isSubmitting}
-                                        icon={<IconPassword />}
-                                        required
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={togglePasswordVisibility}
-                                        className="absolute right-3 top-9 text-gray-400 hover:text-gray-600 focus:outline-none"
-                                    >
-                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                    </button>
+                                        <FormField
+                                            id="password"
+                                            name="password"
+                                            label="Password"
+                                            type={showPassword ? "text" : "password"}
+                                            placeholder="password"
+                                            value={user.password}
+                                            onChange={handleChange}
+                                            error={errors.password}
+                                            disabled={isSubmitting}
+                                            icon={<IconPassword />}
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={togglePasswordVisibility}
+                                            className="absolute right-3 top-9 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                        >
+                                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
                                     </div>
                                 </div>
 

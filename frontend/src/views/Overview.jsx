@@ -97,11 +97,11 @@ const Overview = () => {
     };
 
     const getUserName = () => {
-            const userStr = localStorage.getItem('user');
-            if (userStr) {
-                const user = JSON.parse(userStr);
-                return user.name || "Developer";
-            }
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            return user.name || "Developer";
+        }
     };
 
     const userName = getUserName();
