@@ -67,8 +67,9 @@ public class Task {
     public Task(){
     }
 
-    public Task(String title, String description, TaskType type, TaskPriority priority, TaskState state, 
-                LocalDateTime createdAt, Integer estimatedHours, Integer realHours, UserProject assignedTo, Category category, 
+    public Task(String title, String description, TaskType type, TaskPriority priority,
+                TaskState state, LocalDateTime createdAt, Integer estimatedHours,
+                Integer realHours, UserProject assignedTo, Category category, 
                 Integer sprint, Integer projectId) {
         this.title = title;
         this.description = description;

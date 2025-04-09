@@ -33,10 +33,10 @@ public class CommandHandler {
     private final MessageSender messageSender;
     private final ServiceManager database;
     private final KeyboardFactory keyboardFactory;
-    //private final InactivityManager inactivityManager;
     private final TaskCreationCommands createTask;
 
-    public CommandHandler(MessageSender messageSender, ServiceManager serviceManager, InactivityManager inactivityManager) {
+    public CommandHandler(MessageSender messageSender, ServiceManager serviceManager, 
+                          InactivityManager inactivityManager) {
         this.messageSender = messageSender;
         this.database = serviceManager;
         //this.inactivityManager = inactivityManager;
@@ -245,7 +245,8 @@ public class CommandHandler {
                     Task response = database.task.updateTask(taskId, task);
 
                     if (response != null) {
-                        message.setText(BotMessages.SUCCESSFULLY_MOVED_TO_NEXT_SPRINT.getMessage(sprint.getSprintNumber()));
+                        int sprintNumber = sprint.getSprintNumber();
+                        message.setText(BotMessages.SUCCESSFULLY_MOVED_TO_NEXT_SPRINT.getMessage(sprintNumber));
                         message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(idProject));
                     }
 
@@ -300,7 +301,9 @@ public class CommandHandler {
             if (sprint != null) {
 
                 String sprintInfo = "";
-                sprintInfo = "<b>Start Date: </b>" +  sprint.getStartDate().format(format) + "\n<b>End Date: </b>" + sprint.getEndDate().format(format);
+                String startDate = sprint.getStartDate().format(format);
+                String endDate = sprint.getEndDate().format(format);
+                sprintInfo = "<b>Start Date: </b>" + startDate + "\n<b>End Date: </b>" + endDate;
 
                 if (sprintTasks.size() > 0) {
                     sprintInfo = sprintInfo + "\n\nClick on one of the tasks below to see its information";
@@ -525,7 +528,11 @@ public class CommandHandler {
                     //Get project tasks
                     List<Task> taskList = database.task.getTasksByUserProject(actualUserProject.getID());
                     message.setReplyMarkup(keyboardFactory.createInlineKeyboardFromTasks(taskList));
-                    message.setText(BotMessages.PROJECT_AVAILABLE.getMessage(user.getFirstName(), actualProject.getName(), actualUserProject.getRole()));
+
+                    String firstName = user.getFirstName();
+                    String project = actualProject.getName();
+                    String actualUP = actualUserProject.getRole();
+                    message.setText(BotMessages.PROJECT_AVAILABLE.getMessage(firstName, project, actualUP));
 
                 }else if(userProjectList.size() > 1) { // Multiple projects assigned
                     message.setText(BotMessages.MULTIPLE_PROJECTS_AVAILABLE.getMessage(user.getFirstName()));
@@ -596,7 +603,7 @@ public class CommandHandler {
                     taskToEdit.setState(newState);
                     if (newState.formatted().equals("Done")) {
                         state.setCompletionTask(taskToEdit);
-                        message.setText("Congratulations on completing your ticket! Now enter how many hours took you to complete it:");
+                        message.setText(BotMessages.CREATE_TASK_ENTER_ESTIMATEDHOURS.getMessage());
                         state.setState(UserStateType.COMPLETE_TASK_ENTER_REAL_HOURS);
                     }else {
                         Task result = database.task.updateTask(taskId, taskToEdit);

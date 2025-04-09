@@ -28,5 +28,4 @@ jobs:
           VALIDATE_JAVA: true
           DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LOG_LEVEL: DEBUG
 

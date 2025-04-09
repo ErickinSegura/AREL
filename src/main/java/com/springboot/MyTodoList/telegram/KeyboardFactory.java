@@ -39,7 +39,9 @@ public class KeyboardFactory {
             if (sprint.getID() == currentSprint){
                 currentOrDate = "(Current, ends " + sprint.getEndDate().format(dateFormat) + ")"; 
             }else {
-                currentOrDate = "(" + sprint.getStartDate().format(dateFormat) + " to " + sprint.getEndDate().format(dateFormat) + ")";
+                String endDate = sprint.getEndDate().format(dateFormat);
+                String startDate = sprint.getStartDate().format(dateFormat);
+                currentOrDate = "(" + startDate + " to " + endDate + ")";
             }
             button.setText("Sprint " + sprint.getSprintNumber() + " " + currentOrDate);
             button.setCallbackData("open_sprint_" + sprint.getID());  // Callback data !!
