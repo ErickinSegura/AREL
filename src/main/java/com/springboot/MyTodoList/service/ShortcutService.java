@@ -37,7 +37,7 @@ public class ShortcutService {
     }
 
     public ResponseEntity<List<Shortcut>> getShortcutsByProject(int projectId) {
-        List<Shortcut> shortcuts = shortcutRepository.findByProject_Id(projectId);
+        List<Shortcut> shortcuts = shortcutRepository.findByProjectId(projectId);
         if (shortcuts.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -75,8 +75,8 @@ public class ShortcutService {
         }
     }
 
-    public ResponseEntity<List<Integer>> getShortcutIdsByProject(int projectId) {
-        List<Shortcut> shortcuts = shortcutRepository.findByProject_Id(projectId);
+    public ResponseEntity<List<Integer>> getShortcutIdsByProject(Integer projectId) {
+        List<Shortcut> shortcuts = shortcutRepository.findByProjectId(projectId);
         if (shortcuts.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }

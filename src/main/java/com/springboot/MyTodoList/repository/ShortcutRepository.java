@@ -3,6 +3,8 @@ package com.springboot.MyTodoList.repository;
 
 import com.springboot.MyTodoList.model.Shortcut;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -13,5 +15,6 @@ import javax.transaction.Transactional;
 @Transactional
 @EnableTransactionManagement
 public interface ShortcutRepository extends JpaRepository<Shortcut, Integer> {
-    List<Shortcut> findByProject_Id(int projectId);
+    @Query("select s from Shortcut s where s.project = :project")
+    List<Shortcut> findByProjectId(@Param("project") Integer project);
 }
