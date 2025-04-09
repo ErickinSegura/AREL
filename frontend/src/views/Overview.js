@@ -13,7 +13,7 @@ import {
 } from 'react-icons/fi';
 import { useProjects } from '../hooks/useProjects';
 import { useOverviewData } from '../hooks/useOverviewData';
-import { Skeleton, SkeletonText, SkeletonCard, SkeletonCircle } from '../lib/ui/Skeleton';
+import { Skeleton, SkeletonText, SkeletonCircle } from '../lib/ui/Skeleton';
 
 const Overview = () => {
     const { selectedProject, loading: projectLoading } = useProjects();
@@ -24,7 +24,6 @@ const Overview = () => {
         error,
         currentSprint: latestSprint,
         tasks,
-        progressStats,
         devStreak
     } = useOverviewData();
 
@@ -98,16 +97,11 @@ const Overview = () => {
     };
 
     const getUserName = () => {
-        try {
             const userStr = localStorage.getItem('user');
             if (userStr) {
                 const user = JSON.parse(userStr);
                 return user.name || "Developer";
             }
-        } catch (e) {
-            console.error("Error getting user from localStorage:", e);
-        }
-        return "Developer";
     };
 
     const userName = getUserName();
@@ -130,7 +124,6 @@ const Overview = () => {
 
     const progressArc = calculateProgressArc();
 
-    // Format date to readable string
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
@@ -140,7 +133,7 @@ const Overview = () => {
     if (error) {
         return (
             <div className="p-6">
-                <h1 className="text-2xl font-bold mb-4">Error al cargar datos</h1>
+                <h1 className="text-2xl font-bold mb-4">Error loading data</h1>
                 <p className="text-red-500">{error}</p>
             </div>
         );
@@ -149,8 +142,8 @@ const Overview = () => {
     if (!selectedProject) {
         return (
             <div className="p-6">
-                <h1 className="text-2xl font-bold mb-4">No hay proyecto seleccionado</h1>
-                <p>Por favor, selecciona un proyecto desde el menú lateral.</p>
+                <h1 className="text-2xl font-bold mb-4">There is not selected project</h1>
+                <p>Please, select a project from the sidebar</p>
             </div>
         );
     }
@@ -171,13 +164,15 @@ const Overview = () => {
                                 </div>
                             ) : (
                                 <>
-                                    <div
-                                        className="w-12 h-12 rounded-md grid place-items-center text-white"
-                                        style={{ backgroundColor: selectedProject.color?.hexColor || '#808080' }}
-                                    >
-                                        {getProjectIcon(selectedProject.icon?.iconName)}
+                                    <div className="flex items-center">
+                                        <div
+                                            className="w-12 h-12 rounded-md grid place-items-center text-white"
+                                            style={{ backgroundColor: selectedProject.color?.hexColor || '#808080' }}
+                                        >
+                                            {getProjectIcon(selectedProject.icon?.iconName)}
+                                        </div>
+                                        <h1 className="text-2xl font-bold px-2">{selectedProject.projectName}</h1>
                                     </div>
-                                    <h1 className="text-2xl font-bold">{selectedProject.projectName}</h1>
                                 </>
                             )}
                         </CardTitle>
@@ -225,43 +220,39 @@ const Overview = () => {
                 )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                {/* Dev Streak Card */}
-                <Card className="flex flex-col items-center justify-center py-6">
+            {!loading && selectedSprint && (
+                <Card>
                     <CardHeader>
-                        <CardTitle className="text-center">Dev Streak</CardTitle>
+                        <CardTitle>Sprint <span className="text-red-500">{selectedSprint.sprintNumber}</span> Summary</CardTitle>
                     </CardHeader>
-                    <CardContent className="flex flex-col items-center pt-4">
-                        {loading ? (
-                            <>
-                                <SkeletonCircle size="xl" />
-                                <div className="mt-4 w-24">
-                                    <SkeletonText lines={1} />
-                                </div>
-                                <div className="mt-2 w-40">
-                                    <SkeletonText lines={1} />
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <div className="text-orange-500 mb-2">
-                                    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M32 12C32 12 35.6 20 40 24C44.4 28 52 32 52 32C52 32 44.4 36 40 40C35.6 44 32 52 32 52C32 52 28.4 44 24 40C19.6 36 12 32 12 32C12 32 19.6 28 24 24C28.4 20 32 12 32 12Z" fill="currentColor"/>
-                                    </svg>
-                                </div>
-                                <div className="flex items-baseline">
-                                    <span className="text-orange-500 text-4xl font-bold">{devStreak}</span>
-                                    <span className="text-2xl ml-2">Days</span>
-                                </div>
-                                <p className="text-sm text-gray-500 mt-2">
-                                    {devStreak > 5 ? "You are in the top dev streak rank!" : "Keep going to reach the top rank!"}
-                                </p>
-                            </>
-                        )}
+                    <CardContent>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                                <div className="text-gray-500 text-sm mb-1">Time Accuracy</div>
+                                <div className="text-2xl font-bold">{selectedSprint.timeAccuracy.toFixed(0)}%</div>
+                                <div className="text-xs text-gray-500">Est. {selectedSprint.totalEstimatedHours}h vs Actual {selectedSprint.totalRealHours}h</div>
+                            </div>
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                                <div className="text-gray-500 text-sm mb-1">Completion Rate</div>
+                                <div className="text-2xl font-bold">{selectedSprint.completionRate.toFixed(0)}%</div>
+                                <div className="text-xs text-gray-500">{selectedSprint.completedTasks} of {selectedSprint.totalTasks} tasks completed</div>
+                            </div>
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                                <div className="text-gray-500 text-sm mb-1">Hours on Completed</div>
+                                <div className="text-2xl font-bold">{selectedSprint.hoursSpentOnCompleted}h</div>
+                                <div className="text-xs text-gray-500">Time spent on finished tasks</div>
+                            </div>
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                                <div className="text-gray-500 text-sm mb-1">Sprint Dates</div>
+                                <div className="text-md font-bold">{formatDate(selectedSprint.startDate)} - {formatDate(selectedSprint.endDate)}</div>
+                                <div className="text-xs text-gray-500">Sprint duration</div>
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
+            )}
 
-                {/* Goal Progress Card */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 mt-6">
                 <Card>
                     <CardHeader>
                         <CardTitle>Sprint <span className="text-red-500">{selectedSprintNumber || '?'}</span> Goal</CardTitle>
@@ -328,10 +319,8 @@ const Overview = () => {
                         )}
                     </CardContent>
                 </Card>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Team Performance Card */}
+
                 <Card>
                     <CardHeader>
                         <CardTitle>
@@ -398,94 +387,7 @@ const Overview = () => {
                         )}
                     </CardContent>
                 </Card>
-
-                {/* Tasks Card */}
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle>
-                            Sprint <span className="text-red-500">{selectedSprintNumber || '?'}</span> Tasks
-                        </CardTitle>
-                        <Button size="small" className="text-sm">SEE ALL</Button>
-                    </CardHeader>
-                    <CardContent>
-                        {loading ? (
-                            <div className="space-y-3">
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="bg-gray-50 p-3 rounded-md">
-                                        <div className="flex justify-between">
-                                            <div className="flex items-center space-x-3">
-                                                <SkeletonText className="w-16" />
-                                                <SkeletonText className="w-32" />
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <SkeletonText className="w-16" />
-                                                <SkeletonText className="w-24" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {tasks.length > 0 ? (
-                                    tasks.map(task => (
-                                        <div key={task.id} className="flex items-center justify-between bg-gray-50 p-2 rounded-md">
-                                            <div className="flex items-center space-x-3">
-                                                <div className="text-xs font-mono text-gray-500">{task.id}</div>
-                                                <div className="text-sm">{task.title}</div>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                {getStatusBadge(task.status)}
-                                                {getPriorityIndicator(task.priority)}
-                                                <button className="text-gray-400 hover:text-gray-600">
-                                                    <FiMoreHorizontal />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="text-center py-4 text-gray-500">
-                                        No tasks found for the current sprint
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
             </div>
-
-            {/* Sprint Stats Summary */}
-            {!loading && selectedSprint && (
-                <Card className="mt-6">
-                    <CardHeader>
-                        <CardTitle>Sprint <span className="text-red-500">{selectedSprint.sprintNumber}</span> Summary</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="text-gray-500 text-sm mb-1">Time Accuracy</div>
-                                <div className="text-2xl font-bold">{selectedSprint.timeAccuracy.toFixed(0)}%</div>
-                                <div className="text-xs text-gray-500">Est. {selectedSprint.totalEstimatedHours}h vs Actual {selectedSprint.totalRealHours}h</div>
-                            </div>
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="text-gray-500 text-sm mb-1">Completion Rate</div>
-                                <div className="text-2xl font-bold">{selectedSprint.completionRate.toFixed(0)}%</div>
-                                <div className="text-xs text-gray-500">{selectedSprint.completedTasks} of {selectedSprint.totalTasks} tasks completed</div>
-                            </div>
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="text-gray-500 text-sm mb-1">Hours on Completed</div>
-                                <div className="text-2xl font-bold">{selectedSprint.hoursSpentOnCompleted}h</div>
-                                <div className="text-xs text-gray-500">Time spent on finished tasks</div>
-                            </div>
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="text-gray-500 text-sm mb-1">Sprint Dates</div>
-                                <div className="text-md font-bold">{formatDate(selectedSprint.startDate)} - {formatDate(selectedSprint.endDate)}</div>
-                                <div className="text-xs text-gray-500">Sprint duration</div>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
         </div>
     );
 };
