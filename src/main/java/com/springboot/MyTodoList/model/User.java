@@ -10,9 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "USER_TABLE")
@@ -54,10 +52,6 @@ public class User implements UserDetails {
 
     @Column(name = "CREATED", columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
-    private Set<UserProject> userProjects = new HashSet<>();
 
     @Override
     public String getUsername() {

@@ -30,8 +30,8 @@ public class SprintService {
         }
     }
 
-    public ResponseEntity<Integer> getActiveSprintId() {
-        List<Integer> activeSprintIds = sprintRepository.findActiveSprintIds();
+    public ResponseEntity<Integer> getActiveSprintId(Integer projectId) {
+        List<Integer> activeSprintIds = sprintRepository.findActiveSprintIds(projectId);
         
         if (activeSprintIds.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -41,14 +41,34 @@ public class SprintService {
         //return ResponseEntity.ok(activeSprintIds.get(0));  // 200 OK
     }
 
-    public ResponseEntity<Integer> getProjectbyId(Integer id) {
+    public Integer getProjectbyId(Integer id) {
         List<Integer> projectIdList = sprintRepository.findProjectByID(id);
 
         if (projectIdList.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return null;
         }
         
-        return new ResponseEntity<>(projectIdList.get(0), HttpStatus.OK);
+        return projectIdList.get(0);
+    }
+
+    public ResponseEntity<List<Sprint>> getAvailableSprints(Integer idProject) {
+        List<Sprint> sprints = sprintRepository.availableSprints(idProject);
+        if(sprints.isEmpty() || sprints == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(sprints, HttpStatus.OK);
+    }
+
+    public Optional<Sprint> getNextSprint(Integer idProject) {
+        List<Sprint> sprint_response = sprintRepository.getNextSprint(idProject);
+
+        if (sprint_response.size() == 0 || sprint_response.isEmpty()) {
+            return null;
+        }
+        else {
+            return Optional.of(sprint_response.get(0));
+        }
     }
 
 }

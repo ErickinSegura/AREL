@@ -1,7 +1,6 @@
 package com.springboot.MyTodoList.model;
 
 import javax.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /*
@@ -18,17 +17,15 @@ public class Shortcut {
     @Column(name= "ID_SHORTCUT")
     private int id;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_PROJECT", referencedColumnName = "ID_PROJECT")
-    @JsonIgnore // Evita error 500 por serialización recursiva
-    private Project project;
+    @Column(name = "ID_PROJECT")
+    private Integer project;
 
     @Column(name = "SHORTCUT_URL")
     private String url;
 
     public Shortcut() {}
 
-    public Shortcut(Project project, String url) {
+    public Shortcut(Integer project, String url) {
         this.project = project;
         this.url = url;
     }
@@ -41,11 +38,11 @@ public class Shortcut {
         this.id = id;
     }
 
-    public Project getProject() {
+    public Integer getProject() {
         return project;
     }
 
-    public void setProject(Project project) {
+    public void setProject(Integer project) {
         this.project = project;
     }
 
@@ -59,7 +56,7 @@ public class Shortcut {
 
     @JsonProperty("projectId")
     public int getProjectId() {
-        return project != null ? project.getID() : 0;
+        return project != null ? project : 0;
     }
 
     @Override

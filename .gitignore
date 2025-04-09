@@ -8,6 +8,8 @@
 logs.log
 /frontend/.idea
 *.xml
+!.github/linters/sun_checks.xml
+!checkstyle.xml
 .DS_Store
 /state
 src/main/resources/application.properties

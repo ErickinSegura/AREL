@@ -18,12 +18,16 @@ public class Project {
     String projectName;
     @Column(name = "DESCRIPTION")
     String description;
-    @ManyToOne
-    @JoinColumn(name="ID_COLOR", referencedColumnName = "ID_COLOR")
-    Color color;
-    @ManyToOne
-    @JoinColumn(name="ID_ICON", referencedColumnName = "ID_ICON")
-    Icon icon;
+
+    //@ManyToOne
+    //@JoinColumn(name="ID_COLOR", referencedColumnName = "ID_COLOR")
+    @Column(name="ID_COLOR")
+    Integer color;
+
+    //@ManyToOne
+    //@JoinColumn(name="ID_ICON", referencedColumnName = "ID_ICON")
+    @Column(name = "ID_ICON")
+    Integer icon;
 
     @Column(name = "ACTIVE_SPRINT")
     Integer activeSprint;
@@ -32,7 +36,7 @@ public class Project {
 
     }
     
-    public Project(String projectName, String description, Color color, Icon icon, Integer activeSprint) {
+    public Project(String projectName, String description, Integer color, Integer icon, Integer activeSprint) {
         this.projectName = projectName;
         this.description = description;
         this.icon = icon;
@@ -64,19 +68,19 @@ public class Project {
         this.description = description;
     }
 
-    public Color getColor() {
+    public Integer getColor() {
         return color;
     }
 
-    public void setColor(Color color) {
+    public void setColor(Integer color) {
         this.color = color;
     }
 
-    public Icon getIcon() {
+    public Integer getIcon() {
         return icon;
     }
 
-    public void setIcon(Icon icon) {
+    public void setIcon(Integer icon) {
         this.icon = icon;
     }
 
@@ -94,8 +98,8 @@ public class Project {
                 "id: " + id +
                 ", projectName: " + projectName +
                 ", desription: " + description +
-                ", color: " + color.getHexColor() +
-                ", icon: " + icon.getIconName()
+                ", color: " + color +
+                ", icon: " + icon
                 +"}";
     }
 }

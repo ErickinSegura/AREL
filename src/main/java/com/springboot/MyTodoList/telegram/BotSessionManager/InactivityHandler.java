@@ -8,7 +8,7 @@ import com.springboot.MyTodoList.telegram.CommandHandler;
 
 public class InactivityHandler {
     private static final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
-    private static final int TIMEOUT = 20; //Minutes
+    private static final int TIMEOUT = 5; //Minutes
     private ScheduledExecutorService scheduler;
     private ScheduledFuture<?> inactivityTask;
     private Runnable deleteCallback;
@@ -31,7 +31,7 @@ public class InactivityHandler {
             //User inactive, delete
             deleteCallback.run();
             stop();
-        }, TIMEOUT, TimeUnit.SECONDS);
+        }, TIMEOUT, TimeUnit.MINUTES);
 
         logger.debug("📩 Timer reset");
     }
