@@ -34,14 +34,12 @@ public class AgileCommands {
     private final ServiceManager database;
     private final MessageSender messageSender;
     private final KeyboardFactory keyboardFactory;
-    private final InactivityManager inactivityManager;
 
     public AgileCommands(ServiceManager database, MessageSender messageSender,
                                     InactivityManager inactivityManager) {
         this.database = database;
         this.messageSender = messageSender;
         this.keyboardFactory = new KeyboardFactory();
-        this.inactivityManager = inactivityManager;
     }
 
     public void openBacklogItem(Long chatId, int taskId) {

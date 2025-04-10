@@ -28,14 +28,12 @@ public class TaskManagementCommands {
     private final ServiceManager database;
     private final MessageSender messageSender;
     private final KeyboardFactory keyboardFactory;
-    private final InactivityManager inactivityManager;
 
     public TaskManagementCommands(ServiceManager database, MessageSender messageSender,
                                     InactivityManager inactivityManager) {
         this.database = database;
         this.messageSender = messageSender;
         this.keyboardFactory = new KeyboardFactory();
-        this.inactivityManager = inactivityManager;
     }
 
     public void askConfirmation(Long chatId, int taskId) {
