@@ -50,4 +50,11 @@ public interface SprintRepository extends JpaRepository<Sprint,Integer> {
         "ORDER BY s.startDate ASC"
     )
     List<Sprint> getNextSprint(@Param("idProject") Integer idProject);
+
+    @Query("SELECT COALESCE(MAX(s.sprintNumber), 0) + 1 FROM Sprint s WHERE s.project = :projectId")
+    Integer getNewSprintNumber(@Param("projectId") Integer projectId);
+
+    @Query("SELECT s.sprintNumber FROM Sprint s WHERE s.id = :id")
+    Integer findSprintNumberById(@Param("id") Integer id);
+
 }

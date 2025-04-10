@@ -20,6 +20,10 @@ public class SprintService {
         this.sprintRepository = sprintRepository;
     }
     
+    public Sprint addSprint(Sprint sprint) {
+        return sprintRepository.save(sprint);
+    }
+
     //Get Sprint by ID
     public ResponseEntity<Sprint> getSprintsbyID(int id){
         Optional<Sprint> sprintData = sprintRepository.findById(id);
@@ -71,4 +75,13 @@ public class SprintService {
         }
     }
 
+    public Integer getNewSprintNumber(Integer projectId) {
+        Integer newSprint = sprintRepository.getNewSprintNumber(projectId);
+        return newSprint;
+    }
+
+    public Integer getSprintNumberById(Integer sprintId) {
+        Integer number = sprintRepository.findSprintNumberById(sprintId);
+        return number;
+    }
 }

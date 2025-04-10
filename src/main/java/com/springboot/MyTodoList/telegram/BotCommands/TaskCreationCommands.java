@@ -30,7 +30,8 @@ public class TaskCreationCommands {
     private final KeyboardFactory keyboardFactory;
     private final InactivityManager inactivityManager;
 
-    public TaskCreationCommands(ServiceManager database, MessageSender messageSender, InactivityManager inactivityManager) {
+    public TaskCreationCommands(ServiceManager database, MessageSender messageSender,
+                                InactivityManager inactivityManager) {
         this.database = database;
         this.messageSender = messageSender;
         this.keyboardFactory = new KeyboardFactory();
@@ -186,6 +187,7 @@ public class TaskCreationCommands {
             logger.debug("TASK_LOG_TASK_LOG: "+task.toString());
             database.task.addTask(task);
             message.setText(BotMessages.SAVE_TASK.getMessage());
+            state.setState(UserStateType.START);
 
             state.setTask(null);
         } else {

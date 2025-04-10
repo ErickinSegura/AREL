@@ -43,7 +43,11 @@ public enum BotMessages {
 	MOVING_TO_BACKLOG("moving.to.backlog"),
 	ASK_CONFIRMATION_RUNNING_SPRINT("ask.confirmation.running.sprint"),
 	ADDING_TO_CURRENT_SPRINT("adding.to.current.sprint"),
-	CREATE_TASK_ENTER_ESTIMATEDHOURS("create.task.enter.estimatedhours")
+	CREATE_TASK_ENTER_ESTIMATEDHOURS("create.task.enter.estimatedhours"),
+	CREATE_SPRINT_ENTER_STARTDATE("create.sprint.enter.startdate"),
+	CREATE_SPRINT_ENTER_ENDDATE("create.sprint.enter.enddate"),
+	CREATE_SPRINT_CONFIRMATION("create.sprint.confirmation"),
+	CREATE_SPRINT_PARSE_ERROR("create.sprint.parseError")
 	;
 
 	private final String key;
