@@ -325,7 +325,7 @@ const Sidebar = ({
                                 />
                                 <div className="ml-3 flex-1 min-w-0">
                                     <div className="text-sm font-medium text-black truncate">
-                                        {user ? `${user.firstName} ${user.lastName}` : 'Usuario'}
+                                        {user ? `${user.fullName}` : 'Usuario'}
                                     </div>
                                     <div className="text-xs text-gray-600 truncate">
                                         {user ? user.email : 'user@example.com'}

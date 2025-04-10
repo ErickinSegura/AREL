@@ -3,7 +3,6 @@ import { Card, CardHeader, CardTitle, CardContent } from '../lib/ui/Card';
 import { Button } from '../lib/ui/Button';
 import {
     FiArrowUp,
-    FiMoreHorizontal,
     FiFolder,
     FiCodesandbox,
     FiClock,
