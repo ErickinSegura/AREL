@@ -25,24 +25,9 @@ public class SprintService {
     }
 
     //Get Sprint by ID
-    public ResponseEntity<Sprint> getSprintsbyID(int id){
+    public Optional<Sprint> getSprintsbyID(int id){
         Optional<Sprint> sprintData = sprintRepository.findById(id);
-        if (sprintData.isPresent()){
-            return new ResponseEntity<>(sprintData.get(), HttpStatus.OK);
-        }else{
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    public ResponseEntity<Integer> getActiveSprintId(Integer projectId) {
-        List<Integer> activeSprintIds = sprintRepository.findActiveSprintIds(projectId);
-        
-        if (activeSprintIds.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        
-        return new ResponseEntity<>(activeSprintIds.get(0), HttpStatus.OK);
-        //return ResponseEntity.ok(activeSprintIds.get(0));  // 200 OK
+        return sprintData;
     }
 
     public Integer getProjectbyId(Integer id) {

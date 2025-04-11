@@ -53,6 +53,21 @@ public class TaskService {
         }
     }
 
+    public Task assignUserSprintTask(int id, Task task) {
+        Optional<Task> taskData = taskRepository.findById(id);
+        if (taskData.isPresent()) {
+            Task taskItem = taskData.get();
+
+            taskItem.setAssignedTo(task.getAssignedTo());
+            taskItem.setSprintId(task.getSprintId());
+
+            return taskRepository.save(taskItem);
+        }
+        else {
+            return null;
+        }
+    }
+
     public List<Task> getTasksByUserProject(int assignedToID) {
         return taskRepository.findByAssignedToId(assignedToID);
     }

@@ -44,35 +44,64 @@ public class TaskManagementCommands {
         messageSender.sendMessage(message);
     }
 
-    public void addToNextSprint(Long chatId, int taskId) {
+    public void SprintAssignUser(Long chatId, int taskId, String nextOrThis){
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
 
-        message.setText(BotMessages.ADDING_TO_NEXT_SPRINT.getMessage());
-        messageSender.sendMessage(message);
-
-        message.setText(BotMessages.ERROR_DATABASE.getMessage());
-
+        //Get User List
         ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
         if (taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
             Task task = taskResponse.getBody();
             if (task != null) {
-                Integer idProject = getProjectIdFromTask(task);
-                Optional<Sprint> sprintResponse = database.sprint.getNextSprint(idProject);
-                if (sprintResponse.isPresent()) {
-                    Sprint sprint = sprintResponse.get();
+                int projectId = getProjectIdFromTask(task);
+                
+                List<UserProject> users = database.userProject.getUsersByProject(projectId);
+                message.setText(BotMessages.ADDING_TO_NEXT_SPRINT_ASSIGN_USER.getMessage());
+                message.setReplyMarkup(keyboardFactory.assignTaskSprint(users, taskId, projectId, nextOrThis));
 
-                    Integer sprintID = sprint.getID();
-                    task.setSprintId(sprintID);
+            }else{
+                message.setText(BotMessages.ERROR_DATABASE.getMessage());
+            }
+        }
 
-                    Task response = database.task.updateTask(taskId, task);
+        messageSender.sendMessage(message);
+    }
 
-                    if (response != null) {
-                        int sprintNumber = sprint.getSprintNumber();
-                        message.setText(BotMessages.SUCCESSFULLY_MOVED_TO_NEXT_SPRINT.getMessage(sprintNumber));
-                        message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(idProject));
-                    }
-                }
+
+    public void addToSprintEstimatedHours(Long chatId, int taskId, int userProjectId,
+                                            int projectId, UserState state, String nextOrThis) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        message.setText(BotMessages.ERROR_DATABASE.getMessage());
+
+        Optional <UserProject> userProjectResponse = database.userProject.getUserProjectByID(userProjectId);
+
+        Optional<Sprint> sprintResponse;
+        if (nextOrThis.equals("This")){
+            Integer thissprintId = database.project.getActiveSprint(projectId);
+            sprintResponse = database.sprint.getSprintsbyID(thissprintId);
+        }else { //next sprint
+            sprintResponse = database.sprint.getNextSprint(projectId);
+        }
+
+        ResponseEntity<Task> taskResponse = database.task.getTaskById(taskId);
+        if (sprintResponse.isPresent() && userProjectResponse.isPresent() && 
+            taskResponse.getStatusCode().is2xxSuccessful() && taskResponse.hasBody()) {
+
+            Task task = taskResponse.getBody();
+
+            if (task != null) {            
+                Sprint sprint = sprintResponse.get();
+                UserProject userProject = userProjectResponse.get();
+
+                task.setSprintId(sprint.getID());
+                task.setAssignedTo(userProject);
+
+                //Task response = database.task.assignUserSprintTask(taskId, task);
+                state.setAssignationTask(task);
+                state.setState(UserStateType.ASSIGN_TASK_ENTER_ESTIMATED_HOURS);
+                message.setText(BotMessages.ASSIGNED_SUCCESSFULLY.getMessage());
             }
         }
 
@@ -270,16 +299,13 @@ public class TaskManagementCommands {
             Task task = taskResponse.getBody();
             if (task != null){
                 int projectID = task.getProjectId();
-                ResponseEntity<Integer> sprintIdResponse = database.sprint.getActiveSprintId(projectID);
-                if (sprintIdResponse.getStatusCode().is2xxSuccessful() && sprintIdResponse.hasBody()) {
-                    Integer sprintId = sprintIdResponse.getBody();
-                    if (sprintId != null) {
-                        task.setSprintId(sprintId);
-                        Task response = database.task.updateTask(taskId, task);
-                        if (response != null) {
-                            message.setText(BotMessages.SUCCESFFULLY_MOVED_TO_CURRENT_SPRINT.getMessage());
-                            message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(projectID));
-                        }
+                Integer sprintId = database.project.getActiveSprint(projectID);
+                if (sprintId != null) {
+                    task.setSprintId(sprintId);
+                    Task response = database.task.updateTask(taskId, task);
+                    if (response != null) {
+                        message.setText(BotMessages.SUCCESFFULLY_MOVED_TO_CURRENT_SPRINT.getMessage());
+                        message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(projectID));
                     }
                 }
             }

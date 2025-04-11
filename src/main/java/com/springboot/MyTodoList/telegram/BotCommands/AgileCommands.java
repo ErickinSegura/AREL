@@ -130,11 +130,11 @@ public class AgileCommands {
         message.setText(BotMessages.ERROR_DATABASE.getMessage());
 
         List<Task> sprintTasks = database.task.getTasksBySprintID(sprintId);
-        ResponseEntity<Sprint> sprintResponse = database.sprint.getSprintsbyID(sprintId);
+        Optional<Sprint> sprintResponse = database.sprint.getSprintsbyID(sprintId);
         DateTimeFormatter format = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH);
 
-        if (sprintResponse.getStatusCode().is2xxSuccessful() && sprintResponse.hasBody()) {
-            Sprint sprint = sprintResponse.getBody();
+        if (sprintResponse.isPresent()) {
+            Sprint sprint = sprintResponse.get();
             if (sprint != null) {
 
                 String sprintInfo = "";

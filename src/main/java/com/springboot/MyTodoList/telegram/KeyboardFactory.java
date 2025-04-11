@@ -84,6 +84,24 @@ public class KeyboardFactory {
         return inlineKeyboardMarkup;
     }
 
+    public InlineKeyboardMarkup assignTaskSprint(List<UserProject> userProjects, Integer task_id,
+                                                 int projectId, String nextOrThis) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        for (UserProject userProject : userProjects) {
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(userProject.getRole());
+            int id = userProject.getID();
+            button.setCallbackData("assignTask"+nextOrThis+"Sprint_" + task_id + 
+            "_user_" + id + "_project_" + projectId);
+
+            keyboard.add(List.of(button));
+        }
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
 
 
     public InlineKeyboardMarkup taskInfoInLineKeyboard(Task task) {

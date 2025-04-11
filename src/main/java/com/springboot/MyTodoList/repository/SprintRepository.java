@@ -16,15 +16,6 @@ import javax.transaction.Transactional;
 @Transactional
 @EnableTransactionManagement
 public interface SprintRepository extends JpaRepository<Sprint,Integer> {
-    
-    @Query(
-        "SELECT s.ID " +
-        "FROM Sprint s " +
-        "WHERE s.project = :idProject " +
-        "AND s.startDate <= CURRENT_TIMESTAMP " +
-        "AND s.endDate >= CURRENT_TIMESTAMP"
-    )
-    List<Integer> findActiveSprintIds(@Param("idProject") Integer idProject);
 
     @Query(
         "SELECT s.project " +

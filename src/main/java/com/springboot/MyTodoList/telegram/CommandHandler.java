@@ -149,7 +149,7 @@ public class CommandHandler {
         else if (callbackQuery.startsWith("add_next_sprint_")) {
             int taskId = Integer.parseInt(parts[3]);
 
-            manageTask.addToNextSprint(chatId, taskId);
+            manageTask.SprintAssignUser(chatId, taskId, "Next");
         }
         else if (callbackQuery.startsWith("add_this_sprint_")) {
             int taskId = Integer.parseInt(parts[3]);
@@ -159,12 +159,27 @@ public class CommandHandler {
         else if (callbackQuery.startsWith("confirm_this_sprint_")){
             int taskId = Integer.parseInt(parts[3]);
 
-            manageTask.addToThisSprint(chatId, taskId);
+            //manageTask.addToThisSprint(chatId, taskId);
+            manageTask.SprintAssignUser(chatId, taskId, "This");
         }
         else if (callbackQuery.startsWith("create_sprint_")){
             int projectID = Integer.parseInt(parts[2]);
 
             agile.askSprintStartDate(chatId, projectID, state);
+        }
+        else if (callbackQuery.startsWith("assignTaskNextSprint_")) {
+            int taskId = Integer.parseInt(parts[1]);
+            int userProjectId = Integer.parseInt(parts[3]);
+            int projectId = Integer.parseInt(parts[5]);
+
+            manageTask.addToSprintEstimatedHours(chatId, taskId, userProjectId, projectId, state, "Next");
+        }
+        else if (callbackQuery.startsWith("assignTaskThisSprint_")) {
+            int taskId = Integer.parseInt(parts[1]);
+            int userProjectId = Integer.parseInt(parts[3]);
+            int projectId = Integer.parseInt(parts[5]);
+
+            manageTask.addToSprintEstimatedHours(chatId, taskId, userProjectId, projectId, state, "This");
         }
     }    
 

@@ -47,7 +47,8 @@ public enum BotMessages {
 	CREATE_SPRINT_ENTER_STARTDATE("create.sprint.enter.startdate"),
 	CREATE_SPRINT_ENTER_ENDDATE("create.sprint.enter.enddate"),
 	CREATE_SPRINT_CONFIRMATION("create.sprint.confirmation"),
-	CREATE_SPRINT_PARSE_ERROR("create.sprint.parseError")
+	CREATE_SPRINT_PARSE_ERROR("create.sprint.parseError"),
+	ADDING_TO_NEXT_SPRINT_ASSIGN_USER("adding.to.next.sprint.assign.user")
 	;
 
 	private final String key;
