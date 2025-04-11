@@ -83,10 +83,12 @@ public class OverviewRepository {
                 "u.FIRSTNAME || ' ' || u.LASTNAME AS USER_NAME, " +
                 "COUNT(t.ID_TASK) AS ASSIGNED_TASKS, " +
                 "SUM(CASE WHEN t.TASK_STATE = 3 THEN 1 ELSE 0 END) AS COMPLETED_TASKS, " +
-                "ROUND(SUM(CASE WHEN t.TASK_STATE = 3 THEN 1 ELSE 0 END) * 100.0 / CASE WHEN COUNT(t.ID_TASK) = 0 THEN 1 ELSE COUNT(t.ID_TASK) END, 2) AS COMPLETION_RATE, " +
+                "ROUND(SUM(CASE WHEN t.TASK_STATE = 3 THEN 1 ELSE 0 END) * 100.0 / " +
+                "CASE WHEN COUNT(t.ID_TASK) = 0 THEN 1 ELSE COUNT(t.ID_TASK) END, 2) AS COMPLETION_RATE, " +
                 "SUM(t.ESTIMATED_HOURS) AS TOTAL_ESTIMATED_HOURS, " +
                 "SUM(t.REAL_HOURS) AS TOTAL_REAL_HOURS, " +
-                "ROUND(SUM(t.REAL_HOURS) * 100.0 / CASE WHEN SUM(t.ESTIMATED_HOURS) = 0 THEN 1 ELSE SUM(t.ESTIMATED_HOURS) END, 2) AS TIME_ACCURACY_PERCENTAGE " +
+                "ROUND(SUM(t.REAL_HOURS) * 100.0 / CASE WHEN SUM(t.ESTIMATED_HOURS) = 0 THEN 1 " +
+                "ELSE SUM(t.ESTIMATED_HOURS) END, 2) AS TIME_ACCURACY_PERCENTAGE " +
                 "FROM " +
                 "TODOUSER.USER_TABLE u " +
                 "JOIN " +
@@ -115,10 +117,12 @@ public class OverviewRepository {
                 "u.FIRSTNAME || ' ' || u.LASTNAME AS USER_NAME, " +
                 "COUNT(t.ID_TASK) AS ASSIGNED_TASKS, " +
                 "SUM(CASE WHEN t.TASK_STATE = 3 THEN 1 ELSE 0 END) AS COMPLETED_TASKS, " +
-                "ROUND(SUM(CASE WHEN t.TASK_STATE = 3 THEN 1 ELSE 0 END) * 100.0 / CASE WHEN COUNT(t.ID_TASK) = 0 THEN 1 ELSE COUNT(t.ID_TASK) END, 2) AS COMPLETION_RATE, " +
+                "ROUND(SUM(CASE WHEN t.TASK_STATE = 3 THEN 1 ELSE 0 END) * 100.0 / CASE " + 
+                "WHEN COUNT(t.ID_TASK) = 0 THEN 1 ELSE COUNT(t.ID_TASK) END, 2) AS COMPLETION_RATE, " +
                 "SUM(t.ESTIMATED_HOURS) AS TOTAL_ESTIMATED_HOURS, " +
                 "SUM(t.REAL_HOURS) AS TOTAL_REAL_HOURS, " +
-                "ROUND(SUM(t.REAL_HOURS) * 100.0 / CASE WHEN SUM(t.ESTIMATED_HOURS) = 0 THEN 1 ELSE SUM(t.ESTIMATED_HOURS) END, 2) AS TIME_ACCURACY_PERCENTAGE " +
+                "ROUND(SUM(t.REAL_HOURS) * 100.0 / CASE WHEN SUM(t.ESTIMATED_HOURS) = 0 THEN 1 " +
+                "ELSE SUM(t.ESTIMATED_HOURS) END, 2) AS TIME_ACCURACY_PERCENTAGE " +
                 "FROM " +
                 "TODOUSER.USER_TABLE u " +
                 "JOIN " +
