@@ -30,4 +30,9 @@ public class SprintOverview {
     public double getTimeAccuracy() {
         return totalEstimatedHours == 0 ? 0 : (totalRealHours * 100.0) / totalEstimatedHours;
     }
+
+    @Override
+    public String toString() {
+        return "miaw";
+    }
 }

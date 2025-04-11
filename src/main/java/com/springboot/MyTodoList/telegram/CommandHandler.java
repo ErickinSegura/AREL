@@ -9,6 +9,7 @@ import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.model.Category;
 import com.springboot.MyTodoList.service.ServiceManager;
 import com.springboot.MyTodoList.telegram.BotCommands.AgileCommands;
+import com.springboot.MyTodoList.telegram.BotCommands.KPICommands;
 import com.springboot.MyTodoList.telegram.BotCommands.TaskCreationCommands;
 import com.springboot.MyTodoList.telegram.BotCommands.TaskManagementCommands;
 import com.springboot.MyTodoList.telegram.BotSessionManager.InactivityManager;
@@ -27,6 +28,7 @@ public class CommandHandler {
     private final TaskCreationCommands createTask;
     private final TaskManagementCommands manageTask;
     private final AgileCommands agile;
+    private final KPICommands kpi;
 
     public CommandHandler(MessageSender messageSender, ServiceManager serviceManager, 
                           InactivityManager inactivityManager) {
@@ -38,6 +40,7 @@ public class CommandHandler {
         this.createTask = new TaskCreationCommands(database, messageSender, inactivityManager);
         this.manageTask = new TaskManagementCommands(serviceManager, messageSender, inactivityManager);
         this.agile = new AgileCommands(serviceManager, messageSender, inactivityManager);
+        this.kpi = new KPICommands(serviceManager, messageSender, inactivityManager);
     }
 
     public void start(Long chatId, Update update){
@@ -180,6 +183,11 @@ public class CommandHandler {
             int projectId = Integer.parseInt(parts[5]);
 
             manageTask.addToSprintEstimatedHours(chatId, taskId, userProjectId, projectId, state, "This");
+        }
+        else if (callbackQuery.startsWith("overview_")) {
+            int projectId = Integer.parseInt(parts[1]);
+
+            kpi.getOverview(chatId, projectId);
         }
     }    
 

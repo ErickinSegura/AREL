@@ -16,6 +16,7 @@ public class ServiceManager {
     public final ProjectService project;
     public final TaskService task;
     public final SprintService sprint;
+    public final OverviewService kpi;
 
     @Autowired
     public ServiceManager(ToDoItemService todoItem, 
@@ -28,7 +29,8 @@ public class ServiceManager {
                           ShortcutService shortcut,
                           UserLevelService userLevel,
                           TaskService task,
-                          SprintService sprint) {
+                          SprintService sprint,
+                          OverviewService kpi) {
         this.todoItem = todoItem;
         this.task = task;
         this.user = user;
@@ -40,5 +42,6 @@ public class ServiceManager {
         this.shortcut = shortcut;
         this.userLevel = userLevel;
         this.sprint = sprint;
+        this.kpi = kpi;
     }
 }

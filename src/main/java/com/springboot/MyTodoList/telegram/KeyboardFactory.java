@@ -266,23 +266,28 @@ public class KeyboardFactory {
 
         InlineKeyboardButton backlog = new InlineKeyboardButton();
         backlog.setText("See Backlog");
-        backlog.setCallbackData("see_backlog_"+String.valueOf(projectID));
+        backlog.setCallbackData("see_backlog_"+projectID);
 
         InlineKeyboardButton createTask = new InlineKeyboardButton();
         createTask.setText("Create Task");
-        createTask.setCallbackData("create_task_project_"+String.valueOf(projectID));
+        createTask.setCallbackData("create_task_project_"+projectID);
 
         InlineKeyboardButton seeSprint = new InlineKeyboardButton();
         seeSprint.setText("Open this Sprint");
-        seeSprint.setCallbackData("open_actual_sprint_"+String.valueOf(projectID));
+        seeSprint.setCallbackData("open_actual_sprint_"+projectID);
 
         InlineKeyboardButton goBack = new InlineKeyboardButton();
         goBack.setText("Sprints");
-        goBack.setCallbackData("open_sprints_"+String.valueOf(projectID));
+        goBack.setCallbackData("open_sprints_"+projectID);
+
+        InlineKeyboardButton overview = new InlineKeyboardButton();
+        overview.setText("KPI Overview");
+        overview.setCallbackData("overview_"+projectID);
 
         //keyboard.add(List.of(seeBacklog, createTask));
         keyboard.add(List.of(seeSprint, createTask));
         keyboard.add(List.of(backlog, goBack));
+        keyboard.add(List.of(overview));
 
         inlineKeyboardMarkup.setKeyboard(keyboard);
         return inlineKeyboardMarkup;
