@@ -15,7 +15,6 @@ export const useOverviewData = () => {
         totalTasks: 0,
         percentImprovement: 0
     });
-    const [devStreak, setDevStreak] = useState(0);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -40,8 +39,6 @@ export const useOverviewData = () => {
                         percentImprovement: calculateImprovement(sortedSprints)
                     });
 
-                    const streak = calculateDevStreak(sortedSprints);
-                    setDevStreak(streak);
                 }
 
                 if (data.userPerformances && data.userPerformances.length > 0) {
@@ -73,23 +70,6 @@ export const useOverviewData = () => {
         return Math.round(((currentCompletionRate - previousCompletionRate) / previousCompletionRate) * 100);
     };
 
-    const calculateDevStreak = (sortedSprints) => {
-        let streak = 0;
-
-        for (const sprint of sortedSprints) {
-            const completionRate = sprint.totalTasks > 0
-                ? (sprint.completedTasks / sprint.totalTasks) * 100
-                : 0;
-
-            if (completionRate >= 75) {
-                streak++;
-            } else {
-                break;
-            }
-        }
-
-        return streak;
-    };
 
     const generateTasksFromPerformance = (performances) => {
         const currentSprintPerfs = performances.filter(
@@ -147,6 +127,5 @@ export const useOverviewData = () => {
         currentSprint,
         tasks,
         progressStats,
-        devStreak
     };
 };

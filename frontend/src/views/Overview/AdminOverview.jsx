@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '../lib/ui/Card';
-import { Button } from '../lib/ui/Button';
+import { Card, CardHeader, CardTitle, CardContent } from '../../lib/ui/Card';
+import { Button } from '../../lib/ui/Button';
 import {
     FiArrowUp,
     FiFolder,
@@ -10,12 +10,14 @@ import {
     FiActivity,
     FiChevronDown
 } from 'react-icons/fi';
-import { useProjects } from '../hooks/useProjects';
-import { useOverviewData } from '../hooks/useOverviewData';
-import { Skeleton, SkeletonText, SkeletonCircle } from '../lib/ui/Skeleton';
-import {useAuth} from "../contexts/AuthContext";
+import { useProjects } from '../../hooks/useProjects';
+import { useOverviewData } from '../../hooks/useOverviewData';
+import { Skeleton, SkeletonText, SkeletonCircle } from '../../lib/ui/Skeleton';
+import { useAuth } from "../../contexts/AuthContext";
+import { greeting } from '../../lib/greetings';
 
-const Overview = () => {
+
+const AdminOverview = () => {
     const { selectedProject, loading: projectLoading } = useProjects();
     const {
         sprintOverviews,
@@ -26,7 +28,6 @@ const Overview = () => {
     } = useOverviewData();
 
     const { user } = useAuth();
-
 
     const [selectedSprintNumber, setSelectedSprintNumber] = useState(null);
     const [selectedSprint, setSelectedSprint] = useState(null);
@@ -69,27 +70,11 @@ const Overview = () => {
         }
     };
 
-    const getStatusBadge = (status) => {
-        const statusMap = {
-            "To Do": "bg-gray-100 text-gray-800",
-            "Doing": "bg-blue-100 text-blue-800",
-            "Done": "bg-green-100 text-green-800"
-        };
-
-        return (
-            <span className={`px-2 py-1 text-xs rounded-md ${statusMap[status] || "bg-gray-100"}`}>
-                {status}
-            </span>
-        );
-    };
-
-
     const getCompletionRateColor = (completionRate) => {
         if (completionRate >= 75) return "#10B981"; // green
         if (completionRate >= 50) return "#FBBF24"; // yellow
         return "#EF4444"; // red
     };
-
 
     const calculateProgressArc = () => {
         if (!selectedSprint) return { strokeDasharray: 0, strokeDashoffset: 0 };
@@ -176,7 +161,7 @@ const Overview = () => {
                     </div>
                 ) : (
                     <h1 className="text-2xl font-bold">
-                        Good Morning, <span className="text-oracleRed">{user ? `${user.firstName} ${user.lastName}` : 'Usuario'}</span>
+                        {greeting()}, <span className="text-oracleRed">{user ? `${user.firstName} ${user.lastName}` : 'Usuario'}</span>
                     </h1>
                 )}
 
@@ -414,4 +399,4 @@ const Overview = () => {
     );
 };
 
-export default Overview;
+export default AdminOverview;
