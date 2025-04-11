@@ -36,7 +36,6 @@ const AppLayout = ({ defaultOpen = false, accentColor = "#C74634" }) => {
                     defaultOpen={defaultOpen}
                     accentColor={accentColor}
                     defaultSelected={sidebarRoutes.find(route => route.path === currentRoute)?.label || sidebarRoutes[0].label}
-                    routes={sidebarRoutes}
                 />
             )}
 
