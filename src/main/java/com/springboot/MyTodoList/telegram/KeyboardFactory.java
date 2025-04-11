@@ -6,15 +6,12 @@ import java.util.List;
 import java.util.Locale;
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import com.springboot.MyTodoList.model.Category;
 import com.springboot.MyTodoList.model.Sprint;
 import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.model.UserProject;
-import com.springboot.MyTodoList.util.BotLabels;
 
 public class KeyboardFactory {
 
@@ -22,31 +19,33 @@ public class KeyboardFactory {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
+        if (sprints.size() > 0) {
+            int projectId = sprints.get(0).getProject();
 
+            InlineKeyboardButton newSprint = new InlineKeyboardButton();
+            newSprint.setText("Create Sprint");
+            newSprint.setCallbackData("create_sprint_"+projectId);
+            keyboard.add(List.of(newSprint));
 
-        InlineKeyboardButton newSprint = new InlineKeyboardButton();
-        newSprint.setText("Create Sprint");
-        newSprint.setCallbackData("create_spring");
-        keyboard.add(List.of(newSprint));
+            for (Sprint sprint : sprints) {
 
-        for (Sprint sprint : sprints) {
+                DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH);
 
-            DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH);
+                InlineKeyboardButton button = new InlineKeyboardButton();
 
-            InlineKeyboardButton button = new InlineKeyboardButton();
+                String currentOrDate = "";
+                if (sprint.getID() == currentSprint){
+                    currentOrDate = "(Current, ends " + sprint.getEndDate().format(dateFormat) + ")"; 
+                }else {
+                    String endDate = sprint.getEndDate().format(dateFormat);
+                    String startDate = sprint.getStartDate().format(dateFormat);
+                    currentOrDate = "(" + startDate + " to " + endDate + ")";
+                }
+                button.setText("Sprint " + sprint.getSprintNumber() + " " + currentOrDate);
+                button.setCallbackData("open_sprint_" + sprint.getID());  // Callback data !!
 
-            String currentOrDate = "";
-            if (sprint.getID() == currentSprint){
-                currentOrDate = "(Current, ends " + sprint.getEndDate().format(dateFormat) + ")"; 
-            }else {
-                String endDate = sprint.getEndDate().format(dateFormat);
-                String startDate = sprint.getStartDate().format(dateFormat);
-                currentOrDate = "(" + startDate + " to " + endDate + ")";
+                keyboard.add(List.of(button));
             }
-            button.setText("Sprint " + sprint.getSprintNumber() + " " + currentOrDate);
-            button.setCallbackData("open_sprint_" + sprint.getID());  // Callback data !!
-
-            keyboard.add(List.of(button));
         }
 
         inlineKeyboardMarkup.setKeyboard(keyboard);
@@ -85,25 +84,25 @@ public class KeyboardFactory {
         return inlineKeyboardMarkup;
     }
 
-    public ReplyKeyboardMarkup createMainMenuKeyboardManager() {
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        List<KeyboardRow> keyboard = new ArrayList<>();
+    public InlineKeyboardMarkup assignTaskSprint(List<UserProject> userProjects, Integer task_id,
+                                                 int projectId, String nextOrThis) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
-        // First row
-        KeyboardRow row = new KeyboardRow();
-        row.add(BotLabels.LIST_ALL_ITEMS.getLabel());
-        row.add(BotLabels.ADD_NEW_ITEM.getLabel());
-        keyboard.add(row);
+        for (UserProject userProject : userProjects) {
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(userProject.getRole());
+            int id = userProject.getID();
+            button.setCallbackData("assignTask"+nextOrThis+"Sprint_" + task_id + 
+            "_user_" + id + "_project_" + projectId);
 
-        // Second row
-        row = new KeyboardRow();
-        row.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
-        row.add(BotLabels.HIDE_MAIN_SCREEN.getLabel());
-        keyboard.add(row);
+            keyboard.add(List.of(button));
+        }
 
-        keyboardMarkup.setKeyboard(keyboard);
-        return keyboardMarkup;
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
     }
+
 
     public InlineKeyboardMarkup taskInfoInLineKeyboard(Task task) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
