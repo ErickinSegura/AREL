@@ -1,4 +1,4 @@
-import Overview from './views/Overview';
+import Overview from './views/Overview/Overview';
 import Backlog from './views/Backlog';
 import Sprints from './views/Sprints';
 import CalendarView from './views/Calendar';
@@ -8,9 +8,8 @@ import Login from './views/Login';
 import Team from './views/Team';
 import Reports from './views/Reports';
 import MyTasks from './views/MyTasks';
-import {Users} from './views/Users';
 import Register from "./views/Register";
-
+import {Users} from "./views/Users";
 
 export const routes = [
     {
