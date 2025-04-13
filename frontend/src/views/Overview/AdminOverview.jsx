@@ -8,7 +8,7 @@ import {
     FiClock,
     FiCheckCircle,
     FiActivity,
-    FiChevronDown
+    FiChevronDown, FiAlertTriangle, FiRefreshCw
 } from 'react-icons/fi';
 import { useProjects } from '../../hooks/useProjects';
 import { useOverviewData } from '../../hooks/useOverviewData';
@@ -18,7 +18,7 @@ import { greeting } from '../../lib/greetings';
 
 
 const AdminOverview = () => {
-    const { selectedProject, loading: projectLoading } = useProjects();
+    const { selectedProject, loading: projectLoading, projectsLoading } = useProjects();
     const {
         sprintOverviews,
         userPerformances,
@@ -60,7 +60,7 @@ const AdminOverview = () => {
         }
     }, [selectedSprintNumber, userPerformances]);
 
-    const loading = projectLoading || dataLoading;
+    const loading = projectLoading || dataLoading || projectsLoading;
 
     const getProjectIcon = (iconName) => {
         switch (iconName) {
@@ -106,18 +106,56 @@ const AdminOverview = () => {
 
     if (error) {
         return (
-            <div className="p-6">
-                <h1 className="text-2xl font-bold mb-4">Error loading data</h1>
-                <p className="text-red-500">{error}</p>
+            <div className="p-6 flex flex-col items-center justify-center h-full">
+                <Card className="w-full max-w-md text-center">
+                    <CardHeader>
+                        <CardTitle className="text-2xl">
+                            Error <span className="text-oracleRed">Loading Data</span>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex justify-center mb-6">
+                            <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-red-500">
+                                <FiAlertTriangle size={32} />
+                            </div>
+                        </div>
+                        <div className="bg-red-50 p-4 rounded-lg mb-6">
+                            <p className="text-red-600 font-medium">{error}</p>
+                        </div>
+                        <Button
+                            variant="outline"
+                            className="flex items-center gap-2"
+                            onClick={() => window.location.reload()}
+                        >
+                            <FiRefreshCw size={16} />
+                            Retry
+                        </Button>
+                    </CardContent>
+                </Card>
             </div>
         );
     }
 
     if (!selectedProject) {
         return (
-            <div className="p-6">
-                <h1 className="text-2xl font-bold mb-4">There is not selected project</h1>
-                <p>Please, select a project from the sidebar</p>
+            <div className="p-6 flex flex-col items-center justify-center h-full">
+                <Card className="w-full max-w-md text-center">
+                    <CardHeader>
+                        <CardTitle className="text-2xl">
+                            No Project <span className="text-oracleRed">Selected</span>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex justify-center mb-6">
+                            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                                <FiFolder size={32} />
+                            </div>
+                        </div>
+                        <p className="text-gray-600 mb-6">
+                            Please select a project from the sidebar to view its overview and sprint details.
+                        </p>
+                    </CardContent>
+                </Card>
             </div>
         );
     }
@@ -182,7 +220,7 @@ const AdminOverview = () => {
                         </Button>
 
                         {showSprintDropdown && (
-                            <div className="absolute right-0 mt-2 bg-white border rounded-md shadow-lg z-10 min-w-40">
+                            <div className="absolute right-0 mt-2 bg-white border rounded-md shadow-lg z-10 min-w-52">
                                 {sprintOverviews
                                     .sort((a, b) => b.sprintNumber - a.sprintNumber)
                                     .map((sprint) => (

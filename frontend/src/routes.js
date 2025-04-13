@@ -87,11 +87,5 @@ export const routes = [
     }
 ];
 
-export const getRoutesByRole = (userLevel) => {
-    if (!userLevel) return [];
-    return routes.filter(route => !route.public && route.roles && route.roles.includes(userLevel));
-};
-
-export const publicRoutes = routes.filter(route => route.public);
 
 export const sidebarRoutes = routes.filter(route => !route.public);

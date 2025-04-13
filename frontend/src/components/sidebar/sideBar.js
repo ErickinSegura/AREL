@@ -1,6 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight, Menu, X, LogOut, ChevronDown } from 'lucide-react';
-import { FiCloudLightning, FiHome, FiSettings, FiTable, FiCalendar, FiLink, FiCodesandbox, FiUsers, FiActivity, FiBarChart2, FiFolder } from "react-icons/fi";
+import {
+    FiCloudLightning,
+    FiHome,
+    FiSettings,
+    FiTable,
+    FiCalendar,
+    FiLink,
+    FiCodesandbox,
+    FiUsers,
+    FiActivity,
+    FiBarChart2,
+    FiFolder,
+    FiLoader
+} from "react-icons/fi";
 import { useRoute } from '../../contexts/RouteContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useProjects } from '../../hooks/useProjects';
@@ -11,6 +24,7 @@ import { routes } from '../../routes';
 const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectDropdown, contextSelectedProject, projects, selectProject }) => {
     const projectDropdownRef = useRef(null);
     const { user } = useAuth();
+    const { loading: projectsLoading } = useProjects();
     const userRole = user?.userLevel || 2;
 
     const userProject = user?.projectId && projects
@@ -36,12 +50,52 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
         }
     };
 
-    if (!contextSelectedProject) return null;
+    if (projectsLoading) {
+        return (
+            <div className="w-full">
+                <div className={`flex items-center ${
+                    !isMobile && !isOpen ? 'justify-center' : ''
+                } w-full ${isMobile ? 'py-2' : 'py-1.5'} rounded-md transition-all duration-300`}>
+                    <div
+                        className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center transition-all duration-300 text-white bg-gray-300"
+                    >
+                        <FiLoader className="animate-spin" />
+                    </div>
+
+                    <div className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                        !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
+                    }`}>
+                        <div className="text-base font-medium text-gray-400 truncate">
+                            <span className="truncate w-full">Loading Projects...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    const noProjectContainerClass = `flex items-center ${
+        !isMobile && !isOpen ? 'justify-center' : ''
+    } w-full ${isMobile ? 'py-2' : 'py-1.5'} rounded-md transition-all duration-300`;
 
     if (!projects || projects.length === 0) {
         return (
-            <div className="flex items-center justify-center w-full h-12">
-                <span className="text-sm text-gray-500">No hay proyectos disponibles</span>
+            <div className="w-full">
+                <div className={noProjectContainerClass}>
+                    <div
+                        className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center transition-all duration-300 text-white bg-gray-400"
+                    >
+                        <FiFolder />
+                    </div>
+
+                    <div className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                        !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
+                    }`}>
+                        <div className="text-base font-medium text-gray-500 truncate">
+                            <span className="truncate w-full">No hay proyectos disponibles</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -49,8 +103,22 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
     if (userRole === 2) {
         if (!userProject) {
             return (
-                <div className="flex items-center justify-center w-full h-12">
-                    <span className="text-sm text-gray-500">No tienes un proyecto asignado</span>
+                <div className="w-full">
+                    <div className={noProjectContainerClass}>
+                        <div
+                            className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center transition-all duration-300 text-white bg-gray-400"
+                        >
+                            <FiFolder />
+                        </div>
+
+                        <div className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                            !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
+                        }`}>
+                            <div className="text-base font-medium text-gray-500 truncate">
+                                <span className="truncate w-full">No tienes un proyecto asignado</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             );
         }
@@ -94,16 +162,21 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
             >
                 <div
                     className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center transition-all duration-300 text-white"
-                    style={{ backgroundColor: contextSelectedProject.color?.hexColor || '#4e4e4e' }}
+                    style={{ backgroundColor: contextSelectedProject?.color?.hexColor || '#4e4e4e' }}
                 >
-                    {getProjectIcon(contextSelectedProject.icon?.iconName)}
+                    {contextSelectedProject
+                        ? getProjectIcon(contextSelectedProject.icon?.iconName)
+                        : <FiFolder />
+                    }
                 </div>
 
                 <div className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out ${
                     !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
                 }`}>
                     <div className="text-base font-medium text-black truncate flex justify-around items-center">
-                        <span className="truncate w-5/6">{contextSelectedProject.projectName}</span>
+                        <span className="truncate w-5/6">
+                            {contextSelectedProject?.projectName || "Seleccionar proyecto"}
+                        </span>
                         <ChevronDown size={16} className="ml-1 flex-shrink-0" />
                     </div>
                 </div>
@@ -117,7 +190,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                             key={project.id}
                             onClick={() => selectProject(project)}
                             className={`flex items-center gap-x-3 px-3 py-2 w-full text-left hover:bg-gray-100 ${
-                                contextSelectedProject.id === project.id ? 'bg-gray-100' : ''
+                                contextSelectedProject?.id === project.id ? 'bg-gray-100' : ''
                             }`}
                         >
                             <div
@@ -387,9 +460,15 @@ const Sidebar = ({
 
     useEffect(() => {
         if (projects && projects.length > 0 && !contextSelectedProject) {
-            setSelectedProject(projects[0]);
+            if (user?.userLevel === 2 && user?.projectId) {
+                const userProject = projects.find(project => project.id === user.projectId);
+                if (userProject) {
+                    setSelectedProject(userProject);
+                    return;
+                }
+            }
         }
-    }, [projects, contextSelectedProject, setSelectedProject]);
+    }, [projects, contextSelectedProject, setSelectedProject, user]);
 
     useEffect(() => {
         if (!isOpen) {

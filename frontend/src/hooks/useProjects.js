@@ -1,5 +1,6 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { ProjectService } from '../api/projectService';
+import { useAuth } from '../contexts/AuthContext';
 
 const ProjectContext = createContext();
 
@@ -22,12 +23,17 @@ const useProjectsData = () => {
     const [selectedProject, setSelectedProject] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { isAuthenticated, isLoading } = useAuth();
 
     const defaultColor = { hexColor: "#4e4e4e" };
     const defaultIcon = { iconName: "folder" };
 
     useEffect(() => {
         const fetchProjects = async () => {
+            if (isLoading || !isAuthenticated) {
+                return;
+            }
+
             try {
                 setLoading(true);
                 const data = await ProjectService.getProjects();
@@ -48,9 +54,6 @@ const useProjectsData = () => {
                 });
 
                 setProjects(adaptedProjects);
-                if (adaptedProjects.length > 0 && !selectedProject) {
-                    setSelectedProject(adaptedProjects[0]);
-                }
             } catch (error) {
                 console.error("Error fetching projects:", error);
                 setError("Failed to load projects. Please try again later.");
@@ -60,7 +63,7 @@ const useProjectsData = () => {
         };
 
         fetchProjects();
-    }, []);
+    }, [isAuthenticated, isLoading]);
 
     const selectProject = (project) => {
         setSelectedProject(project);
@@ -70,7 +73,7 @@ const useProjectsData = () => {
         projects,
         selectedProject,
         setSelectedProject: selectProject,
-        loading,
+        loading: loading || isLoading,
         error
     };
 };
