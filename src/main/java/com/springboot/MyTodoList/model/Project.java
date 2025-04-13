@@ -19,9 +19,9 @@ public class Project {
     @Column(name = "DESCRIPTION")
     String description;
 
-    //@ManyToOne
-    //@JoinColumn(name="ID_COLOR", referencedColumnName = "ID_COLOR")
-    @Column(name="ID_COLOR")
+    @ManyToOne
+    @JoinColumn(name="ID_COLOR", referencedColumnName = "ID_COLOR")
+    //@Column(name="ID_COLOR")
     Color color;
 
     //@ManyToOne

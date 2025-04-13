@@ -13,6 +13,10 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
     const { user } = useAuth();
     const userRole = user?.userLevel || 2;
 
+    const userProject = user?.projectId && projects
+        ? projects.find(project => project.id === user.projectId)
+        : null;
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (projectDropdownRef.current && !projectDropdownRef.current.contains(event.target)) {
@@ -43,9 +47,36 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
     }
 
     if (userRole === 2) {
+        if (!userProject) {
+            return (
+                <div className="flex items-center justify-center w-full h-12">
+                    <span className="text-sm text-gray-500">No tienes un proyecto asignado</span>
+                </div>
+            );
+        }
+
         return (
-            <div className="flex items-center justify-center w-full h-12">
-                <span className="text-sm text-gray-500">No tienes permisos para ver los proyectos</span>
+            <div className="w-full">
+                <div
+                    className={`flex items-center ${
+                        !isMobile && !isOpen ? 'justify-center' : ''
+                    } w-full ${isMobile ? 'py-2' : 'py-1.5'} rounded-md transition-all duration-300`}
+                >
+                    <div
+                        className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center transition-all duration-300 text-white"
+                        style={{ backgroundColor: userProject.color?.hexColor || '#4e4e4e' }}
+                    >
+                        {getProjectIcon(userProject.icon?.iconName)}
+                    </div>
+
+                    <div className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                        !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
+                    }`}>
+                        <div className="text-base font-medium text-black truncate">
+                            <span className="truncate w-full">{userProject.projectName}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -90,7 +121,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                             }`}
                         >
                             <div
-                                className="w-6 h-6 rounded flex-shrink-0 grid place-items-center"
+                                className="w-6 h-6 rounded flex-shrink-0 grid place-items-center text-white"
                                 style={{ backgroundColor: project.color?.hexColor || '#808080' }}
                             >
                                 {getProjectIcon(project.icon?.iconName)}

@@ -25,7 +25,10 @@ export const AuthProvider = ({ children }) => {
                             lastName: userData.lastName,
                             fullName: `${userData.firstName} ${userData.lastName}`,
                             telegramUsername: userData.telegramUsername,
-                            userLevel: userData.userLevel
+                            userLevel: userData.userLevel,
+                            projectId: userData.projectId,
+                            projectName: userData.projectName,
+                            projectRole: userData.projectRole
                         });
                         setIsAuthenticated(true);
                     } else {

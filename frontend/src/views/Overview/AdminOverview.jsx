@@ -228,12 +228,7 @@ const AdminOverview = () => {
                             ))}
                         </div>
                     ) : selectedSprint && (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="text-gray-500 text-sm mb-1">Time Accuracy</div>
-                                <div className="text-2xl font-bold">{selectedSprint.timeAccuracy.toFixed(0)}<span className="text-oracleRed">%</span></div>
-                                <div className="text-xs text-gray-500">Est. {selectedSprint.totalEstimatedHours}h vs Actual {selectedSprint.totalRealHours}h</div>
-                            </div>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             <div className="bg-gray-50 p-4 rounded-lg">
                                 <div className="text-gray-500 text-sm mb-1">Completion Rate</div>
                                 <div className="text-2xl font-bold">{selectedSprint.completionRate.toFixed(0)}<span className="text-oracleRed">%</span></div>
