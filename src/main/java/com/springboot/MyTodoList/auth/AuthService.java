@@ -31,14 +31,6 @@ public class AuthService {
 
         return AuthResponse.builder()
                 .token(token)
-                .user(UserResponse.builder()
-                        .id(user.getId())
-                        .email(user.getEmail())
-                        .firstName(user.getFirstName())
-                        .lastName(user.getLastName())
-                        .telegramUsername(user.getTelegramUsername())
-                        .userLevel(user.getUserLevel().getID())
-                        .build())
                 .build();
     }
 
