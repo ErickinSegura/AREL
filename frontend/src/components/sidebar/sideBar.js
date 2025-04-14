@@ -115,7 +115,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                             !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
                         }`}>
                             <div className="text-base font-medium text-gray-500 truncate">
-                                <span className="truncate w-full">No tienes un proyecto asignado</span>
+                                <span className="truncate w-full">No project assigned</span>
                             </div>
                         </div>
                     </div>
@@ -175,7 +175,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                 }`}>
                     <div className="text-base font-medium text-black truncate flex justify-around items-center">
                         <span className="truncate w-5/6">
-                            {contextSelectedProject?.projectName || "Seleccionar proyecto"}
+                            {contextSelectedProject?.projectName || "Select a project"}
                         </span>
                         <ChevronDown size={16} className="ml-1 flex-shrink-0" />
                     </div>
@@ -184,7 +184,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
 
             {projectDropdownOpen && (
                 <div className={`absolute left-0 right-0 top-full mt-1 bg-white rounded-md shadow-lg z-50 py-1 max-h-60 overflow-y-auto w-full`}>
-                    <div className="text-xs text-gray-500 px-3 py-1 uppercase">Proyectos</div>
+                    <div className="text-xs text-gray-500 px-3 py-1">Projects</div>
                     {projects && projects.map((project) => (
                         <button
                             key={project.id}
@@ -464,7 +464,6 @@ const Sidebar = ({
                 const userProject = projects.find(project => project.id === user.projectId);
                 if (userProject) {
                     setSelectedProject(userProject);
-                    return;
                 }
             }
         }
