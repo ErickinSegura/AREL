@@ -14,6 +14,9 @@ export const useOverviewData = () => {
         totalTasks: 0,
         percentImprovement: 0,
     });
+    const [selectedUserPerformance, setSelectedUserPerformance] = useState(null);
+    const [loadingUserPerformance, setLoadingUserPerformance] = useState(false);
+    const [userPerformanceError, setUserPerformanceError] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -93,6 +96,33 @@ export const useOverviewData = () => {
         return Math.round(((currentCompletionRate - previousCompletionRate) / previousCompletionRate) * 100);
     };
 
+    const fetchUserPerformanceByID = async (userId) => {
+        if (!selectedProject || !userId) return;
+
+        try {
+            setLoadingUserPerformance(true);
+            setUserPerformanceError(null);
+
+            const userPerformanceData = await OverviewService.getUserPerformanceByID(selectedProject.id, userId);
+
+            const processedUserPerformance = {
+                ...userPerformanceData,
+                completionRate: userPerformanceData.assignedTasks > 0
+                    ? (userPerformanceData.completedTasks / userPerformanceData.assignedTasks) * 100
+                    : 0
+            };
+
+            setSelectedUserPerformance(processedUserPerformance);
+            return processedUserPerformance;
+        } catch (err) {
+            console.error("Error fetching user performance data:", err);
+            setUserPerformanceError("Failed to load user performance data.");
+            return null;
+        } finally {
+            setLoadingUserPerformance(false);
+        }
+    };
+
     return {
         sprintOverviews,
         userPerformances,
@@ -100,5 +130,10 @@ export const useOverviewData = () => {
         error,
         currentSprint,
         progressStats,
+        // New returns for user performance by ID
+        selectedUserPerformance,
+        loadingUserPerformance,
+        userPerformanceError,
+        fetchUserPerformanceByID
     };
 };
