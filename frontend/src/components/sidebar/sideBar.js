@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight, Menu, X, LogOut, ChevronDown, Plus, Check } from 'lucide-react';
+import { ChevronRight, Menu, X, LogOut, ChevronDown, Plus, Check, User } from 'lucide-react';
 import {
     FiCloudLightning,
     FiHome,
@@ -533,6 +533,76 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
     );
 };
 
+const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }) => {
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+        <div className="relative" ref={dropdownRef}>
+            <button
+                className="flex items-center h-16"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+                <img
+                    src="https://external-preview.redd.it/TwU07Lr9HX8Ayouj-4fyQfJBp3XuCyG7I9Q0n8KhF7M.jpg?auto=webp&s=3ab8215d552fd36f052da9aec8aaeaf43e0e2926"
+                    alt="User"
+                    className="w-8 h-8 rounded-md"
+                />
+                <div className={`ml-3 ${
+                    isMobile
+                        ? 'flex-1 min-w-0'
+                        : `overflow-hidden transition-all duration-300 ${isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`
+                }`}>
+                    <div className="text-sm font-medium text-black truncate">
+                        {user ? `${user.firstName} ${user.lastName}` : 'Usuario'}
+                    </div>
+                    <div className="text-xs text-gray-600 truncate">
+                        {user ? user.email : 'user@example.com'}
+                    </div>
+                </div>
+            </button>
+
+            {/* Dropdown Menu */}
+            {dropdownOpen && (
+                <div className="absolute bottom-full mb-2 right-0 w-48 bg-white rounded-lg shadow-lg overflow-hidden z-50 border border-gray-200">
+                    <div className="p-2">
+                        <button
+                            className="w-full flex items-center gap-3 py-2 px-3 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                            onClick={() => setDropdownOpen(false)}
+                        >
+                            <User size={18} className="text-gray-500" />
+                            <span>Account</span>
+                        </button>
+
+                        <button
+                            className="w-full flex items-center gap-3 py-2 px-3 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                            onClick={() => {
+                                handleLogout();
+                                setDropdownOpen(false);
+                            }}
+                        >
+                            <LogOut size={18} />
+                            <span>Log out</span>
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 const MobileSidebar = ({ mobileMenuOpen, toggleMobileMenu, menuItems, selectedItem, setSelectedItem, accentColor, user, handleLogout, projectSelectorProps }) => {
     return (
         <>
@@ -627,29 +697,8 @@ const MobileSidebar = ({ mobileMenuOpen, toggleMobileMenu, menuItems, selectedIt
                         ))}
                     </ul>
 
-                    <div className="border-t border-gray-200 mx-4 mt-4 mb-2">
-                        <div className="flex items-center h-16">
-                            <img
-                                src="https://external-preview.redd.it/TwU07Lr9HX8Ayouj-4fyQfJBp3XuCyG7I9Q0n8KhF7M.jpg?auto=webp&s=3ab8215d552fd36f052da9aec8aaeaf43e0e2926"
-                                alt="User"
-                                className="w-8 h-8 rounded-md"
-                            />
-                            <div className="ml-3 flex-1 min-w-0">
-                                <div className="text-sm font-medium text-black truncate">
-                                    {user ? `${user.fullName}` : 'Usuario'}
-                                </div>
-                                <div className="text-xs text-gray-600 truncate">
-                                    {user ? user.email : 'user@example.com'}
-                                </div>
-                            </div>
-                        </div>
-                        <button
-                            onClick={handleLogout}
-                            className="flex items-center w-full py-2 px-3 mb-8 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                            <LogOut size={18} className="mr-2" />
-                            <span>Cerrar sesión</span>
-                        </button>
+                    <div className="border-t border-gray-700 mx-4 mt-4 mb-2">
+                        <UserButtonWithDropdown user={user} handleLogout={handleLogout} isMobile={true} />
                     </div>
                 </nav>
             </div>
@@ -730,42 +779,7 @@ const DesktopSidebar = ({ sidebarRef, isOpen, handleMouseEnter, handleMouseLeave
                 </nav>
 
                 <div className="border-t border-gray-700 mx-4 transition-all mt-4 mb-2">
-                    <button className="flex items-center h-16">
-
-                            <img
-                                src="https://external-preview.redd.it/TwU07Lr9HX8Ayouj-4fyQfJBp3XuCyG7I9Q0n8KhF7M.jpg?auto=webp&s=3ab8215d552fd36f052da9aec8aaeaf43e0e2926"
-                                alt="User"
-                                className="w-8 h-8 rounded-md"
-                            />
-                            <div className={`ml-3 overflow-hidden transition-all duration-300 ${isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
-                                <div className="text-sm font-medium text-black truncate">
-                                    {user ? `${user.firstName} ${user.lastName}` : 'Usuario'}
-                                </div>
-                                <div className="text-xs text-gray-600 truncate">
-                                    {user ? user.email : 'user@example.com'}
-                                </div>
-                            </div>
-                    </button>
-
-                    {isOpen && (
-                        <button
-                            onClick={handleLogout}
-                            className="flex items-center w-full py-2 px-3 mb-6 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                            <LogOut size={18} className="mr-2" />
-                            <span>Cerrar sesión</span>
-                        </button>
-                    )}
-
-                    {!isOpen && (
-                        <button
-                            onClick={handleLogout}
-                            className="flex justify-center w-full py-2 mb-6 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Cerrar sesión"
-                        >
-                            <LogOut size={20} />
-                        </button>
-                    )}
+                    <UserButtonWithDropdown user={user} handleLogout={handleLogout} isOpen={isOpen} />
                 </div>
             </div>
         </div>

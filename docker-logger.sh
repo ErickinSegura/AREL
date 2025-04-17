@@ -24,8 +24,8 @@ mostrar_banner() {
 verificar_contenedor() {
     while ! docker ps -a | grep -q "oracle-container"; do
         echo -e "${YELLOW}[ESPERANDO] El contenedor 'oracle-container' no existe.${NC}"
-        echo -e "${YELLOW}[INFO] Esperando 10 segundos antes de volver a verificar...${NC}"
-        sleep 10
+        echo -e "${YELLOW}[INFO] Esperando 1 segundo antes de volver a verificar...${NC}"
+        sleep 1
         mostrar_banner
     done
     echo -e "${GREEN}[OK] Contenedor 'oracle-container' encontrado.${NC}"
@@ -35,8 +35,8 @@ verificar_contenedor() {
 verificar_estado() {
     while ! docker ps | grep -q "oracle-container"; do
         echo -e "${YELLOW}[ESPERANDO] El contenedor 'oracle-container' existe pero no está en ejecución.${NC}"
-        echo -e "${YELLOW}[INFO] Esperando 5 segundos antes de volver a verificar...${NC}"
-        sleep 5
+        echo -e "${YELLOW}[INFO] Esperando 1 segundos antes de volver a verificar...${NC}"
+        sleep 1
         mostrar_banner
         # Verificamos de nuevo si el contenedor existe (por si fue eliminado mientras esperábamos)
         if ! docker ps -a | grep -q "oracle-container"; then
@@ -54,8 +54,8 @@ monitorear_logs() {
     # Intentamos monitorear logs, si falla volvemos al inicio
     if ! docker logs --tail=50 --follow oracle-container; then
         echo -e "${RED}[ERROR] No se pudieron obtener los logs. El contenedor podría haberse detenido.${NC}"
-        echo -e "${YELLOW}[INFO] Reiniciando monitoreo en 5 segundos...${NC}"
-        sleep 5
+        echo -e "${YELLOW}[INFO] Reiniciando monitoreo en 1 segundo...${NC}"
+        sleep 1
     fi
 }
 
