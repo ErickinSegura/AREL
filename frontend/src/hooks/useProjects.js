@@ -84,7 +84,7 @@ const useProjectsData = () => {
                 id: newProject.id,
                 projectName: newProject.name,
                 description: newProject.description || "No description available",
-                color: newProject.color || defaultColor,
+                color: newProject.color ? { hexColor: `#${newProject.color.hexColor}` } : defaultColor,
                 icon: newProject.icon || defaultIcon,
                 activeSprint: newProject.activeSprintId
             };
@@ -97,7 +97,6 @@ const useProjectsData = () => {
             throw error;
         }
     };
-
     return {
         projects,
         selectedProject,

@@ -9,10 +9,8 @@ import {
     FiLink,
     FiCodesandbox,
     FiUsers,
-    FiActivity,
-    FiBarChart2,
     FiFolder,
-    FiLoader,
+    FiLoader, FiCode, FiFileText, FiStar, FiBookmark, FiChevronDown,
 } from "react-icons/fi";
 import { useRoute } from '../../contexts/RouteContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -22,7 +20,14 @@ import { routes } from '../../routes';
 import { Modal, ModalHeader, ModalTitle, ModalContent, ModalClose } from '../../lib/ui/Modal';
 import { Input } from '../../lib/ui/Input';
 import { Button } from '../../lib/ui/Button';
+import {createPortal} from "react-dom";
 
+
+const ModalPortal = ({ children }) => {
+    return typeof document !== 'undefined'
+        ? createPortal(children, document.body)
+        : null;
+};
 
 const AddProjectModal = ({ isOpen, onClose }) => {
     const { addProject } = useProjects();
@@ -31,18 +36,46 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     const [colorId, setColorId] = useState(1);
     const [iconId, setIconId] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const colorMenuRef = useRef(null);
+    const iconMenuRef = useRef(null);
     const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
     const [isIconMenuOpen, setIsIconMenuOpen] = useState(false);
 
     const iconOptions = [
         { id: 1, icon: <FiFolder size={24} />, label: 'Folder' },
         { id: 2, icon: <FiCodesandbox size={24} />, label: 'Codesandbox' },
+        { id: 3, icon: <FiCode size={24} />, label: 'Code' },
+        { id: 4, icon: <FiFileText size={24} />, label: 'Document' },
+        { id: 5, icon: <FiStar size={24} />, label: 'Star' },
+        { id: 6, icon: <FiBookmark size={24} />, label: 'Bookmark' },
     ];
 
     const colorOptions = [
         { id: 1, hex: '4984B8', name: 'Light Blue' },
         { id: 2, hex: '2E6F40', name: 'Green' },
+        { id: 3, hex: 'E63946', name: 'Red' },
+        { id: 4, hex: 'FFBE0B', name: 'Yellow' },
+        { id: 5, hex: '8338EC', name: 'Purple' },
+        { id: 6, hex: 'FF006E', name: 'Pink' },
+        { id: 7, hex: '3A86FF', name: 'Blue' },
     ];
+
+    useEffect(() => {
+        const handleOutsideClick = (event) => {
+            if (colorMenuRef.current && !colorMenuRef.current.contains(event.target)) {
+                setIsColorMenuOpen(false);
+            }
+            if (iconMenuRef.current && !iconMenuRef.current.contains(event.target)) {
+                setIsIconMenuOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleOutsideClick);
+        return () => {
+            document.removeEventListener('mousedown', handleOutsideClick);
+        };
+    }, []);
 
     const getSelectedIcon = () => {
         return iconOptions.find(icon => icon.id === iconId) || iconOptions[0];
@@ -84,147 +117,183 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose}>
-            <ModalHeader>
-                <ModalTitle>Add New Project</ModalTitle>
-                <ModalClose onClick={onClose} />
-            </ModalHeader>
-            <ModalContent>
-                <form onSubmit={handleSubmit}>
-                    <div className="space-y-4">
-                        <Input
-                            label="Project Name"
-                            name="projectName"
-                            value={projectName}
-                            onChange={(e) => setProjectName(e.target.value)}
-                            placeholder="Enter project name"
-                            required
-                        />
-
-                        <div className="flex flex-col gap-1">
-                            <label className="text-sm font-medium text-gray-700">
-                                Description
-                            </label>
-                            <textarea
-                                name="description"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                placeholder="Enter project description"
-                                className="mr-4 px-4 py-2 border rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-oracleRed"
-                                rows={3}
+        <ModalPortal>
+            <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalHeader>
+                    <ModalTitle>Add New Project</ModalTitle>
+                    <ModalClose onClick={onClose} />
+                </ModalHeader>
+                <ModalContent>
+                    <form onSubmit={handleSubmit}>
+                        <div className="space-y-4">
+                            <Input
+                                label="Project Name"
+                                name="projectName"
+                                value={projectName}
+                                onChange={(e) => setProjectName(e.target.value)}
+                                placeholder="Enter project name"
+                                required
                             />
-                        </div>
 
-                        <div className="flex flex-col md:flex-row gap-6">
-                            {/* Color Selector */}
-                            <div className="w-full md:w-1/2">
-                                <label className="text-sm font-medium text-gray-700 block mb-2">
-                                    Project Color
+                            <div className="flex flex-col gap-1">
+                                <label className="text-sm font-medium text-gray-700">
+                                    Description
                                 </label>
-                                <div className="relative">
-                                    <button
-                                        type="button"
-                                        className="flex items-center gap-2 w-full px-4 py-2 border rounded-md bg-white hover:bg-gray-50"
-                                        onClick={() => setIsColorMenuOpen(!isColorMenuOpen)}
-                                    >
-                                        <div
-                                            className="w-5 h-5 rounded-full"
-                                            style={{ backgroundColor: `#${getSelectedColor().hex}` }}
-                                        ></div>
-                                        <span className="text-sm">
-                                            {getSelectedColor().name}
-                                        </span>
-                                    </button>
-
-                                    {isColorMenuOpen && (
-                                        <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg p-2">
-                                            <div className="grid grid-cols-4 gap-2">
-                                                {colorOptions.map((color) => (
-                                                    <button
-                                                        key={color.id}
-                                                        type="button"
-                                                        className={`w-full aspect-square rounded-md flex items-center justify-center p-1 ${colorId === color.id ? 'ring-2 ring-oracleRed' : ''}`}
-                                                        style={{ backgroundColor: `#${color.hex}` }}
-                                                        onClick={() => {
-                                                            setColorId(color.id);
-                                                            setIsColorMenuOpen(false);
-                                                        }}
-                                                        title={color.name}
-                                                    >
-                                                        {colorId === color.id && (
-                                                            <Check size={16} className="text-white" />
-                                                        )}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
+                                <textarea
+                                    name="description"
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    placeholder="Enter project description"
+                                    className="px-4 py-2 border rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                                    rows={3}
+                                />
                             </div>
 
-                            {/* Icon Selector */}
-                            <div className="w-full md:w-1/2">
-                                <label className="text-sm font-medium text-gray-700 block mb-2">
-                                    Project Icon
-                                </label>
-                                <div className="relative">
-                                    <button
-                                        type="button"
-                                        className="flex items-center gap-2 w-full px-4 py-2 border rounded-md bg-white hover:bg-gray-50"
-                                        onClick={() => setIsIconMenuOpen(!isIconMenuOpen)}
-                                    >
-                                        <div className="text-gray-700">
-                                            {getSelectedIcon().icon}
-                                        </div>
-                                        <span className="text-sm">{getSelectedIcon().label}</span>
-                                    </button>
-
-                                    {isIconMenuOpen && (
-                                        <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg p-2">
-                                            <div className="grid grid-cols-2 gap-2">
-                                                {iconOptions.map((option) => (
-                                                    <button
-                                                        key={option.id}
-                                                        type="button"
-                                                        className={`flex items-center gap-2 p-2 rounded-md w-full ${iconId === option.id ? 'bg-gray-100 text-oracleRed' : 'hover:bg-gray-50'}`}
-                                                        onClick={() => {
-                                                            setIconId(option.id);
-                                                            setIsIconMenuOpen(false);
-                                                        }}
-                                                    >
-                                                        <div className="text-gray-700">
-                                                            {option.icon}
-                                                        </div>
-                                                        <span className="text-sm">{option.label}</span>
-                                                    </button>
-                                                ))}
+                            <div className="flex flex-col gap-4">
+                                <div className="w-full">
+                                    <label className="text-sm font-medium text-gray-700 block mb-2">
+                                        Project Color
+                                    </label>
+                                    <div ref={colorMenuRef} className="relative">
+                                        <button
+                                            type="button"
+                                            className="flex items-center justify-between w-full px-4 py-3 border rounded-md bg-white hover:bg-gray-50 transition-colors"
+                                            onClick={() => {
+                                                setIsColorMenuOpen(!isColorMenuOpen);
+                                                setIsIconMenuOpen(false);
+                                            }}
+                                            aria-expanded={isColorMenuOpen}
+                                            aria-haspopup="true"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div
+                                                    className="w-6 h-6 rounded-full shadow-sm"
+                                                    style={{ backgroundColor: `#${getSelectedColor().hex}` }}
+                                                    aria-hidden="true"
+                                                ></div>
+                                                <span className="text-sm font-medium">
+                                                    {getSelectedColor().name}
+                                                </span>
                                             </div>
-                                        </div>
-                                    )}
+                                            <FiChevronDown
+                                                className={`transition-transform duration-200 ${isColorMenuOpen ? 'transform rotate-180' : ''}`}
+                                            />
+                                        </button>
+
+                                        {isColorMenuOpen && (
+                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg p-3 max-h-64 overflow-y-auto">
+                                                <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                                                    {colorOptions.map((color) => (
+                                                        <button
+                                                            key={color.id}
+                                                            type="button"
+                                                            className={`w-full aspect-square rounded-full flex items-center justify-center p-1 transition-all hover:scale-110 ${
+                                                                colorId === color.id ? 'ring-2 ring-offset-2 ring-oracleRed' : ''
+                                                            }`}
+                                                            style={{ backgroundColor: `#${color.hex}` }}
+                                                            onClick={() => {
+                                                                setColorId(color.id);
+                                                                setIsColorMenuOpen(false);
+                                                            }}
+                                                            title={color.name}
+                                                            aria-label={`Select ${color.name} color`}
+                                                        >
+                                                            {colorId === color.id && (
+                                                                <Check size={16} className="text-white" />
+                                                            )}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="w-full">
+                                    <label className="text-sm font-medium text-gray-700 block mb-2">
+                                        Project Icon
+                                    </label>
+                                    <div ref={iconMenuRef} className="relative">
+                                        <button
+                                            type="button"
+                                            className="flex items-center justify-between w-full px-4 py-3 border rounded-md bg-white hover:bg-gray-50 transition-colors"
+                                            onClick={() => {
+                                                setIsIconMenuOpen(!isIconMenuOpen);
+                                                setIsColorMenuOpen(false);
+                                            }}
+                                            aria-expanded={isIconMenuOpen}
+                                            aria-haspopup="true"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="text-gray-700 bg-gray-100 p-2 rounded-md">
+                                                    {getSelectedIcon().icon}
+                                                </div>
+                                                <span className="text-sm font-medium">{getSelectedIcon().label}</span>
+                                            </div>
+                                            <FiChevronDown
+                                                className={`transition-transform duration-200 ${isIconMenuOpen ? 'transform rotate-180' : ''}`}
+                                            />
+                                        </button>
+
+                                        {isIconMenuOpen && (
+                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg p-3 max-h-64 overflow-y-auto">
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                    {iconOptions.map((option) => (
+                                                        <button
+                                                            key={option.id}
+                                                            type="button"
+                                                            className={`flex items-center gap-2 p-3 rounded-md w-full transition-colors ${
+                                                                iconId === option.id
+                                                                    ? 'bg-gray-100 ring-2 ring-oracleRed text-oracleRed'
+                                                                    : 'hover:bg-gray-50'
+                                                            }`}
+                                                            onClick={() => {
+                                                                setIconId(option.id);
+                                                                setIsIconMenuOpen(false);
+                                                            }}
+                                                            aria-label={`Select ${option.label} icon`}
+                                                        >
+                                                            <div className={`${iconId === option.id ? 'text-oracleRed' : 'text-gray-700'}`}>
+                                                                {option.icon}
+                                                            </div>
+                                                            <span className="text-sm">{option.label}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="mt-6 flex justify-end gap-3">
-                        <Button
-                            variant="default"
-                            onClick={onClose}
-                            type="button"
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            variant="remarked"
-                            type="submit"
-                            disabled={isSubmitting || !projectName}
-                        >
-                            {isSubmitting ? 'Adding...' : 'Add Project'}
-                        </Button>
-                    </div>
-                </form>
-            </ModalContent>
-        </Modal>
+                        <div className="mt-6 flex justify-end gap-3">
+                            <Button
+                                variant="default"
+                                onClick={onClose}
+                                type="button"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="remarked"
+                                type="submit"
+                                disabled={isSubmitting || !projectName}
+                            >
+                                {isSubmitting ? (
+                                    <div className="flex items-center gap-2">
+                                        <span className="animate-spin"><FiLoader size={16} /></span>
+                                        <span>Adding...</span>
+                                    </div>
+                                ) : (
+                                    'Add Project'
+                                )}
+                            </Button>
+                        </div>
+                    </form>
+                </ModalContent>
+            </Modal>
+        </ModalPortal>
     );
 };
 
@@ -661,21 +730,22 @@ const DesktopSidebar = ({ sidebarRef, isOpen, handleMouseEnter, handleMouseLeave
                 </nav>
 
                 <div className="border-t border-gray-700 mx-4 transition-all mt-4 mb-2">
-                    <div className="flex items-center h-16">
-                        <img
-                            src="https://external-preview.redd.it/TwU07Lr9HX8Ayouj-4fyQfJBp3XuCyG7I9Q0n8KhF7M.jpg?auto=webp&s=3ab8215d552fd36f052da9aec8aaeaf43e0e2926"
-                            alt="User"
-                            className="w-8 h-8 rounded-md"
-                        />
-                        <div className={`ml-3 overflow-hidden transition-all duration-300 ${isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
-                            <div className="text-sm font-medium text-black truncate">
-                                {user ? `${user.firstName} ${user.lastName}` : 'Usuario'}
+                    <button className="flex items-center h-16">
+
+                            <img
+                                src="https://external-preview.redd.it/TwU07Lr9HX8Ayouj-4fyQfJBp3XuCyG7I9Q0n8KhF7M.jpg?auto=webp&s=3ab8215d552fd36f052da9aec8aaeaf43e0e2926"
+                                alt="User"
+                                className="w-8 h-8 rounded-md"
+                            />
+                            <div className={`ml-3 overflow-hidden transition-all duration-300 ${isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
+                                <div className="text-sm font-medium text-black truncate">
+                                    {user ? `${user.firstName} ${user.lastName}` : 'Usuario'}
+                                </div>
+                                <div className="text-xs text-gray-600 truncate">
+                                    {user ? user.email : 'user@example.com'}
+                                </div>
                             </div>
-                            <div className="text-xs text-gray-600 truncate">
-                                {user ? user.email : 'user@example.com'}
-                            </div>
-                        </div>
-                    </div>
+                    </button>
 
                     {isOpen && (
                         <button
@@ -747,17 +817,17 @@ const Sidebar = ({
             1: [
                 { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: true },
                 { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: true },
-                { icon: <FiBarChart2 size={20} />, label: 'Reports', hasSubmenu: true },
                 { icon: <FiUsers size={20} />, label: 'Team', hasSubmenu: true },
             ],
             2: [
                 { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: false },
-                { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: false },
-                { icon: <FiActivity size={20} />, label: 'My Tasks', hasSubmenu: false },
+                { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: false }
             ],
             3: [
-                { icon: <FiUsers size={20} />, label: 'Users', hasSubmenu: true },
+                { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: false },
                 { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: false },
+                { icon: <FiUsers size={20} />, label: 'Team', hasSubmenu: true },
+                { icon: <FiUsers size={20} />, label: 'Users', hasSubmenu: true },
             ]
         };
 
