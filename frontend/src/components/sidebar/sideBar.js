@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight, Menu, X, LogOut, ChevronDown } from 'lucide-react';
+import { ChevronRight, Menu, X, LogOut, ChevronDown, Plus, Check } from 'lucide-react';
 import {
     FiCloudLightning,
     FiHome,
@@ -12,20 +12,228 @@ import {
     FiActivity,
     FiBarChart2,
     FiFolder,
-    FiLoader
+    FiLoader,
 } from "react-icons/fi";
 import { useRoute } from '../../contexts/RouteContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useProjects } from '../../hooks/useProjects';
 import { useSidebar } from '../../hooks/useSidebar';
 import { routes } from '../../routes';
+import { Modal, ModalHeader, ModalTitle, ModalContent, ModalClose } from '../../lib/ui/Modal';
+import { Input } from '../../lib/ui/Input';
+import { Button } from '../../lib/ui/Button';
 
+
+const AddProjectModal = ({ isOpen, onClose }) => {
+    const { addProject } = useProjects();
+    const [projectName, setProjectName] = useState('');
+    const [description, setDescription] = useState('');
+    const [colorId, setColorId] = useState(1);
+    const [iconId, setIconId] = useState(1);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
+    const [isIconMenuOpen, setIsIconMenuOpen] = useState(false);
+
+    const iconOptions = [
+        { id: 1, icon: <FiFolder size={24} />, label: 'Folder' },
+        { id: 2, icon: <FiCodesandbox size={24} />, label: 'Codesandbox' },
+    ];
+
+    const colorOptions = [
+        { id: 1, hex: '4984B8', name: 'Light Blue' },
+        { id: 2, hex: '2E6F40', name: 'Green' },
+    ];
+
+    const getSelectedIcon = () => {
+        return iconOptions.find(icon => icon.id === iconId) || iconOptions[0];
+    };
+
+    const getSelectedColor = () => {
+        return colorOptions.find(color => color.id === colorId) || colorOptions[0];
+    };
+
+    const resetForm = () => {
+        setProjectName('');
+        setDescription('');
+        setColorId(1);
+        setIconId(1);
+        setIsColorMenuOpen(false);
+        setIsIconMenuOpen(false);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+
+        try {
+            const projectData = {
+                name: projectName,
+                description: description,
+                colorId: colorId,
+                iconId: iconId
+            };
+
+            await addProject(projectData);
+            resetForm();
+            onClose();
+        } catch (error) {
+            console.error("Error adding project:", error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose}>
+            <ModalHeader>
+                <ModalTitle>Add New Project</ModalTitle>
+                <ModalClose onClick={onClose} />
+            </ModalHeader>
+            <ModalContent>
+                <form onSubmit={handleSubmit}>
+                    <div className="space-y-4">
+                        <Input
+                            label="Project Name"
+                            name="projectName"
+                            value={projectName}
+                            onChange={(e) => setProjectName(e.target.value)}
+                            placeholder="Enter project name"
+                            required
+                        />
+
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm font-medium text-gray-700">
+                                Description
+                            </label>
+                            <textarea
+                                name="description"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="Enter project description"
+                                className="mr-4 px-4 py-2 border rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                                rows={3}
+                            />
+                        </div>
+
+                        <div className="flex flex-col md:flex-row gap-6">
+                            {/* Color Selector */}
+                            <div className="w-full md:w-1/2">
+                                <label className="text-sm font-medium text-gray-700 block mb-2">
+                                    Project Color
+                                </label>
+                                <div className="relative">
+                                    <button
+                                        type="button"
+                                        className="flex items-center gap-2 w-full px-4 py-2 border rounded-md bg-white hover:bg-gray-50"
+                                        onClick={() => setIsColorMenuOpen(!isColorMenuOpen)}
+                                    >
+                                        <div
+                                            className="w-5 h-5 rounded-full"
+                                            style={{ backgroundColor: `#${getSelectedColor().hex}` }}
+                                        ></div>
+                                        <span className="text-sm">
+                                            {getSelectedColor().name}
+                                        </span>
+                                    </button>
+
+                                    {isColorMenuOpen && (
+                                        <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg p-2">
+                                            <div className="grid grid-cols-4 gap-2">
+                                                {colorOptions.map((color) => (
+                                                    <button
+                                                        key={color.id}
+                                                        type="button"
+                                                        className={`w-full aspect-square rounded-md flex items-center justify-center p-1 ${colorId === color.id ? 'ring-2 ring-oracleRed' : ''}`}
+                                                        style={{ backgroundColor: `#${color.hex}` }}
+                                                        onClick={() => {
+                                                            setColorId(color.id);
+                                                            setIsColorMenuOpen(false);
+                                                        }}
+                                                        title={color.name}
+                                                    >
+                                                        {colorId === color.id && (
+                                                            <Check size={16} className="text-white" />
+                                                        )}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Icon Selector */}
+                            <div className="w-full md:w-1/2">
+                                <label className="text-sm font-medium text-gray-700 block mb-2">
+                                    Project Icon
+                                </label>
+                                <div className="relative">
+                                    <button
+                                        type="button"
+                                        className="flex items-center gap-2 w-full px-4 py-2 border rounded-md bg-white hover:bg-gray-50"
+                                        onClick={() => setIsIconMenuOpen(!isIconMenuOpen)}
+                                    >
+                                        <div className="text-gray-700">
+                                            {getSelectedIcon().icon}
+                                        </div>
+                                        <span className="text-sm">{getSelectedIcon().label}</span>
+                                    </button>
+
+                                    {isIconMenuOpen && (
+                                        <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg p-2">
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {iconOptions.map((option) => (
+                                                    <button
+                                                        key={option.id}
+                                                        type="button"
+                                                        className={`flex items-center gap-2 p-2 rounded-md w-full ${iconId === option.id ? 'bg-gray-100 text-oracleRed' : 'hover:bg-gray-50'}`}
+                                                        onClick={() => {
+                                                            setIconId(option.id);
+                                                            setIsIconMenuOpen(false);
+                                                        }}
+                                                    >
+                                                        <div className="text-gray-700">
+                                                            {option.icon}
+                                                        </div>
+                                                        <span className="text-sm">{option.label}</span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <Button
+                            variant="default"
+                            onClick={onClose}
+                            type="button"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="remarked"
+                            type="submit"
+                            disabled={isSubmitting || !projectName}
+                        >
+                            {isSubmitting ? 'Adding...' : 'Add Project'}
+                        </Button>
+                    </div>
+                </form>
+            </ModalContent>
+        </Modal>
+    );
+};
 
 const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectDropdown, contextSelectedProject, projects, selectProject }) => {
     const projectDropdownRef = useRef(null);
     const { user } = useAuth();
     const { loading: projectsLoading } = useProjects();
     const userRole = user?.userLevel || 2;
+    const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
 
     const userProject = user?.projectId && projects
         ? projects.find(project => project.id === user.projectId)
@@ -42,10 +250,10 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [toggleProjectDropdown]);
 
-    const getProjectIcon = (iconName) => {
-        switch (iconName) {
-            case 'folder': return <FiFolder />;
-            case 'codesandbox': return <FiCodesandbox />;
+    const getProjectIcon = (iconID) => {
+        switch (iconID) {
+            case 1: return <FiFolder />;
+            case 2: return <FiCodesandbox />;
             default: return <FiCodesandbox />;
         }
     };
@@ -96,6 +304,31 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                         </div>
                     </div>
                 </div>
+
+                {/* Add Project Modal */}
+                <AddProjectModal
+                    isOpen={isAddProjectModalOpen}
+                    onClose={() => setIsAddProjectModalOpen(false)}
+                />
+
+                {/* Add Project Button */}
+                {userRole === 1 || userRole === 3 ? (
+                    <button
+                        onClick={() => setIsAddProjectModalOpen(true)}
+                        className={`flex items-center ${
+                            !isMobile && !isOpen ? 'justify-center' : ''
+                        } w-full mt-2 py-2 rounded-md hover:bg-gray-200 transition-all duration-300`}
+                    >
+                        <div className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center text-oracleRed">
+                            <Plus size={20}/>
+                        </div>
+                        <div className={`flex-1 font-medium transition-all duration-300 ease-in-out ${
+                            !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
+                        }`}>
+                            Add New Project
+                        </div>
+                    </button>
+                ) : null}
             </div>
         );
     }
@@ -134,7 +367,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                         className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center transition-all duration-300 text-white"
                         style={{ backgroundColor: userProject.color?.hexColor || '#4e4e4e' }}
                     >
-                        {getProjectIcon(userProject.icon?.iconName)}
+                        {getProjectIcon(userProject.icon? userProject.icon : 1)}
                     </div>
 
                     <div className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out ${
@@ -165,7 +398,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                     style={{ backgroundColor: contextSelectedProject?.color?.hexColor || '#4e4e4e' }}
                 >
                     {contextSelectedProject
-                        ? getProjectIcon(contextSelectedProject.icon?.iconName)
+                        ? getProjectIcon(contextSelectedProject.icon? contextSelectedProject.icon : 1)
                         : <FiFolder />
                     }
                 </div>
@@ -197,13 +430,36 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                                 className="w-6 h-6 rounded flex-shrink-0 grid place-items-center text-white"
                                 style={{ backgroundColor: project.color?.hexColor || '#808080' }}
                             >
-                                {getProjectIcon(project.icon?.iconName)}
+                                {getProjectIcon(project.icon ? project.icon : 1)}
                             </div>
                             <span className="text-sm truncate">{project.projectName}</span>
                         </button>
                     ))}
+
+                    {(userRole === 1 || userRole === 3) && (
+                        <>
+                            <div className="border-t border-gray-200 my-1"></div>
+                            <button
+                                onClick={() => {
+                                    toggleProjectDropdown(false);
+                                    setIsAddProjectModalOpen(true);
+                                }}
+                                className="flex items-center gap-x-3 px-3 py-2 w-full text-left hover:bg-gray-100"
+                            >
+                                <div className="w-6 h-6 rounded flex-shrink-0 grid place-items-center text-oracleRed">
+                                    <Plus size={18} />
+                                </div>
+                                <span className="text-sm font-medium">Add New Project</span>
+                            </button>
+                        </>
+                    )}
                 </div>
             )}
+
+            <AddProjectModal
+                isOpen={isAddProjectModalOpen}
+                onClose={() => setIsAddProjectModalOpen(false)}
+            />
         </div>
     );
 };
@@ -454,7 +710,7 @@ const Sidebar = ({
     const { setCurrentRoute } = useRoute();
     const { user, logout } = useAuth();
     const { projects, selectedProject: contextSelectedProject, setSelectedProject } = useProjects();
-    const { isOpen, setIsOpen, isMobile, mobileMenuOpen, sidebarRef, handleMouseEnter, handleMouseLeave, toggleMobileMenu } = useSidebar(defaultOpen);
+    const { isOpen, isMobile, mobileMenuOpen, sidebarRef, handleMouseEnter, handleMouseLeave, toggleMobileMenu } = useSidebar(defaultOpen);
     const [selectedItem, setSelectedItem] = useState(defaultSelected);
     const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
 

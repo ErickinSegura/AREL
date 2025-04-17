@@ -26,7 +26,7 @@ const useProjectsData = () => {
     const { isAuthenticated, isLoading } = useAuth();
 
     const defaultColor = { hexColor: "#4e4e4e" };
-    const defaultIcon = { iconName: "folder" };
+    const defaultIcon = 1;
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -69,11 +69,41 @@ const useProjectsData = () => {
         setSelectedProject(project);
     };
 
+    const addProject = async (projectData) => {
+        try {
+            const formattedData = {
+                name: projectData.name,
+                description: projectData.description,
+                color: { id: projectData.colorId },
+                icon: projectData.iconId
+            };
+
+            const newProject = await ProjectService.createProject(formattedData);
+
+            const adaptedNewProject = {
+                id: newProject.id,
+                projectName: newProject.name,
+                description: newProject.description || "No description available",
+                color: newProject.color || defaultColor,
+                icon: newProject.icon || defaultIcon,
+                activeSprint: newProject.activeSprintId
+            };
+
+            setProjects(prev => [...prev, adaptedNewProject]);
+            return adaptedNewProject;
+        } catch (error) {
+            console.error("Error adding project:", error);
+            setError("Failed to add project. Please try again later.");
+            throw error;
+        }
+    };
+
     return {
         projects,
         selectedProject,
         setSelectedProject: selectProject,
         loading: loading || isLoading,
-        error
+        error,
+        addProject
     };
 };

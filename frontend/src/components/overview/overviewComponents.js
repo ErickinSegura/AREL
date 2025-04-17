@@ -11,6 +11,14 @@ import {
 } from 'react-icons/fi';
 import { Skeleton, SkeletonText, SkeletonCircle } from '../../lib/ui/Skeleton';
 
+const getProjectIcon = (iconID) => {
+    switch (iconID) {
+        case 1: return <FiFolder />;
+        case 2: return <FiCodesandbox />;
+        default: return <FiCodesandbox />;
+    }
+};
+
 export const ErrorState = ({ error }) => (
     <div className="p-6 flex flex-col items-center justify-center h-full">
         <Card className="w-full max-w-md text-center">
@@ -63,7 +71,7 @@ export const NoProjectState = ( { title, message } ) => (
     </div>
 );
 
-export const ProjectHeader = ({ selectedProject, loading, getProjectIcon }) => (
+export const ProjectHeader = ({ selectedProject, loading }) => (
     <Card className="mb-6">
         <CardHeader>
             <div className={`flex items-center ${loading ? 'animate-pulse' : ''}`}>
@@ -81,7 +89,7 @@ export const ProjectHeader = ({ selectedProject, loading, getProjectIcon }) => (
                                 className="w-12 h-12 rounded-md grid place-items-center text-white"
                                 style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
                             >
-                                {getProjectIcon === 'folder' ? <FiFolder /> : <FiCodesandbox />}
+                                {getProjectIcon(selectedProject?.icon)}
                             </div>
                             <h1 className="text-2xl font-bold px-2">{selectedProject?.projectName}</h1>
                         </div>
