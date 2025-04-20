@@ -30,7 +30,8 @@ public class TaskCreationCommands {
     private final KeyboardFactory keyboardFactory;
     private final InactivityManager inactivityManager;
 
-    public TaskCreationCommands(ServiceManager database, MessageSender messageSender, InactivityManager inactivityManager) {
+    public TaskCreationCommands(ServiceManager database, MessageSender messageSender,
+                                InactivityManager inactivityManager) {
         this.database = database;
         this.messageSender = messageSender;
         this.keyboardFactory = new KeyboardFactory();
@@ -44,7 +45,7 @@ public class TaskCreationCommands {
         String projectIDString = callbackQuery.substring(lastUnderscore + 1);
         int projectId = Integer.parseInt(projectIDString);
         
-        Task actualTask = userState.getTask();
+        Task actualTask = new Task();
         actualTask.setProject(projectId);
         userState.setTask(actualTask);
         userState.setState(UserStateType.CREATE_TASK_ENTER_NAME);
@@ -186,8 +187,9 @@ public class TaskCreationCommands {
             logger.debug("TASK_LOG_TASK_LOG: "+task.toString());
             database.task.addTask(task);
             message.setText(BotMessages.SAVE_TASK.getMessage());
+            state.setState(UserStateType.START);
 
-            state.setTask(null);
+            state.setTask(new Task());
         } else {
             message.setText(BotMessages.SENT_AGAIN_EXCEPTION.getMessage());
         }
@@ -198,7 +200,7 @@ public class TaskCreationCommands {
     //Cancel task creation
     public void handleCancel(Long chatId, UserState state) {
         //Delete task
-        state.setTask(null);
+        state.setTask(new Task());
 
         SendMessage message = new SendMessage();
         message.setChatId(chatId);

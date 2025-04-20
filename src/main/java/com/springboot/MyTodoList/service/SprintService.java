@@ -20,25 +20,14 @@ public class SprintService {
         this.sprintRepository = sprintRepository;
     }
     
-    //Get Sprint by ID
-    public ResponseEntity<Sprint> getSprintsbyID(int id){
-        Optional<Sprint> sprintData = sprintRepository.findById(id);
-        if (sprintData.isPresent()){
-            return new ResponseEntity<>(sprintData.get(), HttpStatus.OK);
-        }else{
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public Sprint addSprint(Sprint sprint) {
+        return sprintRepository.save(sprint);
     }
 
-    public ResponseEntity<Integer> getActiveSprintId(Integer projectId) {
-        List<Integer> activeSprintIds = sprintRepository.findActiveSprintIds(projectId);
-        
-        if (activeSprintIds.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        
-        return new ResponseEntity<>(activeSprintIds.get(0), HttpStatus.OK);
-        //return ResponseEntity.ok(activeSprintIds.get(0));  // 200 OK
+    //Get Sprint by ID
+    public Optional<Sprint> getSprintsbyID(int id){
+        Optional<Sprint> sprintData = sprintRepository.findById(id);
+        return sprintData;
     }
 
     public Integer getProjectbyId(Integer id) {
@@ -71,4 +60,13 @@ public class SprintService {
         }
     }
 
+    public Integer getNewSprintNumber(Integer projectId) {
+        Integer newSprint = sprintRepository.getNewSprintNumber(projectId);
+        return newSprint;
+    }
+
+    public Integer getSprintNumberById(Integer sprintId) {
+        Integer number = sprintRepository.findSprintNumberById(sprintId);
+        return number;
+    }
 }
