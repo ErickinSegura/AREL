@@ -25,7 +25,8 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse login(LoginRequest request) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(),
+                                                                                   request.getPassword()));
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         String token = jwtService.getToken(user);
 
@@ -44,7 +45,8 @@ public class AuthService {
             throw new IllegalArgumentException("Telegram username already in use");
         }
 
-        UserLevel userLevel = userLevelRepository.findById(2).orElseThrow(() -> new RuntimeException("User level not found"));
+        UserLevel userLevel = userLevelRepository.findById(2).orElseThrow(()
+                -> new RuntimeException("User level not found"));
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
