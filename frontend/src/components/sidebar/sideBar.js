@@ -537,7 +537,6 @@ const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -548,6 +547,12 @@ const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        if (!isOpen) {
+            setDropdownOpen(false);
+        }
+    }, [isOpen]);
 
     return (
         <div className="relative" ref={dropdownRef}>
@@ -697,8 +702,8 @@ const MobileSidebar = ({ mobileMenuOpen, toggleMobileMenu, menuItems, selectedIt
                         ))}
                     </ul>
 
-                    <div className="border-t border-gray-700 mx-4 mt-4 mb-2">
-                        <UserButtonWithDropdown user={user} handleLogout={handleLogout} isMobile={true} />
+                    <div className="border-t border-gray-700 mx-4 mt-auto py-4">
+                        <UserButtonWithDropdown user={user} handleLogout={handleLogout} isMobile={true} isOpen={true} />
                     </div>
                 </nav>
             </div>
