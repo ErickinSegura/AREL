@@ -17,9 +17,16 @@ import javax.transaction.Transactional;
 @Transactional
 @EnableTransactionManagement
 public interface TaskRepository extends JpaRepository<Task,Integer> {
-    List<Task> findByAssignedToId(int assignedToId);
+    List<Task> findByAssignedTo_Id(int assignedToId);
 
     List<Task> findBySprint(int sprintId);
+
+    List<Task> findByProjectId(int projectId);
+
+    @Query("SELECT t FROM Task t WHERE t.sprint = :sprintId AND t.projectId = :projectId")
+    List<Task> findBySprintAndProjectId(
+            @Param("sprintId") int sprintId,
+            @Param("projectId") int projectId);
 
     @Query("select s from Task s where s.sprint is null and s.projectId = :projectId")
     List<Task> getBacklogTasks(@Param("projectId") Integer projectId);
