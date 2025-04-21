@@ -20,19 +20,4 @@ public class SprintOverview {
     private int hoursSpentOnCompleted;
     private int totalEstimatedHours;
     private int totalRealHours;
-
-    // Método para calcular el porcentaje de completitud de tareas
-    public double getCompletionRate() {
-        return totalTasks == 0 ? 0 : (completedTasks * 100.0) / totalTasks;
-    }
-
-    // Método para calcular la precisión del tiempo estimado
-    public double getTimeAccuracy() {
-        return totalEstimatedHours == 0 ? 0 : (totalRealHours * 100.0) / totalEstimatedHours;
-    }
-
-    @Override
-    public String toString() {
-        return "miaw";
-    }
 }

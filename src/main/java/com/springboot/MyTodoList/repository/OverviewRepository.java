@@ -88,7 +88,8 @@ public class OverviewRepository {
                 "SUM(t.ESTIMATED_HOURS) AS TOTAL_ESTIMATED_HOURS, " +
                 "SUM(t.REAL_HOURS) AS TOTAL_REAL_HOURS, " +
                 "ROUND(SUM(t.REAL_HOURS) * 100.0 / CASE WHEN SUM(t.ESTIMATED_HOURS) = 0 THEN 1 " +
-                "ELSE SUM(t.ESTIMATED_HOURS) END, 2) AS TIME_ACCURACY_PERCENTAGE " +
+                "ELSE SUM(t.ESTIMATED_HOURS) END, 2) AS TIME_ACCURACY_PERCENTAGE, " +
+                "up.ID_USER_PROJECT AS ID_USER_PROJECT " +
                 "FROM " +
                 "TODOUSER.USER_TABLE u " +
                 "JOIN " +
@@ -102,7 +103,7 @@ public class OverviewRepository {
                 "WHERE " +
                 "t.DELETED = 0 OR t.DELETED IS NULL " +
                 "GROUP BY " +
-                "p.PROJECT_NAME, p.ID_PROJECT, s.SPRINT_NUMBER, u.FIRSTNAME, u.LASTNAME " +
+                "p.PROJECT_NAME, p.ID_PROJECT, s.SPRINT_NUMBER, u.FIRSTNAME, u.LASTNAME, up.ID_USER_PROJECT " +
                 "ORDER BY " +
                 "p.PROJECT_NAME, s.SPRINT_NUMBER, COMPLETION_RATE DESC";
 
@@ -122,7 +123,8 @@ public class OverviewRepository {
                 "SUM(t.ESTIMATED_HOURS) AS TOTAL_ESTIMATED_HOURS, " +
                 "SUM(t.REAL_HOURS) AS TOTAL_REAL_HOURS, " +
                 "ROUND(SUM(t.REAL_HOURS) * 100.0 / CASE WHEN SUM(t.ESTIMATED_HOURS) = 0 THEN 1 " +
-                "ELSE SUM(t.ESTIMATED_HOURS) END, 2) AS TIME_ACCURACY_PERCENTAGE " +
+                "ELSE SUM(t.ESTIMATED_HOURS) END, 2) AS TIME_ACCURACY_PERCENTAGE, " +
+                "up.ID_USER_PROJECT AS ID_USER_PROJECT " +
                 "FROM " +
                 "TODOUSER.USER_TABLE u " +
                 "JOIN " +
@@ -137,7 +139,7 @@ public class OverviewRepository {
                 "(t.DELETED = 0 OR t.DELETED IS NULL) " +
                 "AND p.ID_PROJECT = ? " +
                 "GROUP BY " +
-                "p.PROJECT_NAME, p.ID_PROJECT, s.SPRINT_NUMBER, u.FIRSTNAME, u.LASTNAME " +
+                "p.PROJECT_NAME, p.ID_PROJECT, s.SPRINT_NUMBER, u.FIRSTNAME, u.LASTNAME, up.ID_USER_PROJECT " +
                 "ORDER BY " +
                 "s.SPRINT_NUMBER, COMPLETION_RATE DESC";
 
@@ -167,6 +169,7 @@ public class OverviewRepository {
         public UserPerformance mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new UserPerformance(
                     rs.getString("PROJECT_NAME"),
+                    rs.getInt("ID_USER_PROJECT"),
                     rs.getLong("ID_PROJECT"),
                     rs.getInt("SPRINT_NUMBER"),
                     rs.getString("USER_NAME"),

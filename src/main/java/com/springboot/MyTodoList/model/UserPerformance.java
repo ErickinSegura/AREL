@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserPerformance {
     private String projectName;
+    private int userProjectID;
     private Long projectId;
     private int sprintNumber;
     private String userName;

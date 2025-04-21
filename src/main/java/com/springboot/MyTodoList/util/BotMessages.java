@@ -48,7 +48,13 @@ public enum BotMessages {
 	CREATE_SPRINT_ENTER_ENDDATE("create.sprint.enter.enddate"),
 	CREATE_SPRINT_CONFIRMATION("create.sprint.confirmation"),
 	CREATE_SPRINT_PARSE_ERROR("create.sprint.parseError"),
-	ADDING_TO_NEXT_SPRINT_ASSIGN_USER("adding.to.next.sprint.assign.user")
+	ADDING_TO_NEXT_SPRINT_ASSIGN_USER("adding.to.next.sprint.assign.user"),
+	KPI_OPEN("kpi.open"),
+	KPI_OPEN_SPRINTS("kpi.open.sprints"),
+	KPI_OPEN_USERS("kpi.open.users"),
+	NO_USERS_IN_PROJECT("no.users.in.project"),
+	KPI_OPEN_USER_SPRINT("kpi.open.user.sprint"),
+	KPI_SEE_MORE("kpi.see.more")
 	;
 
 	private final String key;

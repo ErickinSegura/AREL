@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import com.springboot.MyTodoList.model.Project;
 import com.springboot.MyTodoList.model.Sprint;
+import com.springboot.MyTodoList.model.SprintOverview;
 import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.model.User;
 import com.springboot.MyTodoList.model.UserProject;
@@ -83,6 +84,7 @@ public class AgileCommands {
     public void handleOpenProjectCallback(int userProjectId, String userLevel, long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
+        message.setText(BotMessages.ERROR_DATABASE.getMessage());
 
         Optional<UserProject> userProjectOptional = database.userProject.getUserProjectByID(userProjectId);
         if (userProjectOptional.isPresent()) {
@@ -102,21 +104,22 @@ public class AgileCommands {
                 .getRole()) + noTask);
     
             } else if (userLevel.equals("Manager") || userLevel.equals("Administrator")) {
-                //Mock Data
-                String dataString = "";
-                dataString = "(MOCK DATA, NOT REAL)"
-                +"\n"
-                +"<b>" + actualProject.getName() + "</b>"
-                +"\n\n"
-                +"This sprint's completed tasks:"
-                +"\n"
-                +"15/<b>29</b>"
-                +"\n\n"
-                +"Click one of the options below to see/manage this project."
-                ;
+                //KPI
+                Integer actualSprint = actualProject.getActiveSprintId();
+                Long projectIDLong = Long.valueOf(actualProject.getID());
+                List<SprintOverview> sprintOverviews = database.kpi.getSprintOverviewsByProjectId(projectIDLong);
+                KPICommands commands = new KPICommands(database, messageSender);
 
-                message.setText(dataString);
-                message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(actualProject.getID()));
+                
+                Optional<SprintOverview> activeSprintOverviewOptional = sprintOverviews.stream()
+                .filter(p -> p.getSprintNumber() == actualSprint)
+                .findFirst();
+
+                if (activeSprintOverviewOptional.isPresent()){
+                    SprintOverview overview = activeSprintOverviewOptional.get();
+                    message.setText(commands.formatSprintOverview(overview));
+                    message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(actualProject.getID()));
+                }                
             }
 
             messageSender.sendMessage(message);
