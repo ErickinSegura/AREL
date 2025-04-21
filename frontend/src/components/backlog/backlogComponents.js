@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Card, CardContent, CardHeader, CardTitle} from '../../lib/ui/Card';
 import { Clock, Tag, User, CalendarDays, AlertTriangle } from 'lucide-react';
 import {
@@ -13,6 +13,7 @@ import { Button } from '../../lib/ui/Button';
 import { Input } from '../../lib/ui/Input';
 import {SkeletonCircle, SkeletonText} from '../../lib/ui/Skeleton';
 import {FiCodesandbox, FiFolder} from "react-icons/fi";
+import {useBacklog} from "../../hooks/useBacklog";
 
 const priorityColors = {
     1: 'bg-green-100 text-green-800 border-green-200',
@@ -53,10 +54,10 @@ const getProjectIcon = (iconID) => {
     }
 };
 
-export const BacklogHeader = ({ selectedProject, loading }) => (
+export const BacklogHeader = ({ selectedProject, loading, onCreateTask, onCreateSprint }) => (
     <Card className="mb-6">
         <CardHeader>
-            <div className={`flex items-center ${loading ? 'animate-pulse' : ''}`}>
+            <div className={`flex items-center justify-between ${loading ? 'animate-pulse' : ''}`}>
                 <CardTitle>
                     {loading ? (
                         <div className="flex items-center">
@@ -66,19 +67,34 @@ export const BacklogHeader = ({ selectedProject, loading }) => (
                             </div>
                         </div>
                     ) : (
-                        <div className="justify-between">
-                            <div className="flex items-center">
-                                <div
-                                    className="w-12 h-12 rounded-md grid place-items-center text-white"
-                                    style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
-                                >
-                                    {getProjectIcon(selectedProject?.icon)}
-                                </div>
-                                <h1 className="text-2xl font-bold px-2">Project Backlog</h1>
+                        <div className="flex items-center">
+                            <div
+                                className="w-12 h-12 rounded-md grid place-items-center text-white"
+                                style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
+                            >
+                                {getProjectIcon(selectedProject?.icon)}
                             </div>
+                            <h1 className="text-2xl font-bold px-2">Project Backlog</h1>
                         </div>
                     )}
                 </CardTitle>
+
+                {!loading && (
+                    <div className="flex space-x-2">
+                        <Button
+                            variant="default"
+                            onClick={onCreateSprint}
+                        >
+                            Create Sprint
+                        </Button>
+                        <Button
+                            variant="remarked"
+                            onClick={onCreateTask}
+                        >
+                            Add Task
+                        </Button>
+                    </div>
+                )}
             </div>
         </CardHeader>
     </Card>
@@ -147,8 +163,13 @@ export const TaskDetailModal = ({
         state: task?.state || 1,
         assignedTo: task?.assignedTo || '',
         category: task?.category || 1,
-        sprint: null // Always null for backlog tasks
+        sprint: null
     });
+
+    const getUserName = (userId) => {
+        if (!userId) return "Unassigned";
+        return `User ${userId}`;
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -318,15 +339,13 @@ export const TaskDetailModal = ({
                                 </div>
                             )}
 
-                            {task.assignedTo && (
-                                <div className="flex items-center">
-                                    <User size={18} className="text-gray-500 mr-2" />
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-600">Assigned To</p>
-                                        <p>ID: {task.assignedTo}</p>
-                                    </div>
+                            <div className="flex items-center">
+                                <User size={18} className="text-gray-500 mr-2" />
+                                <div>
+                                    <p className="text-sm font-medium text-gray-600">Assigned To</p>
+                                    <p>{getUserName(task.assignedTo)}</p>
                                 </div>
-                            )}
+                            </div>
 
                             <div className="flex items-center">
                                 <CalendarDays size={18} className="text-gray-500 mr-2" />
@@ -369,73 +388,28 @@ export const TaskDetailModal = ({
 
 export const CreateTaskModal = ({
                                     isOpen,
-                                    onClose,
-                                    onCreate,
-                                    projectId
+                                    onClose
                                 }) => {
-    const [formData, setFormData] = useState({
-        title: '',
-        description: '',
-        estimatedHours: 1,
-        projectId: projectId,
-        type: 4,
-        priority: 2,
-        state: 1,
-        assignedTo: '',
-        category: 1,
-        sprint: null
-    });
+    const {
+        taskFormData,
+        handleTaskFormChange,
+        handleTaskCreate,
+        validationError,
+        loading,
+        resetTaskForm
+    } = useBacklog();
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: name === 'estimatedHours' || name === 'priority' || name === 'state' || name === 'type' || name === 'category' || name === 'assignedTo'
-                ? value === '' ? '' : Number(value)
-                : value,
-            projectId
-        }));
-    };
+    useEffect(() => {
+        if (!isOpen) {
+            resetTaskForm();
+        }
+    }, [isOpen, resetTaskForm]);
 
     const handleSubmit = async () => {
-        const result = await onCreate({
-            ...formData,
-            assignedTo: formData.assignedTo === '' ? null : Number(formData.assignedTo)
-        });
-
+        const result = await handleTaskCreate();
         if (result) {
-            setFormData({
-                title: '',
-                description: '',
-                estimatedHours: 1,
-                projectId: projectId,
-                type: 4,
-                priority: 2,
-                state: 1,
-                assignedTo: '',
-                category: 1,
-                sprint: null
-            });
             onClose();
         }
-    };
-
-    const priorityLabels = {
-        1: 'Low',
-        2: 'Medium',
-        3: 'High',
-        4: 'Critical'
-    };
-
-    const stateLabels = {
-        1: 'To Do',
-        2: 'Doing',
-        3: 'Done'
-    };
-
-    const categoryLabels = {
-        1: 'Web',
-        2: 'Bot'
     };
 
     return (
@@ -446,20 +420,25 @@ export const CreateTaskModal = ({
             </ModalHeader>
             <ModalContent>
                 <div className="space-y-4">
+                    {validationError && (
+                        <div className="text-red-500 text-sm">{validationError}</div>
+                    )}
+
                     <Input
                         label="Title"
                         name="title"
-                        value={formData.title}
-                        onChange={handleChange}
+                        value={taskFormData.title}
+                        onChange={handleTaskFormChange}
                         className="w-full"
+                        required
                     />
 
                     <div>
                         <label className="text-sm font-medium text-gray-700">Description</label>
                         <textarea
                             name="description"
-                            value={formData.description}
-                            onChange={handleChange}
+                            value={taskFormData.description}
+                            onChange={handleTaskFormChange}
                             className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             rows={3}
                         />
@@ -471,16 +450,16 @@ export const CreateTaskModal = ({
                             name="estimatedHours"
                             type="number"
                             min="0"
-                            value={formData.estimatedHours}
-                            onChange={handleChange}
+                            value={taskFormData.estimatedHours}
+                            onChange={handleTaskFormChange}
                         />
 
                         <div>
                             <label className="text-sm font-medium text-gray-700">Priority</label>
                             <select
                                 name="priority"
-                                value={formData.priority}
-                                onChange={handleChange}
+                                value={taskFormData.priority}
+                                onChange={handleTaskFormChange}
                                 className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                                 {Object.entries(priorityLabels).map(([key, value]) => (
@@ -493,8 +472,8 @@ export const CreateTaskModal = ({
                             <label className="text-sm font-medium text-gray-700">State</label>
                             <select
                                 name="state"
-                                value={formData.state}
-                                onChange={handleChange}
+                                value={taskFormData.state}
+                                onChange={handleTaskFormChange}
                                 className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                                 {Object.entries(stateLabels).map(([key, value]) => (
@@ -507,8 +486,8 @@ export const CreateTaskModal = ({
                             <label className="text-sm font-medium text-gray-700">Category</label>
                             <select
                                 name="category"
-                                value={formData.category}
-                                onChange={handleChange}
+                                value={taskFormData.category}
+                                onChange={handleTaskFormChange}
                                 className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                                 {Object.entries(categoryLabels).map(([key, value]) => (
@@ -521,8 +500,9 @@ export const CreateTaskModal = ({
                             label="Assigned To (ID)"
                             name="assignedTo"
                             type="number"
-                            value={formData.assignedTo}
-                            onChange={handleChange}
+                            value={taskFormData.assignedTo || ''}
+                            onChange={handleTaskFormChange}
+                            placeholder="Leave empty if not assigned"
                         />
                     </div>
                 </div>
@@ -534,12 +514,11 @@ export const CreateTaskModal = ({
                 <Button
                     onClick={handleSubmit}
                     variant="remarked"
-                    disabled={!formData.title}
+                    disabled={!taskFormData.title || loading}
                 >
-                    Create Task
+                    {loading ? 'Creating...' : 'Create Task'}
                 </Button>
             </ModalFooter>
         </Modal>
     );
 };
-

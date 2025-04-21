@@ -67,6 +67,15 @@ const Backlog = () => {
         }
     };
 
+    const handleOpenCreateModal = () => {
+        setCreateModalOpen(true);
+    };
+
+    // TODO: Implementar la funcionalidad de crear un sprint
+    const handleCreateSprint = () => {
+        console.log("Create Sprint functionality will be implemented later");
+    };
+
     if (!selectedProject) {
         return (
             <NoProjectState title={"selected"} message={"Please select a project to view its backlog."} />
@@ -81,7 +90,12 @@ const Backlog = () => {
                 </div>
             )}
 
-            <BacklogHeader selectedProject={selectedProject} loading={loading}/>
+            <BacklogHeader
+                selectedProject={selectedProject}
+                loading={loading}
+                onCreateTask={handleOpenCreateModal}
+                onCreateSprint={handleCreateSprint}
+            />
 
             <div className="mb-6">
                 {loading ? (
@@ -89,13 +103,13 @@ const Backlog = () => {
                         <SkeletonText lines={1} className="w-1/3 mb-2" />
                     </div>
                 ) : (
-                <Input
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search tasks..."
-                    name="search"
-                    leftIcon={<Search size={18} className="text-gray-400" />}
-                />
+                    <Input
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search tasks..."
+                        name="search"
+                        leftIcon={<Search size={18} className="text-gray-400" />}
+                    />
                 )}
             </div>
 
@@ -122,7 +136,7 @@ const Backlog = () => {
                             <p className="text-gray-500 mb-4">No tasks in backlog</p>
                             <Button
                                 variant="default"
-                                onClick={() => setCreateModalOpen(true)}
+                                onClick={handleOpenCreateModal}
                             >
                                 Create your first task
                             </Button>
