@@ -115,6 +115,50 @@ public class Task {
         return (category != null ? category.getID() : null);
     }
 
+    @JsonProperty("type")
+    public void setTypeById(Integer typeId) {
+        if (typeId == null) {
+            this.type = null;
+        } else {
+            TaskType t = new TaskType();
+            t.setID(typeId);
+            this.type = t;
+        }
+    }
+
+    @JsonProperty("priority")
+    public void setPriorityById(Integer priorityId) {
+        if (priorityId == null) {
+            this.priority = null;
+        } else {
+            TaskPriority p = new TaskPriority();
+            p.setID(priorityId);
+            this.priority = p;
+        }
+    }
+
+    @JsonProperty("state")
+    public void setStateById(Integer stateId) {
+        if (stateId == null) {
+            this.state = null;
+        } else {
+            TaskState s = new TaskState();
+            s.setID(stateId);
+            this.state = s;
+        }
+    }
+
+    @JsonProperty("category")
+    public void setCategoryById(Integer categoryId) {
+        if (categoryId == null) {
+            this.category = null;
+        } else {
+            Category c = new Category();
+            c.setID(categoryId);
+            this.category = c;
+        }
+    }
+
 
     @Override
     public String toString() {
@@ -137,59 +181,115 @@ public class Task {
     }
 
     public String getCoolFormatedString() {
+        try {
+            if (title == null) {
+                throw new NullPointerException("El título no puede ser nulo");
+            }
+            if (type == null) {
+                throw new NullPointerException("El tipo no puede ser nulo");
+            }
+            if (description == null) {
+                throw new NullPointerException("La descripción no puede ser nula");
+            }
 
-        //Null checks
-
-        return "<b>"+title+"</b>"
-        +"\n\n"
-        +type.formattedString()
-        +" - "
-        +description
-        +"\n\n"
-        +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
-        +"\n"
-        +"<b>Estimated Hours:</b> " + (estimatedHours != null ? estimatedHours : "Not set")
-        +"\n"
-        +"<b>State:</b> " + (state != null ? state.formatted() : "No State")
-        ;
+            return "<b>"+title+"</b>"
+                    +"\n\n"
+                    +type.formattedString()
+                    +" - "
+                    +description
+                    +"\n\n"
+                    +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
+                    +"\n"
+                    +"<b>Estimated Hours:</b> " + (estimatedHours != null ? estimatedHours : "Not set")
+                    +"\n"
+                    +"<b>State:</b> " + (state != null ? state.formatted() : "No State")
+                    ;
+        } catch (NullPointerException e) {
+            return "Error al formatear: " + e.getMessage();
+        } catch (Exception e) {
+            return "Error inesperado: " + e.getMessage();
+        }
     }
 
     public String managerFormattedString() {
+        try {
+            if (title == null) {
+                throw new NullPointerException("El título no puede ser nulo");
+            }
+            if (type == null) {
+                throw new NullPointerException("El tipo no puede ser nulo");
+            }
+            if (description == null) {
+                throw new NullPointerException("La descripción no puede ser nula");
+            }
 
-        //Null checks
-        String stringRole = "Not set";
-        if (assignedTo != null) {
-            User assigned = assignedTo.getUser();
-            stringRole = assignedTo.getRole() + " (" + assigned.getFirstName() + " " + assigned.getLastName() + ")";
+            String stringRole = "Not set";
+            if (assignedTo != null) {
+                try {
+                    User assigned = assignedTo.getUser();
+                    if (assigned == null) {
+                        stringRole = assignedTo.getRole() + " (Usuario no disponible)";
+                    } else {
+                        String firstName = assigned.getFirstName() != null ? assigned.getFirstName() : "";
+                        String lastName = assigned.getLastName() != null ? assigned.getLastName() : "";
+                        stringRole = assignedTo.getRole() + " (" + firstName + " " + lastName + ")";
+                    }
+                } catch (Exception e) {
+                    stringRole = "Error al obtener datos de usuario: " + e.getMessage();
+                }
+            }
+
+            return "<b>"+title+"</b>"
+                    +"\n\n"
+                    +type.formattedString()
+                    +" - "
+                    +description
+                    +"\n\n"
+                    +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
+                    +"\n"
+                    +"<b>Estimated Hours:</b> " + (estimatedHours != null ? estimatedHours : "Not set")
+                    +"\n"
+                    +"<b>Assigned to:</b> " + stringRole
+                    +"\n"
+                    +"<b>State:</b> " + (state != null ? state.formatted() : "No State")
+                    ;
+        } catch (NullPointerException e) {
+            return "Error al formatear: " + e.getMessage();
+        } catch (Exception e) {
+            return "Error inesperado: " + e.getMessage();
         }
-
-        return "<b>"+title+"</b>"
-        +"\n\n"
-        +type.formattedString()
-        +" - "
-        +description
-        +"\n\n"
-        +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
-        +"\n"
-        +"<b>Estimated Hours:</b> " + (estimatedHours != null ? estimatedHours : "Not set")
-        +"\n"
-        +"<b>Assigned to:</b> " + stringRole
-        +"\n"
-        +"<b>State:</b> " + (state != null ? state.formatted() : "No State")
-        ;
     }
 
     public String previewString() {
-        return "<b>"+title+"</b>"
-        +"\n\n"
-        +type.formattedString()
-        +" - "
-        +description
-        +"\n\n"
-        +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
-        +"\n"
-        +"<b>Priority:</b> " + priority.formattedString()
-        ;
+        try {
+            if (title == null) {
+                throw new NullPointerException("El título no puede ser nulo");
+            }
+            if (type == null) {
+                throw new NullPointerException("El tipo no puede ser nulo");
+            }
+            if (description == null) {
+                throw new NullPointerException("La descripción no puede ser nula");
+            }
+            if (priority == null) {
+                throw new NullPointerException("La prioridad no puede ser nula");
+            }
+
+            return "<b>"+title+"</b>"
+                    +"\n\n"
+                    +type.formattedString()
+                    +" - "
+                    +description
+                    +"\n\n"
+                    +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
+                    +"\n"
+                    +"<b>Priority:</b> " + priority.formattedString()
+                    ;
+        } catch (NullPointerException e) {
+            return "Error al formatear preview: " + e.getMessage();
+        } catch (Exception e) {
+            return "Error inesperado en preview: " + e.getMessage();
+        }
     }
 
     @PrePersist

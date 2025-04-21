@@ -34,7 +34,6 @@ export const useBacklog = () => {
         sprint: null
     });
 
-    // Actualizar el projectId en el formulario cuando cambia el proyecto seleccionado
     useEffect(() => {
         if (selectedProject) {
             setTaskFormData(prev => ({
@@ -182,6 +181,8 @@ export const useBacklog = () => {
 
     const handleTaskUpdate = async (taskId, taskData) => {
         try {
+            console.log("TaskID:", taskId, "Type:", typeof taskId);
+            console.log("Task data being sent:", JSON.stringify(taskData, null, 2));
             setLoading(true);
             await BacklogService.updateTask(taskId, taskData);
             fetchBacklogTasks();

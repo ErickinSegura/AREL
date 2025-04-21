@@ -403,7 +403,7 @@ export const CreateTaskModal = ({
         if (!isOpen) {
             resetTaskForm();
         }
-    }, [isOpen, resetTaskForm]);
+    }, [isOpen]);
 
     const handleSubmit = async () => {
         const result = await handleTaskCreate();
