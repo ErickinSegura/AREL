@@ -1,13 +1,6 @@
-//Backlog components
-import React, { useState } from 'react';
-import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardContent,
-} from '../../lib/ui/Card';
-import { Button } from '../../lib/ui/Button';
-import { Input } from '../../lib/ui/Input';
+import React, {useState} from 'react';
+import {Card, CardContent, CardHeader, CardTitle} from '../../lib/ui/Card';
+import { Clock, Tag, User, CalendarDays, AlertTriangle } from 'lucide-react';
 import {
     Modal,
     ModalHeader,
@@ -16,77 +9,119 @@ import {
     ModalFooter,
     ModalClose
 } from '../../lib/ui/Modal';
-import {
-    Skeleton,
-    SkeletonText,
-    SkeletonCard
-} from '../../lib/ui/Skeleton';
+import { Button } from '../../lib/ui/Button';
+import { Input } from '../../lib/ui/Input';
+import {SkeletonCircle, SkeletonText} from '../../lib/ui/Skeleton';
+import {FiCodesandbox, FiFolder} from "react-icons/fi";
 
-export const TaskCard = ({ task, onSelect, isDraggable = false }) => {
-    const priorityColors = {
-        1: 'bg-green-100 text-green-800',
-        2: 'bg-blue-100 text-blue-800',
-        3: 'bg-yellow-100 text-yellow-800',
-        4: 'bg-red-100 text-red-800'
-    };
+const priorityColors = {
+    1: 'bg-green-100 text-green-800 border-green-200',
+    2: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    3: 'bg-red-100 text-red-800 border-red-200',
+    4: 'bg-purple-100 text-purple-800 border-purple-200'
+};
 
-    const priorityLabels = {
-        1: 'Low',
-        2: 'Medium',
-        3: 'High',
-        4: 'Critical'
-    };
+const priorityLabels = {
+    1: 'Low',
+    2: 'Medium',
+    3: 'High',
+    4: 'Critical'
+};
 
-    const stateLabels = {
-        1: 'To Do',
-        2: 'Doing',
-        3: 'Done'
-    };
+const stateLabels = {
+    1: 'To Do',
+    2: 'Doing',
+    3: 'Done'
+};
 
-    const categoryLabels = {
-        1: 'Web',
-        2: 'Bot'
-    };
+const categoryLabels = {
+    1: 'Web',
+    2: 'Bot'
+};
 
-    const dragAttributes = isDraggable ? {
-        draggable: true,
-        onDragStart: (e) => {
-            e.dataTransfer.setData('taskId', task.id);
-        }
-    } : {};
+const stateColors = {
+    1: 'bg-gray-100 text-gray-800',
+    2: 'bg-blue-100 text-blue-800',
+    3: 'bg-green-100 text-green-800'
+};
 
+const getProjectIcon = (iconID) => {
+    switch (iconID) {
+        case 1: return <FiFolder />;
+        case 2: return <FiCodesandbox />;
+        default: return <FiCodesandbox />;
+    }
+};
+
+export const BacklogHeader = ({ selectedProject, loading }) => (
+    <Card className="mb-6">
+        <CardHeader>
+            <div className={`flex items-center ${loading ? 'animate-pulse' : ''}`}>
+                <CardTitle>
+                    {loading ? (
+                        <div className="flex items-center">
+                            <SkeletonCircle size="md" />
+                            <div className="ml-3 w-48">
+                                <SkeletonText lines={1} />
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="justify-between">
+                            <div className="flex items-center">
+                                <div
+                                    className="w-12 h-12 rounded-md grid place-items-center text-white"
+                                    style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
+                                >
+                                    {getProjectIcon(selectedProject?.icon)}
+                                </div>
+                                <h1 className="text-2xl font-bold px-2">Project Backlog</h1>
+                            </div>
+                        </div>
+                    )}
+                </CardTitle>
+            </div>
+        </CardHeader>
+    </Card>
+);
+
+export const TaskCard = ({ task, onSelect }) => {
     return (
         <Card
-            className="mb-3 hover:shadow-md transition-all cursor-pointer"
+            className="hover:shadow-md transition-all cursor-pointer"
             onClick={() => onSelect(task.id)}
-            {...dragAttributes}
         >
             <CardContent className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-medium text-lg">{task.title}</h3>
-                    <div className={`text-xs font-medium px-2 py-1 rounded-full ${priorityColors[task.priority]}`}>
-                        {priorityLabels[task.priority]}
+                <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-2">
+                    <div className="flex-grow">
+                        <div className="flex justify-between items-start my-3">
+                            <h3 className="font-medium text-lg">{task.title}</h3>
+                            <div className={`text-xs font-medium px-2 py-1 rounded-full ${priorityColors[task.priority]} border`}>
+                                {priorityLabels[task.priority]}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {task.description && (
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">{task.description}</p>
-                )}
+                <div className="flex flex-wrap items-center gap-3 mt-3">
+                    <div className={`inline-flex items-center text-xs px-2 py-1 rounded-full ${stateColors[task.state]}`}>
+                        {stateLabels[task.state]}
+                    </div>
 
-                <div className="flex flex-wrap gap-2 mt-2">
-          <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">
-            {stateLabels[task.state]}
-          </span>
-                    <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">
-            {categoryLabels[task.category]}
-          </span>
-                    <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">
-            {task.estimatedHours}h
-          </span>
+                    <div className="inline-flex items-center text-xs text-gray-600">
+                        <Tag size={14} className="mr-1" />
+                        {categoryLabels[task.category]}
+                    </div>
+
+                    <div className="inline-flex items-center text-xs text-gray-600">
+                        <Clock size={14} className="mr-1" />
+                        {task.estimatedHours}h
+                    </div>
+
                     {task.assignedTo && (
-                        <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">
-              ID: {task.assignedTo}
-            </span>
+                        <div className="inline-flex items-center text-xs text-gray-600">
+                            <User size={14} className="mr-1" />
+                            ID: {task.assignedTo}
+                        </div>
                     )}
                 </div>
             </CardContent>
@@ -94,47 +129,14 @@ export const TaskCard = ({ task, onSelect, isDraggable = false }) => {
     );
 };
 
-export const TaskList = ({ tasks, onTaskSelect, loading }) => {
-    if (loading) {
-        return (
-            <div>
-                {[1, 2, 3].map((i) => (
-                    <SkeletonCard key={i} lines={2} />
-                ))}
-            </div>
-        );
-    }
-
-    if (tasks.length === 0) {
-        return (
-            <div className="p-8 text-center border-2 border-dashed rounded-lg">
-                <p className="text-gray-500">No tasks found</p>
-            </div>
-        );
-    }
-
-    return (
-        <div className="space-y-3">
-            {tasks.map((task) => (
-                <TaskCard
-                    key={task.id}
-                    task={task}
-                    onSelect={onTaskSelect}
-                    isDraggable
-                />
-            ))}
-        </div>
-    );
-};
-
-export const TaskModal = ({
-                              isOpen,
-                              onClose,
-                              task,
-                              onUpdate,
-                              onDelete,
-                              loading
-                          }) => {
+export const TaskDetailModal = ({
+                                    isOpen,
+                                    onClose,
+                                    task,
+                                    onUpdate,
+                                    onDelete,
+                                    loading
+                                }) => {
     const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState({
         title: task?.title || '',
@@ -145,7 +147,7 @@ export const TaskModal = ({
         state: task?.state || 1,
         assignedTo: task?.assignedTo || '',
         category: task?.category || 1,
-        sprint: task?.sprint || null
+        sprint: null // Always null for backlog tasks
     });
 
     const handleChange = (e) => {
@@ -161,24 +163,6 @@ export const TaskModal = ({
     const handleSubmit = () => {
         onUpdate(task.id, formData);
         setEditMode(false);
-    };
-
-    const priorityLabels = {
-        1: 'Low',
-        2: 'Medium',
-        3: 'High',
-        4: 'Critical'
-    };
-
-    const stateLabels = {
-        1: 'To Do',
-        2: 'Doing',
-        3: 'Done'
-    };
-
-    const categoryLabels = {
-        1: 'Web',
-        2: 'Bot'
     };
 
     if (loading || !task) {
@@ -218,7 +202,7 @@ export const TaskModal = ({
                                 name="description"
                                 value={formData.description || ''}
                                 onChange={handleChange}
-                                className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                                className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 rows={3}
                             />
                         </div>
@@ -228,6 +212,7 @@ export const TaskModal = ({
                                 label="Estimated Hours"
                                 name="estimatedHours"
                                 type="number"
+                                min="0"
                                 value={formData.estimatedHours}
                                 onChange={handleChange}
                             />
@@ -238,7 +223,7 @@ export const TaskModal = ({
                                     name="priority"
                                     value={formData.priority}
                                     onChange={handleChange}
-                                    className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                                    className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
                                     {Object.entries(priorityLabels).map(([key, value]) => (
                                         <option key={key} value={key}>{value}</option>
@@ -252,7 +237,7 @@ export const TaskModal = ({
                                     name="state"
                                     value={formData.state}
                                     onChange={handleChange}
-                                    className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                                    className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
                                     {Object.entries(stateLabels).map(([key, value]) => (
                                         <option key={key} value={key}>{value}</option>
@@ -266,7 +251,7 @@ export const TaskModal = ({
                                     name="category"
                                     value={formData.category}
                                     onChange={handleChange}
-                                    className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                                    className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
                                     {Object.entries(categoryLabels).map(([key, value]) => (
                                         <option key={key} value={key}>{value}</option>
@@ -281,67 +266,74 @@ export const TaskModal = ({
                                 value={formData.assignedTo || ''}
                                 onChange={handleChange}
                             />
-
-                            <Input
-                                label="Sprint"
-                                name="sprint"
-                                type="number"
-                                value={formData.sprint || ''}
-                                onChange={handleChange}
-                            />
                         </div>
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        <h3 className="font-bold text-xl">{task.title}</h3>
+                        <div className="flex justify-between items-start">
+                            <h3 className="font-bold text-xl">{task.title}</h3>
+                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${priorityColors[task.priority]}`}>
+                                {priorityLabels[task.priority]}
+                            </span>
+                        </div>
 
-                        {task.description && (
-                            <p className="text-gray-700">{task.description}</p>
+                        {task.description ? (
+                            <p className="text-gray-700 border-b pb-4">{task.description}</p>
+                        ) : (
+                            <p className="text-gray-400 italic border-b pb-4">No description</p>
                         )}
 
-                        <div className="grid grid-cols-2 gap-y-3">
-                            <div>
-                                <span className="text-sm font-medium text-gray-600">Priority:</span>
-                                <span className="ml-2">{priorityLabels[task.priority]}</span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4">
+                            <div className="flex items-center">
+                                <Tag size={18} className="text-gray-500 mr-2" />
+                                <div>
+                                    <p className="text-sm font-medium text-gray-600">Category</p>
+                                    <p>{categoryLabels[task.category]}</p>
+                                </div>
                             </div>
 
-                            <div>
-                                <span className="text-sm font-medium text-gray-600">State:</span>
-                                <span className="ml-2">{stateLabels[task.state]}</span>
+                            <div className="flex items-center">
+                                <AlertTriangle size={18} className="text-gray-500 mr-2" />
+                                <div>
+                                    <p className="text-sm font-medium text-gray-600">Status</p>
+                                    <p>{stateLabels[task.state]}</p>
+                                </div>
                             </div>
 
-                            <div>
-                                <span className="text-sm font-medium text-gray-600">Category:</span>
-                                <span className="ml-2">{categoryLabels[task.category]}</span>
-                            </div>
-
-                            <div>
-                                <span className="text-sm font-medium text-gray-600">Estimated Hours:</span>
-                                <span className="ml-2">{task.estimatedHours}h</span>
+                            <div className="flex items-center">
+                                <Clock size={18} className="text-gray-500 mr-2" />
+                                <div>
+                                    <p className="text-sm font-medium text-gray-600">Estimated Hours</p>
+                                    <p>{task.estimatedHours}h</p>
+                                </div>
                             </div>
 
                             {task.realHours && (
-                                <div>
-                                    <span className="text-sm font-medium text-gray-600">Real Hours:</span>
-                                    <span className="ml-2">{task.realHours}h</span>
+                                <div className="flex items-center">
+                                    <Clock size={18} className="text-gray-500 mr-2" />
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-600">Real Hours</p>
+                                        <p>{task.realHours}h</p>
+                                    </div>
                                 </div>
                             )}
 
                             {task.assignedTo && (
-                                <div>
-                                    <span className="text-sm font-medium text-gray-600">Assigned To:</span>
-                                    <span className="ml-2">ID: {task.assignedTo}</span>
+                                <div className="flex items-center">
+                                    <User size={18} className="text-gray-500 mr-2" />
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-600">Assigned To</p>
+                                        <p>ID: {task.assignedTo}</p>
+                                    </div>
                                 </div>
                             )}
 
-                            <div>
-                                <span className="text-sm font-medium text-gray-600">Sprint:</span>
-                                <span className="ml-2">{task.sprint || 'Not assigned'}</span>
-                            </div>
-
-                            <div>
-                                <span className="text-sm font-medium text-gray-600">Created:</span>
-                                <span className="ml-2">{new Date(task.createdAt).toLocaleDateString()}</span>
+                            <div className="flex items-center">
+                                <CalendarDays size={18} className="text-gray-500 mr-2" />
+                                <div>
+                                    <p className="text-sm font-medium text-gray-600">Created</p>
+                                    <p>{new Date(task.createdAt).toLocaleDateString()}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -379,8 +371,7 @@ export const CreateTaskModal = ({
                                     isOpen,
                                     onClose,
                                     onCreate,
-                                    projectId,
-                                    selectedSprint
+                                    projectId
                                 }) => {
     const [formData, setFormData] = useState({
         title: '',
@@ -392,7 +383,7 @@ export const CreateTaskModal = ({
         state: 1,
         assignedTo: '',
         category: 1,
-        sprint: selectedSprint
+        sprint: null
     });
 
     const handleChange = (e) => {
@@ -409,8 +400,7 @@ export const CreateTaskModal = ({
     const handleSubmit = async () => {
         const result = await onCreate({
             ...formData,
-            assignedTo: formData.assignedTo === '' ? null : Number(formData.assignedTo),
-            sprint: formData.sprint === '' ? null : Number(formData.sprint)
+            assignedTo: formData.assignedTo === '' ? null : Number(formData.assignedTo)
         });
 
         if (result) {
@@ -424,7 +414,7 @@ export const CreateTaskModal = ({
                 state: 1,
                 assignedTo: '',
                 category: 1,
-                sprint: selectedSprint
+                sprint: null
             });
             onClose();
         }
@@ -470,7 +460,7 @@ export const CreateTaskModal = ({
                             name="description"
                             value={formData.description}
                             onChange={handleChange}
-                            className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                            className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             rows={3}
                         />
                     </div>
@@ -480,6 +470,7 @@ export const CreateTaskModal = ({
                             label="Estimated Hours"
                             name="estimatedHours"
                             type="number"
+                            min="0"
                             value={formData.estimatedHours}
                             onChange={handleChange}
                         />
@@ -490,7 +481,7 @@ export const CreateTaskModal = ({
                                 name="priority"
                                 value={formData.priority}
                                 onChange={handleChange}
-                                className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                                className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                                 {Object.entries(priorityLabels).map(([key, value]) => (
                                     <option key={key} value={key}>{value}</option>
@@ -504,7 +495,7 @@ export const CreateTaskModal = ({
                                 name="state"
                                 value={formData.state}
                                 onChange={handleChange}
-                                className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                                className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                                 {Object.entries(stateLabels).map(([key, value]) => (
                                     <option key={key} value={key}>{value}</option>
@@ -518,7 +509,7 @@ export const CreateTaskModal = ({
                                 name="category"
                                 value={formData.category}
                                 onChange={handleChange}
-                                className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                                className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                                 {Object.entries(categoryLabels).map(([key, value]) => (
                                     <option key={key} value={key}>{value}</option>
@@ -531,14 +522,6 @@ export const CreateTaskModal = ({
                             name="assignedTo"
                             type="number"
                             value={formData.assignedTo}
-                            onChange={handleChange}
-                        />
-
-                        <Input
-                            label="Sprint"
-                            name="sprint"
-                            type="number"
-                            value={formData.sprint || ''}
                             onChange={handleChange}
                         />
                     </div>
@@ -560,243 +543,3 @@ export const CreateTaskModal = ({
     );
 };
 
-export const FilterPanel = ({ filters, onChange }) => {
-    const priorityOptions = {
-        1: 'Low',
-        2: 'Medium',
-        3: 'High',
-        4: 'Critical'
-    };
-
-    const stateOptions = {
-        1: 'To Do',
-        2: 'Doing',
-        3: 'Done'
-    };
-
-    const categoryOptions = {
-        1: 'Web',
-        2: 'Bot'
-    };
-
-    const handleFilterChange = (name, value) => {
-        onChange({
-            ...filters,
-            [name]: value === '' ? null : Number(value)
-        });
-    };
-
-    const clearFilters = () => {
-        onChange({
-            type: null,
-            priority: null,
-            state: null,
-            assignee: null,
-            category: null
-        });
-    };
-
-    return (
-        <Card className="mb-6">
-            <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Filters</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    <div>
-                        <label className="text-sm font-medium text-gray-700 mb-1 block">Priority</label>
-                        <select
-                            value={filters.priority || ''}
-                            onChange={(e) => handleFilterChange('priority', e.target.value)}
-                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-oracleRed"
-                        >
-                            <option value="">All</option>
-                            {Object.entries(priorityOptions).map(([key, value]) => (
-                                <option key={key} value={key}>{value}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="text-sm font-medium text-gray-700 mb-1 block">State</label>
-                        <select
-                            value={filters.state || ''}
-                            onChange={(e) => handleFilterChange('state', e.target.value)}
-                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-oracleRed"
-                        >
-                            <option value="">All</option>
-                            {Object.entries(stateOptions).map(([key, value]) => (
-                                <option key={key} value={key}>{value}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="text-sm font-medium text-gray-700 mb-1 block">Category</label>
-                        <select
-                            value={filters.category || ''}
-                            onChange={(e) => handleFilterChange('category', e.target.value)}
-                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-oracleRed"
-                        >
-                            <option value="">All</option>
-                            {Object.entries(categoryOptions).map(([key, value]) => (
-                                <option key={key} value={key}>{value}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="text-sm font-medium text-gray-700 mb-1 block">Assignee ID</label>
-                        <input
-                            type="number"
-                            value={filters.assignee || ''}
-                            onChange={(e) => handleFilterChange('assignee', e.target.value)}
-                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-oracleRed"
-                            placeholder="Any"
-                        />
-                    </div>
-
-                    <div className="flex items-end">
-                        <Button
-                            onClick={clearFilters}
-                            variant="default"
-                            className="w-full"
-                        >
-                            Clear Filters
-                        </Button>
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-    );
-};
-
-export const SprintSelector = ({ sprints = [], selectedSprint, onChange, loading }) => {
-    if (loading) {
-        return <Skeleton className="h-10 w-full" />;
-    }
-
-    return (
-        <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div className="flex-grow w-full sm:w-auto">
-                <select
-                    value={selectedSprint || ''}
-                    onChange={(e) => onChange(e.target.value === '' ? null : Number(e.target.value))}
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-oracleRed"
-                >
-                    <option value="">Backlog (No Sprint)</option>
-                    {sprints.map((sprint) => (
-                        <option key={sprint.id} value={sprint.id}>
-                            Sprint {sprint.id} ({new Date(sprint.startDate).toLocaleDateString()} - {new Date(sprint.endDate).toLocaleDateString()})
-                        </option>
-                    ))}
-                </select>
-            </div>
-            <div className="flex gap-2 w-full sm:w-auto">
-                <Button
-                    variant="default"
-                    className="flex-grow sm:flex-grow-0"
-                >
-                    Create Sprint
-                </Button>
-            </div>
-        </div>
-    );
-};
-
-export const KanbanBoard = ({ tasks, onTaskUpdate, loading }) => {
-    const states = {
-        1: "To Do",
-        2: "Doing",
-        3: "Done"
-    };
-
-    const handleDrop = (e, targetState) => {
-        e.preventDefault();
-        const taskId = e.dataTransfer.getData('taskId');
-        if (taskId) {
-            const task = tasks.find(t => t.id === Number(taskId));
-            if (task && task.state !== targetState) {
-                onTaskUpdate(Number(taskId), { ...task, state: targetState });
-            }
-        }
-    };
-
-    const allowDrop = (e) => {
-        e.preventDefault();
-    };
-
-    if (loading) {
-        return (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[1, 2, 3].map((i) => (
-                    <div key={i} className="bg-gray-50 p-4 rounded-lg border">
-                        <div className="mb-4">
-                            <Skeleton className="h-8 w-24" />
-                        </div>
-                        <div className="space-y-3">
-                            <SkeletonCard lines={2} />
-                            <SkeletonCard lines={2} />
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
-    }
-
-    return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {Object.entries(states).map(([stateId, stateName]) => {
-                const stateNum = Number(stateId);
-                const stateTasks = tasks.filter(task => task.state === stateNum);
-
-                return (
-                    <div
-                        key={stateId}
-                        className="bg-gray-50 p-4 rounded-lg border min-h-64"
-                        onDrop={(e) => handleDrop(e, stateNum)}
-                        onDragOver={allowDrop}
-                    >
-                        <h3 className="font-medium text-lg mb-4 flex items-center justify-between">
-                            {stateName}
-                            <span className="bg-gray-200 text-gray-800 text-xs rounded-full px-2 py-1">
-                {stateTasks.length}
-              </span>
-                        </h3>
-
-                        <div className="space-y-3">
-                            {stateTasks.map(task => (
-                                <div key={task.id}
-                                     draggable
-                                     onDragStart={(e) => e.dataTransfer.setData('taskId', task.id)}
-                                     className="bg-white p-3 rounded-lg shadow cursor-move hover:shadow-md transition-all"
-                                >
-                                    <h4 className="font-medium">{task.title}</h4>
-                                    {task.description && (
-                                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">{task.description}</p>
-                                    )}
-                                    <div className="flex flex-wrap gap-2 mt-2">
-                    <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">
-                      {task.estimatedHours}h
-                    </span>
-                                        {task.assignedTo && (
-                                            <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">
-                        ID: {task.assignedTo}
-                      </span>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-
-                            {stateTasks.length === 0 && (
-                                <div className="p-4 text-center border-2 border-dashed rounded-lg text-gray-400">
-                                    Drag tasks here
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                );
-            })}
-        </div>
-    );
-};

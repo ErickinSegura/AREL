@@ -1,31 +1,18 @@
 import React, { useState } from 'react';
 import { useBacklog } from '../hooks/useBacklog';
-import {
-    TaskList,
-    TaskModal,
-    CreateTaskModal,
-    FilterPanel,
-    SprintSelector,
-    KanbanBoard
-} from '../components/backlog/backlogComponents';
-import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardContent
-} from '../lib/ui/Card';
+import {TaskCard, CreateTaskModal, TaskDetailModal, BacklogHeader} from '../components/backlog/backlogComponents';
+import { NoProjectState} from "../components/overview/overviewComponents";
 import { Button } from '../lib/ui/Button';
-import { Toggle } from '../lib/ui/Toggle';
-import { Skeleton } from '../lib/ui/Skeleton';
+import {SkeletonCard, SkeletonText} from '../lib/ui/Skeleton';
+import { Search } from 'lucide-react';
+import {useProjects} from "../hooks/useProjects";
+import {Input} from "../lib/ui/Input";
 
 const Backlog = () => {
     const {
         backlogTasks,
-        sprintTasks,
         loading,
         error,
-        selectedSprint,
-        setSelectedSprint,
         selectedTask,
         setSelectedTask,
         taskModalOpen,
@@ -34,24 +21,32 @@ const Backlog = () => {
         handleTaskCreate,
         handleTaskUpdate,
         handleTaskDelete,
-        filterOptions,
-        setFilterOptions,
-        refreshBacklog
     } = useBacklog();
 
+    const {selectedProject} = useProjects();
+
     const [createModalOpen, setCreateModalOpen] = useState(false);
-    const [viewMode, setViewMode] = useState('list'); // 'list' or 'kanban'
-    const [availableSprints, setAvailableSprints] = useState([
-        { id: 1, startDate: new Date('2025-03-01'), endDate: new Date('2025-03-15') },
-        { id: 2, startDate: new Date('2025-03-16'), endDate: new Date('2025-03-31') }
-    ]);
+    const [searchTerm, setSearchTerm] = useState('');
 
-    // Determine which tasks to display based on sprint selection
-    const displayTasks = selectedSprint ? sprintTasks : backlogTasks;
+    const nonSprintTasks = backlogTasks.filter(task => task.sprint === null);
 
-    const handleTaskSelectWrap = (taskId) => {
-        handleTaskSelect(taskId);
+    const filteredTasks = searchTerm
+        ? nonSprintTasks.filter(task =>
+            task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()))
+        )
+        : nonSprintTasks;
+
+    const priorityOrder = {
+        4: 0, // Critical
+        3: 1, // High
+        2: 2, // Medium
+        1: 3  // Low
     };
+
+    const sortedTasks = [...filteredTasks].sort((a, b) => {
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+    });
 
     const handleCloseTaskModal = () => {
         setTaskModalOpen(false);
@@ -72,6 +67,12 @@ const Backlog = () => {
         }
     };
 
+    if (!selectedProject) {
+        return (
+            <NoProjectState title={"selected"} message={"Please select a project to view its backlog."} />
+        );
+    }
+
     return (
         <div className="container mx-auto px-4 py-6">
             {error && (
@@ -80,85 +81,58 @@ const Backlog = () => {
                 </div>
             )}
 
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                <h1 className="text-2xl font-bold mb-4 md:mb-0">
-                    {selectedSprint ? `Sprint ${selectedSprint} Tasks` : 'Backlog'}
-                </h1>
+            <BacklogHeader selectedProject={selectedProject} loading={loading}/>
 
-                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                    <Button
-                        variant="remarked"
-                        onClick={() => setCreateModalOpen(true)}
-                        className="w-full sm:w-auto"
-                    >
-                        Create Task
-                    </Button>
-
-                    <Toggle
-                        label="Kanban View"
-                        checked={viewMode === 'kanban'}
-                        onChange={() => setViewMode(viewMode === 'list' ? 'kanban' : 'list')}
-                    />
-                </div>
+            <div className="mb-6">
+                {loading ? (
+                    <div className="space-y-4">
+                        <SkeletonText lines={1} className="w-1/3 mb-2" />
+                    </div>
+                ) : (
+                <Input
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search tasks..."
+                    name="search"
+                    leftIcon={<Search size={18} className="text-gray-400" />}
+                />
+                )}
             </div>
 
-            <SprintSelector
-                sprints={availableSprints}
-                selectedSprint={selectedSprint}
-                onChange={setSelectedSprint}
-                loading={loading}
-            />
-
-            <FilterPanel
-                filters={filterOptions}
-                onChange={setFilterOptions}
-            />
-
             {loading ? (
-                <div className="mt-6">
-                    <Skeleton className="h-10 w-full mb-4" />
-                    <div className="grid grid-cols-1 gap-4">
-                        {[1, 2, 3].map(i => (
-                            <Card key={i} className="animate-pulse">
-                                <CardContent className="p-4">
-                                    <div className="h-6 bg-gray-200 rounded mb-3 w-3/4"></div>
-                                    <div className="h-4 bg-gray-200 rounded mb-2 w-1/2"></div>
-                                    <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
+                <div className="space-y-4">
+                    {[1, 2, 3].map(i => (
+                        <SkeletonCard key={i} lines={2} />
+                    ))}
                 </div>
             ) : (
-                <div className="mt-6">
-                    {viewMode === 'list' ? (
-                        <Card>
-                            <CardHeader className="pb-0">
-                                <CardTitle className="text-xl">
-                                    {selectedSprint ? `Sprint ${selectedSprint} Tasks` : 'Backlog Tasks'}
-                                    ({displayTasks.length})
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="pt-4">
-                                <TaskList
-                                    tasks={displayTasks}
-                                    onTaskSelect={handleTaskSelectWrap}
-                                    loading={loading}
+                <div>
+                    {sortedTasks.length > 0 ? (
+                        <div className="space-y-4">
+                            {sortedTasks.map(task => (
+                                <TaskCard
+                                    key={task.id}
+                                    task={task}
+                                    onSelect={handleTaskSelect}
                                 />
-                            </CardContent>
-                        </Card>
+                            ))}
+                        </div>
                     ) : (
-                        <KanbanBoard
-                            tasks={displayTasks}
-                            onTaskUpdate={handleTaskUpdate}
-                            loading={loading}
-                        />
+                        <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg border-2 border-dashed">
+                            <p className="text-gray-500 mb-4">No tasks in backlog</p>
+                            <Button
+                                variant="default"
+                                onClick={() => setCreateModalOpen(true)}
+                            >
+                                Create your first task
+                            </Button>
+                        </div>
                     )}
                 </div>
             )}
 
             {selectedTask && (
-                <TaskModal
+                <TaskDetailModal
                     isOpen={taskModalOpen}
                     onClose={handleCloseTaskModal}
                     task={selectedTask}
@@ -172,8 +146,7 @@ const Backlog = () => {
                 isOpen={createModalOpen}
                 onClose={() => setCreateModalOpen(false)}
                 onCreate={handleTaskCreate}
-                projectId={1} // Replace with your actual project ID logic
-                selectedSprint={selectedSprint}
+                projectId={selectedProject.id}
             />
         </div>
     );
