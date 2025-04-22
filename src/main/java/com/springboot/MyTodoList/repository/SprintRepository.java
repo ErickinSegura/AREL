@@ -36,6 +36,14 @@ public interface SprintRepository extends JpaRepository<Sprint,Integer> {
     @Query(
         "SELECT s " +
         "FROM Sprint s " +
+        "WHERE s.project = :idProject " +
+        "ORDER BY s.sprintNumber"
+    )
+    List<Sprint> getSprintsbyProjectID(@Param("idProject") Integer idProject);
+
+    @Query(
+        "SELECT s " +
+        "FROM Sprint s " +
         "WHERE s.startDate > CURRENT_TIMESTAMP " +
         "AND s.project = :idProject " +
         "ORDER BY s.startDate ASC"

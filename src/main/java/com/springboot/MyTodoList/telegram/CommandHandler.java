@@ -40,7 +40,7 @@ public class CommandHandler {
         this.createTask = new TaskCreationCommands(database, messageSender, inactivityManager);
         this.manageTask = new TaskManagementCommands(serviceManager, messageSender, inactivityManager);
         this.agile = new AgileCommands(serviceManager, messageSender, inactivityManager);
-        this.kpi = new KPICommands(serviceManager, messageSender, inactivityManager);
+        this.kpi = new KPICommands(serviceManager, messageSender);
     }
 
     public void start(Long chatId, Update update){
@@ -162,7 +162,6 @@ public class CommandHandler {
         else if (callbackQuery.startsWith("confirm_this_sprint_")){
             int taskId = Integer.parseInt(parts[3]);
 
-            //manageTask.addToThisSprint(chatId, taskId);
             manageTask.SprintAssignUser(chatId, taskId, "This");
         }
         else if (callbackQuery.startsWith("create_sprint_")){
@@ -184,10 +183,39 @@ public class CommandHandler {
 
             manageTask.addToSprintEstimatedHours(chatId, taskId, userProjectId, projectId, state, "This");
         }
-        else if (callbackQuery.startsWith("overview_")) {
+        else if (callbackQuery.startsWith("kpi_sprints_project_")){
+            int projectId = Integer.parseInt(parts[3]);
+
+            kpi.KPIMenuSprints(chatId, projectId);
+        }
+        else if (callbackQuery.startsWith("kpi_users_project_")) {
+            int projectId = Integer.parseInt(parts[3]);
+
+            kpi.KPIMenuUsers(chatId, projectId);
+        }
+        else if (callbackQuery.startsWith("kpi_sprint_")) {
+            int sprintId = Integer.parseInt(parts[2]);
+            int projectID = Integer.parseInt(parts[3]);
+
+            kpi.openKPISprint(chatId, projectID, sprintId);
+        }
+        else if (callbackQuery.startsWith("kpi_user_")) {
+            int userProjectId = Integer.parseInt(parts[2]);
+            int projectID = Integer.parseInt(parts[3]);
+
+            kpi.openKPIUser(chatId, userProjectId, projectID);
+        }
+        else if (callbackQuery.startsWith("kpi_sprintUser_")){
+            int sprintNumber = Integer.parseInt(parts[2]);
+            int userProjectID = Integer.parseInt(parts[3]);
+            int projectID = Integer.parseInt(parts[4]);
+            
+            kpi.openKPIUserSprint(chatId, sprintNumber, userProjectID, projectID);
+        }
+        else if (callbackQuery.startsWith("kpi_")) {
             int projectId = Integer.parseInt(parts[1]);
 
-            kpi.getOverview(chatId, projectId);
+            kpi.openKPIMenu(chatId, projectId);
         }
     }    
 

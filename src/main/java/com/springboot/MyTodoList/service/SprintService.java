@@ -49,6 +49,15 @@ public class SprintService {
         return new ResponseEntity<>(sprints, HttpStatus.OK);
     }
 
+    public ResponseEntity<List<Sprint>> getSprintsByProjectID(Integer idProject) {
+        List<Sprint> sprints = sprintRepository.getSprintsbyProjectID(idProject);
+        if(sprints.isEmpty() || sprints == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(sprints, HttpStatus.OK);
+    }
+
     public Optional<Sprint> getNextSprint(Integer idProject) {
         List<Sprint> sprint_response = sprintRepository.getNextSprint(idProject);
 

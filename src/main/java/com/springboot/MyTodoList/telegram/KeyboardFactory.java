@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import com.springboot.MyTodoList.model.Category;
 import com.springboot.MyTodoList.model.Sprint;
 import com.springboot.MyTodoList.model.Task;
+import com.springboot.MyTodoList.model.User;
 import com.springboot.MyTodoList.model.UserProject;
 
 public class KeyboardFactory {
@@ -282,12 +283,117 @@ public class KeyboardFactory {
 
         InlineKeyboardButton overview = new InlineKeyboardButton();
         overview.setText("KPI Overview");
-        overview.setCallbackData("overview_"+projectID);
+        overview.setCallbackData("kpi_"+projectID);
 
         //keyboard.add(List.of(seeBacklog, createTask));
         keyboard.add(List.of(seeSprint, createTask));
         keyboard.add(List.of(backlog, goBack));
         keyboard.add(List.of(overview));
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup inlineKPIMenu(Integer projectId){
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        InlineKeyboardButton sprints = new InlineKeyboardButton();
+        sprints.setText("By Sprint");
+        sprints.setCallbackData("kpi_sprints_project_" + projectId);
+
+        InlineKeyboardButton users = new InlineKeyboardButton();
+        users.setText("By Team Member");
+        users.setCallbackData("kpi_users_project_" + projectId);
+
+        keyboard.add(List.of(sprints));
+        keyboard.add(List.of(users));
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup inlineKPISeeMore(Integer projectId, Integer userProjectID, String userName){
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        InlineKeyboardButton otherSprint = new InlineKeyboardButton();
+        otherSprint.setText("I wanna see another sprint from " + userName);
+        otherSprint.setCallbackData("kpi_user_" + userProjectID + "_" + projectId);
+
+        InlineKeyboardButton otherKPI = new InlineKeyboardButton();
+        otherKPI.setText("See Other KPIs");
+        otherKPI.setCallbackData("kpi_" + projectId);
+
+        keyboard.add(List.of(otherSprint));
+        keyboard.add(List.of(otherKPI));
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup inlineKPISprintList(List<Sprint> sprints) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM");
+
+        for (Sprint sprint : sprints) {
+
+            String startDate = sprint.getStartDate().format(formatter);
+            String endDate = sprint.getEndDate().format(formatter);
+
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText("Sprint " + sprint.getSprintNumber() + " (" + startDate + " - " + endDate + ")");
+            button.setCallbackData("kpi_sprint_" + sprint.getID() + "_" + sprint.getProject());
+
+            keyboard.add(List.of(button));
+        }
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup inlineKPIUserSprintList(List<Sprint> sprints, Integer userProjectID, 
+                                                        Integer projectID) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM");
+
+        for (Sprint sprint : sprints) {
+
+            String startDate = sprint.getStartDate().format(formatter);
+            String endDate = sprint.getEndDate().format(formatter);
+
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText("Sprint " + sprint.getSprintNumber() + " (" + startDate + " - " + endDate + ")");
+            button.setCallbackData("kpi_sprintUser_" + sprint.getSprintNumber() 
+                                   + "_" + userProjectID + "_" + projectID);
+
+            keyboard.add(List.of(button));
+        }
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup inlineKPIUserList(List<UserProject> userProjects) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        for (UserProject userProject : userProjects) {
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            User user = userProject.getUser();
+            String label = userProject.getRole() +
+                            " (" + user.getFirstName() + 
+                            " " + user.getLastName() +
+                            ")";
+            button.setText(label);
+            button.setCallbackData("kpi_user_" + userProject.getID() + "_" + userProject.getProject().getID());
+
+            keyboard.add(List.of(button));
+        }
 
         inlineKeyboardMarkup.setKeyboard(keyboard);
         return inlineKeyboardMarkup;
