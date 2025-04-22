@@ -118,7 +118,7 @@ public class OverviewRepository {
                 "u.FIRSTNAME || ' ' || u.LASTNAME AS USER_NAME, " +
                 "COUNT(t.ID_TASK) AS ASSIGNED_TASKS, " +
                 "SUM(CASE WHEN t.TASK_STATE = 3 THEN 1 ELSE 0 END) AS COMPLETED_TASKS, " +
-                "ROUND(SUM(CASE WHEN t.TASK_STATE = 3 THEN 1 ELSE 0 END) * 100.0 / CASE " + 
+                "ROUND(SUM(CASE WHEN t.TASK_STATE = 3 THEN 1 ELSE 0 END) * 100.0 / CASE " +
                 "WHEN COUNT(t.ID_TASK) = 0 THEN 1 ELSE COUNT(t.ID_TASK) END, 2) AS COMPLETION_RATE, " +
                 "SUM(t.ESTIMATED_HOURS) AS TOTAL_ESTIMATED_HOURS, " +
                 "SUM(t.REAL_HOURS) AS TOTAL_REAL_HOURS, " +
@@ -144,6 +144,40 @@ public class OverviewRepository {
                 "s.SPRINT_NUMBER, COMPLETION_RATE DESC";
 
         return jdbcTemplate.query(sql, new UserPerformanceRowMapper(), projectId);
+    }
+
+    public List<UserPerformance> getUserPerformanceByProjectIdAndUserId(Long projectId, Long userId) {
+        String sql = "SELECT " +
+                "p.PROJECT_NAME, " +
+                "p.ID_PROJECT, " +
+                "s.SPRINT_NUMBER, " +
+                "u.FIRSTNAME || ' ' || u.LASTNAME AS USER_NAME, " +
+                "COUNT(t.ID_TASK) AS ASSIGNED_TASKS, " +
+                "SUM(CASE WHEN t.TASK_STATE = 3 THEN 1 ELSE 0 END) AS COMPLETED_TASKS, " +
+                "ROUND(SUM(CASE WHEN t.TASK_STATE = 3 THEN 1 ELSE 0 END) * 100.0 / CASE " +
+                "WHEN COUNT(t.ID_TASK) = 0 THEN 1 ELSE COUNT(t.ID_TASK) END, 2) AS COMPLETION_RATE, " +
+                "SUM(t.ESTIMATED_HOURS) AS TOTAL_ESTIMATED_HOURS, " +
+                "SUM(t.REAL_HOURS) AS TOTAL_REAL_HOURS " +
+                "FROM " +
+                "TODOUSER.USER_TABLE u " +
+                "JOIN " +
+                "TODOUSER.USER_PROJECT up ON u.ID_USER = up.ID_USER " +
+                "JOIN " +
+                "TODOUSER.PROJECT p ON up.ID_PROJECT = p.ID_PROJECT " +
+                "JOIN " +
+                "TODOUSER.SPRINT s ON s.ID_PROJECT = p.ID_PROJECT " +
+                "LEFT JOIN " +
+                "TODOUSER.TASK t ON t.SPRINT_ID = s.ID_SPRINT AND t.ASSIGNED_TO = up.ID_USER_PROJECT " +
+                "WHERE " +
+                "(t.DELETED = 0 OR t.DELETED IS NULL) " +
+                "AND p.ID_PROJECT = ? " +
+                "AND u.ID_USER = ? " +
+                "GROUP BY " +
+                "p.PROJECT_NAME, p.ID_PROJECT, s.SPRINT_NUMBER, u.FIRSTNAME, u.LASTNAME " +
+                "ORDER BY " +
+                "s.SPRINT_NUMBER";
+
+        return jdbcTemplate.query(sql, new UserPerformanceRowMapper(), projectId, userId);
     }
 
     private static class SprintOverviewRowMapper implements RowMapper<SprintOverview> {
@@ -177,8 +211,7 @@ public class OverviewRepository {
                     rs.getInt("COMPLETED_TASKS"),
                     rs.getDouble("COMPLETION_RATE"),
                     rs.getInt("TOTAL_ESTIMATED_HOURS"),
-                    rs.getInt("TOTAL_REAL_HOURS"),
-                    rs.getDouble("TIME_ACCURACY_PERCENTAGE")
+                    rs.getInt("TOTAL_REAL_HOURS")
             );
         }
     }

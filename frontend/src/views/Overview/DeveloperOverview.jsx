@@ -1,161 +1,167 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../lib/ui/Card';
-import { Button } from '../../lib/ui/Button';
-import {
-    FiFolder,
-    FiCodesandbox,
-    FiChevronDown
-} from 'react-icons/fi';
-import { useProjects } from '../../hooks/useProjects';
-import { useOverviewData } from '../../hooks/useOverviewData';
-import { SkeletonText, SkeletonCircle } from '../../lib/ui/Skeleton';
-import { useAuth } from "../../contexts/AuthContext";
+import { useOverview } from '../../hooks/useOverview';
 import { greeting } from '../../lib/greetings';
+import {
+    ErrorState,
+    NoProjectState,
+    ProjectHeader,
+    DashboardHeader,
+    SprintSummaryCard,
+    DevStreakCard,
+    UserPerformanceItem,
+    SprintGoalCard
+} from '../../components/overview/overviewComponents';
+import { FiArrowUp } from 'react-icons/fi';
 
 const DeveloperOverview = () => {
-    const { selectedProject, loading: projectLoading } = useProjects();
     const {
-        sprintOverviews,
-        loading: dataLoading,
+        user,
+        selectedProject,
+        loading,
         error,
-        currentSprint: latestSprint,
-    } = useOverviewData();
+        sprintOverviews,
+        selectedSprint,
+        selectedSprintNumber,
+        setSelectedSprintNumber,
+        showSprintDropdown,
+        formatDate,
+        getProjectIcon,
+        toggleSprintDropdown,
+        closeSprintDropdown,
+        currentUserPerformance,
+        calculateProgressArc
+    } = useOverview();
 
-    const { user } = useAuth();
+    const [currentGreeting] = React.useState(greeting());
 
-    const [selectedSprintNumber, setSelectedSprintNumber] = useState(null);
-    const [selectedSprint, setSelectedSprint] = useState(null);
-    const [showSprintDropdown, setShowSprintDropdown] = useState(false);
-
-    useEffect(() => {
-        if (latestSprint && !selectedSprintNumber) {
-            setSelectedSprintNumber(latestSprint.sprintNumber);
-            setSelectedSprint(latestSprint);
-        }
-    }, [latestSprint, selectedSprintNumber]);
-
-    useEffect(() => {
-        if (selectedSprintNumber && sprintOverviews && sprintOverviews.length > 0) {
-            const sprint = sprintOverviews.find(s => s.sprintNumber === selectedSprintNumber);
-            if (sprint) {
-                setSelectedSprint(sprint);
-            }
-        }
-    }, [selectedSprintNumber, sprintOverviews]);
-
-
-    const loading = projectLoading || dataLoading;
-
-    const getProjectIcon = (iconName) => {
-        switch (iconName) {
-            case 'folder': return <FiFolder />;
-            case 'codesandbox': return <FiCodesandbox />;
-            default: return <FiCodesandbox />;
-        }
-    };
-
-    const formatDate = (dateString) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('default', { day: 'numeric', month: 'short', year: 'numeric' });
+    const calculateUserProgressArc = () => {
+        return calculateProgressArc(currentUserPerformance);
     };
 
     if (error) {
-        return (
-            <div className="p-6">
-                <h1 className="text-2xl font-bold mb-4">Error loading data</h1>
-                <p className="text-red-500">{error}</p>
-            </div>
-        );
+        return <ErrorState error={error} />;
     }
 
     if (!selectedProject) {
-        return (
-            <div className="p-6">
-                <h1 className="text-2xl font-bold mb-4">There is not selected project</h1>
-                <p>Please, select a project from the sidebar</p>
-            </div>
-        );
+        return <NoProjectState title={"assigned"} message={"Please contact an administrator."} />;
     }
 
     return (
         <div className="p-6">
-            {/* Project Header */}
-            <Card className="mb-6">
-                <CardHeader>
-                    <div className={`flex items-center ${loading ? 'animate-pulse' : ''}`}>
+            <ProjectHeader
+                selectedProject={selectedProject}
+                loading={loading}
+                getProjectIcon={getProjectIcon(selectedProject?.icon?.iconName)}
+            />
+
+            <DashboardHeader
+                loading={loading}
+                user={user}
+                sprintOverviews={sprintOverviews}
+                selectedSprintNumber={selectedSprintNumber}
+                setSelectedSprintNumber={setSelectedSprintNumber}
+                showSprintDropdown={showSprintDropdown}
+                toggleSprintDropdown={toggleSprintDropdown}
+                closeSprintDropdown={closeSprintDropdown}
+                formatDate={formatDate}
+                greeting={() => currentGreeting}
+            />
+
+            <SprintSummaryCard
+                loading={loading}
+                selectedSprint={selectedSprint}
+                formatDate={formatDate}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 mt-6">
+                <DevStreakCard
+                    loading={loading}
+                    selectedSprint={selectedSprint}
+                />
+
+                <Card className="flex flex-col h-full">
+                    <CardHeader>
                         <CardTitle>
                             {loading ? (
-                                <div className="flex items-center">
-                                    <SkeletonCircle size="md" />
-                                    <div className="ml-3 w-48">
-                                        <SkeletonText lines={1} />
-                                    </div>
-                                </div>
+                                <div className="w-48 h-6 bg-gray-200 rounded animate-pulse"></div>
                             ) : (
-                                <>
-                                    <div className="flex items-center">
-                                        <div
-                                            className="w-12 h-12 rounded-md grid place-items-center text-white"
-                                            style={{ backgroundColor: selectedProject.color?.hexColor || '#808080' }}
-                                        >
-                                            {getProjectIcon(selectedProject.icon?.iconName)}
-                                        </div>
-                                        <h1 className="text-2xl font-bold px-2">{selectedProject.projectName}</h1>
-                                    </div>
-                                </>
+                                <>Your Sprint <span className="text-oracleRed">Performance</span></>
                             )}
                         </CardTitle>
-                    </div>
-                </CardHeader>
-            </Card>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                        {loading ? (
+                            <div className="bg-gray-50 p-3 rounded-lg animate-pulse">
+                                <div className="flex justify-between mb-2">
+                                    <div className="w-32 h-4 bg-gray-200 rounded"></div>
+                                    <div className="w-24 h-4 bg-gray-200 rounded"></div>
+                                </div>
+                                <div className="grid grid-cols-3 gap-2 mt-2">
+                                    <div className="h-4 bg-gray-200 rounded"></div>
+                                    <div className="h-4 bg-gray-200 rounded"></div>
+                                    <div className="h-4 bg-gray-200 rounded"></div>
+                                </div>
+                                <div className="w-full h-2 bg-gray-200 rounded-full mt-2"></div>
+                            </div>
+                        ) : currentUserPerformance ? (
+                            <div className="flex flex-col h-full">
+                                <UserPerformanceItem user={currentUserPerformance} />
 
-            <div className="flex justify-between items-center mb-6">
-                {loading ? (
-                    <div className="w-64">
-                        <SkeletonText lines={1} />
-                    </div>
-                ) : (
-                    <h1 className="text-2xl font-bold">
-                        {greeting()}, <span className="text-oracleRed">{user ? `${user.firstName} ${user.lastName}` : 'Usuario'}</span>
-                    </h1>
-                )}
-
-                {loading ? (
-                    <div className="w-32">
-                        <SkeletonText lines={1} />
-                    </div>
-                ) : sprintOverviews && sprintOverviews.length > 0 && (
-                    <div className="relative">
-                        <Button
-                            variant="outline"
-                            className="flex items-center gap-2"
-                            onClick={() => setShowSprintDropdown(!showSprintDropdown)}
-                        >
-                            Sprint {selectedSprintNumber || '?'}
-                            <FiChevronDown size={16} />
-                        </Button>
-
-                        {showSprintDropdown && (
-                            <div className="absolute right-0 mt-2 bg-white border rounded-md shadow-lg z-10 min-w-40">
-                                {sprintOverviews
-                                    .sort((a, b) => b.sprintNumber - a.sprintNumber)
-                                    .map((sprint) => (
-                                        <div
-                                            key={sprint.sprintNumber}
-                                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${selectedSprintNumber === sprint.sprintNumber ? 'bg-gray-50 font-medium' : ''}`}
-                                            onClick={() => {
-                                                setSelectedSprintNumber(sprint.sprintNumber);
-                                                setShowSprintDropdown(false);
-                                            }}
-                                        >
-                                            Sprint {sprint.sprintNumber} - {formatDate(sprint.startDate)}
+                                <div className="mt-6 flex flex-col items-center justify-center flex-grow">
+                                    <div className="relative w-60 h-36 mb-4">
+                                        <svg className="w-full h-full" viewBox="0 0 100 50">
+                                            <path
+                                                d="M5,45 A45,45 0 0,1 95,45"
+                                                fill="transparent"
+                                                stroke="#f0f0f0"
+                                                strokeWidth="10"
+                                                strokeLinecap="round"
+                                            />
+                                            <path
+                                                d="M5,45 A45,45 0 0,1 95,45"
+                                                fill="transparent"
+                                                stroke={calculateUserProgressArc().completionRateColor}
+                                                strokeWidth="10"
+                                                strokeDasharray={calculateUserProgressArc().strokeDasharray}
+                                                strokeDashoffset={calculateUserProgressArc().strokeDashoffset}
+                                                strokeLinecap="round"
+                                            />
+                                        </svg>
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center mt-6">
+                                            <span className="text-3xl font-bold">
+                                                {currentUserPerformance.completedTasks}/{currentUserPerformance.assignedTasks}
+                                            </span>
+                                            <span className="text-xs text-gray-500">TASKS COMPLETED</span>
                                         </div>
-                                    ))}
+                                    </div>
+                                    <div className="flex items-center text-xs text-gray-600">
+                                        {currentUserPerformance.completionRate >= 75 ? (
+                                            <>
+                                                <FiArrowUp className="text-green-500 mr-1" />
+                                                <span>Great job! {currentUserPerformance.completionRate.toFixed(0)}% completion rate!</span>
+                                            </>
+                                        ) : currentUserPerformance.completionRate >= 50 ? (
+                                            <>
+                                                <FiArrowUp className="text-yellow-500 mr-1" />
+                                                <span>Good progress at {currentUserPerformance.completionRate.toFixed(0)}% completion rate</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FiArrowUp className="text-red-500 mr-1 transform rotate-180" />
+                                                <span>You're at {currentUserPerformance.completionRate.toFixed(0)}% completion rate</span>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center h-full text-gray-500">
+                                No performance data available for this sprint
                             </div>
                         )}
-                    </div>
-                )}
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );

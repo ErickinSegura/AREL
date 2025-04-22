@@ -1,25 +1,13 @@
 import {fetchWithAuth} from './fetchAuth';
 
 export const OverviewService = {
-    async getSprintOverviews(projectId) {
+
+
+    async getUserPerformanceByID(projectId, userId) {
         try {
             const url = projectId
-                ? `/overview/sprint-overviews/${projectId}`
-                : '/overview/sprint-overviews';
-
-            const response = await fetchWithAuth(url);
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching sprint overviews:', error);
-            throw error;
-        }
-    },
-
-    async getUserPerformances(projectId) {
-        try {
-            const url = projectId
-                ? `/overview/user-performances/${projectId}`
-                : '/overview/user-performances';
+                ? `/overview/user-performance/${projectId}/${userId}`
+                : '/overview/user-performance';
 
             const response = await fetchWithAuth(url);
             return await response.json();
