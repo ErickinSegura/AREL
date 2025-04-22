@@ -54,7 +54,8 @@ public enum BotMessages {
 	KPI_OPEN_USERS("kpi.open.users"),
 	NO_USERS_IN_PROJECT("no.users.in.project"),
 	KPI_OPEN_USER_SPRINT("kpi.open.user.sprint"),
-	KPI_SEE_MORE("kpi.see.more")
+	KPI_SEE_MORE("kpi.see.more"),
+	NO_PROJECT_SELECTED("no.project.selected")
 	;
 
 	private final String key;

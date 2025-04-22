@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Locale;
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import com.springboot.MyTodoList.model.Category;
 import com.springboot.MyTodoList.model.Sprint;
@@ -259,6 +261,29 @@ public class KeyboardFactory {
 
         inlineKeyboardMarkup.setKeyboard(keyboard);
         return inlineKeyboardMarkup;
+    }
+
+    public ReplyKeyboardMarkup replyManagerOpenProject() {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboard = new ArrayList<>();
+
+        KeyboardRow row1 = new KeyboardRow();
+        row1.add("Open this Sprint");
+        row1.add("Create Task");
+
+        KeyboardRow row2 = new KeyboardRow();
+        row2.add("See Backlog");
+        row2.add("Sprints");
+
+        KeyboardRow row3 = new KeyboardRow();
+        row3.add("KPI Overview");
+        
+        keyboard.add(row1);
+        keyboard.add(row2);
+        keyboard.add(row3);
+
+        replyKeyboardMarkup.setKeyboard(keyboard);
+        return replyKeyboardMarkup;
     }
 
     public InlineKeyboardMarkup inlineKeyboardManagerOpenProject(int projectID) {

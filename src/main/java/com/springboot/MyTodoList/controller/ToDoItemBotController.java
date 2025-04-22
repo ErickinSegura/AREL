@@ -85,7 +85,7 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 		}
 		else { // User entered only text
 			UserState state = inactivityManager.getUserState(chatId);
-			commandHandler.handleTextInput(state, messageText, chatId);
+			commandHandler.handleTextInput(state, messageText, chatId, update);
 		}
 	}
 
