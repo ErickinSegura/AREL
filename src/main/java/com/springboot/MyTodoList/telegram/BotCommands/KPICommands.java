@@ -212,7 +212,6 @@ public class KPICommands {
         message += data.getCompletedTasks() + " Completed Tasks: " + " (" + (int) data.getCompletionRate() + "%)\n\n";
         message += "Estimated Hours: " + data.getTotalEstimatedHours() + "h\n";
         message += "Actual Hours: " + data.getTotalRealHours() + "h\n";
-        message += "📏 Time Accuracy: " + String.format("%.2f", data.getTimeAccuracyPercentage()) + "%\n\n";
     
         if (data.getCompletionRate() == 100) {
             message += "🎉 Excellent! All tasks completed. Keep it up!";
