@@ -78,7 +78,7 @@ public class CommandHandler {
             int userProjectId = Integer.parseInt(parts[3]);
             String userLevel = parts[2];
 
-            agile.handleOpenProjectCallback(userProjectId, userLevel, chatId);
+            agile.handleOpenProjectCallback(userProjectId, userLevel, chatId, state);
         }
         else if (callbackQuery.startsWith("create_task_project_")) {
             createTask.handleCreateTask(callbackQuery, chatId);
@@ -219,14 +219,42 @@ public class CommandHandler {
         }
     }    
 
-    public void handleTextInput(UserState state, String messageText, Long chatId) {
+    public void handleTextInput(UserState state, String messageText, Long chatId, Update update) {
+
+        //Reply Keyboard Buttons
+        if (messageText.equals("Open this Sprint")) {
+            Integer projectId = checkForActiveProject(state, chatId, update);
+            agile.showSprint(chatId, projectId);
+            return;
+
+        } else if (messageText.equals("Create Task")) {
+            Integer projectId = checkForActiveProject(state, chatId, update);
+            String call = "create_task_project_"+ projectId;
+            createTask.handleCreateTask(call, chatId);
+            return;
+
+        } else if (messageText.equals("See Backlog")) {
+            Integer projectId = checkForActiveProject(state, chatId, update);
+            agile.openBacklog(chatId, projectId);
+            return;
+
+        } else if (messageText.equals("Sprints")) {
+            Integer projectId = checkForActiveProject(state, chatId, update);
+            agile.sprintList(chatId, projectId);
+            return;
+
+        } else if (messageText.equals("KPI Overview")) {
+            Integer projectId = checkForActiveProject(state, chatId, update);
+            kpi.openKPIMenu(chatId, projectId);
+            return;
+        }
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
-
+        //State Checks
         if (state.getState() == UserStateType.START) {
             message.setText(BotMessages.DEFAULT_MESSAGE_START.getMessage());
         } else if (state.getState() == UserStateType.STATE2) {
-            message.setText(BotMessages.DEFAULT_MESSAGE_STATE2.getMessage());   
+            message.setText(BotMessages.DEFAULT_MESSAGE_STATE2.getMessage());
 
         } else if (state.getState() == UserStateType.CREATE_TASK_ENTER_NAME) {
             message.setText(BotMessages.CREATE_TASK_ENTER_DESCRIPTION.getMessage());
@@ -249,7 +277,6 @@ public class CommandHandler {
                 message.setText(BotMessages.ERROR_DATABASE.getMessage());
             }
         } else if (state.getState() == UserStateType.COMPLETE_TASK_ENTER_REAL_HOURS) {
-
             Task taskToAssignRealHours = state.getCompletionTask();
             taskToAssignRealHours.setRealHours(Integer.parseInt(messageText));
 
@@ -273,5 +300,16 @@ public class CommandHandler {
         }
 
         messageSender.sendMessage(message);
+    }
+
+    public Integer checkForActiveProject(UserState state, Long chatId, Update update) {
+        Integer actualProject = state.getSelectedProject();
+        if (actualProject != null) {
+            return state.getSelectedProject();
+
+        }else {
+            agile.noProjectSelectedManager(chatId, update);
+            return null;
+        }
     }
 }

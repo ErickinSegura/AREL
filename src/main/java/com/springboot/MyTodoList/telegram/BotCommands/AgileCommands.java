@@ -81,7 +81,7 @@ public class AgileCommands {
     }
 
     //Open project information
-    public void handleOpenProjectCallback(int userProjectId, String userLevel, long chatId) {
+    public void handleOpenProjectCallback(int userProjectId, String userLevel, long chatId, UserState state) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setText(BotMessages.ERROR_DATABASE.getMessage());
@@ -104,6 +104,8 @@ public class AgileCommands {
                 .getRole()) + noTask);
     
             } else if (userLevel.equals("Manager") || userLevel.equals("Administrator")) {
+                state.setSelectedProject(actualProject.getID());
+
                 //KPI
                 Integer actualSprint = actualProject.getActiveSprintId();
                 Long projectIDLong = Long.valueOf(actualProject.getID());
@@ -118,7 +120,8 @@ public class AgileCommands {
                 if (activeSprintOverviewOptional.isPresent()){
                     SprintOverview overview = activeSprintOverviewOptional.get();
                     message.setText(commands.formatSprintOverview(overview));
-                    message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(actualProject.getID()));
+                    message.setReplyMarkup(keyboardFactory.replyManagerOpenProject());
+                    //message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(actualProject.getID()));
                 }                
             }
 
@@ -309,6 +312,31 @@ public class AgileCommands {
         }
 
         messageSender.sendMessage(message);
+    }
+
+
+    public void noProjectSelectedManager(Long chatId, Update update) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        String username = "";
+            //Get user and privileges
+            if (update.hasMessage()) {
+                username = update.getMessage().getFrom().getUserName();
+            } else if (update.hasCallbackQuery()) {
+                username = update.getCallbackQuery().getFrom().getUserName();
+            }
+            
+            ResponseEntity<User> userResponse = database.user.getUserByTelegramUsername(username);
+            User user = Optional.ofNullable(userResponse.getBody())
+                    .orElseThrow(() -> new RuntimeException("User not found, or couldn't reach database."));
+            String userLevelLabel = user.getUserLevel().getLabel();
+            
+            //Fetch all available projects to user
+            List<UserProject> userProjectList = database.userProject.getProjectsByUser(user.getId());
+
+            message.setText(BotMessages.NO_PROJECT_SELECTED.getMessage());
+            message.setReplyMarkup(keyboardFactory.multipleProjectList(userProjectList, userLevelLabel));
     }
 
 }

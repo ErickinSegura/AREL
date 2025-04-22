@@ -18,12 +18,16 @@ public class UserState {
     //For Creating Sprints
     private Sprint sprintCreation;
 
+    //For Reply Keyboard Buttons
+    private Integer selectedProject;
+
     public UserState() {
         this.state = UserStateType.START;
         activeTask = new Task();
         assignationTask = new Task();
         completionTask = new Task();
         sprintCreation = new Sprint();
+        selectedProject = null;
     }
 
     public UserState(UserStateType state){
@@ -31,6 +35,7 @@ public class UserState {
         activeTask = new Task();
         assignationTask = new Task();
         completionTask = new Task();
+        selectedProject = null;
     }
 
     public UserStateType getState() {
@@ -71,6 +76,14 @@ public class UserState {
 
     public void setSprintCreation(Sprint newSprint) {
         this.sprintCreation = newSprint;
+    }
+
+    public Integer getSelectedProject() {
+        return selectedProject;
+    }
+
+    public void setSelectedProject(Integer newProjectID) {
+        this.selectedProject = newProjectID;
     }
     
 }
