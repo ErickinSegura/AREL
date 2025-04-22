@@ -14,8 +14,16 @@ import {
     FiAlertTriangle,
     FiChevronDown,
     FiLoader,
-    FiTrash2
+    FiTrash2,
+    FiPlus,
+    FiUser,
+    FiUserPlus,
+    FiSearch,
+    FiCheck,
+    FiUserX,
+    FiUsers
 } from 'react-icons/fi';
+import { UserService } from '../../api/userService';
 import { FiCheck as Check } from 'react-icons/fi';
 import { Skeleton, SkeletonText, SkeletonCircle } from '../../lib/ui/Skeleton';
 
@@ -478,6 +486,348 @@ export const DangerZoneCard = ({
                         startIcon={deleteLoading ? <FiLoader className="animate-spin" /> : <FiTrash2 />}
                     >
                         {deleteLoading ? "Deleting..." : "Delete Project"}
+                    </Button>
+                </ModalFooter>
+            </Modal>
+        </>
+    );
+};
+
+export const ProjectUsers = ({
+                                 projectId,
+                                 loading = false
+                             }) => {
+    const [users, setUsers] = useState([]);
+    const [filteredUsers, setFilteredUsers] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [usersLoading, setUsersLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+    const [availableUsers, setAvailableUsers] = useState([]);
+    const [selectedUsers, setSelectedUsers] = useState([]);
+    const [addingUsers, setAddingUsers] = useState(false);
+    const [removingUserId, setRemovingUserId] = useState(null);
+
+    useEffect(() => {
+        const fetchProjectUsers = async () => {
+            if (!projectId) return;
+
+            setUsersLoading(true);
+            try {
+                const data = await UserService.getUsersByProject(projectId);
+                setUsers(data);
+                setFilteredUsers(data);
+                setUsersLoading(false);
+            } catch (err) {
+                setError(err.message);
+                setUsersLoading(false);
+            }
+        };
+
+        fetchProjectUsers();
+    }, [projectId]);
+
+    useEffect(() => {
+        if (searchTerm.trim() === '') {
+            setFilteredUsers(users);
+        } else {
+            const filtered = users.filter(user =>
+                user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.email.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            setFilteredUsers(filtered);
+        }
+    }, [searchTerm, users]);
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const handleOpenAddUserModal = async () => {
+        try {
+            const allUsers = await UserService.getUsersByLevel([1, 2]);
+
+            const projectUserIds = users.map(user => user.id);
+            const usersToAdd = allUsers.filter(user => !projectUserIds.includes(user.id));
+
+            setAvailableUsers(usersToAdd);
+            setSelectedUsers([]);
+            setIsAddUserModalOpen(true);
+        } catch (err) {
+            setError("Failed to load available users");
+        }
+    };
+
+    const handleCloseAddUserModal = () => {
+        setIsAddUserModalOpen(false);
+        setSelectedUsers([]);
+    };
+
+    const toggleUserSelection = (userId) => {
+        if (selectedUsers.includes(userId)) {
+            setSelectedUsers(selectedUsers.filter(id => id !== userId));
+        } else {
+            setSelectedUsers([...selectedUsers, userId]);
+        }
+    };
+
+    const handleAddUsers = async () => {
+        if (selectedUsers.length === 0) return;
+
+        setAddingUsers(true);
+        try {
+            // Simulate API call to add users to project
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Get full user objects for selected IDs
+            const newUsers = availableUsers.filter(user => selectedUsers.includes(user.id));
+
+            // Update state with new users
+            setUsers(prevUsers => [...prevUsers, ...newUsers]);
+            setAddingUsers(false);
+            handleCloseAddUserModal();
+        } catch (err) {
+            setError("Failed to add users to project");
+            setAddingUsers(false);
+        }
+    };
+
+    const handleRemoveUser = async (userId) => {
+        setRemovingUserId(userId);
+        try {
+            // Simulate API call to remove user from project
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Update state by removing user
+            setUsers(users.filter(user => user.id !== userId));
+            setRemovingUserId(null);
+        } catch (err) {
+            setError("Failed to remove user from project");
+            setRemovingUserId(null);
+        }
+    };
+
+    const UserListSkeleton = () => (
+        <div className="space-y-4">
+            {[1, 2, 3, 4].map((item) => (
+                <div key={item} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                    <div className="flex items-center space-x-3">
+                        <SkeletonCircle size="md" />
+                        <div>
+                            <SkeletonText className="w-32" />
+                            <SkeletonText className="w-48" />
+                        </div>
+                    </div>
+                    <Skeleton className="w-24 h-8" />
+                </div>
+            ))}
+        </div>
+    );
+
+    return (
+        <>
+            <Card className="mt-6">
+                <CardHeader>
+                    <div className={`flex items-center justify-between ${usersLoading ? 'animate-pulse' : ''}`}>
+                        <CardTitle>
+                            {usersLoading ? (
+                                <div className="flex items-center">
+                                    <SkeletonCircle size="md" />
+                                    <div className="ml-3 w-48">
+                                        <SkeletonText lines={1} />
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex items-center">
+                                    <h1 className="text-2xl font-bold px-2">Project <span className="text-oracleRed">Users</span></h1>
+                                </div>
+                            )}
+                        </CardTitle>
+
+                        {!usersLoading && (
+                            <div className="flex space-x-2">
+                                <Button
+                                    variant="remarked"
+                                    className="flex items-center gap-2"
+                                    onClick={handleOpenAddUserModal}
+                                >
+                                    <FiUserPlus size={16} />
+                                    Add Users
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    {loading || usersLoading ? (
+                        <UserListSkeleton />
+                    ) : (
+                        <div className="space-y-4">
+                            {error && (
+                                <div className="bg-red-50 p-4 rounded-lg">
+                                    <p className="text-red-600 font-medium">{error}</p>
+                                </div>
+                            )}
+
+                            <div className="relative">
+                                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                <Input
+                                    placeholder="Search users by name or email"
+                                    value={searchTerm}
+                                    onChange={handleSearchChange}
+                                    className="pl-10"
+                                />
+                            </div>
+
+                            {filteredUsers.length === 0 ? (
+                                <div className="text-center py-8">
+                                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mx-auto mb-4">
+                                        <FiUsers size={32} />
+                                    </div>
+                                    <h3 className="text-lg font-medium text-gray-700 mb-1">No users found</h3>
+                                    <p className="text-gray-500 text-sm">
+                                        {searchTerm ? "Try a different search term" : "This project doesn't have any users assigned"}
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="space-y-2 mt-4">
+                                    {filteredUsers.map(user => (
+                                        <div
+                                            key={user.id}
+                                            className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"
+                                        >
+                                            <div className="flex items-center space-x-3">
+                                                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                                                    <FiUser size={20} />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-medium">{user.firstName} {user.lastName}</h3>
+                                                    <p className="text-sm text-gray-500">{user.email}</p>
+                                                </div>
+                                            </div>
+                                            <Button
+                                                className="text-red-500 hover:bg-red-50 hover:border-red-200"
+                                                onClick={() => handleRemoveUser(user.id)}
+                                                disabled={removingUserId === user.id}
+                                            >
+                                                {removingUserId === user.id ? (
+                                                    <FiLoader className="animate-spin" size={16} />
+                                                ) : (
+                                                    <FiUserX size={16} />
+                                                )}
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Add User Modal */}
+            <Modal isOpen={isAddUserModalOpen} onClose={handleCloseAddUserModal}>
+                <ModalClose onClick={handleCloseAddUserModal} />
+                <ModalHeader>
+                    <ModalTitle className="flex items-center gap-2">
+                        <FiUserPlus /> Add Users to Project
+                    </ModalTitle>
+                    <ModalDescription>
+                        Select users to add to this project
+                    </ModalDescription>
+                </ModalHeader>
+                <ModalContent>
+                    <div className="space-y-4">
+                        <div className="relative">
+                            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                            <Input
+                                placeholder="Search users by name or email"
+                                className="pl-10"
+                                onChange={(e) => {
+                                    const searchVal = e.target.value.toLowerCase();
+                                    if (!searchVal) {
+                                        setAvailableUsers(availableUsers);
+                                    } else {
+                                        const filtered = availableUsers.filter(user =>
+                                            user.firstName.toLowerCase().includes(searchVal) ||
+                                            user.lastName.toLowerCase().includes(searchVal) ||
+                                            user.email.toLowerCase().includes(searchVal)
+                                        );
+                                        setAvailableUsers(filtered);
+                                    }
+                                }}
+                            />
+                        </div>
+
+                        <div className="max-h-72 overflow-y-auto">
+                            {availableUsers.length === 0 ? (
+                                <div className="text-center py-8">
+                                    <p className="text-gray-500">No available users found</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    {availableUsers.map(user => (
+                                        <div
+                                            key={user.id}
+                                            className={`flex items-center justify-between p-3 rounded-md cursor-pointer transition-colors ${
+                                                selectedUsers.includes(user.id)
+                                                    ? 'bg-red-50 border border-red-200'
+                                                    : 'bg-gray-50 border border-white hover:bg-gray-100'
+                                            }`}
+                                            onClick={() => toggleUserSelection(user.id)}
+                                        >
+                                            <div className="flex items-center space-x-3">
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                                    selectedUsers.includes(user.id)
+                                                        ? 'bg-red-100 text-oracleRed'
+                                                        : 'bg-gray-200 text-gray-500'
+                                                }`}>
+                                                    <FiUser size={20} />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-medium">{user.firstName} {user.lastName}</h3>
+                                                    <p className="text-sm text-gray-500">{user.email}</p>
+                                                </div>
+                                            </div>
+                                            <div className={`w-6 h-6 rounded-full border flex items-center justify-center ${
+                                                selectedUsers.includes(user.id)
+                                                    ? 'border-oracleRed bg-oracleRed text-white'
+                                                    : 'border-gray-300'
+                                            }`}>
+                                                {selectedUsers.includes(user.id) && <FiCheck size={14} />}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </ModalContent>
+                <ModalFooter>
+                    <Button
+                        variant="default"
+                        onClick={handleCloseAddUserModal}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="remarked"
+                        onClick={handleAddUsers}
+                        disabled={selectedUsers.length === 0 || addingUsers}
+                        className="flex items-center gap-2 w-40"
+                    >
+                        {addingUsers ? (
+                            <>
+                                <FiLoader className="animate-spin" size={16} />
+                                <span>Adding...</span>
+                            </>
+                        ) : (
+                            <>
+                                <FiPlus size={16} />
+                                <span className="w-4/5">Add {selectedUsers.length} {selectedUsers.length === 1 ? 'User' : 'Users'}</span>
+                            </>
+                        )}
                     </Button>
                 </ModalFooter>
             </Modal>

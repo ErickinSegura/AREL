@@ -9,4 +9,9 @@ export const UserService = {
         const response = await fetchWithAuth(`/userlist/by-level?${queryString}`);
         return await response.json();
     },
+
+    async getUsersByProject(projectID) {
+        const response = await fetchWithAuth(`/userlist/${projectID}/users`);
+        return await response.json()
+    }
 };
