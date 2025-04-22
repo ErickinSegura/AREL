@@ -1,33 +1,29 @@
 import React, { useState, useEffect } from 'react';
 
 export const Sheet = ({
-                   isOpen,
-                   onClose,
-                   side = 'right',
-                   children,
-                   title = '',
-                   description = ''
-               }) => {
+                          isOpen,
+                          onClose,
+                          side = 'right',
+                          children,
+                          title = '',
+                          description = ''
+                      }) => {
     const [mounted, setMounted] = useState(false);
 
-    // Mount component
     useEffect(() => {
         setMounted(true);
         return () => setMounted(false);
     }, []);
 
-    // Early return if not mounted
     if (!mounted) return null;
 
-    // Position based on side prop
     const sidePositionClasses = {
-        top: 'top-0 left-0 right-0',
-        right: 'top-0 right-0 bottom-0',
-        bottom: 'bottom-0 left-0 right-0',
-        left: 'top-0 left-0 bottom-0'
+        top: 'inset-x-0 top-0 rounded-b-2xl',
+        right: 'inset-y-0 right-0 rounded-l-2xl',
+        bottom: 'inset-x-0 bottom-0 rounded-t-2xl',
+        left: 'inset-y-0 left-0 rounded-r-2xl'
     };
 
-    // Animation based on side prop
     const animationClasses = {
         top: isOpen ? 'translate-y-0' : '-translate-y-full',
         right: isOpen ? 'translate-x-0' : 'translate-x-full',
@@ -35,7 +31,6 @@ export const Sheet = ({
         left: isOpen ? 'translate-x-0' : '-translate-x-full'
     };
 
-    // Size based on side prop
     const sizeClasses = {
         top: 'h-96',
         right: 'w-80',
@@ -45,19 +40,19 @@ export const Sheet = ({
 
     return (
         <>
-            {/* Backdrop */}
-            {isOpen && (
-                <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"
-                    onClick={onClose}
-                />
-            )}
+            {/* Overlay */}
+            <div
+                className={`fixed inset-0 bg-black transition-opacity duration-300 z-40 ${
+                    isOpen ? 'bg-opacity-50' : 'bg-opacity-0 pointer-events-none'
+                }`}
+                onClick={onClose}
+            />
 
             {/* Sheet */}
             <div
                 className={`
           fixed ${sidePositionClasses[side]} ${sizeClasses[side]} 
-          bg-white shadow-lg z-50 
+          bg-white shadow-lg z-50 overflow-hidden
           transform transition-transform duration-300 ease-in-out 
           ${animationClasses[side]}
         `}
@@ -69,7 +64,7 @@ export const Sheet = ({
                 </div>
 
                 {/* Content */}
-                <div className="p-4 overflow-y-auto h-full">
+                <div className="p-4 overflow-y-auto flex-grow">
                     {children}
                 </div>
             </div>

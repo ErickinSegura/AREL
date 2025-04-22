@@ -32,7 +32,7 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 		this.serviceManager = serviceManager;
 		this.messageSender = new MessageSender(this);
 		this.inactivityManager = new InactivityManager(messageSender);
-		this.commandHandler = new CommandHandler(this.messageSender, this.serviceManager, this.inactivityManager);
+	    this.commandHandler = new CommandHandler(this.messageSender,this.serviceManager, this.inactivityManager);
 	}
 
 	@Override
@@ -50,9 +50,10 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 					try {
 						inactivityManager.receivedMessageFrom(chatId);
 						processMessageByCommand(messageText, chatId, update);
-						logger.debug("USER_STATE_LOG: "+inactivityManager.getUserState(chatId).getState().toString());
+						UserStateType state = inactivityManager.getUserState(chatId).getState();
+						logger.debug("USER_STATE_LOG: "+state.toString());
 					} catch (Exception e) {
-						logger.error("Error processing message: {}", e.getLocalizedMessage(), e);
+						logger.error("Error in message: {}", e.getLocalizedMessage(), e);
 						messageSender.sendErrorMessage(chatId);
 					}
 				}
@@ -79,17 +80,12 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 	}
 
 	private void processMessageByCommand(String messageText, long chatId, Update update) {
-		
-		//Text message
-		if (commandHandler.isStartCommand(messageText)) {
-			commandHandler.handleStartCommand(chatId, update);
-		}
-		else if (messageText.equals("state")) {
-			inactivityManager.setUserState(chatId, UserStateType.STATE2);
+		if (commandHandler.isStartCommand(messageText)) { // Start Command
+			commandHandler.start(chatId, update);
 		}
 		else { // User entered only text
 			UserState state = inactivityManager.getUserState(chatId);
-			commandHandler.handleTextInput(state, messageText, chatId);
+			commandHandler.handleTextInput(state, messageText, chatId, update);
 		}
 	}
 

@@ -20,35 +20,62 @@ public class SprintService {
         this.sprintRepository = sprintRepository;
     }
     
+    public Sprint addSprint(Sprint sprint) {
+        return sprintRepository.save(sprint);
+    }
+
     //Get Sprint by ID
-    public ResponseEntity<Sprint> getSprintsbyID(int id){
+    public Optional<Sprint> getSprintsbyID(int id){
         Optional<Sprint> sprintData = sprintRepository.findById(id);
-        if (sprintData.isPresent()){
-            return new ResponseEntity<>(sprintData.get(), HttpStatus.OK);
-        }else{
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return sprintData;
     }
 
-    public ResponseEntity<Integer> getActiveSprintId() {
-        List<Integer> activeSprintIds = sprintRepository.findActiveSprintIds();
-        
-        if (activeSprintIds.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        
-        return new ResponseEntity<>(activeSprintIds.get(0), HttpStatus.OK);
-        //return ResponseEntity.ok(activeSprintIds.get(0));  // 200 OK
-    }
-
-    public ResponseEntity<Integer> getProjectbyId(Integer id) {
+    public Integer getProjectbyId(Integer id) {
         List<Integer> projectIdList = sprintRepository.findProjectByID(id);
 
         if (projectIdList.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return null;
         }
         
-        return new ResponseEntity<>(projectIdList.get(0), HttpStatus.OK);
+        return projectIdList.get(0);
     }
 
+    public ResponseEntity<List<Sprint>> getAvailableSprints(Integer idProject) {
+        List<Sprint> sprints = sprintRepository.availableSprints(idProject);
+        if(sprints.isEmpty() || sprints == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(sprints, HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<Sprint>> getSprintsByProjectID(Integer idProject) {
+        List<Sprint> sprints = sprintRepository.getSprintsbyProjectID(idProject);
+        if(sprints.isEmpty() || sprints == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(sprints, HttpStatus.OK);
+    }
+
+    public Optional<Sprint> getNextSprint(Integer idProject) {
+        List<Sprint> sprint_response = sprintRepository.getNextSprint(idProject);
+
+        if (sprint_response.size() == 0 || sprint_response.isEmpty()) {
+            return null;
+        }
+        else {
+            return Optional.of(sprint_response.get(0));
+        }
+    }
+
+    public Integer getNewSprintNumber(Integer projectId) {
+        Integer newSprint = sprintRepository.getNewSprintNumber(projectId);
+        return newSprint;
+    }
+
+    public Integer getSprintNumberById(Integer sprintId) {
+        Integer number = sprintRepository.findSprintNumberById(sprintId);
+        return number;
+    }
 }

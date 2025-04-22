@@ -44,10 +44,26 @@ public class TaskService {
         Optional<Task> taskData = taskRepository.findById(id);
         if(taskData.isPresent()){
             Task taskItem = taskData.get();
+            taskItem.setSprintId(task.getSprintId());
             BeanUtils.copyProperties(task, taskItem, "id");
             return taskRepository.save(taskItem);
             
         }else{
+            return null;
+        }
+    }
+
+    public Task assignUserSprintTask(int id, Task task) {
+        Optional<Task> taskData = taskRepository.findById(id);
+        if (taskData.isPresent()) {
+            Task taskItem = taskData.get();
+
+            taskItem.setAssignedTo(task.getAssignedTo());
+            taskItem.setSprintId(task.getSprintId());
+
+            return taskRepository.save(taskItem);
+        }
+        else {
             return null;
         }
     }
@@ -58,5 +74,9 @@ public class TaskService {
 
     public List<Task> getTasksBySprintID(int sprintID) {
         return taskRepository.findBySprint(sprintID);
+    }
+
+    public List<Task> getBacklog(int projectId) {
+        return taskRepository.getBacklogTasks(projectId);
     }
 }

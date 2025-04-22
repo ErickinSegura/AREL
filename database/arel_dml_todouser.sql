@@ -1,304 +1,55 @@
 -- Mock Data
 
-INSERT INTO TODOUSER.USER_TABLE (
-    FIRSTNAME,
-    LASTNAME,
-    EMAIL,
-    USER_LEVEL,
-    TELEGRAMUSERNAME,
-    PASSWORD
-) VALUES ( 'Rodrigo',
-           'Lopez',
-           'rodrigo@arel.com',
-           2,
-           'roccolpz',
-           'securepassword' );
+INSERT INTO TODOUSER.COLOR ( HEX_COLOR ) VALUES ( '4984B8' );
+INSERT INTO TODOUSER.COLOR ( HEX_COLOR ) VALUES ( '2E6F40' );
 
-INSERT INTO TODOUSER.USER_TABLE (
-    FIRSTNAME,
-    LASTNAME,
-    EMAIL,
-    USER_LEVEL,
-    TELEGRAMUSERNAME,
-    PASSWORD
-) VALUES ( 'Erick',
-           'Segura',
-           'erick@arel.com',
-           1,
-           'iPancrema',
-           'securepassword' );
+INSERT INTO TODOUSER.ICON ( ICON_NAME ) VALUES ( 'icon-name-1' );
+INSERT INTO TODOUSER.ICON ( ICON_NAME ) VALUES ( 'icon-name-2' );
 
-INSERT INTO TODOUSER.USER_TABLE (
-    FIRSTNAME,
-    LASTNAME,
-    EMAIL,
-    USER_LEVEL,
-    TELEGRAMUSERNAME,
-    PASSWORD
-) VALUES ( 'Emiliano',
-           'Luna',
-           'luna@arel.com',
-           3,
-           'luna.e',
-           'securepassword' );
+Insert into TODOUSER.LOG_ACTION (LABEL) values ('COMPLETED TASK');
+Insert into TODOUSER.LOG_ACTION (LABEL) values ('DOING TASK');
+Insert into TODOUSER.LOG_ACTION (LABEL) values ('CREATED TASK');
+Insert into TODOUSER.LOG_ACTION (LABEL) values ('SPRINT STARTED');
 
-INSERT INTO TODOUSER.USER_TABLE (
-    FIRSTNAME,
-    LASTNAME,
-    EMAIL,
-    USER_LEVEL,
-    TELEGRAMUSERNAME,
-    PASSWORD
-) VALUES ( 'Alvaro',
-           'Lozano',
-           'alvaro@arel.com',
-           2,
-           'alvaritodiaz',
-           'securepassword' );
+Insert into TODOUSER.USER_TABLE (FIRSTNAME,LASTNAME,EMAIL,USER_LEVEL,TELEGRAMUSERNAME,PASSWORD,LAST_SEEN,CREATED) values ('Rocco','Lopez','rocco@arel.com',2,'roccolpz','$2a$10$jX.YLDUhMEvGXVQydR78C.q4rm6jrZzUK0s386rPC8d5oWeis74Xe',null,null);
+Insert into TODOUSER.USER_TABLE (FIRSTNAME,LASTNAME,EMAIL,USER_LEVEL,TELEGRAMUSERNAME,PASSWORD,LAST_SEEN,CREATED) values ('Erick','Segura','erick@arel.com',3,'iPancrema','$2a$10$jX.YLDUhMEvGXVQydR78C.q4rm6jrZzUK0s386rPC8d5oWeis74Xe',null,null);
+Insert into TODOUSER.USER_TABLE (FIRSTNAME,LASTNAME,EMAIL,USER_LEVEL,TELEGRAMUSERNAME,PASSWORD,LAST_SEEN,CREATED) values ('Emiliano','Luna','luna@arel.com',2,'luna.e','$2a$10$jX.YLDUhMEvGXVQydR78C.q4rm6jrZzUK0s386rPC8d5oWeis74Xe',null,null);
+Insert into TODOUSER.USER_TABLE (FIRSTNAME,LASTNAME,EMAIL,USER_LEVEL,TELEGRAMUSERNAME,PASSWORD,LAST_SEEN,CREATED) values ('Alvaro','Lozano','alvaro@arel.com',2,'alvaritodiaz','$2a$10$jX.YLDUhMEvGXVQydR78C.q4rm6jrZzUK0s386rPC8d5oWeis74Xe',null,null);
 
-INSERT INTO TODOUSER.PROJECT (
-    PROJECT_NAME,
-    DESCRIPTION
-) VALUES ( 'Oracle Java Bot',
-           'Development of a telegram bot to increase accountability and visibility for managers in software develompent projects with a web application portal.' );
+Insert into TODOUSER.PROJECT (PROJECT_NAME,ID_COLOR,ID_ICON,ACTIVE_SPRINT) values ('Oracle Java Bot',1,null,2);
+Insert into TODOUSER.PROJECT (PROJECT_NAME,ID_COLOR,ID_ICON,ACTIVE_SPRINT) values ('AWAQ Gamification Software',2,null,null);
+Insert into TODOUSER.PROJECT (PROJECT_NAME,ID_COLOR,ID_ICON,ACTIVE_SPRINT) values ('Papalote Museum Mobile App',null,null,null);
 
-INSERT INTO TODOUSER.PROJECT (
-    PROJECT_NAME,
-    DESCRIPTION
-) VALUES ( 'AWAQ Gamification Software',
-           'Game for biomonitor training for AWAQ organization, iykyk.' );
+Insert into TODOUSER.USER_PROJECT (ID_USER,ID_PROJECT,ROLE) values (1,1,'Frontend Engineer');
+Insert into TODOUSER.USER_PROJECT (ID_USER,ID_PROJECT,ROLE) values (2,1,'SCRUM Master');
+Insert into TODOUSER.USER_PROJECT (ID_USER,ID_PROJECT,ROLE) values (3,1,'Product Owner');
+Insert into TODOUSER.USER_PROJECT (ID_USER,ID_PROJECT,ROLE) values (4,1,'Backend Engineer');
 
-INSERT INTO TODOUSER.PROJECT (
-    PROJECT_NAME,
-    DESCRIPTION
-) VALUES ( 'Papalote Museum Mobile App',
-           'Development of a mobile software for Papalote Museum.');
+Insert into TODOUSER.SPRINT (ID_PROJECT,SPRINT_NUMBER,START_DATE,END_DATE) values (1,1,to_timestamp('02/04/25 17:42:23.324643000','DD/MM/RR HH24:MI:SSXFF'),to_timestamp('09/04/25 17:41:23.324643000','DD/MM/RR HH24:MI:SSXFF'));
+Insert into TODOUSER.SPRINT (ID_PROJECT,SPRINT_NUMBER,START_DATE,END_DATE) values (1,2,to_timestamp('10/04/25 17:42:23.324643000','DD/MM/RR HH24:MI:SSXFF'),to_timestamp('17/04/25 17:41:23.324643000','DD/MM/RR HH24:MI:SSXFF'));
+Insert into TODOUSER.SPRINT (ID_PROJECT,SPRINT_NUMBER,START_DATE,END_DATE) values (1,3,to_timestamp('18/04/25 17:42:23.324643000','DD/MM/RR HH24:MI:SSXFF'),to_timestamp('24/04/25 17:41:23.324643000','DD/MM/RR HH24:MI:SSXFF'));
+Insert into TODOUSER.SPRINT (ID_PROJECT,SPRINT_NUMBER,START_DATE,END_DATE) values (1,4,to_timestamp('24/04/25 17:42:23.324643000','DD/MM/RR HH24:MI:SSXFF'),to_timestamp('30/04/25 17:41:23.324643000','DD/MM/RR HH24:MI:SSXFF'));
 
+Insert into TODOUSER.SHORTCUT (ID_PROJECT,SHORTCUT_URL) values (1,'https://example.com/');
+Insert into TODOUSER.SHORTCUT (ID_PROJECT,SHORTCUT_URL) values (1,'https://chihuahuaspin.com/');
 
-INSERT INTO TODOUSER.USER_PROJECT (
-    ID_USER,
-    ID_PROJECT,
-    ROLE
-) VALUES ( 1,
-           1,
-           'Frontend Engineer');
+Insert into TODOUSER.CATEGORY (CATEGORY_NAME,ID_PROJECT,ID_COLOR) values ('Web',1,2);
+Insert into TODOUSER.CATEGORY (CATEGORY_NAME,ID_PROJECT,ID_COLOR) values ('Bot',1,1);
 
-INSERT INTO TODOUSER.USER_PROJECT (
-    ID_USER,
-    ID_PROJECT,
-    ROLE
-) VALUES ( 2,
-           1,
-           'SCRUM Master' );
+Insert into TODOUSER.TASK (TITLE,TASK_STATE,CREATION_DATE,ESTIMATED_HOURS,REAL_HOURS,ASSIGNED_TO,CATEGORY,SPRINT_ID,PROJECT_ID,TASK_TYPE,TASK_PRIORITY,DELETED) values ('B-12 Sesiones de Telegram',3,to_timestamp('02/04/25 07:01:53.674184000','DD/MM/RR HH24:MI:SSXFF'),4,4,1,2,null,1,4,4,0);
+Insert into TODOUSER.TASK (TITLE,TASK_STATE,CREATION_DATE,ESTIMATED_HOURS,REAL_HOURS,ASSIGNED_TO,CATEGORY,SPRINT_ID,PROJECT_ID,TASK_TYPE,TASK_PRIORITY,DELETED) values ('W-12 Backend de Shortcuts',3,to_timestamp('02/04/25 07:05:20.574230000','DD/MM/RR HH24:MI:SSXFF'),2,2,4,1,null,1,4,2,0);
+Insert into TODOUSER.TASK (TITLE,TASK_STATE,CREATION_DATE,ESTIMATED_HOURS,REAL_HOURS,ASSIGNED_TO,CATEGORY,SPRINT_ID,PROJECT_ID,TASK_TYPE,TASK_PRIORITY,DELETED) values ('I-01 Investigación IA',3,to_timestamp('02/04/25 07:06:30.685444000','DD/MM/RR HH24:MI:SSXFF'),4,3,3,1,null,1,4,1,0);
+Insert into TODOUSER.TASK (TITLE,TASK_STATE,CREATION_DATE,ESTIMATED_HOURS,REAL_HOURS,ASSIGNED_TO,CATEGORY,SPRINT_ID,PROJECT_ID,TASK_TYPE,TASK_PRIORITY,DELETED) values ('W-03 Cerrar Sesión',3,to_timestamp('02/04/25 07:03:25.592659000','DD/MM/RR HH24:MI:SSXFF'),1,1,2,1,null,1,4,1,0);
+Insert into TODOUSER.TASK (TITLE,TASK_STATE,CREATION_DATE,ESTIMATED_HOURS,REAL_HOURS,ASSIGNED_TO,CATEGORY,SPRINT_ID,PROJECT_ID,TASK_TYPE,TASK_PRIORITY,DELETED) values ('B-08 Creación de Tareas',3,to_timestamp('02/04/25 07:21:51.903917000','DD/MM/RR HH24:MI:SSXFF'),2,2,1,2,2,1,4,3,0);
+Insert into TODOUSER.TASK (TITLE,TASK_STATE,CREATION_DATE,ESTIMATED_HOURS,REAL_HOURS,ASSIGNED_TO,CATEGORY,SPRINT_ID,PROJECT_ID,TASK_TYPE,TASK_PRIORITY,DELETED) values ('W-15 Frontend Settings',3,to_timestamp('02/04/25 07:21:54.498372000','DD/MM/RR HH24:MI:SSXFF'),2,2,3,1,2,1,4,2,0);
+Insert into TODOUSER.TASK (TITLE,TASK_STATE,CREATION_DATE,ESTIMATED_HOURS,REAL_HOURS,ASSIGNED_TO,CATEGORY,SPRINT_ID,PROJECT_ID,TASK_TYPE,TASK_PRIORITY,DELETED) values ('W-04 Crear Cuenta Frontend',3,to_timestamp('02/04/25 07:21:57.193153000','DD/MM/RR HH24:MI:SSXFF'),2,2,2,1,2,1,4,3,0);
+Insert into TODOUSER.TASK (TITLE,TASK_STATE,CREATION_DATE,ESTIMATED_HOURS,REAL_HOURS,ASSIGNED_TO,CATEGORY,SPRINT_ID,PROJECT_ID,TASK_TYPE,TASK_PRIORITY,DELETED) values ('W-05 Inicio de Sesión Frontend',3,to_timestamp('02/04/25 07:21:59.929837000','DD/MM/RR HH24:MI:SSXFF'),2,4,2,1,2,1,4,3,0);
+Insert into TODOUSER.TASK (TITLE,TASK_STATE,CREATION_DATE,ESTIMATED_HOURS,REAL_HOURS,ASSIGNED_TO,CATEGORY,SPRINT_ID,PROJECT_ID,TASK_TYPE,TASK_PRIORITY,DELETED) values ('B-10 Cambio de estado de una tarea',3,to_timestamp('02/04/25 07:22:03.237712000','DD/MM/RR HH24:MI:SSXFF'),1,1,1,2,2,1,4,3,0);
+Insert into TODOUSER.TASK (TITLE,TASK_STATE,CREATION_DATE,ESTIMATED_HOURS,REAL_HOURS,ASSIGNED_TO,CATEGORY,SPRINT_ID,PROJECT_ID,TASK_TYPE,TASK_PRIORITY,DELETED) values ('W-16 Primera Implementación de PU',2,to_timestamp('02/04/25 07:25:42.105007000','DD/MM/RR HH24:MI:SSXFF'),4,null,4,1,2,1,4,2,0);
+Insert into TODOUSER.TASK (TITLE,TASK_STATE,CREATION_DATE,ESTIMATED_HOURS,REAL_HOURS,ASSIGNED_TO,CATEGORY,SPRINT_ID,PROJECT_ID,TASK_TYPE,TASK_PRIORITY,DELETED) values ('B-11 Creación de Sprints',3,to_timestamp('02/04/25 07:22:05.871813000','DD/MM/RR HH24:MI:SSXFF'),4,3,1,2,2,1,4,3,0);
+Insert into TODOUSER.TASK (TITLE,TASK_STATE,CREATION_DATE,ESTIMATED_HOURS,REAL_HOURS,ASSIGNED_TO,CATEGORY,SPRINT_ID,PROJECT_ID,TASK_TYPE,TASK_PRIORITY,DELETED) values ('W-01 Crear Cuenta Backend',3,to_timestamp('02/04/25 18:19:19.188873000','DD/MM/RR HH24:MI:SSXFF'),4,3,2,1,null,1,4,3,0);
+Insert into TODOUSER.TASK (TITLE,TASK_STATE,CREATION_DATE,ESTIMATED_HOURS,REAL_HOURS,ASSIGNED_TO,CATEGORY,SPRINT_ID,PROJECT_ID,TASK_TYPE,TASK_PRIORITY,DELETED) values ('Frontend Popup',1,to_timestamp('03/04/25 14:42:38.095710000','DD/MM/RR HH24:MI:SSXFF'),4,3,1,1,2,1,4,2,0);
+Insert into TODOUSER.TASK (TITLE,TASK_STATE,CREATION_DATE,ESTIMATED_HOURS,REAL_HOURS,ASSIGNED_TO,CATEGORY,SPRINT_ID,PROJECT_ID,TASK_TYPE,TASK_PRIORITY,DELETED) values ('W-02 Inicio de Sesión Frontend',3,to_timestamp('02/04/25 18:19:19.202778000','DD/MM/RR HH24:MI:SSXFF'),2,2,2,1,null,1,4,3,0);
+TRUNCATE TABLE TODOUSER.LOGS;
 
-INSERT INTO TODOUSER.USER_PROJECT (
-    ID_USER,
-    ID_PROJECT,
-    ROLE
-) VALUES ( 2,
-           2,
-           'SCRUM Master' );
-
-INSERT INTO TODOUSER.USER_PROJECT (
-    ID_USER,
-    ID_PROJECT,
-    ROLE
-) VALUES ( 2,
-           3,
-           'SCRUM Master' );
-
-INSERT INTO TODOUSER.USER_PROJECT (
-    ID_USER,
-    ID_PROJECT,
-    ROLE
-) VALUES ( 2,
-           3,
-           'SCRUM Master' );
-
-INSERT INTO TODOUSER.USER_PROJECT (
-    ID_USER,
-    ID_PROJECT,
-    ROLE
-) VALUES ( 3,
-           1,
-           'Frontend Engineer' );
-
-INSERT INTO TODOUSER.USER_PROJECT (
-    ID_USER,
-    ID_PROJECT,
-    ROLE
-) VALUES ( 4,
-           1,
-           'Backend Engineer' );
-
-INSERT INTO TODOUSER.SPRINT (
-    ID_PROJECT,
-    SPRINT_NUMBER,
-    START_DATE,
-    END_DATE
-) VALUES (
-    1, 
-    1, 
-    TIMESTAMP '2025-04-02 17:42:23.324643', 
-    TIMESTAMP '2025-04-09 17:41:23.324643'
-);
-
-INSERT INTO TODOUSER.SPRINT (
-    ID_PROJECT,
-    SPRINT_NUMBER,
-    START_DATE,
-    END_DATE
-) VALUES (
-    1, 
-    1, 
-    TIMESTAMP '2025-04-10 17:42:23.324643', 
-    TIMESTAMP '2025-04-17 17:41:23.324643'
-);
-
-INSERT INTO TODOUSER.SPRINT (
-    ID_PROJECT,
-    SPRINT_NUMBER,
-    START_DATE,
-    END_DATE
-) VALUES (
-    1, 
-    1, 
-    TIMESTAMP '2025-04-18 17:42:23.324643', 
-    TIMESTAMP '2025-04-25 17:41:23.324643'
-);
-
-INSERT INTO TODOUSER.SHORTCUT (
-    ID_PROJECT,
-    SHORTCUT_URL
-) VALUES ( 1,
-           'https://example.com/' );
-
-INSERT INTO TODOUSER.SHORTCUT (
-    ID_PROJECT,
-    SHORTCUT_URL
-) VALUES ( 1,
-           'https://chihuahuaspin.com/' );
-
-INSERT INTO TODOUSER.CATEGORY (
-    CATEGORY_NAME,
-    ID_PROJECT,
-    ID_COLOR
-) VALUES ( 'Web',
-           1,
-           2 );
-
-INSERT INTO TODOUSER.CATEGORY (
-    CATEGORY_NAME,
-    ID_PROJECT,
-    ID_COLOR
-) VALUES ( 'Bot',
-           1,
-           1 );
-
-INSERT INTO TODOUSER.TASK (
-    TITLE,
-    DESCRIPTION,
-    TASK_STATE,
-    ASSIGNED_TO,
-    CATEGORY,
-    SPRINT_ID,
-    TASK_TYPE,
-    TASK_PRIORITY
-) VALUES ( 'Crear Cuenta',
-           'Como usuario del portal, quiero poder crear una cuenta para acceder a la aplicación.',
-           2,
-           1,
-           1,
-           3,
-           1,
-           2 );
-
-INSERT INTO TODOUSER.TASK (
-    TITLE,
-    DESCRIPTION,
-    TASK_STATE,
-    ASSIGNED_TO,
-    CATEGORY,
-    SPRINT_ID,
-    TASK_TYPE,
-    TASK_PRIORITY
-) VALUES ( 'Arreglar bug responsividad',
-           'La sidebar tapa el contenido de la vista en tamaño menor a 1000x1000',
-           2,
-           1,
-           1,
-           3,
-           1,
-           2 );
-
-INSERT INTO TODOUSER.TASK (
-    TITLE,
-    DESCRIPTION,
-    TASK_STATE,
-    ASSIGNED_TO,
-    CATEGORY,
-    SPRINT_ID,
-    TASK_TYPE,
-    TASK_PRIORITY
-) VALUES ( 'Sistema drag and drop',
-           'Sistema para mover elementos en el tablero Kanban usando drag n drop',
-           2,
-           1,
-           1,
-           3,
-           1,
-           2 );
-
-INSERT INTO TODOUSER.TASK (
-    TITLE,
-    DESCRIPTION,
-    TASK_STATE,
-    ASSIGNED_TO,
-    CATEGORY,
-    SPRINT_ID,
-    TASK_TYPE,
-    TASK_PRIORITY
-) VALUES ( 'Implementar sistema de racha',
-           'Sistema lógico de racha para portal web.',
-           2,
-           1,
-           1,
-           3,
-           1,
-           2 );
-
-INSERT INTO TODOUSER.TASK (
-    TITLE,
-    DESCRIPTION,
-    TASK_STATE,
-    ASSIGNED_TO,
-    CATEGORY,
-    SPRINT_ID,
-    TASK_TYPE,
-    TASK_PRIORITY
-) VALUES ( 'Inicio de Sesión',
-           'Como usuario del portal, quiero poder iniciar sesión para acceder a la aplicación Criterios de Aceptación: Al ingresar las credenciales (email y password) y presionar el botón iniciar sesión, el usuario es transportado a su dashboard personal. Al iniciar sesión, solo tiene acceso a las vistas de su rol (dependerá nivel de privilegio, desarrollador, manager, administrador de software)',
-           1,
-           2,
-           2,
-           3,
-           1,
-           3 );
-
-INSERT INTO TODOUSER.TASK (
-    TITLE,
-    DESCRIPTION,
-    TASK_STATE,
-    ASSIGNED_TO,
-    CATEGORY,
-    SPRINT_ID,
-    TASK_TYPE,
-    TASK_PRIORITY
-) VALUES ( 'Vista Dashboard Manager',
-           'Como manager, quiero poder acceder a una pantalla donde se muestren mis PROJECTos activos para acceder a información específica de algún PROJECTo. Criterios de Aceptación: La página muestra los PROJECTos activos con su nombre. Una descripción breve del PROJECTo. Un gráfico que muestre de manera general el avance y alguna notificación relevante de ese PROJECTo. Se muestran actividades programadas para hoy.',
-           1,
-           2,
-           2,
-           3,
-           1,
-           3 );
+--Insert into TODOUSER.LOGS (PROJECT_ID, ACTION_LOG, USER_PROJECT) values ()
