@@ -132,13 +132,6 @@ export const TaskCard = ({ task, onSelect }) => {
                         <Clock size={14} className="mr-1" />
                         {task.estimatedHours}h
                     </div>
-
-                    {task.assignedTo && (
-                        <div className="inline-flex items-center text-xs text-gray-600">
-                            <User size={14} className="mr-1" />
-                            ID: {task.assignedTo}
-                        </div>
-                    )}
                 </div>
             </CardContent>
         </Card>
