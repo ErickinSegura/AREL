@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useBacklog } from '../hooks/useBacklog';
-import {TaskCard, CreateTaskModal, TaskDetailModal, BacklogHeader} from '../components/backlog/backlogComponents';
-import { NoProjectState} from "../components/overview/overviewComponents";
+import { useSprints } from '../hooks/useSprints';
+import { TaskCard, CreateTaskModal, TaskDetailModal, BacklogHeader, CreateSprintModal } from '../components/backlog/backlogComponents';
+import { NoProjectState } from "../components/overview/overviewComponents";
 import { Button } from '../lib/ui/Button';
-import {SkeletonCard, SkeletonText} from '../lib/ui/Skeleton';
+import { SkeletonCard, SkeletonText } from '../lib/ui/Skeleton';
 import { Search } from 'lucide-react';
-import {useProjects} from "../hooks/useProjects";
-import {Input} from "../lib/ui/Input";
+import { useProjects } from "../hooks/useProjects";
+import { Input } from "../lib/ui/Input";
 
 const Backlog = () => {
     const {
@@ -23,7 +24,12 @@ const Backlog = () => {
         handleTaskDelete,
     } = useBacklog();
 
-    const {selectedProject} = useProjects();
+    const {
+        setCreateSprintModalOpen,
+        createSprintModalOpen
+    } = useSprints();
+
+    const { selectedProject } = useProjects();
 
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -71,9 +77,8 @@ const Backlog = () => {
         setCreateModalOpen(true);
     };
 
-    // TODO: Implementar la funcionalidad de crear un sprint
-    const handleCreateSprint = () => {
-        console.log("Create Sprint functionality will be implemented later");
+    const handleOpenCreateSprintModal = () => {
+        setCreateSprintModalOpen(true);
     };
 
     if (!selectedProject) {
@@ -94,7 +99,7 @@ const Backlog = () => {
                 selectedProject={selectedProject}
                 loading={loading}
                 onCreateTask={handleOpenCreateModal}
-                onCreateSprint={handleCreateSprint}
+                onCreateSprint={handleOpenCreateSprintModal}
             />
 
             <div className="mb-6">
@@ -161,6 +166,11 @@ const Backlog = () => {
                 onClose={() => setCreateModalOpen(false)}
                 onCreate={handleTaskCreate}
                 projectId={selectedProject.id}
+            />
+
+            <CreateSprintModal
+                isOpen={createSprintModalOpen}
+                onClose={() => setCreateSprintModalOpen(false)}
             />
         </div>
     );

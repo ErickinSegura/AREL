@@ -26,7 +26,7 @@ export const SkeletonText = ({ lines = 1, className = '' }) => {
 
 export const SkeletonCard = ({ header = true, lines = 3 }) => {
     return (
-        <div className="border rounded-lg p-4 w-full">
+        <div className="border rounded-xl p-4 w-full">
             {header && (
                 <div className="flex items-center justify-between mb-4">
                     <Skeleton className="h-6 w-1/3" />

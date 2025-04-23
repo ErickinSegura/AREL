@@ -30,6 +30,14 @@ public class SprintService {
         return sprintData;
     }
 
+    public ResponseEntity<List<Sprint>> getAllSprints(int idProject) {
+        List<Sprint> sprints = sprintRepository.getAllSprints(idProject);
+        if (sprints.isEmpty() || sprints == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(sprints, HttpStatus.OK);
+    }
+
     public Integer getProjectbyId(Integer id) {
         List<Integer> projectIdList = sprintRepository.findProjectByID(id);
 
@@ -68,5 +76,29 @@ public class SprintService {
     public Integer getSprintNumberById(Integer sprintId) {
         Integer number = sprintRepository.findSprintNumberById(sprintId);
         return number;
+    }
+
+    public Sprint deleteSprint(int id) {
+        Optional<Sprint> sprintData = sprintRepository.findById(id);
+        if (sprintData.isPresent()) {
+            Sprint sprint = sprintData.get();
+            sprintRepository.delete(sprint);
+            return sprint;
+        } else {
+            return null;
+        }
+    }
+
+    public Sprint updateSprint(int id, Sprint sprint) {
+        Optional<Sprint> sprintData = sprintRepository.findById(id);
+        if (sprintData.isPresent()) {
+            Sprint existingSprint = sprintData.get();
+            existingSprint.setSprintNumber(sprint.getSprintNumber());
+            existingSprint.setStartDate(sprint.getStartDate());
+            existingSprint.setEndDate(sprint.getEndDate());
+            return sprintRepository.save(existingSprint);
+        } else {
+            return null;
+        }
     }
 }

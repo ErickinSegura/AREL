@@ -48,7 +48,7 @@ const DeveloperOverview = () => {
     }
 
     return (
-        <div className="p-6">
+        <div className="container mx-auto px-4 py-6">
             <ProjectHeader
                 selectedProject={selectedProject}
                 loading={loading}
