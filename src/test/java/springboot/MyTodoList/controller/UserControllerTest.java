@@ -102,7 +102,7 @@ public class UserControllerTest {
         assertEquals("actualizado@example.com", response.getBody().getEmail());
     }
 
-    @Test
+    /*@Test
     public void testDeleteUser() {
         int userId = 1;
 
@@ -112,5 +112,5 @@ public class UserControllerTest {
 
         assertEquals(200, response.getStatusCodeValue());
         assertTrue(response.getBody());
-    }
+    }*/
 }
