@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Card, CardContent, CardHeader, CardTitle} from '../../lib/ui/Card';
-import {Clock, Tag, User, CalendarDays, AlertTriangle, Calendar, Loader2, ListChecks, Inbox, CheckCircle, CheckSquare, Circle, X, AlertCircle, Save} from 'lucide-react';
+import {Clock, Tag, User, CalendarDays, AlertTriangle, Calendar, Loader2, Inbox, CheckCircle, CheckSquare, Circle, AlertCircle, Save, FileText, AlignLeft, Flag, LayoutList} from 'lucide-react';
 import {
     Modal,
     ModalHeader,
@@ -112,9 +112,10 @@ export const TaskCard = ({ task, onSelect }) => {
                     <div className="flex-grow">
                         <div className="flex justify-between items-start my-3">
                             <h3 className="font-medium text-lg">{task.title}</h3>
-                            <div className={`text-xs font-medium px-2 py-1 rounded-full ${priorityColors[task.priority]} border`}>
+                            <div className={`text-xs font-medium px-2 py-1 rounded-full w-20 ${priorityColors[task.priority]} border flex justify-center items-center`}>
                                 {priorityLabels[task.priority]}
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -287,9 +288,9 @@ export const TaskDetailModal = ({
                     <div className="space-y-4">
                         <div className="flex justify-between items-start">
                             <h3 className="font-bold text-xl">{task.title}</h3>
-                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${priorityColors[task.priority]}`}>
+                            <div className={`text-xs font-medium px-2 py-1 rounded-full w-20 ${priorityColors[task.priority]} border flex justify-center items-center`}>
                                 {priorityLabels[task.priority]}
-                            </span>
+                            </div>
                         </div>
 
                         {task.description ? (
@@ -407,110 +408,121 @@ export const CreateTaskModal = ({
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose}>
-            <ModalHeader>
-                <ModalTitle>Create New Task</ModalTitle>
-                <ModalClose onClick={onClose} />
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            className="max-w-2xl w-full mx-auto max-h-screen flex flex-col"
+        >
+            <ModalHeader className="sticky top-0 z-10 px-4 sm:px-6">
+                <ModalTitle className="text-xl font-semibold">Create New Task</ModalTitle>
+                <ModalClose onClick={onClose} className="absolute right-4 top-3" />
             </ModalHeader>
-            <ModalContent>
-                <div className="space-y-4">
+
+            <ModalContent className="overflow-y-auto max-h-[calc(100vh-18rem)]">
+                <div className="space-y-6">
                     {validationError && (
-                        <div className="text-red-500 text-sm">{validationError}</div>
+                        <div className="text-red-500 text-sm flex items-center p-3 bg-red-50 rounded-md">
+                            <AlertTriangle size={16} className="mr-2 flex-shrink-0" />
+                            <span>{validationError}</span>
+                        </div>
                     )}
 
-                    <Input
-                        label="Title"
-                        name="title"
-                        value={taskFormData.title}
-                        onChange={handleTaskFormChange}
-                        className="w-full"
-                        required
-                    />
+                    {/* Task Details Section */}
+                    <div className="p-4">
+                        <h3 className="text-lg font-medium mb-1 flex items-center">
+                            <FileText size={18} className="text-gray-500 mr-2" />
+                            Task Details
+                        </h3>
 
-                    <div>
-                        <label className="text-sm font-medium text-gray-700">Description</label>
-                        <textarea
-                            name="description"
-                            value={taskFormData.description}
-                            onChange={handleTaskFormChange}
-                            className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            rows={3}
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input
-                            label="Estimated Hours"
-                            name="estimatedHours"
-                            type="number"
-                            min="0"
-                            value={taskFormData.estimatedHours}
-                            onChange={handleTaskFormChange}
-                        />
-
-                        <div>
-                            <label className="text-sm font-medium text-gray-700">Priority</label>
-                            <select
-                                name="priority"
-                                value={taskFormData.priority}
+                        <div className="space-y-4 mt-3">
+                            <Input
+                                label="Title"
+                                name="title"
+                                value={taskFormData.title}
                                 onChange={handleTaskFormChange}
-                                className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                {Object.entries(priorityLabels).map(([key, value]) => (
-                                    <option key={key} value={key}>{value}</option>
-                                ))}
-                            </select>
-                        </div>
+                                className="w-full"
+                                required
+                            />
 
-                        <div>
-                            <label className="text-sm font-medium text-gray-700">State</label>
-                            <select
-                                name="state"
-                                value={taskFormData.state}
-                                onChange={handleTaskFormChange}
-                                className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                {Object.entries(stateLabels).map(([key, value]) => (
-                                    <option key={key} value={key}>{value}</option>
-                                ))}
-                            </select>
-                        </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 flex items-center">
+                                    <AlignLeft size={14} className="mr-2" />
+                                    Description
+                                </label>
+                                <textarea
+                                    name="description"
+                                    value={taskFormData.description}
+                                    onChange={handleTaskFormChange}
+                                    className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    rows={3}
+                                />
+                            </div>
 
-                        <div>
-                            <label className="text-sm font-medium text-gray-700">Category</label>
-                            <select
-                                name="category"
-                                value={taskFormData.category}
-                                onChange={handleTaskFormChange}
-                                className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                {Object.entries(categoryLabels).map(([key, value]) => (
-                                    <option key={key} value={key}>{value}</option>
-                                ))}
-                            </select>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700 flex items-center">
+                                        <Flag size={14} className="mr-2" />
+                                        Priority
+                                    </label>
+                                    <select
+                                        name="priority"
+                                        value={taskFormData.priority}
+                                        onChange={handleTaskFormChange}
+                                        className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        {Object.entries(priorityLabels).map(([key, value]) => (
+                                            <option key={key} value={key}>{value}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700 flex items-center">
+                                        <Tag size={14} className="mr-2" />
+                                        Category
+                                    </label>
+                                    <select
+                                        name="category"
+                                        value={taskFormData.category}
+                                        onChange={handleTaskFormChange}
+                                        className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        {Object.entries(categoryLabels).map(([key, value]) => (
+                                            <option key={key} value={key}>{value}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-
-                        <Input
-                            label="Assigned To (ID)"
-                            name="assignedTo"
-                            type="number"
-                            value={taskFormData.assignedTo || ''}
-                            onChange={handleTaskFormChange}
-                            placeholder="Leave empty if not assigned"
-                        />
                     </div>
                 </div>
             </ModalContent>
-            <ModalFooter>
-                <Button onClick={onClose} variant="default">
+
+            <ModalFooter className="px-4 sm:px-6 flex flex-col sm:flex-row gap-3 sm:justify-end">
+                <Button
+                    onClick={onClose}
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                >
                     Cancel
                 </Button>
                 <Button
                     onClick={handleSubmit}
                     variant="remarked"
                     disabled={!taskFormData.title || loading}
+                    className="w-full sm:w-auto"
                 >
-                    {loading ? 'Creating...' : 'Create Task'}
+                    {loading ? (
+                        <>
+                            <Loader2 size={16} className="mr-2 animate-spin" />
+                            Creating...
+                        </>
+                    ) : (
+                        <>
+                            <Save size={16} className="mr-2" />
+                            Create Task
+                        </>
+                    )}
                 </Button>
             </ModalFooter>
         </Modal>
