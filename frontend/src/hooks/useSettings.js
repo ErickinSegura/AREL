@@ -100,6 +100,7 @@ export const useSettings = () => {
         try {
             setDeleteLoading(true);
             await ProjectService.deleteProject(selectedProject.id);
+            setSelectedProject(null);
 
         } catch (err) {
             console.error("Error deleting project:", err);
