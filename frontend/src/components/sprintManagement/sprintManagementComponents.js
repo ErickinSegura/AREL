@@ -224,7 +224,7 @@ export const TaskColumn = ({ title, state, tasks, onTaskSelect, onTaskDrop, bgCo
             <h2 className="text-lg font-semibold mb-4">{title}</h2>
             <div className="flex-grow overflow-y-auto">
                 {tasks.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg">
+                    <div className="flex flex-col items-center justify-center h-28 border-2 border-dashed border-gray-300 rounded-lg">
                         <ArrowDownCircle className="text-gray-400 mb-2" size={24} />
                         <p className="text-gray-500 text-sm">Drop tasks here</p>
                     </div>
