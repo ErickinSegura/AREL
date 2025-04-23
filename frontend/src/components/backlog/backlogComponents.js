@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Card, CardContent, CardHeader, CardTitle} from '../../lib/ui/Card';
-import { Clock, Tag, User, CalendarDays, AlertTriangle } from 'lucide-react';
+import {Clock, Tag, User, CalendarDays, AlertTriangle, Calendar, Loader2, ListChecks, Inbox, CheckCircle, CheckSquare, Circle, X, AlertCircle, Save} from 'lucide-react';
 import {
     Modal,
     ModalHeader,
@@ -14,6 +14,7 @@ import { Input } from '../../lib/ui/Input';
 import {SkeletonCircle, SkeletonText} from '../../lib/ui/Skeleton';
 import {FiCodesandbox, FiFolder} from "react-icons/fi";
 import {useBacklog} from "../../hooks/useBacklog";
+import { useSprints } from '../../hooks/useSprints';
 
 const priorityColors = {
     1: 'bg-green-100 text-green-800 border-green-200',
@@ -510,6 +511,282 @@ export const CreateTaskModal = ({
                     disabled={!taskFormData.title || loading}
                 >
                     {loading ? 'Creating...' : 'Create Task'}
+                </Button>
+            </ModalFooter>
+        </Modal>
+    );
+};
+
+export const CreateSprintModal = ({ isOpen, onClose }) => {
+    const {
+        sprintFormData,
+        handleSprintFormChange,
+        selectedTasks,
+        availableTasks,
+        toggleTaskSelection,
+        updateTaskDetails,
+        handleCreateSprint,
+        validationError,
+        loading,
+        resetSprintForm
+    } = useSprints();
+
+    const [hoursWarnings, setHoursWarnings] = useState({});
+
+    useEffect(() => {
+        if (!isOpen) {
+            resetSprintForm();
+            setHoursWarnings({});
+        }
+    }, [isOpen]);
+
+    const handleSubmit = async () => {
+        const success = await handleCreateSprint();
+        if (success) {
+            onClose();
+        }
+    };
+
+    const priorityLabels = {
+        1: 'Low',
+        2: 'Medium',
+        3: 'High',
+        4: 'Critical'
+    };
+
+    const priorityColors = {
+        1: 'bg-green-100 text-green-800 border-green-200',
+        2: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        3: 'bg-red-100 text-red-800 border-red-200',
+        4: 'bg-purple-100 text-purple-800 border-purple-200'
+    };
+
+    const isTaskSelected = (taskId) => {
+        return selectedTasks.some(task => task.id === taskId);
+    };
+
+    const handleHoursChange = (taskId, value) => {
+        const numValue = parseFloat(value);
+
+        // Update task details
+        updateTaskDetails(taskId, 'estimatedHours', value);
+
+        // Show warning if hours > 4
+        if (numValue > 4) {
+            setHoursWarnings(prev => ({
+                ...prev,
+                [taskId]: true
+            }));
+        } else {
+            setHoursWarnings(prev => {
+                const newWarnings = {...prev};
+                delete newWarnings[taskId];
+                return newWarnings;
+            });
+        }
+    };
+
+    return (
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            className="max-w-3xl w-full mx-auto max-h-screen flex flex-col"
+        >
+
+        <ModalHeader className="sticky top-0 z-10 px-4 sm:px-6">
+                <ModalTitle className="text-xl font-semibold">Create New Sprint</ModalTitle>
+                <ModalClose onClick={onClose} className="absolute right-4 top-3" />
+            </ModalHeader>
+
+            <ModalContent className="p-4 sm:p-6 overflow-y-auto max-h-[calc(100vh-18rem)]">
+            <div className="space-y-6">
+                    {validationError && (
+                        <div className="text-red-500 text-sm flex items-center p-3 bg-red-50 rounded-md">
+                            <AlertTriangle size={16} className="mr-2 flex-shrink-0" />
+                            <span>{validationError}</span>
+                        </div>
+                    )}
+
+                    {/* Sprint Details Section */}
+                    <div className="p-4">
+                        <h3 className="text-lg font-medium mb-1 flex items-center">Sprint Details</h3>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="col-span-1 sm:col-span-2 mt-2">
+                                <div className="flex items-center mb-2">
+                                    <Calendar size={18} className="text-gray-500 mr-2" />
+                                    <span className="text-gray-700 font-medium">Sprint Duration</span>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <Input
+                                        label="Start Date"
+                                        name="startDate"
+                                        type="date"
+                                        value={sprintFormData.startDate}
+                                        onChange={handleSprintFormChange}
+                                        required
+                                    />
+
+                                    <Input
+                                        label="End Date"
+                                        name="endDate"
+                                        type="date"
+                                        value={sprintFormData.endDate}
+                                        onChange={handleSprintFormChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Available Tasks Section */}
+                    <div className="mt-6 p-4">
+                        <h3 className="text-lg font-medium mb-1 flex items-center">
+                            Available Tasks
+                            <span className="ml-2 text-sm text-gray-500 font-normal">
+                                ({availableTasks.length})
+                            </span>
+                        </h3>
+
+                        <div className="max-h-64 overflow-y-auto rounded-md border">
+                            {availableTasks.length === 0 ? (
+                                <div className="text-center py-8 text-gray-500 flex flex-col items-center">
+                                    <Inbox size={40} className="mb-2 text-gray-400" />
+                                    <p>No available tasks in backlog</p>
+                                </div>
+                            ) : (
+                                <div className="divide-y divide-gray-200">
+                                    {availableTasks.map(task => (
+                                        <Card
+                                            key={task.id}
+                                            className={`border-0 rounded-none cursor-pointer p-3 transition-colors duration-150 ${
+                                                isTaskSelected(task.id)
+                                                    ? 'ring-2 ring-oracleRed bg-gray-50'
+                                                    : 'hover:bg-gray-50'
+                                            }`}
+                                            onClick={() => toggleTaskSelection(task.id)}
+                                        >
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex items-center">
+                                                    <span className="mr-2">
+                                                        {isTaskSelected(task.id) ?
+                                                            <CheckCircle size={16} className="text-oracleRed" /> :
+                                                            <Circle size={16} className="text-gray-300" />
+                                                        }
+                                                    </span>
+                                                    <span className="font-medium truncate max-w-xs">{task.title}</span>
+                                                </div>
+                                                <span className={`text-xs px-2 py-1 rounded-full ${priorityColors[task.priority]} border flex-shrink-0`}>
+                                                    {priorityLabels[task.priority]}
+                                                </span>
+                                            </div>
+                                            {task.description && (
+                                                <p className="text-sm text-gray-600 mt-1 truncate pl-6">{task.description}</p>
+                                            )}
+                                        </Card>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Selected Tasks Section */}
+                    {selectedTasks.length > 0 && (
+                        <div className="mt-6 p-4">
+                            <h3 className="text-lg font-medium mb-3 flex items-center">
+                                <CheckSquare size={18} className="mr-2 text-green-600" />
+                                Selected Tasks
+                                <span className="ml-2 text-sm text-gray-500 font-normal">
+                                    ({selectedTasks.length})
+                                </span>
+                            </h3>
+
+                            <div className="space-y-4">
+                                {selectedTasks.map(task => (
+                                    <Card key={task.id} className="p-4 bg-gray-50 border-gray-200">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <span className="font-medium text-oracleRed">{task.title}</span>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="text-xs font-medium text-gray-700 flex items-center">
+                                                    <Clock size={14} className="mr-1" />
+                                                    Estimated Hours
+                                                </label>
+                                                <div className="relative">
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        step="0.5"
+                                                        className={`mt-1 w-full px-3 py-2 border ${hoursWarnings[task.id] ? 'border-orange-300 bg-orange-50' : 'border-gray-300'} rounded-md text-sm`}
+                                                        value={task.estimatedHours || ''}
+                                                        onChange={(e) => handleHoursChange(task.id, e.target.value)}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                    {hoursWarnings[task.id] && (
+                                                        <div className="mt-1 text-orange-600 text-xs flex items-center">
+                                                            <AlertCircle size={12} className="mr-1" />
+                                                            Consider breaking this task down (over 4 hours)
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label className="text-xs font-medium text-gray-700 flex items-center">
+                                                    <User size={14} className="mr-1" />
+                                                    Assigned To (ID)
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                                    placeholder="User ID"
+                                                    value={task.assignedTo || ''}
+                                                    onChange={(e) => updateTaskDetails(
+                                                        task.id,
+                                                        'assignedTo',
+                                                        e.target.value === '' ? null : Number(e.target.value)
+                                                    )}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                />
+                                            </div>
+                                        </div>
+                                    </Card>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </ModalContent>
+
+            <ModalFooter className="px-4 sm:px-6 flex flex-col sm:flex-row gap-3 sm:justify-end">
+                <Button
+                    onClick={onClose}
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                >
+                    Cancel
+                </Button>
+                <Button
+                    onClick={handleSubmit}
+                    variant="remarked"
+                    disabled={selectedTasks.length === 0 || loading}
+                    className="w-full sm:w-auto"
+                >
+                    {loading ? (
+                        <>
+                            <Loader2 size={16} className="mr-2 animate-spin" />
+                            Creating...
+                        </>
+                    ) : (
+                        <>
+                            <Save size={16} className="mr-2" />
+                            Create Sprint
+                        </>
+                    )}
                 </Button>
             </ModalFooter>
         </Modal>
