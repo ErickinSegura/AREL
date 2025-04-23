@@ -36,11 +36,10 @@ const AppLayout = ({ defaultOpen = false, accentColor = "#C74634" }) => {
                     defaultOpen={defaultOpen}
                     accentColor={accentColor}
                     defaultSelected={sidebarRoutes.find(route => route.path === currentRoute)?.label || sidebarRoutes[0].label}
-                    routes={sidebarRoutes}
                 />
             )}
 
-            <main className={`flex-1 overflow-auto ${isMobile && isAuthenticated && !isPublicRoute ? 'pt-16' : ''}`}>
+            <main className={`flex-1 overflow-auto ${isMobile && isAuthenticated && !isPublicRoute ? 'pt-8' : ''}`}>
                 <CurrentView />
             </main>
         </div>

@@ -16,15 +16,6 @@ import javax.transaction.Transactional;
 @Transactional
 @EnableTransactionManagement
 public interface SprintRepository extends JpaRepository<Sprint,Integer> {
-    
-    @Query(
-        "SELECT s.ID " +
-        "FROM Sprint s " +
-        "WHERE s.project = :idProject " +
-        "AND s.startDate <= CURRENT_TIMESTAMP " +
-        "AND s.endDate >= CURRENT_TIMESTAMP"
-    )
-    List<Integer> findActiveSprintIds(@Param("idProject") Integer idProject);
 
     @Query(
         "SELECT s.project " +
@@ -50,4 +41,11 @@ public interface SprintRepository extends JpaRepository<Sprint,Integer> {
         "ORDER BY s.startDate ASC"
     )
     List<Sprint> getNextSprint(@Param("idProject") Integer idProject);
+
+    @Query("SELECT COALESCE(MAX(s.sprintNumber), 0) + 1 FROM Sprint s WHERE s.project = :projectId")
+    Integer getNewSprintNumber(@Param("projectId") Integer projectId);
+
+    @Query("SELECT s.sprintNumber FROM Sprint s WHERE s.id = :id")
+    Integer findSprintNumberById(@Param("id") Integer id);
+
 }

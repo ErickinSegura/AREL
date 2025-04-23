@@ -1,6 +1,7 @@
 package com.springboot.MyTodoList.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -37,6 +38,7 @@ public class User implements UserDetails {
     @Column(name = "EMAIL")
     private String email;
 
+
     @ManyToOne
     @JoinColumn(name = "USER_LEVEL", referencedColumnName = "ID_USER_LEVEL")
     private UserLevel userLevel;
@@ -44,6 +46,7 @@ public class User implements UserDetails {
     @Column(name = "TELEGRAMUSERNAME")
     private String telegramUsername;
 
+    @JsonIgnore
     @Column(name = "PASSWORD")
     private String password;
 
@@ -58,26 +61,31 @@ public class User implements UserDetails {
         return email;
     }
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isEnabled() {
         return true;

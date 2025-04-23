@@ -1,5 +1,7 @@
 package com.springboot.MyTodoList.controller;
 import com.springboot.MyTodoList.model.User;
+import com.springboot.MyTodoList.model.UserProject;
+import com.springboot.MyTodoList.service.UserProjectService;
 import com.springboot.MyTodoList.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,9 +16,27 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping(value = "/userlist")
-    public List<User> getAllUsers(){
-        return userService.findAll();
+    @Autowired
+    private UserProjectService userProjectService;
+
+    @GetMapping("/userlist/{projectId}/users")
+    public ResponseEntity<List<User>> getUsersByProject(@PathVariable int projectId) {
+        try {
+            List<UserProject> userProjects = userProjectService.getUsersByProject(projectId);
+
+            if (userProjects.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            List<User> users = userProjects.stream()
+                    .map(UserProject::getUser)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            return new ResponseEntity<>(users, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping(value = "/userlist/by-level")
@@ -24,7 +44,6 @@ public class UserController {
         try {
             List<User> allUsers = userService.findAll();
 
-            // If levelIds is provided, filter users by those levels
             if (levelIds != null && !levelIds.isEmpty()) {
                 List<User> filteredUsers = allUsers.stream()
                         .filter(user -> levelIds.contains(user.getUserLevel().getID()))
@@ -32,7 +51,6 @@ public class UserController {
                 return new ResponseEntity<>(filteredUsers, HttpStatus.OK);
             }
 
-            // Return all users if no level filter is provided
             return new ResponseEntity<>(allUsers, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -47,13 +65,6 @@ public class UserController {
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-    }
-
-    // Keep other essential methods
-    @PostMapping(value = "/userlist")
-    public ResponseEntity<User> addUser(@RequestBody User user) throws Exception{
-        User us = userService.addUser(user);
-        return ResponseEntity.ok().build();
     }
 
     @PutMapping(value = "userlist/{id}")

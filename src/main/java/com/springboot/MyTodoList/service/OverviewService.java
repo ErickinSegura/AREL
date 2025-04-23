@@ -14,16 +14,12 @@ public class OverviewService {
     @Autowired
     private OverviewRepository overviewRepository;
 
-    public List<SprintOverview> getSprintOverviews() {
-        return overviewRepository.getSprintOverviews();
-    }
-
     public List<SprintOverview> getSprintOverviewsByProjectId(Long projectId) {
         return overviewRepository.getSprintOverviewsByProjectId(projectId);
     }
 
-    public List<UserPerformance> getUserPerformances() {
-        return overviewRepository.getUserPerformances();
+    public List<UserPerformance> getUserPerformanceByProjectIdAndUserId(Long projectId, Long userId) {
+        return overviewRepository.getUserPerformanceByProjectIdAndUserId(projectId, userId);
     }
 
     public List<UserPerformance> getUserPerformancesByProjectId(Long projectId) {

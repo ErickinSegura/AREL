@@ -17,5 +17,4 @@ public class UserPerformance {
     private double completionRate;
     private int totalEstimatedHours;
     private int totalRealHours;
-    private double timeAccuracyPercentage;
 }

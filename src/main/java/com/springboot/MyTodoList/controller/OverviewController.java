@@ -19,27 +19,6 @@ public class OverviewController {
     @Autowired
     private OverviewService overviewService;
 
-    @GetMapping("/overview/sprint-overviews")
-    @ResponseBody
-    public List<SprintOverview> getSprintOverviews() {
-        return overviewService.getSprintOverviews();
-    }
-
-    @GetMapping("/overview/user-performances")
-    @ResponseBody
-    public List<UserPerformance> getUserPerformances() {
-        return overviewService.getUserPerformances();
-    }
-
-    @GetMapping("/overview/overview-data")
-    @ResponseBody
-    public Map<String, Object> getOverviewData() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("sprintOverviews", overviewService.getSprintOverviews());
-        data.put("userPerformances", overviewService.getUserPerformances());
-        return data;
-    }
-
     @GetMapping("/overview/sprint-overviews/{projectId}")
     @ResponseBody
     public List<SprintOverview> getSprintOverviewsByProjectId(@PathVariable Long projectId) {
@@ -50,6 +29,14 @@ public class OverviewController {
     @ResponseBody
     public List<UserPerformance> getUserPerformancesByProjectId(@PathVariable Long projectId) {
         return overviewService.getUserPerformancesByProjectId(projectId);
+    }
+
+    @GetMapping("/overview/user-performance/{projectId}/{userId}")
+    @ResponseBody
+    public List<UserPerformance> getUserPerformanceByProjectIdAndUserId(
+            @PathVariable Long projectId,
+            @PathVariable Long userId) {
+        return overviewService.getUserPerformanceByProjectIdAndUserId(projectId, userId);
     }
 
     @GetMapping("/overview/overview-data/{projectId}")
