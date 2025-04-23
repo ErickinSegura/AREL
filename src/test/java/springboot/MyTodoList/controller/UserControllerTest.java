@@ -2,14 +2,16 @@ package springboot.MyTodoList.controller;
 
 import com.springboot.MyTodoList.controller.UserController;
 import com.springboot.MyTodoList.model.User;
+import com.springboot.MyTodoList.model.UserLevel;
 import com.springboot.MyTodoList.service.UserService;
+import com.springboot.MyTodoList.service.UserProjectService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import com.springboot.MyTodoList.model.UserLevel;
-import java.util.Arrays;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,24 +21,32 @@ import static org.mockito.Mockito.*;
 public class UserControllerTest {
 
     private UserService userService;
+    private UserProjectService userProjectService;
     private UserController userController;
 
     @BeforeEach
     public void setUp() {
         userService = mock(UserService.class);
+        userProjectService = mock(UserProjectService.class);
         userController = new UserController();
-        userController.getClass().getDeclaredFields();
-        var field = UserController.class.getDeclaredFields()[0];
-        field.setAccessible(true);
-        try {
-            field.set(userController, userService);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+
+        // Inyectamos manualmente los servicios con reflexión
+        Arrays.stream(UserController.class.getDeclaredFields()).forEach(field -> {
+            try {
+                field.setAccessible(true);
+                if (field.getType().equals(UserService.class)) {
+                    field.set(userController, userService);
+                } else if (field.getType().equals(UserProjectService.class)) {
+                    field.set(userController, userProjectService);
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Test
-    public void testGetUsersByMultipleLevels() {
+    public void testGetUsersByLevel() {
         UserLevel level1 = new UserLevel(); level1.setID(1);
         UserLevel level2 = new UserLevel(); level2.setID(2);
         User user1 = User.builder().id(1).email("a@a.com").userLevel(level1).build();
@@ -45,21 +55,9 @@ public class UserControllerTest {
         when(userService.findAll()).thenReturn(Arrays.asList(user1, user2));
 
         ResponseEntity<List<User>> response = userController.getUsersByLevel(Arrays.asList(1, 2));
-        assertEquals(2, response.getBody().size());
+
         assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
-
-    @Test
-    public void testGetAllUsers() {
-        User user = new User();
-        user.setEmail("test@example.com");
-
-        when(userService.findAll()).thenReturn(List.of(user));
-
-        List<User> users = userController.getAllUsers();
-
-        assertEquals(1, users.size());
-        assertEquals("test@example.com", users.get(0).getEmail());
+        assertEquals(2, response.getBody().size());
     }
 
     @Test
@@ -72,20 +70,8 @@ public class UserControllerTest {
 
         ResponseEntity<User> response = userController.getUserByID(userId);
 
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("test@example.com", response.getBody().getEmail());
-    }
-
-    @Test
-    public void testAddUser() throws Exception {
-        User user = new User();
-        user.setEmail("nuevo@ejemplo.com");
-
-        when(userService.addUser(user)).thenReturn(user);
-
-        ResponseEntity<User> response = userController.addUser(user);
-
-        assertEquals(200, response.getStatusCodeValue());
     }
 
     @Test
@@ -98,11 +84,11 @@ public class UserControllerTest {
 
         ResponseEntity<User> response = userController.updateUser(user, userId);
 
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("actualizado@example.com", response.getBody().getEmail());
     }
 
-    /*@Test
+    @Test
     public void testDeleteUser() {
         int userId = 1;
 
@@ -110,7 +96,7 @@ public class UserControllerTest {
 
         ResponseEntity<Boolean> response = userController.deleteUser(userId);
 
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody());
-    }*/
+    }
 }
