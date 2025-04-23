@@ -15,35 +15,35 @@ NC='\033[0m' # No Color
 mostrar_banner() {
     clear
     echo -e "${BLUE}=========================================${NC}"
-    echo -e "${YELLOW}   MONITOR DE LOGS - ORACLE CONTAINER   ${NC}"
+    echo -e "${YELLOW}   MONITOR DE LOGS - AREL CONTAINER   ${NC}"
     echo -e "${BLUE}=========================================${NC}"
     echo ""
 }
 
 # Función para verificar si el contenedor existe
 verificar_contenedor() {
-    while ! docker ps -a | grep -q "oracle-container"; do
-        echo -e "${YELLOW}[ESPERANDO] El contenedor 'oracle-container' no existe.${NC}"
+    while ! docker ps -a | grep -q "arel-container"; do
+        echo -e "${YELLOW}[ESPERANDO] El contenedor 'arel-container' no existe.${NC}"
         echo -e "${YELLOW}[INFO] Esperando 1 segundo antes de volver a verificar...${NC}"
         sleep 1
         mostrar_banner
     done
-    echo -e "${GREEN}[OK] Contenedor 'oracle-container' encontrado.${NC}"
+    echo -e "${GREEN}[OK] Contenedor 'arel-container' encontrado.${NC}"
 }
 
 # Función para verificar si el contenedor está corriendo
 verificar_estado() {
-    while ! docker ps | grep -q "oracle-container"; do
-        echo -e "${YELLOW}[ESPERANDO] El contenedor 'oracle-container' existe pero no está en ejecución.${NC}"
+    while ! docker ps | grep -q "arel-container"; do
+        echo -e "${YELLOW}[ESPERANDO] El contenedor 'arel-container' existe pero no está en ejecución.${NC}"
         echo -e "${YELLOW}[INFO] Esperando 1 segundos antes de volver a verificar...${NC}"
         sleep 1
         mostrar_banner
         # Verificamos de nuevo si el contenedor existe (por si fue eliminado mientras esperábamos)
-        if ! docker ps -a | grep -q "oracle-container"; then
+        if ! docker ps -a | grep -q "arel-container"; then
             return
         fi
     done
-    echo -e "${GREEN}[OK] El contenedor 'oracle-container' está en ejecución.${NC}"
+    echo -e "${GREEN}[OK] El contenedor 'arel-container' está en ejecución.${NC}"
 }
 
 # Función para monitorear logs
@@ -52,7 +52,7 @@ monitorear_logs() {
     echo ""
 
     # Intentamos monitorear logs, si falla volvemos al inicio
-    if ! docker logs --tail=50 --follow oracle-container; then
+    if ! docker logs --tail=50 --follow arel-container; then
         echo -e "${RED}[ERROR] No se pudieron obtener los logs. El contenedor podría haberse detenido.${NC}"
         echo -e "${YELLOW}[INFO] Reiniciando monitoreo en 1 segundo...${NC}"
         sleep 1

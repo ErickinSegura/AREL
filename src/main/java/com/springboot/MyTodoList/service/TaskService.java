@@ -1,12 +1,13 @@
 package com.springboot.MyTodoList.service;
 
 import com.springboot.MyTodoList.model.Task;
+import com.springboot.MyTodoList.model.UserProject;
 import com.springboot.MyTodoList.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.BeanUtils;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -40,15 +41,69 @@ public class TaskService {
             return false;
         }
     }
-    public Task updateTask(int id, Task task){
-        Optional<Task> taskData = taskRepository.findById(id);
-        if(taskData.isPresent()){
-            Task taskItem = taskData.get();
-            taskItem.setSprint(task.getSprint());
-            BeanUtils.copyProperties(task, taskItem, "id");
-            return taskRepository.save(taskItem);
-            
-        }else{
+
+    public Task updateTask(int id, Task taskUpdate) {
+        Optional<Task> existingTaskOptional = taskRepository.findById(id);
+
+        if (existingTaskOptional.isPresent()) {
+            Task existingTask = existingTaskOptional.get();
+
+            if (taskUpdate.getTitle() != null) {
+                existingTask.setTitle(taskUpdate.getTitle());
+            }
+
+            if (taskUpdate.getDescription() != null) {
+                existingTask.setDescription(taskUpdate.getDescription());
+            }
+
+            if (taskUpdate.getEstimatedHours() != null) {
+                existingTask.setEstimatedHours(taskUpdate.getEstimatedHours());
+            }
+
+            if (taskUpdate.getRealHours() != null) {
+                existingTask.setRealHours(taskUpdate.getRealHours());
+            }
+
+            if (taskUpdate.getSprint() != null) {
+                existingTask.setSprint(taskUpdate.getSprint());
+            }
+
+            if (taskUpdate.getProjectId() != null) {
+                existingTask.setProjectId(taskUpdate.getProjectId());
+            }
+
+            if (taskUpdate.isDeleted() != existingTask.isDeleted()) {
+                existingTask.setDeleted(taskUpdate.isDeleted());
+            }
+
+            if (taskUpdate.getTypeId() != null) {
+                existingTask.setTypeById(taskUpdate.getTypeId());
+            }
+
+            if (taskUpdate.getPriorityId() != null) {
+                existingTask.setPriorityById(taskUpdate.getPriorityId());
+            }
+
+            if (taskUpdate.getStateId() != null) {
+                existingTask.setStateById(taskUpdate.getStateId());
+            }
+
+            if (taskUpdate.getCategoryId() != null) {
+                existingTask.setCategoryById(taskUpdate.getCategoryId());
+            }
+
+            if (taskUpdate.getAssignedToId() != null) {
+                UserProject userProject = new UserProject();
+                userProject.setID(taskUpdate.getAssignedToId());
+                existingTask.setAssignedTo(userProject);
+            } else if (taskUpdate.getAssignedTo() == null &&
+                    existingTask.getAssignedTo() != null &&
+                    taskUpdate.getAssignedTo() != existingTask.getAssignedTo()) {
+                existingTask.setAssignedTo(null);
+            }
+
+            return taskRepository.save(existingTask);
+        } else {
             return null;
         }
     }
