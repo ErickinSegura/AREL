@@ -207,9 +207,9 @@ export const DraggableTaskCard = ({ task, onSelect, onDrop }) => {
     );
 };
 
-export const TaskColumn = ({ title, state, tasks, onTaskSelect, onTaskDrop }) => {
+export const TaskColumn = ({ title, state, tasks, onTaskSelect, onTaskDrop, bgColor = 'bg-gray-50' }) => {
     const [{ isOver }, dropRef] = useDrop(() => ({
-        accept: "TASK",
+        accept: 'TASK',
         drop: (item) => onTaskDrop(item.id, state),
         collect: (monitor) => ({
             isOver: monitor.isOver(),
@@ -217,15 +217,12 @@ export const TaskColumn = ({ title, state, tasks, onTaskSelect, onTaskDrop }) =>
     }));
 
     return (
-        <Card
+        <div
             ref={dropRef}
-            className={`flex flex-col h-full ${isOver ? "ring-2 ring-oracleRed" : ""}`}
+            className={`flex flex-col h-full rounded-2xl border bg-card text-card-foreground shadow-sm p-4 ${isOver ? 'ring-2 ring-oracleRed' : ''}`}
         >
-            <CardHeader>
-                <CardTitle className="text-lg">{title}</CardTitle>
-            </CardHeader>
-
-            <CardContent className="flex-grow overflow-y-auto">
+            <h2 className="text-lg font-semibold mb-4">{title}</h2>
+            <div className="flex-grow overflow-y-auto">
                 {tasks.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg">
                         <ArrowDownCircle className="text-gray-400 mb-2" size={24} />
@@ -240,8 +237,8 @@ export const TaskColumn = ({ title, state, tasks, onTaskSelect, onTaskDrop }) =>
                         />
                     ))
                 )}
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 };
 

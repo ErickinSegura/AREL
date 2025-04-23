@@ -145,9 +145,11 @@ const SprintManagement = () => {
                         </div>
                     )
                 ) : (
-                    <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg border-2 border-dashed">
-                        <p className="text-gray-500 mb-4">Please select a sprint to manage tasks</p>
-                    </div>
+                    !loading && (
+                        <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg border-2 border-dashed">
+                            <p className="text-gray-500 mb-4">Please select a sprint to manage tasks</p>
+                        </div>
+                    )
                 )}
 
                 {selectedTask && (
