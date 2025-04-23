@@ -246,7 +246,7 @@ public class AgileCommands {
             Integer newNumber = database.sprint.getSprintNumberById(response.getID());
 
             message.setText(BotMessages.CREATE_SPRINT_CONFIRMATION.getMessage(newNumber));
-            message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(actualSprint.getProject()));
+            //message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(actualSprint.getProject()));
         }
         catch (DateTimeParseException e) {
             message.setText(BotMessages.CREATE_SPRINT_PARSE_ERROR.getMessage());
