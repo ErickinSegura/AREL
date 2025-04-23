@@ -11,7 +11,6 @@ export const useOverview = () => {
         loading: dataLoading,
         error,
         currentSprint: latestSprint,
-        selectedUserPerformance,
         loadingUserPerformance,
         userPerformanceError,
         fetchUserPerformanceByID

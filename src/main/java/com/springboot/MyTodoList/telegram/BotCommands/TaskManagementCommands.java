@@ -95,7 +95,7 @@ public class TaskManagementCommands {
                 Sprint sprint = sprintResponse.get();
                 UserProject userProject = userProjectResponse.get();
 
-                task.setSprintId(sprint.getID());
+                task.setSprint(sprint.getID());
                 task.setAssignedTo(userProject);
 
                 //Task response = database.task.assignUserSprintTask(taskId, task);
@@ -123,8 +123,8 @@ public class TaskManagementCommands {
             if (task != null) {
                 Integer projectID = getProjectIdFromTask(task);
                 logger.debug("FOUND PROJECTID is " + projectID);
-                task.setSprintId(null);
-                task.setProject(projectID);
+                task.setSprint(null);
+                task.setProjectId(projectID);
 
                 Task result = database.task.updateTask(taskId, task);
 
@@ -301,7 +301,7 @@ public class TaskManagementCommands {
                 int projectID = task.getProjectId();
                 Integer sprintId = database.project.getActiveSprint(projectID);
                 if (sprintId != null) {
-                    task.setSprintId(sprintId);
+                    task.setSprint(sprintId);
                     Task response = database.task.updateTask(taskId, task);
                     if (response != null) {
                         message.setText(BotMessages.SUCCESFFULLY_MOVED_TO_CURRENT_SPRINT.getMessage());

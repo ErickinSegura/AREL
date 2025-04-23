@@ -15,8 +15,8 @@ CROSS="✘"
 DOCKER_ICON="🐳"
 MAVEN_ICON="🜨"
 
-CONTAINER_NAME="oracle-container"
-IMAGE_NAME="oracle-bot"
+CONTAINER_NAME="arel-container"
+IMAGE_NAME="arel-bot"
 
 # Variables globales
 SHOW_LOGS=false

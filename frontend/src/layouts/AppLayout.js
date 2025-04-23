@@ -39,7 +39,7 @@ const AppLayout = ({ defaultOpen = false, accentColor = "#C74634" }) => {
                 />
             )}
 
-            <main className={`flex-1 overflow-auto ${isMobile && isAuthenticated && !isPublicRoute ? 'pt-16' : ''}`}>
+            <main className={`flex-1 overflow-auto ${isMobile && isAuthenticated && !isPublicRoute ? 'pt-8' : ''}`}>
                 <CurrentView />
             </main>
         </div>
