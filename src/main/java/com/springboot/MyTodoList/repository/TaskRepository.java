@@ -20,7 +20,7 @@ public interface TaskRepository extends JpaRepository<Task,Integer> {
     List<Task> findByAssignedToId(int assignedToId);
 
     @Query(
-        "select s from Task s where s.assignedTo.id = :assignedToID and s.state.ID != 3"
+        "select s from Task s where s.assignedTo.id = :assignedToID and s.state.id != 3"
     )
     List<Task> findActiveTasks(@Param("assignedToID") Integer assignedToID);
 

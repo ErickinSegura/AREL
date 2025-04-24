@@ -176,7 +176,7 @@ public class TaskCreationCommands {
         message.setChatId(chatId);
 
         TaskState newState = new TaskState();
-        newState.setID(1);
+        newState.setId(1);
         newState.setLabel("todo");
 
         Task task = state.getTask();

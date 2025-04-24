@@ -234,32 +234,44 @@ public class CommandHandler {
         //Reply Keyboard Buttons
         if (messageText.equals("Open this Sprint")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
-            agile.showSprint(chatId, projectId);
+            if (projectId != null) {
+                agile.showSprint(chatId, projectId);
+            }
             return;
 
         } else if (messageText.equals("Create Task")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
-            String call = "create_task_project_"+ projectId;
-            createTask.handleCreateTask(call, chatId);
+            if (projectId != null) {
+                String call = "create_task_project_"+ projectId;
+                createTask.handleCreateTask(call, chatId);
+            }
             return;
 
         } else if (messageText.equals("See Backlog")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
-            agile.openBacklog(chatId, projectId);
+            if (projectId != null) {
+                agile.openBacklog(chatId, projectId);
+            }
             return;
 
         } else if (messageText.equals("Sprints")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
-            agile.sprintList(chatId, projectId);
+            if (projectId != null) {
+                agile.sprintList(chatId, projectId);
+            }
             return;
 
         } else if (messageText.equals("KPI Overview")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
-            kpi.openKPIMenu(chatId, projectId);
+            if (projectId != null) {
+                kpi.openKPIMenu(chatId, projectId);
+            }
             return;
         } else if (messageText.equals("See developers' tasks")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
-            manageTask.selectUserForTaskMonitoring(chatId, projectId);
+            if (projectId != null) {
+                manageTask.selectUserForTaskMonitoring(chatId, projectId);
+            }
             return;
         }
         SendMessage message = new SendMessage();
@@ -322,6 +334,7 @@ public class CommandHandler {
             return state.getSelectedProject();
 
         }else {
+            logger.debug("No active project");
             agile.noProjectSelectedManager(chatId, update);
             return null;
         }
