@@ -9,8 +9,7 @@ import {
     DashboardHeader,
     SprintSummaryCard,
     DevStreakCard,
-    UserPerformanceItem,
-    SprintGoalCard
+    UserPerformanceItem
 } from '../../components/overview/overviewComponents';
 import { FiArrowUp } from 'react-icons/fi';
 

@@ -6,7 +6,7 @@ import { Button } from '../../lib/ui/Button';
 import { Input } from '../../lib/ui/Input';
 import {SkeletonCircle, SkeletonText} from '../../lib/ui/Skeleton';
 import { Clock, Tag, CheckCircle, ArrowDownCircle, Loader2,  } from 'lucide-react';
-import { FiChevronDown, FiCalendar } from 'react-icons/fi';
+import { FiChevronDown } from 'react-icons/fi';
 import { format } from 'date-fns';
 
 import {
@@ -33,21 +33,9 @@ const priorityLabels = {
     4: 'Critical'
 };
 
-const stateLabels = {
-    1: 'To Do',
-    2: 'Doing',
-    3: 'Done'
-};
-
 const categoryLabels = {
     1: 'Web',
     2: 'Bot'
-};
-
-const stateColors = {
-    1: 'bg-gray-100 text-gray-800',
-    2: 'bg-blue-100 text-blue-800',
-    3: 'bg-green-100 text-green-800'
 };
 
 const getProjectIcon = (iconID) => {
@@ -57,7 +45,6 @@ const getProjectIcon = (iconID) => {
         default: return <FiCodesandbox />;
     }
 };
-
 
 export const SprintsHeader = ({ selectedProject, loading, onCreateTask, onCreateSprint, selector }) => (
     <Card className="mb-6">

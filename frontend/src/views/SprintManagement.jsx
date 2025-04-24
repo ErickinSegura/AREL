@@ -1,13 +1,18 @@
-import React, {useState } from "react";
-import { useProjects } from "../hooks/useProjects";
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useBacklog } from '../hooks/useBacklog';
-import { useSprints } from '../hooks/useSprints';
-import { TaskDetailModal, BacklogHeader } from '../components/backlog/backlogComponents';
-import { NoProjectState } from "../components/overview/overviewComponents";
-import { DndProvider } from 'react-dnd';
-import { SkeletonCard, SkeletonText } from '../lib/ui/Skeleton';
-import { TaskColumn, ActualHoursModal, SprintSelector, SprintsHeader } from '../components/sprintManagement/sprintManagementComponents';
+import React, {useState} from "react";
+import {useProjects} from "../hooks/useProjects";
+import {HTML5Backend} from 'react-dnd-html5-backend';
+import {useBacklog} from '../hooks/useBacklog';
+import {useSprints} from '../hooks/useSprints';
+import {TaskDetailModal} from '../components/backlog/backlogComponents';
+import {NoProjectState} from "../components/overview/overviewComponents";
+import {DndProvider} from 'react-dnd';
+import {SkeletonCard, SkeletonText} from '../lib/ui/Skeleton';
+import {
+    ActualHoursModal,
+    SprintSelector,
+    SprintsHeader,
+    TaskColumn
+} from '../components/sprintManagement/sprintManagementComponents';
 
 
 const SprintManagement = () => {
@@ -32,7 +37,6 @@ const SprintManagement = () => {
     const [taskForHours, setTaskForHours] = useState(null);
     const [updateLoading, setUpdateLoading] = useState(false);
 
-    // Group tasks by state
     const todoTasks = sprintTasks.filter(task => task.state === 1);
     const doingTasks = sprintTasks.filter(task => task.state === 2);
     const doneTasks = sprintTasks.filter(task => task.state === 3);
@@ -66,12 +70,10 @@ const SprintManagement = () => {
     const handleActualHoursSubmit = async (taskId, data) => {
         try {
             setUpdateLoading(true);
-            // Update both state and real hours
-            const success = await handleTaskUpdate(taskId, {
+            return await handleTaskUpdate(taskId, {
                 state: 3,
                 realHours: data.realHours
             });
-            return success;
         } catch (error) {
             console.error("Error updating task hours:", error);
             return false;
