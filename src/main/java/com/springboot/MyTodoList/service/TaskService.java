@@ -68,6 +68,10 @@ public class TaskService {
         }
     }
 
+    public List<Task> getActiveTasksByUserProject(int assignedToID){
+        return taskRepository.findActiveTasks(assignedToID);
+    }
+
     public List<Task> getTasksByUserProject(int assignedToID) {
         return taskRepository.findByAssignedToId(assignedToID);
     }

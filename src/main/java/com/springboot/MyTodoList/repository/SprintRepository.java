@@ -50,6 +50,16 @@ public interface SprintRepository extends JpaRepository<Sprint,Integer> {
     )
     List<Sprint> getNextSprint(@Param("idProject") Integer idProject);
 
+    @Query(
+        "SELECT s " +
+        "FROM Sprint s " +
+        "WHERE s.startDate < CURRENT_TIMESTAMP " +
+        "AND s.endDate > CURRENT_TIMESTAMP " +
+        "AND s.project = :idProject " +
+        "ORDER BY s.startDate ASC"
+    )
+    List<Sprint> getActiveSprint(@Param("idProject") Integer idProject);
+
     @Query("SELECT COALESCE(MAX(s.sprintNumber), 0) + 1 FROM Sprint s WHERE s.project = :projectId")
     Integer getNewSprintNumber(@Param("projectId") Integer projectId);
 

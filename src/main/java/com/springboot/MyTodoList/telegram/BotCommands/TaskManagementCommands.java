@@ -56,7 +56,7 @@ public class TaskManagementCommands {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
 
-        List<Task> tasks = database.task.getTasksByUserProject(userProjectId);
+        List<Task> tasks = database.task.getActiveTasksByUserProject(userProjectId);
         if (tasks.size() > 0 && tasks != null) {
             message.setText(BotMessages.USER_TASK_LIST.getMessage());
             message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerTaskList(tasks));
@@ -110,7 +110,7 @@ public class TaskManagementCommands {
 
         Optional<Sprint> sprintResponse;
         if (nextOrThis.equals("This")){
-            Integer thissprintId = database.project.getActiveSprint(projectId);
+            Integer thissprintId = database.sprint.getActiveSprint(projectId);
             sprintResponse = database.sprint.getSprintsbyID(thissprintId);
         }else { //next sprint
             sprintResponse = database.sprint.getNextSprint(projectId);
@@ -330,7 +330,7 @@ public class TaskManagementCommands {
             Task task = taskResponse.getBody();
             if (task != null){
                 int projectID = task.getProjectId();
-                Integer sprintId = database.project.getActiveSprint(projectID);
+                Integer sprintId = database.sprint.getActiveSprint(projectID);
                 if (sprintId != null) {
                     task.setSprintId(sprintId);
                     Task response = database.task.updateTask(taskId, task);

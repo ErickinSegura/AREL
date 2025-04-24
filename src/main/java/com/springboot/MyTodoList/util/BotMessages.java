@@ -58,7 +58,8 @@ public enum BotMessages {
 	NO_PROJECT_SELECTED("no.project.selected"),
 	TASKS_SELECT_USER("tasks.select.user"),
 	NO_TASKS_FOR_USER("no.tasks.for.user"),
-	USER_TASK_LIST("user.task.list")
+	USER_TASK_LIST("user.task.list"),
+	NO_TASKS_IN_SPRINT("no.tasks.in.sprint")
 	;
 
 	private final String key;
