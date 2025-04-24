@@ -12,7 +12,7 @@ export const fetchWithAuth = async (url, options = {}) => {
         headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(url, {
+    const response = await fetch("http://localhost:8080"+url, {
         ...options,
         headers
     });

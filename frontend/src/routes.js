@@ -1,6 +1,6 @@
 import Overview from './views/Overview/Overview';
 import Backlog from './views/Backlog';
-import Sprints from './views/Sprints';
+import Sprints from './views/SprintManagement';
 import CalendarView from './views/Calendar';
 import Shortcuts from './views/Shortcuts';
 import AppSettings from './views/Settings';

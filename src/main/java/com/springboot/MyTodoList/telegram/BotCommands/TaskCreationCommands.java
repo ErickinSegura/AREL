@@ -46,7 +46,7 @@ public class TaskCreationCommands {
         int projectId = Integer.parseInt(projectIDString);
         
         Task actualTask = new Task();
-        actualTask.setProject(projectId);
+        actualTask.setProjectId(projectId);
         userState.setTask(actualTask);
         userState.setState(UserStateType.CREATE_TASK_ENTER_NAME);
 

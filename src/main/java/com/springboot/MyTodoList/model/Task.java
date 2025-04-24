@@ -1,27 +1,31 @@
 package com.springboot.MyTodoList.model;
 
 import java.time.LocalDateTime;
-
 import javax.persistence.*;
 
-/*
-    representation of the TASK_TYPE table that exists already
-    in the autonomous database
- */
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "TASK")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Task {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name= "ID_TASK")
-    int ID;
+    @Column(name = "ID_TASK")
+    private int ID;
 
     @Column(name = "TITLE")
-    String title;
+    private String title;
 
     @Column(name = "DESCRIPTION")
-    String description;
+    private String description;
 
     @ManyToOne
     @JoinColumn(name = "TASK_TYPE", referencedColumnName = "ID_TYPE")
@@ -36,242 +40,256 @@ public class Task {
     private TaskState state;
 
     @Column(name = "CREATION_DATE", columnDefinition = "TIMESTAMP")
-    LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "ESTIMATED_HOURS")
-    Integer estimatedHours;
+    private Integer estimatedHours;
 
     @Column(name = "PROJECT_ID")
-    Integer projectId;
+    private Integer projectId;
 
     @ManyToOne
     @JoinColumn(name = "ASSIGNED_TO", referencedColumnName = "ID_USER_PROJECT")
-    UserProject assignedTo;
+    private UserProject assignedTo;
 
     @ManyToOne
     @JoinColumn(name = "CATEGORY", referencedColumnName = "ID_CATEGORY")
-    Category category;
+    private Category category;
 
-    //@ManyToOne
-    //@JoinColumn(name = "SPRINT_ID", referencedColumnName = "ID_SPRINT")
     @Column(name = "SPRINT_ID")
-    Integer sprint;
+    private Integer sprint;
 
     @Column(name = "DELETED")
-    boolean deleted;
+    private boolean deleted;
 
     @Column(name = "REAL_HOURS")
-    Integer realHours;
-
+    private Integer realHours;
     
-    public Task(){
-    }
-
-    public Task(String title, String description, TaskType type, TaskPriority priority,
-                TaskState state, LocalDateTime createdAt, Integer estimatedHours,
-                Integer realHours, UserProject assignedTo, Category category, 
-                Integer sprint, Integer projectId) {
-        this.title = title;
-        this.description = description;
-        this.type = type;
-        this.priority = priority;
-        this.state = state;
-        this.createdAt = createdAt;
-        this.estimatedHours = estimatedHours;
-        this.realHours = realHours;
-        this.assignedTo = assignedTo;
-        this.category = category;
-        this.sprint = sprint;
-        this.deleted = false;
-        this.projectId = projectId;
-    }
-
-    public int getID() {
-        return ID;
-    }
-
-    public void setID(int ID) {
-        this.ID = ID;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
+    @JsonIgnore
     public TaskType getType() {
-        return type;
+        return this.type;
     }
 
-    public void setType(TaskType type) {
-        this.type = type;
+    @JsonProperty("type")
+    public Integer getTypeId() {
+        return (type != null ? type.getID() : null);
     }
 
+    @JsonIgnore
     public TaskPriority getPriority() {
-        return priority;
+        return this.priority;
     }
 
-    public void setPriority(TaskPriority priority) {
-        this.priority = priority;
+    @JsonProperty("priority")
+    public Integer getPriorityId() {
+        return (priority != null ? priority.getID() : null);
     }
 
+    @JsonIgnore
     public TaskState getState() {
-        return state;
+        return this.state;
     }
 
-    public void setState(TaskState state) {
-        this.state = state;
+    @JsonProperty("state")
+    public Integer getStateId() {
+        return (state != null ? state.getID() : null);
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Integer getEstimatedHours() {
-        return estimatedHours;
-    }
-
-    public void setEstimatedHours(Integer hours) {
-        this.estimatedHours = hours;
-    }
-
+    @JsonIgnore
     public UserProject getAssignedTo() {
-        return assignedTo;
+        return this.assignedTo;
     }
 
-    public void setAssignedTo(UserProject assignedTo) {
-        this.assignedTo = assignedTo;
+    @JsonProperty("assignedTo")
+    public Integer getAssignedToId() {
+        return (assignedTo != null ? assignedTo.getID() : null);
     }
 
+    @JsonIgnore
     public Category getCategory() {
-        return category;
+        return this.category;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    @JsonProperty("category")
+    public Integer getCategoryId() {
+        return (category != null ? category.getID() : null);
     }
 
-    public Integer getSprintId() {
-        return sprint;
+    @JsonProperty("type")
+    public void setTypeById(Integer typeId) {
+        if (typeId == null) {
+            this.type = null;
+        } else {
+            TaskType t = new TaskType();
+            t.setID(typeId);
+            this.type = t;
+        }
     }
 
-    public void setSprintId(Integer sprintId) {
-        this.sprint = sprintId;
+    @JsonProperty("priority")
+    public void setPriorityById(Integer priorityId) {
+        if (priorityId == null) {
+            this.priority = null;
+        } else {
+            TaskPriority p = new TaskPriority();
+            p.setID(priorityId);
+            this.priority = p;
+        }
     }
 
-    public boolean isDeleted() {
-        return deleted;
+    @JsonProperty("state")
+    public void setStateById(Integer stateId) {
+        if (stateId == null) {
+            this.state = null;
+        } else {
+            TaskState s = new TaskState();
+            s.setID(stateId);
+            this.state = s;
+        }
     }
 
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
+    @JsonProperty("category")
+    public void setCategoryById(Integer categoryId) {
+        if (categoryId == null) {
+            this.category = null;
+        } else {
+            Category c = new Category();
+            c.setID(categoryId);
+            this.category = c;
+        }
     }
 
-    public Integer getRealHours() {
-        return realHours;
-    }
-
-    public void setRealHours(Integer hours) {
-        this.realHours = hours;
-    }
-
-    public Integer getProjectId(){
-        return projectId;
-    }
-
-    public void setProject(Integer newProjectId) {
-        this.projectId = newProjectId;
-    }
 
     @Override
     public String toString() {
         return "Task:{" +
-        "id: " + ID +
-        ", title: " + title +
-        ", description: " + description +
-        ", type: " + type.getLabel() +
-        ", priority: " + priority.getLabel() +
-        ", state: " + state.getLabel() +
-        ", createdAt: " + createdAt +
-        ", assignedTo: " + (assignedTo != null ? assignedTo.getRole() : "not assigned") +
-        ", category: " + category.getName() +
-        ", sprint: " + sprint +
-        ", project: " + projectId + 
-        ", deleted: " + deleted +
-        ", estimatedHours: " + estimatedHours +
-        ", realHours: " + realHours +
-        "}";
+                "id:" + ID +
+                ", title:'" + title + "'" +
+                ", description:'" + description + "'" +
+                ", type:" + (type != null ? type.getLabel() : "null") +
+                ", priority:" + (priority != null ? priority.getLabel() : "null") +
+                ", state:" + (state != null ? state.getLabel() : "null") +
+                ", createdAt:" + createdAt +
+                ", assignedTo:" + (assignedTo != null ? assignedTo.getID() : "null") +
+                ", category:" + (category != null ? category.getID() : "null") +
+                ", sprint:" + sprint +
+                ", projectId:" + projectId +
+                ", deleted:" + deleted +
+                ", estimatedHours:" + estimatedHours +
+                ", realHours:" + realHours +
+                '}';
     }
 
     public String getCoolFormatedString() {
+        try {
+            if (title == null) {
+                throw new NullPointerException("El título no puede ser nulo");
+            }
+            if (type == null) {
+                throw new NullPointerException("El tipo no puede ser nulo");
+            }
+            if (description == null) {
+                throw new NullPointerException("La descripción no puede ser nula");
+            }
 
-        //Null checks
-
-        return "<b>"+title+"</b>"
-        +"\n\n"
-        +type.formattedString()
-        +" - "
-        +description
-        +"\n\n"
-        +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
-        +"\n"
-        +"<b>Estimated Hours:</b> " + (estimatedHours != null ? estimatedHours : "Not set")
-        +"\n"
-        +"<b>State:</b> " + (state != null ? state.formatted() : "No State")
-        ;
+            return "<b>"+title+"</b>"
+                    +"\n\n"
+                    +type.formattedString()
+                    +" - "
+                    +description
+                    +"\n\n"
+                    +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
+                    +"\n"
+                    +"<b>Estimated Hours:</b> " + (estimatedHours != null ? estimatedHours : "Not set")
+                    +"\n"
+                    +"<b>State:</b> " + (state != null ? state.formatted() : "No State")
+                    ;
+        } catch (NullPointerException e) {
+            return "Error al formatear: " + e.getMessage();
+        } catch (Exception e) {
+            return "Error inesperado: " + e.getMessage();
+        }
     }
 
     public String managerFormattedString() {
+        try {
+            if (title == null) {
+                throw new NullPointerException("El título no puede ser nulo");
+            }
+            if (type == null) {
+                throw new NullPointerException("El tipo no puede ser nulo");
+            }
+            if (description == null) {
+                throw new NullPointerException("La descripción no puede ser nula");
+            }
 
-        //Null checks
-        String stringRole = "Not set";
-        if (assignedTo != null) {
-            User assigned = assignedTo.getUser();
-            stringRole = assignedTo.getRole() + " (" + assigned.getFirstName() + " " + assigned.getLastName() + ")";
+            String stringRole = "Not set";
+            if (assignedTo != null) {
+                try {
+                    User assigned = assignedTo.getUser();
+                    if (assigned == null) {
+                        stringRole = assignedTo.getRole() + " (Usuario no disponible)";
+                    } else {
+                        String firstName = assigned.getFirstName() != null ? assigned.getFirstName() : "";
+                        String lastName = assigned.getLastName() != null ? assigned.getLastName() : "";
+                        stringRole = assignedTo.getRole() + " (" + firstName + " " + lastName + ")";
+                    }
+                } catch (Exception e) {
+                    stringRole = "Error al obtener datos de usuario: " + e.getMessage();
+                }
+            }
+
+            return "<b>"+title+"</b>"
+                    +"\n\n"
+                    +type.formattedString()
+                    +" - "
+                    +description
+                    +"\n\n"
+                    +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
+                    +"\n"
+                    +"<b>Estimated Hours:</b> " + (estimatedHours != null ? estimatedHours : "Not set")
+                    +"\n"
+                    +"<b>Assigned to:</b> " + stringRole
+                    +"\n"
+                    +"<b>State:</b> " + (state != null ? state.formatted() : "No State")
+                    ;
+        } catch (NullPointerException e) {
+            return "Error al formatear: " + e.getMessage();
+        } catch (Exception e) {
+            return "Error inesperado: " + e.getMessage();
         }
-
-        return "<b>"+title+"</b>"
-        +"\n\n"
-        +type.formattedString()
-        +" - "
-        +description
-        +"\n\n"
-        +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
-        +"\n"
-        +"<b>Estimated Hours:</b> " + (estimatedHours != null ? estimatedHours : "Not set")
-        +"\n"
-        +"<b>Assigned to:</b> " + stringRole
-        +"\n"
-        +"<b>State:</b> " + (state != null ? state.formatted() : "No State")
-        ;
     }
 
     public String previewString() {
-        return "<b>"+title+"</b>"
-        +"\n\n"
-        +type.formattedString()
-        +" - "
-        +description
-        +"\n\n"
-        +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
-        +"\n"
-        +"<b>Priority:</b> " + priority.formattedString()
-        ;
+        try {
+            if (title == null) {
+                throw new NullPointerException("El título no puede ser nulo");
+            }
+            if (type == null) {
+                throw new NullPointerException("El tipo no puede ser nulo");
+            }
+            if (description == null) {
+                throw new NullPointerException("La descripción no puede ser nula");
+            }
+            if (priority == null) {
+                throw new NullPointerException("La prioridad no puede ser nula");
+            }
+
+            return "<b>"+title+"</b>"
+                    +"\n\n"
+                    +type.formattedString()
+                    +" - "
+                    +description
+                    +"\n\n"
+                    +"<b>Category:</b> " + (category != null ? category.getName() : "No Category")
+                    +"\n"
+                    +"<b>Priority:</b> " + priority.formattedString()
+                    ;
+        } catch (NullPointerException e) {
+            return "Error al formatear preview: " + e.getMessage();
+        } catch (Exception e) {
+            return "Error inesperado en preview: " + e.getMessage();
+        }
     }
 
     @PrePersist

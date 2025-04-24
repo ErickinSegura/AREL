@@ -34,6 +34,14 @@ public interface SprintRepository extends JpaRepository<Sprint,Integer> {
     List<Sprint> availableSprints(@Param("idProject") Integer idProject);
 
     @Query(
+            "SELECT s " +
+                    "FROM Sprint s " +
+                    "WHERE s.project = :idProject " +
+                    "ORDER BY s.sprintNumber"
+    )
+    List<Sprint> getAllSprints(@Param("idProject") Integer idProject);
+
+    @Query(
         "SELECT s " +
         "FROM Sprint s " +
         "WHERE s.project = :idProject " +

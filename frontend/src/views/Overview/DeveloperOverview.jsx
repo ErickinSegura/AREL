@@ -9,8 +9,7 @@ import {
     DashboardHeader,
     SprintSummaryCard,
     DevStreakCard,
-    UserPerformanceItem,
-    SprintGoalCard
+    UserPerformanceItem
 } from '../../components/overview/overviewComponents';
 import { FiArrowUp } from 'react-icons/fi';
 
@@ -48,7 +47,7 @@ const DeveloperOverview = () => {
     }
 
     return (
-        <div className="p-6">
+        <div className="container mx-auto px-4 py-6">
             <ProjectHeader
                 selectedProject={selectedProject}
                 loading={loading}

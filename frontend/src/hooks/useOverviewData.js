@@ -130,7 +130,6 @@ export const useOverviewData = () => {
         error,
         currentSprint,
         progressStats,
-        // New returns for user performance by ID
         selectedUserPerformance,
         loadingUserPerformance,
         userPerformanceError,
