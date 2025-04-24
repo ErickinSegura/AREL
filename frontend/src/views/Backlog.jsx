@@ -158,6 +158,7 @@ const Backlog = () => {
                     onUpdate={handleTaskUpdateWrap}
                     onDelete={handleTaskDeleteWrap}
                     loading={loading}
+                    projectId={selectedProject?.id}
                 />
             )}
 
@@ -171,6 +172,7 @@ const Backlog = () => {
             <CreateSprintModal
                 isOpen={createSprintModalOpen}
                 onClose={() => setCreateSprintModalOpen(false)}
+                projectId={selectedProject?.id}
             />
         </div>
     );

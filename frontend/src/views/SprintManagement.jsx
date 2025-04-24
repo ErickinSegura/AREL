@@ -162,6 +162,7 @@ const SprintManagement = () => {
                         onUpdate={handleTaskUpdate}
                         onDelete={() => {}}
                         loading={loading}
+                        projectId={selectedProject?.id}
                     />
                 )}
 

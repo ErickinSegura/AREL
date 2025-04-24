@@ -13,7 +13,6 @@ export const useProjectUsers = (projectId) => {
     const [addingUsers, setAddingUsers] = useState(false);
     const [removingUserId, setRemovingUserId] = useState(null);
 
-    // Fetch project users
     useEffect(() => {
         const fetchProjectUsers = async () => {
             if (!projectId) return;
@@ -33,7 +32,6 @@ export const useProjectUsers = (projectId) => {
         fetchProjectUsers();
     }, [projectId]);
 
-    // Filter users based on search term
     useEffect(() => {
         if (searchTerm.trim() === '') {
             setFilteredUsers(users);
@@ -84,13 +82,10 @@ export const useProjectUsers = (projectId) => {
 
         setAddingUsers(true);
         try {
-            // Simulate API call to add users to project
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            // Get full user objects for selected IDs
             const newUsers = availableUsers.filter(user => selectedUsers.includes(user.id));
 
-            // Update state with new users
             setUsers(prevUsers => [...prevUsers, ...newUsers]);
             setAddingUsers(false);
             handleCloseAddUserModal();
@@ -103,10 +98,8 @@ export const useProjectUsers = (projectId) => {
     const handleRemoveUser = async (userId) => {
         setRemovingUserId(userId);
         try {
-            // Simulate API call to remove user from project
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            // Update state by removing user
             setUsers(users.filter(user => user.id !== userId));
             setRemovingUserId(null);
         } catch (err) {

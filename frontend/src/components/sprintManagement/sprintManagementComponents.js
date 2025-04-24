@@ -1,11 +1,10 @@
 import React, {useEffect, useState, useRef} from 'react';
 import { useDrag, useDrop } from 'react-dnd';
-
 import {Card, CardContent, CardHeader, CardTitle} from '../../lib/ui/Card';
 import { Button } from '../../lib/ui/Button';
 import { Input } from '../../lib/ui/Input';
 import {SkeletonCircle, SkeletonText} from '../../lib/ui/Skeleton';
-import { Clock, Tag, CheckCircle, ArrowDownCircle, Loader2,  } from 'lucide-react';
+import {Clock, Tag, CheckCircle, ArrowDownCircle, Loader2, User,} from 'lucide-react';
 import { FiChevronDown } from 'react-icons/fi';
 import { format } from 'date-fns';
 
@@ -18,6 +17,7 @@ import {
     ModalClose
 } from '../../lib/ui/Modal';
 import {FiCodesandbox, FiFolder} from "react-icons/fi";
+import {useProjectUsers} from "../../hooks/useProjectUsers";
 
 const priorityColors = {
     1: 'bg-green-100 text-green-800 border-green-200',
@@ -140,7 +140,7 @@ export const ActualHoursModal = ({ isOpen, onClose, taskId, onSubmit, loading })
     );
 };
 
-export const DraggableTaskCard = ({ task, onSelect, onDrop }) => {
+export const DraggableTaskCard = ({ task, onSelect, projectId }) => {
     const [{ isDragging }, dragRef] = useDrag(() => ({
         type: 'TASK',
         item: { id: task.id },
@@ -148,6 +148,23 @@ export const DraggableTaskCard = ({ task, onSelect, onDrop }) => {
             isDragging: monitor.isDragging(),
         }),
     }));
+
+    const { users, usersLoading } = useProjectUsers(projectId);
+
+    const renderAssignedUserContent = () => {
+        if (!task.assignedTo) return "Unassigned";
+
+        if (usersLoading) {
+            return <SkeletonText lines={1} className="w-24" />;
+        }
+
+        const assignedUser = users.find(u => u.id === task.assignedTo);
+        if (assignedUser) {
+            return `${assignedUser.firstName} ${assignedUser.lastName}`;
+        }
+
+        return "Usuario no encontrado";
+    };
 
     return (
         <div
@@ -187,6 +204,14 @@ export const DraggableTaskCard = ({ task, onSelect, onDrop }) => {
                                 {task.realHours}h
                             </div>
                         )}
+
+                        {task.assignedTo && (
+                            <div className="inline-flex items-center text-xs text-gray-600">
+                                <User size={14} className="mr-1" />
+                                {renderAssignedUserContent()}
+                            </div>
+                        )}
+
                     </div>
                 </CardContent>
             </Card>
@@ -221,6 +246,7 @@ export const TaskColumn = ({ title, state, tasks, onTaskSelect, onTaskDrop, bgCo
                             key={task.id}
                             task={task}
                             onSelect={onTaskSelect}
+                            projectId={task.projectId}
                         />
                     ))
                 )}

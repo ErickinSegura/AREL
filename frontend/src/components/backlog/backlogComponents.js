@@ -15,6 +15,7 @@ import {SkeletonCircle, SkeletonText} from '../../lib/ui/Skeleton';
 import {FiCodesandbox, FiFolder} from "react-icons/fi";
 import {useBacklog} from "../../hooks/useBacklog";
 import { useSprints } from '../../hooks/useSprints';
+import { useProjectUsers } from '../../hooks/useProjectUsers';
 
 const priorityColors = {
     1: 'bg-green-100 text-green-800 border-green-200',
@@ -146,7 +147,8 @@ export const TaskDetailModal = ({
                                     task,
                                     onUpdate,
                                     onDelete,
-                                    loading
+                                    loading,
+                                    projectId
                                 }) => {
     const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState({
@@ -161,10 +163,24 @@ export const TaskDetailModal = ({
         sprint: null
     });
 
-    const getUserName = (userId) => {
-        if (!userId) return "Unassigned";
-        return `User ${userId}`;
-    };
+    const { users, usersLoading } = useProjectUsers(projectId);
+
+    // Actualizar formData cuando la tarea cambie
+    useEffect(() => {
+        if (task) {
+            setFormData({
+                title: task.title || '',
+                description: task.description || '',
+                estimatedHours: task.estimatedHours || 0,
+                type: task.type || 4,
+                priority: task.priority || 2,
+                state: task.state || 1,
+                assignedTo: task.assignedTo || '',
+                category: task.category || 1,
+                sprint: task.sprint || null
+            });
+        }
+    }, [task]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -179,6 +195,21 @@ export const TaskDetailModal = ({
     const handleSubmit = () => {
         onUpdate(task.id, formData);
         setEditMode(false);
+    };
+
+    const renderAssignedUserContent = () => {
+        if (!task.assignedTo) return "Unassigned";
+
+        if (usersLoading) {
+            return <SkeletonText lines={1} className="w-24" />;
+        }
+
+        const assignedUser = users.find(u => u.id === task.assignedTo);
+        if (assignedUser) {
+            return `${assignedUser.firstName} ${assignedUser.lastName}`;
+        }
+
+        return "Usuario no encontrado";
     };
 
     if (loading || !task) {
@@ -275,13 +306,28 @@ export const TaskDetailModal = ({
                                 </select>
                             </div>
 
-                            <Input
-                                label="Assigned To (ID)"
-                                name="assignedTo"
-                                type="number"
-                                value={formData.assignedTo || ''}
-                                onChange={handleChange}
-                            />
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Assigned To</label>
+                                {usersLoading ? (
+                                    <div className="mt-1 w-full px-4 py-2 border rounded-md bg-gray-50">
+                                        <SkeletonText lines={1} />
+                                    </div>
+                                ) : (
+                                    <select
+                                        name="assignedTo"
+                                        value={formData.assignedTo || ''}
+                                        onChange={handleChange}
+                                        className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="">Unassigned</option>
+                                        {users.map(user => (
+                                            <option key={user.id} value={user.id}>
+                                                {user.firstName} {user.lastName}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
+                            </div>
                         </div>
                     </div>
                 ) : (
@@ -338,7 +384,7 @@ export const TaskDetailModal = ({
                                 <User size={18} className="text-gray-500 mr-2" />
                                 <div>
                                     <p className="text-sm font-medium text-gray-600">Assigned To</p>
-                                    <p>{getUserName(task.assignedTo)}</p>
+                                    <div>{renderAssignedUserContent()}</div>
                                 </div>
                             </div>
 
@@ -540,8 +586,11 @@ export const CreateSprintModal = ({ isOpen, onClose }) => {
         handleCreateSprint,
         validationError,
         loading,
-        resetSprintForm
+        resetSprintForm,
+        projectId
     } = useSprints();
+
+    const { filteredUsers } = useProjectUsers(projectId);
 
     const [hoursWarnings, setHoursWarnings] = useState({});
 
@@ -580,10 +629,8 @@ export const CreateSprintModal = ({ isOpen, onClose }) => {
     const handleHoursChange = (taskId, value) => {
         const numValue = parseFloat(value);
 
-        // Update task details
         updateTaskDetails(taskId, 'estimatedHours', value);
 
-        // Show warning if hours > 4
         if (numValue > 4) {
             setHoursWarnings(prev => ({
                 ...prev,
@@ -752,10 +799,8 @@ export const CreateSprintModal = ({ isOpen, onClose }) => {
                                                     <User size={14} className="mr-1" />
                                                     Assigned To (ID)
                                                 </label>
-                                                <input
-                                                    type="number"
+                                                <select
                                                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                                                    placeholder="User ID"
                                                     value={task.assignedTo || ''}
                                                     onChange={(e) => updateTaskDetails(
                                                         task.id,
@@ -763,7 +808,14 @@ export const CreateSprintModal = ({ isOpen, onClose }) => {
                                                         e.target.value === '' ? null : Number(e.target.value)
                                                     )}
                                                     onClick={(e) => e.stopPropagation()}
-                                                />
+                                                >
+                                                    <option value="">Unassigned</option>
+                                                    {filteredUsers.map(user => (
+                                                        <option key={user.id} value={user.id}>
+                                                            {user.firstName} {user.lastName}
+                                                        </option>
+                                                    ))}
+                                                </select>
                                             </div>
                                         </div>
                                     </Card>
