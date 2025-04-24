@@ -836,7 +836,6 @@ const Sidebar = ({
             1: [
                 { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: true },
                 { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: true },
-                { icon: <FiUsers size={20} />, label: 'Team', hasSubmenu: true },
             ],
             2: [
                 { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: false },
@@ -845,13 +844,11 @@ const Sidebar = ({
             3: [
                 { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: false },
                 { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: false },
-                { icon: <FiUsers size={20} />, label: 'Team', hasSubmenu: true },
                 { icon: <FiUsers size={20} />, label: 'Users', hasSubmenu: true },
             ]
         };
 
         const additionalItems = [
-            { icon: <FiCalendar size={20} />, label: 'Calendar', hasSubmenu: false },
             { icon: <FiLink size={20} />, label: 'Shortcuts', hasSubmenu: false },
             { icon: <FiSettings size={20} />, label: 'Settings', hasSubmenu: false },
         ];
