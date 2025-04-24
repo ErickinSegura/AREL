@@ -36,6 +36,37 @@ public class TaskManagementCommands {
         this.keyboardFactory = new KeyboardFactory();
     }
 
+    public void selectUserForTaskMonitoring(Long chatId, int projectId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(BotMessages.ERROR_DATABASE.getMessage());
+
+        List<UserProject> userProjects = database.userProject.getUsersByProject(projectId);
+        if (userProjects.size() > 0){
+            message.setText(BotMessages.TASKS_SELECT_USER.getMessage());
+            message.setReplyMarkup(keyboardFactory.inlineTasksUserList(userProjects));
+        }else{
+            message.setText(BotMessages.NO_USERS_IN_PROJECT.getMessage());
+        }
+
+        messageSender.sendMessage(message);
+    }
+
+    public void openTaskListUser(Long chatId, int userProjectId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        List<Task> tasks = database.task.getActiveTasksByUserProject(userProjectId);
+        if (tasks.size() > 0 && tasks != null) {
+            message.setText(BotMessages.USER_TASK_LIST.getMessage());
+            message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerTaskList(tasks));
+        }else {
+            message.setText(BotMessages.NO_TASKS_FOR_USER.getMessage());
+        }
+
+        messageSender.sendMessage(message);
+    }
+
     public void askConfirmation(Long chatId, int taskId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
@@ -79,7 +110,7 @@ public class TaskManagementCommands {
 
         Optional<Sprint> sprintResponse;
         if (nextOrThis.equals("This")){
-            Integer thissprintId = database.project.getActiveSprint(projectId);
+            Integer thissprintId = database.sprint.getActiveSprint(projectId);
             sprintResponse = database.sprint.getSprintsbyID(thissprintId);
         }else { //next sprint
             sprintResponse = database.sprint.getNextSprint(projectId);
@@ -130,7 +161,7 @@ public class TaskManagementCommands {
 
                 if (result != null ) {
                     message.setText(BotMessages.SUCCESSFULLY_MOVED_TO_BACKLOG.getMessage());
-                    message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(projectID));
+                    //message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(projectID));
                 }
             }
         }
@@ -299,13 +330,13 @@ public class TaskManagementCommands {
             Task task = taskResponse.getBody();
             if (task != null){
                 int projectID = task.getProjectId();
-                Integer sprintId = database.project.getActiveSprint(projectID);
+                Integer sprintId = database.sprint.getActiveSprint(projectID);
                 if (sprintId != null) {
                     task.setSprintId(sprintId);
                     Task response = database.task.updateTask(taskId, task);
                     if (response != null) {
                         message.setText(BotMessages.SUCCESFFULLY_MOVED_TO_CURRENT_SPRINT.getMessage());
-                        message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(projectID));
+                        //message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(projectID));
                     }
                 }
             }

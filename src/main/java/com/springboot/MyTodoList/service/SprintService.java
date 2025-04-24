@@ -69,6 +69,17 @@ public class SprintService {
         }
     }
 
+    public Integer getActiveSprint(Integer idProject) {
+        List<Sprint> sprint_response = sprintRepository.getActiveSprint(idProject);
+
+        if (sprint_response.size() == 0 || sprint_response.isEmpty()) {
+            return null;
+        }
+        else {
+            return sprint_response.get(0).getSprintNumber();
+        }
+    }
+
     public Integer getNewSprintNumber(Integer projectId) {
         Integer newSprint = sprintRepository.getNewSprintNumber(projectId);
         return newSprint;

@@ -217,6 +217,16 @@ public class CommandHandler {
 
             kpi.openKPIMenu(chatId, projectId);
         }
+        else if (callbackQuery.startsWith("see_tasks_developers_")) {
+            int projectId = Integer.parseInt(parts[3]);
+
+            manageTask.selectUserForTaskMonitoring(chatId, projectId);
+        }
+        else if (callbackQuery.startsWith("get_tasks_user_")) {
+            int userProjectId = Integer.parseInt(parts[3]);
+
+            manageTask.openTaskListUser(chatId, userProjectId);
+        }
     }    
 
     public void handleTextInput(UserState state, String messageText, Long chatId, Update update) {
@@ -246,6 +256,10 @@ public class CommandHandler {
         } else if (messageText.equals("KPI Overview")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
             kpi.openKPIMenu(chatId, projectId);
+            return;
+        } else if (messageText.equals("See developers' tasks")) {
+            Integer projectId = checkForActiveProject(state, chatId, update);
+            manageTask.selectUserForTaskMonitoring(chatId, projectId);
             return;
         }
         SendMessage message = new SendMessage();

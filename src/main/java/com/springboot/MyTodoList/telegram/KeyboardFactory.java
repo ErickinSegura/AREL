@@ -277,10 +277,14 @@ public class KeyboardFactory {
 
         KeyboardRow row3 = new KeyboardRow();
         row3.add("KPI Overview");
+
+        KeyboardRow row4 = new KeyboardRow();
+        row4.add("See developers' tasks");
         
         keyboard.add(row1);
         keyboard.add(row2);
         keyboard.add(row3);
+        keyboard.add(row4);
 
         replyKeyboardMarkup.setKeyboard(keyboard);
         return replyKeyboardMarkup;
@@ -310,10 +314,15 @@ public class KeyboardFactory {
         overview.setText("KPI Overview");
         overview.setCallbackData("kpi_"+projectID);
 
+        InlineKeyboardButton devTasks = new InlineKeyboardButton();
+        devTasks.setText("See developers' tasks");
+        devTasks.setCallbackData("see_tasks_developers_"+projectID);
+
         //keyboard.add(List.of(seeBacklog, createTask));
         keyboard.add(List.of(seeSprint, createTask));
         keyboard.add(List.of(backlog, goBack));
         keyboard.add(List.of(overview));
+        keyboard.add(List.of(devTasks));
 
         inlineKeyboardMarkup.setKeyboard(keyboard);
         return inlineKeyboardMarkup;
@@ -416,6 +425,27 @@ public class KeyboardFactory {
                             ")";
             button.setText(label);
             button.setCallbackData("kpi_user_" + userProject.getID() + "_" + userProject.getProject().getID());
+
+            keyboard.add(List.of(button));
+        }
+
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup inlineTasksUserList(List<UserProject> userProjects) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        for (UserProject userProject : userProjects) {
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            User user = userProject.getUser();
+            String label = userProject.getRole() +
+                            " (" + user.getFirstName() + 
+                            " " + user.getLastName() +
+                            ")";
+            button.setText(label);
+            button.setCallbackData("get_tasks_user_" + userProject.getID());
 
             keyboard.add(List.of(button));
         }
