@@ -92,7 +92,7 @@ public class Task {
 
     @JsonProperty("state")
     public Integer getStateId() {
-        return (state != null ? state.getID() : null);
+        return (state != null ? state.getId() : null);
     }
 
     @JsonIgnore
@@ -143,7 +143,7 @@ public class Task {
             this.state = null;
         } else {
             TaskState s = new TaskState();
-            s.setID(stateId);
+            s.setId(stateId);
             this.state = s;
         }
     }
