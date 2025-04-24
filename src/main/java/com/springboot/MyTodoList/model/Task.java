@@ -37,7 +37,7 @@ public class Task {
 
     @ManyToOne
     @JoinColumn(name = "TASK_STATE", referencedColumnName = "ID_STATE")
-    private TaskState state;
+    TaskState state;
 
     @Column(name = "CREATION_DATE", columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;

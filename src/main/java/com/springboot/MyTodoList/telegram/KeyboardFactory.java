@@ -77,7 +77,9 @@ public class KeyboardFactory {
 
         for (UserProject userProject : userProjects) {
             InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText(userProject.getRole());
+            String firstName = userProject.getUser().getFirstName();
+            String lastName = userProject.getUser().getLastName();
+            button.setText(userProject.getRole() + " (" + firstName + " " + lastName + ")");
             button.setCallbackData("assign_task_" + task_id + "_user_" + userProject.getID());  // Callback data !!
 
             keyboard.add(List.of(button));
@@ -94,7 +96,10 @@ public class KeyboardFactory {
 
         for (UserProject userProject : userProjects) {
             InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText(userProject.getRole());
+            String firstName = userProject.getUser().getFirstName();
+            String lastName = userProject.getUser().getLastName();
+
+            button.setText(userProject.getRole()  + " (" + firstName + " " + lastName + ")");
             int id = userProject.getID();
             button.setCallbackData("assignTask"+nextOrThis+"Sprint_" + task_id + 
             "_user_" + id + "_project_" + projectId);
