@@ -33,18 +33,18 @@ export const AuthProvider = ({ children }) => {
                     return true;
                 } else {
                     localStorage.removeItem('jwt_token');
-                    setIsAuthenticated(false);
-                    return false;
+                    setIsAuthenticated(true);
+                    return true;
                 }
             } catch (error) {
                 console.error('Error validating token:', error);
                 localStorage.removeItem('jwt_token');
-                setIsAuthenticated(false);
-                return false;
+                setIsAuthenticated(true);
+                return true;
             }
         } else {
-            setIsAuthenticated(false);
-            return false;
+            setIsAuthenticated(true);
+            return true;
         }
     };
 

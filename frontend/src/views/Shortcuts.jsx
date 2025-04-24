@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "../lib/ui/Button";
-import { PDF } from "../lib/ui/PDF";
+import { PDF } from "../lib/ui/PDF/PDF";
 import {PDFDownloadLink} from "@react-pdf/renderer"
 
 const Shortcuts = () => {
