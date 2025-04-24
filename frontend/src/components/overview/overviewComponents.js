@@ -233,9 +233,9 @@ export const SprintSummaryCard = ({ loading, selectedSprint, formatDate }) => (
                         <div className="text-xs text-gray-500">{selectedSprint.completedTasks} of {selectedSprint.totalTasks} tasks completed</div>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">
-                        <div className="text-gray-500 text-sm mb-1">Hours on Completed</div>
+                        <div className="text-gray-500 text-sm mb-1">Hours Spent</div>
                         <div className="text-2xl font-bold">{selectedSprint.totalRealHours}<span className="text-oracleRed">h</span></div>
-                        <div className="text-xs text-gray-500">Time spent on finished tasks</div>
+                        <div className="text-xs text-gray-500">Time spent on finishing tasks</div>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">
                         <div className="text-gray-500 text-sm mb-1">Sprint Dates</div>

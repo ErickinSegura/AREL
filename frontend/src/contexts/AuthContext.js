@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
 
         if (token) {
             try {
-                const response = await fetch('http://localhost:8080/auth/me', {
+                const response = await fetch('/auth/me', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-                const response = await fetch('http://localhost:8080/auth/login', {
+                const response = await fetch('/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
