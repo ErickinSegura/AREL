@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../lib/ui/Card';
 import { Button } from '../../lib/ui/Button';
 import {
@@ -10,6 +10,11 @@ import {
     FiArrowUp
 } from 'react-icons/fi';
 import { Skeleton, SkeletonText, SkeletonCircle } from '../../lib/ui/Skeleton';
+import { AICall, PDF } from '../../lib/ui/PDF/PDF';
+import { pdf } from '@react-pdf/renderer';
+import { OverviewService } from '../../api/overviewService';
+import {useAuth} from "../../contexts/AuthContext";
+
 
 const getProjectIcon = (iconID) => {
     switch (iconID) {
@@ -71,10 +76,81 @@ export const NoProjectState = ( { title, message } ) => (
     </div>
 );
 
+export const PDFButton = ({ selectedProject }) => {
+    const [loading, setLoading] = useState(false);
+    const { user } = useAuth()
+
+    const userRole = user?.userLevel || 2;
+    const shouldShowButton = userRole === 1 || userRole === 3;
+
+    if (!shouldShowButton) {
+        return null;
+    }
+
+    const handleGenerateAndDownloadPdf = async () => {
+        setLoading(true);
+        try {
+            const overviewData = await OverviewService.getOverviewData(selectedProject.id);
+
+            const projectData = transformOverviewDataToProjectFormat(overviewData);
+
+            const aiResponse = await AICall(projectData);
+
+            const pdfBlob = await pdf(
+                <PDF
+                    insightsHtml={aiResponse}
+                    projectData={projectData}
+                />
+            ).toBlob();
+
+            const url = URL.createObjectURL(pdfBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${selectedProject?.projectName || 'project'}_report.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+        } catch (error) {
+            console.error("Error generating or downloading PDF:", error);
+        }
+        setLoading(false);
+    };
+
+    const transformOverviewDataToProjectFormat = (overviewData) => {
+        if (overviewData.sprintOverviews && overviewData.sprintOverviews.length > 0) {
+            return overviewData.sprintOverviews.map(sprint => ({
+                sprintNumber: sprint.sprintNumber,
+                totalTasks: sprint.totalTasks,
+                completedTasks: sprint.completedTasks,
+                totalEstimatedHours: sprint.totalEstimatedHours,
+                totalRealHours: sprint.totalRealHours,
+                hoursSpentOnCompleted: sprint.hoursSpentOnCompleted || 0
+            }));
+        }
+        console.error("Data structure is not as expected:", overviewData);
+        return [];
+    };
+
+    return (
+        <div className="flex items-center mt-4">
+            <Button
+                variant="remarked"
+                color="error"
+                onClick={handleGenerateAndDownloadPdf}
+                disabled={loading || !selectedProject}
+            >
+                {loading ? 'Generating PDF...' : 'Save as PDF'}
+            </Button>
+        </div>
+    );
+};
+
 export const ProjectHeader = ({ selectedProject, loading }) => (
     <Card className="mb-6">
         <CardHeader>
-            <div className={`flex items-center ${loading ? 'animate-pulse' : ''}`}>
+            <div className={`flex items-center justify-between ${loading ? 'animate-pulse' : ''}`}>
                 <CardTitle>
                     {loading ? (
                         <div className="flex items-center">
@@ -95,6 +171,13 @@ export const ProjectHeader = ({ selectedProject, loading }) => (
                         </div>
                     )}
                 </CardTitle>
+
+                {!loading && (
+                    <PDFButton
+                        selectedProject={selectedProject}
+                    />
+                )}
+
             </div>
         </CardHeader>
     </Card>
@@ -235,7 +318,7 @@ export const SprintSummaryCard = ({ loading, selectedSprint, formatDate }) => (
                     <div className="bg-gray-50 p-4 rounded-lg">
                         <div className="text-gray-500 text-sm mb-1">Hours Spent</div>
                         <div className="text-2xl font-bold">{selectedSprint.totalRealHours}<span className="text-oracleRed">h</span></div>
-                        <div className="text-xs text-gray-500">Time spent on finishing tasks</div>
+                        <div className="text-xs text-gray-500">vs {selectedSprint.totalEstimatedHours}h estimated</div>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">
                         <div className="text-gray-500 text-sm mb-1">Sprint Dates</div>
