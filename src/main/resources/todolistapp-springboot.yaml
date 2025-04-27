@@ -98,15 +98,15 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: todolistapp-python
+      app: arel-ai
   template:
     metadata:
       labels:
-        app: todolistapp-python
+        app: arel-ai
         version: v1
     spec:
       containers:
-        - name: todolistapp-python
+        - name: arel-ai
           image: %DOCKER_REGISTRY%/arel-ai:0.1
           imagePullPolicy: Always
           ports:
@@ -119,7 +119,7 @@ metadata:
   name: todolistapp-python-service
 spec:
   selector:
-    app: todolistapp-python
+    app: arel-ai
   ports:
     - protocol: TCP
       port: 5050
