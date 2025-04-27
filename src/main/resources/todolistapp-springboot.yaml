@@ -112,6 +112,8 @@ spec:
           ports:
             - containerPort: 8080 #flask port
       restartPolicy: Always
+      imagePullSecrets:
+        - name: my-docker-secret
 ---
 apiVersion: v1
 kind: Service
