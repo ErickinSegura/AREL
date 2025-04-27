@@ -90,3 +90,38 @@ spec:
             matchLabels:
               app: todolistapp-springboot
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todolistapp-python-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todolistapp-python
+  template:
+    metadata:
+      labels:
+        app: todolistapp-python
+        version: v1
+    spec:
+      containers:
+        - name: todolistapp-python
+          image: %DOCKER_REGISTRY%/arel-ai:0.1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080 #flask port
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todolistapp-python-service
+spec:
+  selector:
+    app: todolistapp-python
+  ports:
+    - protocol: TCP
+      port: 5050
+      targetPort: 8080
+  type: ClusterIP

@@ -29,6 +29,9 @@ public class MyTodoListApplication implements CommandLineRunner {
 	@Value("${telegram.bot.name}")
 	private String botName;
 
+	@Value("${ai.service.url}")
+	private String ai_url;
+
 	public static void main(String[] args) {
 		SpringApplication.run(MyTodoListApplication.class, args);
 	}
