@@ -106,8 +106,8 @@ spec:
         version: v1
     spec:
       containers:
-        - name: arel-ai
-          image: %DOCKER_REGISTRY%/arel-ai:0.1
+        - name: arel-ai-service
+          image: %DOCKER_REGISTRY%/arel-ai-service:0.1
           imagePullPolicy: Always
           ports:
             - containerPort: 8080 #flask port
