@@ -6,13 +6,11 @@ import { Input } from "../../lib/ui/Input";
 import { SkeletonCircle, SkeletonText } from "../../lib/ui/Skeleton";
 import { Link, ExternalLink, Plus, Loader2, Trash2, Edit2, Save, AlertTriangle, Globe } from 'lucide-react';
 import {
-    FiAlertTriangle,
     FiBookmark,
     FiCode,
     FiCodesandbox,
     FiFileText,
     FiFolder,
-    FiRefreshCw,
     FiStar
 } from "react-icons/fi";
 
@@ -137,7 +135,7 @@ export const ShortcutCard = ({ shortcut, onSelectShortcut }) => {
             <CardContent className="p-4">
                 <div className="flex justify-between items-center">
                     <div className="flex items-center">
-                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-blue-600">
+                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-oracleRed">
                             <Globe size={20} />
                         </div>
                         <div className="ml-3">
@@ -258,7 +256,7 @@ export const ShortcutDetailModal = ({
                         <div className="border rounded-md overflow-hidden">
                             <div className="bg-gray-50 p-4 flex items-center justify-between border-b">
                                 <div className="flex items-center">
-                                    <Globe size={16} className="text-blue-600 mr-2" />
+                                    <Globe size={16} className="text-oracleRed mr-2" />
                                     <span className="font-medium">{new URL(shortcut.url.startsWith('http') ? shortcut.url : `https://${shortcut.url}`).hostname}</span>
                                 </div>
                                 <Button
@@ -280,10 +278,6 @@ export const ShortcutDetailModal = ({
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div className="text-sm text-gray-500">
-                            <p>Added to project ID: {shortcut.projectId}</p>
                         </div>
                     </div>
                 )}
@@ -387,7 +381,7 @@ export const CreateShortcutModal = ({
                             onChange={handleUrlChange}
                             placeholder="https://example.com"
                             className={`mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                                !isValidUrl ? 'border-red-400 focus:ring-red-400' : 'focus:ring-blue-500'
+                                !isValidUrl ? 'border-red-400 focus:ring-red-400' : 'focus:ring-oracleRed'
                             }`}
                         />
                         {!isValidUrl && formData.url && (

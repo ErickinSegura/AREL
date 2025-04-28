@@ -11,6 +11,7 @@ export const useShortcuts = () => {
     const [loading, setLoading] = useState(true);
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [formData, setFormData] = useState({
+        project: null,
         url: '',
     });
     const [validationError, setValidationError] = useState(null);
