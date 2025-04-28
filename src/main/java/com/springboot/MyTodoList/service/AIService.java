@@ -7,6 +7,9 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Service
 public class AIService {
     @Value("${ai.service.url}")
@@ -14,6 +17,8 @@ public class AIService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     public ResponseEntity<String> helloWorld() {
         String response = restTemplate.getForObject(aiUrl, String.class);
@@ -29,7 +34,11 @@ public class AIService {
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(aiUrl + "/prompt", entity, String.class);
-            return ResponseEntity.ok(response.getBody());
+            String stringResponse = response.getBody();
+            JsonNode rootNode = objectMapper.readTree(stringResponse);
+            String message = rootNode.get("message").asText(); // "message" field from python service
+
+            return ResponseEntity.ok(message);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }

@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.model.Category;
 import com.springboot.MyTodoList.service.ServiceManager;
+import com.springboot.MyTodoList.telegram.BotCommands.AICommands;
 import com.springboot.MyTodoList.telegram.BotCommands.AgileCommands;
 import com.springboot.MyTodoList.telegram.BotCommands.KPICommands;
 import com.springboot.MyTodoList.telegram.BotCommands.TaskCreationCommands;
@@ -29,6 +30,7 @@ public class CommandHandler {
     private final TaskManagementCommands manageTask;
     private final AgileCommands agile;
     private final KPICommands kpi;
+    private final AICommands ai;
 
     public CommandHandler(MessageSender messageSender, ServiceManager serviceManager, 
                           InactivityManager inactivityManager) {
@@ -41,6 +43,7 @@ public class CommandHandler {
         this.manageTask = new TaskManagementCommands(serviceManager, messageSender, inactivityManager);
         this.agile = new AgileCommands(serviceManager, messageSender, inactivityManager);
         this.kpi = new KPICommands(serviceManager, messageSender);
+        this.ai = new AICommands(serviceManager, messageSender);
     }
 
     public void start(Long chatId, Update update){
@@ -230,7 +233,10 @@ public class CommandHandler {
     }    
 
     public void handleTextInput(UserState state, String messageText, Long chatId, Update update) {
-
+        if (messageText.startsWith("/ai ")){
+            ai.sendPrompt(chatId, messageText);
+            return;
+        }
         //Reply Keyboard Buttons
         if (messageText.equals("Open this Sprint")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
@@ -285,7 +291,7 @@ public class CommandHandler {
         } else if (state.getState() == UserStateType.CREATE_TASK_ENTER_NAME) {
             message.setText(BotMessages.CREATE_TASK_ENTER_DESCRIPTION.getMessage());
             createTask.handleSetTitle(state, messageText);
-            
+
         } else if (state.getState() == UserStateType.CREATE_TASK_ENTER_DESCRIPTION) {
             message.setText(BotMessages.CREATE_TASK_SET_CATEGORY.getMessage());
             List<Category> categories = createTask.handleSetDescription(state, messageText);
