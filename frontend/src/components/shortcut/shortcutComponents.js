@@ -115,7 +115,6 @@ export const ShortcutsHeader = ({ selectedProject, loading, onAddShortcut }) => 
 );
 
 export const ShortcutCard = ({ shortcut, onSelectShortcut }) => {
-    // Extract domain from URL for display
     const getDomainFromUrl = (url) => {
         try {
             const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
@@ -132,26 +131,25 @@ export const ShortcutCard = ({ shortcut, onSelectShortcut }) => {
             className="hover:shadow-md transition-all cursor-pointer"
             onClick={() => onSelectShortcut(shortcut.id)}
         >
-            <CardContent className="p-4">
-                <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-oracleRed">
-                            <Globe size={20} />
+            <CardContent className="p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div className="flex items-center w-full">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center text-oracleRed flex-shrink-0">
+                            <Globe size={16} className="sm:w-5 sm:h-5" />
                         </div>
-                        <div className="ml-3">
-                            <h3 className="font-medium text-lg">{displayUrl}</h3>
-                            <p className="text-sm text-gray-500 truncate max-w-xs">{shortcut.url}</p>
+                        <div className="ml-2 sm:ml-3 overflow-hidden">
+                            <h3 className="font-medium text-base sm:text-lg truncate">{displayUrl}</h3>
+                            <p className="text-xs sm:text-sm text-gray-500 truncate">{shortcut.url}</p>
                         </div>
                     </div>
                     <Button
-                        variant="ghost"
-                        size="sm"
+                        className="ml-auto sm:ml-0 flex-shrink-0"
                         onClick={(e) => {
                             e.stopPropagation();
                             window.open(shortcut.url, '_blank');
                         }}
                     >
-                        <ExternalLink size={16} />
+                        <ExternalLink size={14} className="sm:w-4 sm:h-4" />
                     </Button>
                 </div>
             </CardContent>
@@ -191,7 +189,6 @@ export const ShortcutDetailModal = ({
             [name]: name === 'project' ? parseInt(value) : value
         }));
 
-        // Validate URL
         if (name === 'url') {
             const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
             setIsValidUrl(urlPattern.test(value));
@@ -201,7 +198,6 @@ export const ShortcutDetailModal = ({
     const handleSubmit = () => {
         if (!isValidUrl) return;
 
-        // Add http:// if protocol is missing
         const urlWithProtocol = formData.url.startsWith('http') ?
             formData.url : `https://${formData.url}`;
 
@@ -250,34 +246,6 @@ export const ShortcutDetailModal = ({
                     <div className="space-y-6">
                         <div className="flex justify-between items-start">
                             <h3 className="font-bold text-xl truncate max-w-md">{shortcut.url}</h3>
-                        </div>
-
-                        {/* Link Preview */}
-                        <div className="border rounded-md overflow-hidden">
-                            <div className="bg-gray-50 p-4 flex items-center justify-between border-b">
-                                <div className="flex items-center">
-                                    <Globe size={16} className="text-oracleRed mr-2" />
-                                    <span className="font-medium">{new URL(shortcut.url.startsWith('http') ? shortcut.url : `https://${shortcut.url}`).hostname}</span>
-                                </div>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => window.open(shortcut.url, '_blank')}
-                                    className="flex items-center gap-1"
-                                >
-                                    <ExternalLink size={14} />
-                                    Open
-                                </Button>
-                            </div>
-                            <div className="p-4">
-                                <div className="aspect-video bg-gray-100 rounded flex items-center justify-center">
-                                    <div className="text-center">
-                                        <Globe size={48} className="mx-auto text-gray-400 mb-2" />
-                                        <p className="text-gray-500">Link Preview</p>
-                                        <p className="text-sm text-gray-400">Click 'Open' to visit this website</p>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 )}
