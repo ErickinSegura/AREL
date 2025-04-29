@@ -338,7 +338,7 @@ export const CreateShortcutModal = ({
                     )}
 
                     <div>
-                        <label className="text-sm font-medium text-gray-700 block mb-2 flex items-center">
+                        <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                             <Link size={14} className="mr-2" />
                             URL
                         </label>
