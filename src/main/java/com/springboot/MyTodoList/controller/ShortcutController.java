@@ -40,9 +40,9 @@ public class ShortcutController {
         return shortcutService.updateShortcut(id, shortcut);
     }
 
-    @GetMapping("/project/{projectId}/ids")
-    public ResponseEntity<List<Integer>> getShortcutIdsByProject(@PathVariable int projectId) {
-        return shortcutService.getShortcutIdsByProject(projectId);
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<List<Shortcut>> getShortcutsByProject(@PathVariable int projectId) {
+        return shortcutService.getShortcutsByProject(projectId);
     }
 
     @DeleteMapping("/{id}")
