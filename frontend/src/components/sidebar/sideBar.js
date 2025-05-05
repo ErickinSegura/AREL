@@ -5,7 +5,6 @@ import {
     FiHome,
     FiSettings,
     FiTable,
-    FiCalendar,
     FiLink,
     FiCodesandbox,
     FiUsers,
@@ -21,7 +20,6 @@ import { Modal, ModalHeader, ModalTitle, ModalContent, ModalClose } from '../../
 import { Input } from '../../lib/ui/Input';
 import { Button } from '../../lib/ui/Button';
 import {createPortal} from "react-dom";
-
 
 const ModalPortal = ({ children }) => {
     return typeof document !== 'undefined'
@@ -536,6 +534,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
 const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const { setCurrentRoute } = useRoute();
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -553,6 +552,11 @@ const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }
             setDropdownOpen(false);
         }
     }, [isOpen]);
+
+    const goToUserSettings = () => {
+        setCurrentRoute('/usersettings');
+        setDropdownOpen(false);
+    };
 
     return (
         <div className="relative" ref={dropdownRef}>
@@ -585,7 +589,7 @@ const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }
                     <div className="p-2">
                         <button
                             className="w-full flex items-center gap-3 py-2 px-3 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
-                            onClick={() => setDropdownOpen(false)}
+                            onClick={goToUserSettings} // Updated to use the navigation function
                         >
                             <User size={18} className="text-gray-500" />
                             <span>Account</span>
@@ -702,7 +706,7 @@ const MobileSidebar = ({ mobileMenuOpen, toggleMobileMenu, menuItems, selectedIt
                         ))}
                     </ul>
 
-                    <div className="border-t border-gray-700 mx-4 mt-auto py-4">
+                    <div className="border-t border-gray-700 mx-4 mt-auto py-4 mb-14">
                         <UserButtonWithDropdown user={user} handleLogout={handleLogout} isMobile={true} isOpen={true} />
                     </div>
                 </nav>

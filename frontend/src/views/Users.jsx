@@ -48,7 +48,7 @@ export const Users = () => {
     if (error) return <ErrorMessage message={error} />;
 
     return (
-        <div className="p-6">
+        <div className="container mx-auto px-4 py-6">
             <UsersHeader
                 loading={loading}
                 onAddUser={openRegisterModal}
