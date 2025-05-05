@@ -1,88 +1,102 @@
 import React from "react";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "../../lib/ui/Card";
-import { SkeletonCircle, SkeletonText } from "../../lib/ui/Skeleton";
-import { UserCircle, Eye, EyeOff, Camera, Mail, Lock, Bell, Shield } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "../../lib/ui/Card";
+import {UserCircle, Eye, EyeOff, Mail, Pencil, AtSign} from "lucide-react";
 import { Button } from "../../lib/ui/Button";
 import { Input } from "../../lib/ui/Input";
-import { Toggle } from "../../lib/ui/Toggle";
 import { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter, ModalClose } from "../../lib/ui/Modal";
 
-// Header component for the user settings page
-export const UserHeader = ({ loading, user }) => (
+export const UserHeader = () => (
     <Card className="mb-6">
         <CardHeader>
-            <div className={`flex items-center justify-between ${loading ? "animate-pulse" : ""}`}>
+            <div className={`flex items-center justify-between`}>
                 <CardTitle>
-                    {loading ? (
-                        <div className="flex items-center">
-                            <SkeletonCircle size="md" />
-                            <div className="ml-3 w-48">
-                                <SkeletonText lines={1} />
-                            </div>
+                    <div className="flex items-center">
+                        <div className="w-12 h-12 rounded-md bg-oracleRed grid place-items-center text-white">
+                            <UserCircle size={24} />
                         </div>
-                    ) : (
-                        <div className="flex items-center">
-                            <div className="w-12 h-12 rounded-md bg-oracleRed grid place-items-center text-white">
-                                <UserCircle size={24} />
-                            </div>
-                            <h1 className="text-2xl font-bold px-2">Mi cuenta</h1>
-                        </div>
-                    )}
+                        <h1 className="text-2xl font-bold px-2">Account Settings</h1>
+                    </div>
                 </CardTitle>
             </div>
         </CardHeader>
     </Card>
 );
 
-// Profile section with avatar and basic information
 export const ProfileSection = ({ user, onUpdateAvatar }) => (
     <Card className="mb-6">
         <CardHeader>
-            <CardTitle>Perfil</CardTitle>
+            <CardTitle>
+                <div className="font-bold">User <span className="text-oracleRed">Information</span></div>
+            </CardTitle>
         </CardHeader>
         <CardContent>
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                <div className="relative">
-                    <div className="w-32 h-32 rounded-full overflow-hidden">
+            <div className="flex flex-col md:flex-row items-center md:items-center gap-6">
+                <div className="relative mb-4 md:mb-0">
+                    <div className="w-64 h-64 md:w-48 md:h-48 rounded-full overflow-hidden">
                         <img
-                            src={user.avatar || "https://media.licdn.com/dms/image/v2/D5603AQG9dL2qWccd6A/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1723754261670?e=1748476800&v=beta&t=53HL_qHWPZlfaXrdUfAvDtFfTnbxz4R4KAuCdzeedTk"}
+                            src={"https://media.licdn.com/dms/image/v2/D5603AQG9dL2qWccd6A/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1723754261670?e=1748476800&v=beta&t=53HL_qHWPZlfaXrdUfAvDtFfTnbxz4R4KAuCdzeedTk"}
                             alt="Profile"
                             className="w-full h-full object-cover"
                         />
                     </div>
                     <button
                         onClick={onUpdateAvatar}
-                        className="absolute bottom-0 right-0 bg-oracleRed text-white p-2 rounded-full hover:bg-red-700 transition-colors"
+                        className="absolute bottom-2 right-4 bg-oracleRed text-white p-2 rounded-full hover:bg-red-700 transition-colors shadow-md"
                     >
-                        <Camera size={16} />
+                        <Pencil size={16} />
                     </button>
                 </div>
-                <div className="flex-1 w-full space-y-4">
-                    <Input
-                        label="Nombre completo"
-                        value={user.name}
-                        onChange={(e) => user.onChange("name", e.target.value)}
-                        icon={<UserCircle size={18} />}
-                    />
-                    <Input
-                        label="Correo electrónico"
-                        value={user.email}
-                        onChange={(e) => user.onChange("email", e.target.value)}
-                        icon={<Mail size={18} />}
-                    />
+                <div className="flex-1 w-full space-y-4 self-center">
+                    <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-700">
+                            Full Name
+                        </label>
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <UserCircle size={18} className="text-oracleRed" />
+                            </div>
+                            <div className="px-4 py-2 border rounded-md bg-white text-sm w-full pl-10">
+                                {user.name}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-700">
+                            Email
+                        </label>
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <Mail size={18} className="text-oracleRed" />
+                            </div>
+                            <div className="px-4 py-2 border rounded-md bg-white text-sm w-full pl-10">
+                                {user.email}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-700">
+                            Telegram
+                        </label>
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <AtSign size={18} className="text-oracleRed" />
+                            </div>
+                            <div className="px-4 py-2 border rounded-md bg-white text-sm w-full pl-10">
+                                {user.telegram}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </CardContent>
     </Card>
 );
 
-// Security section with password and 2FA
 export const SecuritySection = ({ security, onChangePassword }) => (
     <Card className="mb-6">
         <CardHeader>
             <CardTitle className="flex items-center gap-2">
-                <Shield size={20} />
-                Seguridad
+                <div className="font-bold">Account <span className="text-oracleRed">Security</span></div>
             </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -94,69 +108,22 @@ export const SecuritySection = ({ security, onChangePassword }) => (
                     <div className="relative flex-1">
                         <input
                             id="password"
-                            type={security.showPassword ? "text" : "password"}
-                            value={security.password}
+                            type={"password"}
+                            value={"passworddelusuario"}
                             onChange={(e) => security.onChange("password", e.target.value)}
                             className="w-full border rounded-md px-3 pr-10 py-2 min-h-[44px] text-sm focus:outline-none focus:ring-2 focus:ring-oracleRed focus:border-oracleRed"
-                            placeholder="Contraseña"
+                            placeholder="Password"
                         />
-                        <button
-                            type="button"
-                            onClick={() => security.setShowPassword(!security.showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800"
-                        >
-                            {security.showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
                     </div>
                     <Button variant="remarked" color="error" onClick={onChangePassword} className="whitespace-nowrap">
                         Cambiar Contraseña
                     </Button>
                 </div>
             </div>
-
-            <div className="flex flex-col gap-4">
-                <Toggle
-                    label="Activar autenticación de dos factores"
-                    checked={security.twoFA}
-                    onChange={() => security.onChange("twoFA", !security.twoFA)}
-                />
-            </div>
         </CardContent>
     </Card>
 );
 
-// Notifications section
-export const NotificationsSection = ({ notifications }) => (
-    <Card className="mb-6">
-        <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-                <Bell size={20} />
-                Notificaciones
-            </CardTitle>
-        </CardHeader>
-        <CardContent>
-            <div className="space-y-4">
-                <Toggle
-                    label="Recibir notificaciones por correo"
-                    checked={notifications.email}
-                    onChange={() => notifications.onChange("emailNotifications", !notifications.email)}
-                />
-                <Toggle
-                    label="Recibir notificaciones push"
-                    checked={notifications.push}
-                    onChange={() => notifications.onChange("pushNotifications", !notifications.push)}
-                />
-                <Toggle
-                    label="Recibir actualizaciones del sistema"
-                    checked={notifications.system}
-                    onChange={() => notifications.onChange("systemNotifications", !notifications.system)}
-                />
-            </div>
-        </CardContent>
-    </Card>
-);
-
-// Change password modal
 export const PasswordChangeModal = ({ isOpen, onClose, onSubmit }) => {
     const [passwords, setPasswords] = React.useState({
         current: "",
@@ -179,7 +146,6 @@ export const PasswordChangeModal = ({ isOpen, onClose, onSubmit }) => {
 
     const handleSubmit = () => {
         if (passwords.new !== passwords.confirm) {
-            // Show error
             return;
         }
         onSubmit(passwords);
@@ -251,7 +217,6 @@ export const PasswordChangeModal = ({ isOpen, onClose, onSubmit }) => {
     );
 };
 
-// Avatar update modal
 export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit }) => {
     const [preview, setPreview] = React.useState(null);
     const fileInputRef = React.useRef(null);

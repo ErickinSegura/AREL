@@ -1,0 +1,67 @@
+{
+  "backgrounds": [
+    { "id": "bg1", "name": "Azul claro", "color": "#e6f7ff" },
+    { "id": "bg2", "name": "Verde menta", "color": "#e6ffed" },
+    { "id": "bg3", "name": "Lavanda", "color": "#f5e6ff" },
+    { "id": "bg4", "name": "Amarillo suave", "color": "#fffbe6" },
+    { "id": "bg5", "name": "Rosa pastel", "color": "#ffe6f0" }
+  ],
+  "skins": [
+    { "id": "skin1", "name": "Claro", "color": "#ffdbac" },
+    { "id": "skin2", "name": "Medio", "color": "#f1c27d" },
+    { "id": "skin3", "name": "Moreno", "color": "#c68642" },
+    { "id": "skin4", "name": "Oscuro", "color": "#8d5524" },
+    { "id": "skin5", "name": "Muy oscuro", "color": "#603601" }
+  ],
+  "eyes": [
+    { "id": "eyes1", "name": "Redondos", "style": "round" },
+    { "id": "eyes2", "name": "Almendrados", "style": "almond" },
+    { "id": "eyes3", "name": "Entrecerrados", "style": "squint" },
+    { "id": "eyes4", "name": "Grandes", "style": "large" }
+  ],
+  "eyeColors": [
+    { "id": "eyeColor1", "name": "Marrón", "color": "#613613" },
+    { "id": "eyeColor2", "name": "Azul", "color": "#1f75fe" },
+    { "id": "eyeColor3", "name": "Verde", "color": "#308446" },
+    { "id": "eyeColor4", "name": "Ámbar", "color": "#ffbf00" },
+    { "id": "eyeColor5", "name": "Gris", "color": "#808080" }
+  ],
+  "hairstyles": [
+    { "id": "hair1", "name": "Corto", "style": "short" },
+    { "id": "hair2", "name": "Medio", "style": "medium" },
+    { "id": "hair3", "name": "Largo", "style": "long" },
+    { "id": "hair4", "name": "Rizado", "style": "curly" },
+    { "id": "hair5", "name": "Calvo", "style": "bald" },
+    { "id": "hair6", "name": "Coleta", "style": "ponytail" }
+  ],
+  "hairColors": [
+    { "id": "hairColor1", "name": "Negro", "color": "#090806" },
+    { "id": "hairColor2", "name": "Castaño", "color": "#654321" },
+    { "id": "hairColor3", "name": "Rubio", "color": "#deb887" },
+    { "id": "hairColor4", "name": "Pelirrojo", "color": "#b55239" },
+    { "id": "hairColor5", "name": "Gris", "color": "#808080" },
+    { "id": "hairColor6", "name": "Azul", "color": "#4169e1" },
+    { "id": "hairColor7", "name": "Verde", "color": "#2e8b57" },
+    { "id": "hairColor8", "name": "Violeta", "color": "#9370db" }
+  ],
+  "mouths": [
+    { "id": "mouth1", "name": "Sonrisa", "style": "smile" },
+    { "id": "mouth2", "name": "Neutral", "style": "neutral" },
+    { "id": "mouth3", "name": "Asombro", "style": "surprise" },
+    { "id": "mouth4", "name": "Amplia sonrisa", "style": "wide" }
+  ],
+  "accessories": [
+    { "id": "acc1", "name": "Ninguno", "style": "none" },
+    { "id": "acc2", "name": "Gafas redondas", "style": "round-glasses" },
+    { "id": "acc3", "name": "Gafas de sol", "style": "sunglasses" },
+    { "id": "acc4", "name": "Gafas cuadradas", "style": "square-glasses" },
+    { "id": "acc5", "name": "Sombrero", "style": "hat" }
+  ],
+  "facialHair": [
+    { "id": "facial1", "name": "Ninguno", "style": "none" },
+    { "id": "facial2", "name": "Barba corta", "style": "short-beard" },
+    { "id": "facial3", "name": "Barba larga", "style": "full-beard" },
+    { "id": "facial4", "name": "Bigote", "style": "mustache" },
+    { "id": "facial5", "name": "Perilla", "style": "goatee" }
+  ]
+}
