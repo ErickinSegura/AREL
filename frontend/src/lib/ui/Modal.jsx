@@ -26,7 +26,7 @@ const Modal = ({ isOpen, onClose, className, ...props }) => {
                 onClick={onClose}
             />
             <div
-                className={`relative bg-white z-50 max-w-lg w-full rounded-2xl border bg-card text-card-foreground shadow-lg ${className}`}
+                className={`relative bg-white z-50 max-w-lg w-full rounded-3xl border bg-card text-card-foreground shadow-lg ${className}`}
                 {...props}
             />
         </div>
