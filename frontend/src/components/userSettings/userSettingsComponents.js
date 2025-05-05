@@ -354,11 +354,12 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig }) 
                         const previewPath = getPreviewImagePath();
                         if (previewPath) {
                             preview = (
-                                <div className="w-12 h-12 mx-auto rounded-full overflow-hidden">
+                                <div className="w-12 h-12 mx-auto overflow-hidden">
                                     <img
                                         src={previewPath}
                                         alt={option.name}
                                         className="w-full h-full object-contain"
+                                        style={{ imageRendering: 'pixelated' }}
                                     />
                                 </div>
                             );
