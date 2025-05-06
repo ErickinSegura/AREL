@@ -33,7 +33,7 @@ export const ProfileSection = ({ user, onUpdateAvatar }) => (
         <CardContent>
             <div className="flex flex-col md:flex-row items-center md:items-center gap-6">
                 <div className="relative mb-4 md:mb-0">
-                    <div className="w-64 h-64 md:w-48 md:h-48 rounded-full overflow-hidden">
+                    <div className="w-64 h-64 md:w-48 md:h-48 rounded-3xl overflow-hidden">
                         <img
                             src={"https://media.licdn.com/dms/image/v2/D5603AQG9dL2qWccd6A/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1723754261670?e=1748476800&v=beta&t=53HL_qHWPZlfaXrdUfAvDtFfTnbxz4R4KAuCdzeedTk"}
                             alt="Profile"
@@ -263,10 +263,11 @@ const avatarOptions = {
     ],
     accessories: [
         { id: 'acc1', name: 'None', style: 'none' },
-        { id: 'acc2', name: 'Round Glasses', style: 'round-glasses' },
-        { id: 'acc3', name: 'Sunglasses', style: 'sunglasses' },
-        { id: 'acc4', name: 'Square Glasses', style: 'square-glasses' },
-        { id: 'acc5', name: 'Hat', style: 'hat' }
+        { id: 'acc2', name: 'Sunglasses', style: 'round-glasses' },
+        { id: 'acc3', name: 'Glasses', style: 'sunglasses' },
+        { id: 'acc4', name: 'Moustache', style: 'square-glasses' },
+        { id: 'acc5', name: 'Cowboy Hat', style: 'hat' },
+        { id: 'acc6', name: 'Elegant Hat', style: 'hat' }
     ],
     bellyColor: [
         { id: 'bellyColor1', name: 'Pink', color: '#FEA5FB' },
@@ -421,7 +422,7 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig }) 
                     <div className="flex items-start">
                         {/* Vista previa del avatar */}
                         <div className="w-1/3 flex justify-center">
-                            <div className="w-32 h-32 rounded-full overflow-hidden">
+                            <div className="w-32 h-32 rounded-3xl overflow-hidden">
                                 <AvatarRenderer config={avatarConfig} size={128} />
                             </div>
                         </div>
