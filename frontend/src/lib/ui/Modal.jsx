@@ -20,13 +20,13 @@ const Modal = ({ isOpen, onClose, className, ...props }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div
                 className="fixed inset-0 bg-black/50"
                 onClick={onClose}
             />
             <div
-                className={`relative bg-white z-50 max-w-lg w-full rounded-3xl border bg-card text-card-foreground shadow-lg ${className}`}
+                className={`relative bg-white z-50 max-w-lg w-full rounded-3xl border bg-card text-card-foreground shadow-lg overflow-hidden ${className}`}
                 {...props}
             />
         </div>

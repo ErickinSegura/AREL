@@ -6,6 +6,7 @@ import { Input } from "../../lib/ui/Input";
 import { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter, ModalClose } from "../../lib/ui/Modal";
 import { AvatarRenderer } from "../../lib/AvatarRenderer";
 import {useAvatarUpdate} from "../../hooks/useAvatarUpdate";
+import {SkeletonAvatar} from "../../lib/ui/Skeleton";
 
 export const UserHeader = () => (
     <Card className="mb-6">
@@ -291,7 +292,6 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
     const {
         isLoading,
         error,
-        updateAvatar,
         handleAvatarSubmit
     } = useAvatarUpdate(userId, avatarConfig);
 
@@ -322,25 +322,54 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
         }
     };
 
-    if (!isOpen) return null;
+    const categories = [
+        { id: 'backgrounds', name: 'Background' },
+        { id: 'skins', name: 'Skin' },
+        { id: 'eyes', name: 'Eyes' },
+        { id: 'eyeColors', name: 'Eyes Color' },
+        { id: 'spineColors', name: 'Spines Color' },
+        { id: 'mouths', name: 'Mouth' },
+        { id: 'accessories', name: 'Accessories' },
+        { id: 'bellyColor', name: 'Belly Color' }
+    ];
+
+    const propertyMap = {
+        backgrounds: 'background',
+        skins: 'skin',
+        eyes: 'eyes',
+        eyeColors: 'eyeColor',
+        spineColors: 'spineColor',
+        mouths: 'mouth',
+        accessories: 'accessories',
+        bellyColor: 'bellyColor'
+    };
+
+    const renderCategoryButtons = () => {
+        return (
+            <div className="flex flex-wrap gap-2 mb-4">
+                {categories.map((category) => (
+                    <button
+                        key={category.id}
+                        className={`px-3 py-1 text-xs sm:text-sm rounded-full transition-colors duration-200 ${
+                            activeCategory === category.id
+                                ? 'bg-oracleRed text-white'
+                                : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                        }`}
+                        onClick={() => handleCategoryChange(category.id)}
+                    >
+                        {category.name}
+                    </button>
+                ))}
+            </div>
+        );
+    };
 
     const renderCategoryOptions = () => {
-        const propertyMap = {
-            backgrounds: 'background',
-            skins: 'skin',
-            eyes: 'eyes',
-            eyeColors: 'eyeColor',
-            spineColors: 'spineColor',
-            mouths: 'mouth',
-            accessories: 'accessories',
-            bellyColor: 'bellyColor'
-        };
-
         const property = propertyMap[activeCategory];
         const options = avatarOptions[activeCategory] || [];
 
         return (
-            <div className="grid grid-cols-4 gap-2 mt-4">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mt-4 max-h-48 overflow-y-auto p-1">
                 {options.map((option) => {
                     const isSelected = avatarConfig[property] === option.id;
 
@@ -358,7 +387,7 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
                     if (['backgrounds', 'skins', 'eyeColors', 'spineColors', 'bellyColor'].includes(activeCategory)) {
                         preview = (
                             <div
-                                className="w-12 h-12 rounded-full mx-auto"
+                                className="w-12 h-12 rounded-full mx-auto shadow-inner"
                                 style={{ backgroundColor: option.color }}
                             />
                         );
@@ -376,7 +405,6 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
                                 </div>
                             );
                         } else {
-                            // Fallback para opciones sin imagen
                             preview = (
                                 <div className="w-12 h-12 flex items-center justify-center bg-gray-100 rounded-full mx-auto">
                                     {option.name.charAt(0).toUpperCase()}
@@ -388,7 +416,11 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
                     return (
                         <div
                             key={option.id}
-                            className={`p-2 cursor-pointer rounded-lg text-center ${isSelected ? 'bg-blue-100 border border-blue-500' : 'hover:bg-gray-100'}`}
+                            className={`p-2 cursor-pointer rounded-lg text-center transition-all duration-200 ${
+                                isSelected
+                                    ? 'bg-blue-100 border-2 border-oracleRed transform scale-105'
+                                    : 'hover:bg-gray-100 border border-transparent'
+                            }`}
                             onClick={() => updateAvatarProperty(property, option.id)}
                         >
                             {preview}
@@ -400,92 +432,65 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
         );
     };
 
-    const categories = [
-        { id: 'backgrounds', name: 'Background' },
-        { id: 'skins', name: 'Skin' },
-        { id: 'eyes', name: 'Eyes' },
-        { id: 'eyeColors', name: 'Eyes Color' },
-        { id: 'spineColors', name: 'Spines Color' },
-        { id: 'mouths', name: 'Mouth' },
-        { id: 'accessories', name: 'Accessories' },
-        { id: 'bellyColor', name: 'Belly Color' }
-    ];
-
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden">
-                {/* Encabezado */}
-                <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                    <h3 className="text-lg font-medium">Personalizar Avatar</h3>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-400 hover:text-gray-500"
-                    >
-                        <span className="sr-only">Cerrar</span>
-                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
+        <Modal isOpen={isOpen} onClose={onClose} className="w-full max-w-md md:max-w-lg">
+            <ModalClose onClick={onClose} />
 
-                {/* Contenido */}
-                <div className="px-6 py-4">
-                    <div className="flex items-start">
-                        {/* Vista previa del avatar */}
-                        <div className="w-1/3 flex justify-center">
-                            <div className="w-32 h-32 rounded-3xl overflow-hidden">
-                                <AvatarRenderer config={avatarConfig} size={128} />
-                            </div>
+            <ModalHeader>
+                <ModalTitle>Personalize Avatar</ModalTitle>
+            </ModalHeader>
+
+            <ModalContent>
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+                    {/* Vista previa del avatar */}
+                    <div className="flex flex-col items-center">
+                        <div className="w-32 h-32 rounded-3xl overflow-hidden bg-gray-50 border shadow-md flex items-center justify-center">
+                            <AvatarRenderer config={avatarConfig} size={128} />
+                        </div>
+                    </div>
+
+                    {/* Categorías y opciones */}
+                    <div className="flex-1 w-full">
+                        {/* Pestañas de categorías */}
+                        <div className="overflow-x-auto pb-2 -mx-2 px-2">
+                            {renderCategoryButtons()}
                         </div>
 
-                        {/* Categorías de personalización */}
-                        <div className="w-2/3 pl-4">
-                            <div className="flex flex-wrap gap-2 mb-4">
-                                {categories.map((category) => (
-                                    <button
-                                        key={category.id}
-                                        className={`px-3 py-1 text-sm rounded-full ${
-                                            activeCategory === category.id
-                                                ? 'bg-blue-500 text-white'
-                                                : 'bg-gray-200 hover:bg-gray-300'
-                                        }`}
-                                        onClick={() => handleCategoryChange(category.id)}
-                                    >
-                                        {category.name}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Opciones de la categoría seleccionada */}
-                            {renderCategoryOptions()}
-                        </div>
+                        {/* Opciones de la categoría */}
+                        {renderCategoryOptions()}
                     </div>
                 </div>
 
-                {/* Pie de modal con botones */}
-                <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
-                    <button
-                        onClick={onClose}
-                        className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 mr-2"
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        onClick={handleSubmit}
-                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? 'Guardando...' : 'Guardar'}
-                    </button>
-                </div>
-
-                {/* Mostrar mensaje de error si existe */}
+                {/* Mensaje de error si existe */}
                 {error && (
-                    <div className="px-6 pb-4 text-red-500 text-sm">
-                        {error}
+                    <div className="mt-4 px-3 py-2 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
+                        <p className="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            {error}
+                        </p>
                     </div>
                 )}
-            </div>
-        </div>
+            </ModalContent>
+
+            <ModalFooter>
+                <Button
+                    variant="default"
+                    onClick={onClose}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    variant="remarked"
+                    onClick={handleSubmit}
+                    disabled={isLoading}
+                >
+                    {isLoading ? 'Saving...' : 'Save Avatar'}
+                </Button>
+            </ModalFooter>
+        </Modal>
     );
 };
