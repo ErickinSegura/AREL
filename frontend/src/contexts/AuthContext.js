@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
                 if (response.ok) {
                     const userData = await response.json();
                     setUser({
+                        id: userData.id,
                         email: userData.email,
                         firstName: userData.firstName,
                         lastName: userData.lastName,

@@ -76,6 +76,7 @@ const UserSettings = () => {
         <AvatarUpdateModal
             isOpen={avatarModalOpen}
             onClose={() => setAvatarModalOpen(false)}
+            userId={user.id}
         />
       </div>
   );

@@ -5,6 +5,7 @@ import { Button } from "../../lib/ui/Button";
 import { Input } from "../../lib/ui/Input";
 import { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter, ModalClose } from "../../lib/ui/Modal";
 import { AvatarRenderer } from "../../lib/AvatarRenderer";
+import {useAvatarUpdate} from "../../hooks/useAvatarUpdate";
 
 export const UserHeader = () => (
     <Card className="mb-6">
@@ -278,7 +279,7 @@ const avatarOptions = {
     ]
 };
 
-export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig }) => {
+export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, userId }) => {
     const [avatarConfig, setAvatarConfig] = useState(initialConfig || {
         background: "bg1",
         skin: "skin1",
@@ -290,6 +291,13 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig }) 
         accessories: "acc1",
         bellyColor: "bellyColor1"
     });
+
+    const {
+        isLoading,
+        error,
+        updateAvatar,
+        handleAvatarSubmit
+    } = useAvatarUpdate(userId, avatarConfig);
 
     const [activeCategory, setActiveCategory] = useState('skins');
 
@@ -304,9 +312,18 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig }) 
         setActiveCategory(category);
     };
 
-    const handleSubmit = () => {
-        onSubmit(avatarConfig);
-        onClose();
+    const handleSubmit = async () => {
+        try {
+            await handleAvatarSubmit(avatarConfig, userId);
+
+            if (onSubmit) {
+                onSubmit(avatarConfig);
+            }
+
+            onClose();
+        } catch (error) {
+            console.error("Error al guardar el avatar:", error);
+        }
     };
 
     if (!isOpen) return null;
@@ -343,7 +360,6 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig }) 
 
                     let preview;
                     if (['backgrounds', 'skins', 'eyeColors', 'spineColors', 'bellyColor'].includes(activeCategory)) {
-                        // Para colores, mostrar un círculo del color
                         preview = (
                             <div
                                 className="w-12 h-12 rounded-full mx-auto"
@@ -351,7 +367,6 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig }) 
                             />
                         );
                     } else {
-                        // Para componentes que tienen imágenes
                         const previewPath = getPreviewImagePath();
                         if (previewPath) {
                             preview = (
@@ -462,10 +477,18 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig }) 
                     <button
                         onClick={handleSubmit}
                         className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                        disabled={isLoading}
                     >
-                        Guardar
+                        {isLoading ? 'Guardando...' : 'Guardar'}
                     </button>
                 </div>
+
+                {/* Mostrar mensaje de error si existe */}
+                {error && (
+                    <div className="px-6 pb-4 text-red-500 text-sm">
+                        {error}
+                    </div>
+                )}
             </div>
         </div>
     );
