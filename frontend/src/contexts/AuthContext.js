@@ -28,7 +28,8 @@ export const AuthProvider = ({ children }) => {
                         userLevel: userData.userLevel,
                         projectId: userData.projectId,
                         projectName: userData.projectName,
-                        projectRole: userData.projectRole
+                        projectRole: userData.projectRole,
+                        avatar: userData.avatar ? JSON.parse(userData.avatar) : null
                     });
                     setIsAuthenticated(true);
                     return true;

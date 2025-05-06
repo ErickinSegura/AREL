@@ -35,11 +35,7 @@ export const ProfileSection = ({ user, onUpdateAvatar }) => (
             <div className="flex flex-col md:flex-row items-center md:items-center gap-6">
                 <div className="relative mb-4 md:mb-0">
                     <div className="w-64 h-64 md:w-48 md:h-48 rounded-3xl overflow-hidden">
-                        <img
-                            src={"https://media.licdn.com/dms/image/v2/D5603AQG9dL2qWccd6A/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1723754261670?e=1748476800&v=beta&t=53HL_qHWPZlfaXrdUfAvDtFfTnbxz4R4KAuCdzeedTk"}
-                            alt="Profile"
-                            className="w-full h-full object-cover"
-                        />
+                        <AvatarRenderer config={user.avatar} size={128} className={"w-full h-full object-cover"} />
                     </div>
                     <button
                         onClick={onUpdateAvatar}

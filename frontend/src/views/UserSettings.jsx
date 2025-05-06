@@ -36,9 +36,10 @@ const UserSettings = () => {
         <div className="grid gap-6">
           <ProfileSection
               user={{
-                name: user.fullName,
-                email: user.email,
-                telegram: user.telegramUsername,
+                  name: user.fullName,
+                  email: user.email,
+                  telegram: user.telegramUsername,
+                  avatar: user.avatar
               }}
               onUpdateAvatar={() => setAvatarModalOpen(true)}
           />

@@ -20,6 +20,7 @@ import { Modal, ModalHeader, ModalTitle, ModalContent, ModalClose } from '../../
 import { Input } from '../../lib/ui/Input';
 import { Button } from '../../lib/ui/Button';
 import {createPortal} from "react-dom";
+import {AvatarRenderer} from "../../lib/AvatarRenderer";
 
 const ModalPortal = ({ children }) => {
     return typeof document !== 'undefined'
@@ -564,11 +565,9 @@ const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }
                 className="flex items-center h-16"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-                <img
-                    src="https://external-preview.redd.it/TwU07Lr9HX8Ayouj-4fyQfJBp3XuCyG7I9Q0n8KhF7M.jpg?auto=webp&s=3ab8215d552fd36f052da9aec8aaeaf43e0e2926"
-                    alt="User"
-                    className="w-8 h-8 rounded-md"
-                />
+                <div className="w-8 h-8 rounded-md overflow-hidden">
+                    <AvatarRenderer config={user.avatar} className="w-full h-full" />
+                </div>
                 <div className={`ml-3 ${
                     isMobile
                         ? 'flex-1 min-w-0'

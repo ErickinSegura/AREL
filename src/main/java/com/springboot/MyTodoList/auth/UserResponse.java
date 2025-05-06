@@ -19,4 +19,5 @@ public class UserResponse {
     private Integer projectId;
     private String projectName;
     private String projectRole;
+    private String avatar;
 }

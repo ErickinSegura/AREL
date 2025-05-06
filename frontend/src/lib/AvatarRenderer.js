@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const AvatarRenderer = ({ config, size = 100, className = '' }) => {
+export const AvatarRenderer = ({ config, size, className = '' }) => {
     const defaultConfig = {
         background: "bg1",
         skin: "skin1",
@@ -12,16 +12,19 @@ export const AvatarRenderer = ({ config, size = 100, className = '' }) => {
         bellyColor: "bellyColor1"
     };
 
-    const avatarConfig = config || defaultConfig;
+    const avatarConfig = config ?
+        (typeof config === 'string' ? JSON.parse(config) : config)
+        : defaultConfig;
 
     const getImagePath = (type, id) => {
         return `/assets/avatar/${type}/${id}.png`;
     };
 
+    // Eliminamos los estilos inline basados en size
     const containerStyle = {
-        width: size,
-        height: size,
-        position: 'relative'
+        position: 'relative',
+        width: '100%',
+        height: '100%'
     };
 
     const imageStyle = {
