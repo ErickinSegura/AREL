@@ -24,7 +24,7 @@ public class WebSecurityConfiguration {
         http.csrf().disable()
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
-                                .antMatchers("/", "/index.html", "/static/**",
+                                .antMatchers("/", "/index.html", "/static/**", "/assets/**",
                                         "/*.js", "/*.css", "/*.ico", "/*.json", "/*.png").permitAll()
                                 .antMatchers("/auth/login", "/auth/register").permitAll()
                                 .anyRequest().authenticated()
