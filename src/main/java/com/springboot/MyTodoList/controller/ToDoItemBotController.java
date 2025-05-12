@@ -35,6 +35,19 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 	    this.commandHandler = new CommandHandler(this.messageSender,this.serviceManager, this.inactivityManager);
 	}
 
+	public ToDoItemBotController(String botToken, String botName,
+							ServiceManager serviceManager,
+							MessageSender messageSender,
+							InactivityManager inactivityManager,
+							CommandHandler commandHandler) {
+		super(botToken);
+		this.botName = botName;
+		this.serviceManager = serviceManager;
+		this.messageSender = messageSender;
+		this.inactivityManager = inactivityManager;
+		this.commandHandler = commandHandler;
+	}
+
 	@Override
 	public void onUpdateReceived(Update update) {
 		logger.debug("got an update!!");

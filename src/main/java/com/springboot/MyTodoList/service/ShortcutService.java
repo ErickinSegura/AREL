@@ -68,6 +68,9 @@ public class ShortcutService {
         if (existingShortcut.isPresent()) {
             Shortcut shortcut = existingShortcut.get();
 
+            shortcut.setProject(shortcutDetails.getProject());
+            shortcut.setURL(shortcutDetails.getURL());
+
             Shortcut updatedShortcut = shortcutRepository.save(shortcut);
             return new ResponseEntity<>(updatedShortcut, HttpStatus.OK);
         } else {
