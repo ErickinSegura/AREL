@@ -25,7 +25,7 @@ public class WebSecurityConfiguration {
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
                                 .antMatchers("/", "/index.html", "/static/**",
-                                        "/*.js", "/*.css", "/*.ico", "/*.json").permitAll()
+                                        "/*.js", "/*.css", "/*.ico", "/*.json", "/*.png").permitAll()
                                 .antMatchers("/auth/login", "/auth/register").permitAll()
                                 .anyRequest().authenticated()
                 )
