@@ -37,9 +37,11 @@ public class TelegramTest {
             messageSender,
             inactivityManager,
             commandHandler
-        );w
+        );
     }
 
+
+    //#region Start Command
     @Test
     void testStartCommandTriggersStartHandler() {
         // Setup test data
