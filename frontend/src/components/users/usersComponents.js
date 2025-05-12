@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from "../../lib/ui/Card";
 import { Button } from "../../lib/ui/Button";
 import { Modal, ModalHeader, ModalTitle, ModalDescription, ModalContent, ModalFooter, ModalClose } from "../../lib/ui/Modal";
@@ -9,6 +9,7 @@ import {useRegisterForm} from "../../hooks/useRegisterForm";
 import { IconEmail, IconPassword} from "../auth/authComponents";
 import {SkeletonCircle, SkeletonText} from "../../lib/ui/Skeleton";
 import {FiLoader} from "react-icons/fi";
+import {AvatarRenderer} from "../../lib/AvatarRenderer";
 
 export const UsersHeader = ({ loading, onAddUser }) => (
     <Card className="mb-6">
@@ -60,6 +61,9 @@ const UserCard = ({ user, onDetailsClick }) => {
         >
             <CardHeader>
                 <div className="flex justify-between items-start">
+                    <div className="w-16 h-16 rounded-md overflow-hidden">
+                        <AvatarRenderer config={user.avatar} className="w-full h-full" />
+                    </div>
                     <div>
                         <CardTitle>{user.firstName} {user.lastName}</CardTitle>
                         <CardDescription>{user.email}</CardDescription>
@@ -115,6 +119,9 @@ const UserDetailsModal = ({ user, isOpen, onClose, onRemoveClick, deleteLoading 
             <ModalContent>
                 <div className="space-y-6">
                     <div>
+                        <div className="w-32 h-32 rounded-md overflow-hidden">
+                            <AvatarRenderer config={user.avatar} className="w-full h-full" />
+                        </div>
                         <h4 className="text-lg font-medium mb-2">User Information</h4>
                         <div className="space-y-2">
                             <div className="flex justify-between">

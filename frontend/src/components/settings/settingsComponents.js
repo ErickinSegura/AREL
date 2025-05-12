@@ -175,7 +175,7 @@ export const SettingsForm = ({
                         {loading ? (
                             <SkeletonText className="w-48" />
                         ) : (
-                            <>Project <span className="text-oracleRed">Information</span></>
+                            <div className="font-bold">Project <span className="text-oracleRed">Information</span></div>
                         )}
                     </CardTitle>
                 </CardHeader>

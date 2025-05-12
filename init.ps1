@@ -27,6 +27,7 @@ $MAVEN_ICON = "🜨"
 
 $CONTAINER_NAME = "arel-container"
 $IMAGE_NAME = "arel-bot"
+$NETWORK_NAME = "arel-net"
 
 # Variables globales
 $SHOW_LOGS = $false
@@ -202,6 +203,20 @@ function Invoke-CommandWithFeedback {
     }
 }
 
+# Crear o verificar red Docker
+function Test-DockerNetwork {
+    Write-Host "$YELLOW$BOLD`Verificando red Docker:$RESET"
+
+    $networkExists = docker network ls --format "{{.Name}}" | Select-String -Pattern "^$NETWORK_NAME$" -Quiet
+
+    if (-not $networkExists) {
+        Write-Host "Creando la red $NETWORK_NAME..."
+        Invoke-CommandWithFeedback "docker network create $NETWORK_NAME" "Creando red Docker '$NETWORK_NAME'"
+    } else {
+        Write-Host "$GREEN$CHECK Red '$NETWORK_NAME' ya existe$RESET"
+    }
+}
+
 # Limpiar contenedor e imagen
 function Invoke-Cleanup {
     Write-Host "$YELLOW$BOLD`Limpiando entorno Docker:$RESET"
@@ -240,7 +255,7 @@ function Invoke-Build {
 function Invoke-Deploy {
     Write-Host "$YELLOW$BOLD`Desplegando aplicación:$RESET"
 
-    Invoke-CommandWithFeedback "docker run --name '$CONTAINER_NAME' -p 8080:8080 --env-file .env -d '$IMAGE_NAME'" "Desplegando contenedor Docker"
+    Invoke-CommandWithFeedback "docker run --name '$CONTAINER_NAME' --network $NETWORK_NAME -p 8080:8080 --env-file .env -d '$IMAGE_NAME'" "Desplegando contenedor Docker"
 }
 
 # Mostrar ayuda
@@ -293,6 +308,7 @@ function Invoke-Main {
     Invoke-Cleanup
     Clear-Target
     Invoke-Build
+    Test-DockerNetwork
     Invoke-Deploy
     Show-FinalBanner $startTime
 }
