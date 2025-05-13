@@ -143,7 +143,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Enter project description"
-                                    className="px-4 py-2 border rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                                    className="px-4 py-2 border rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-oracleRed"
                                     rows={3}
                                 />
                             </div>
@@ -156,7 +156,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                     <div ref={colorMenuRef} className="relative">
                                         <button
                                             type="button"
-                                            className="flex items-center justify-between w-full px-4 py-3 border rounded-md bg-white hover:bg-gray-50 transition-colors"
+                                            className="flex items-center justify-between w-full px-4 py-3 border rounded-lg bg-white hover:bg-gray-50 transition-colors"
                                             onClick={() => {
                                                 setIsColorMenuOpen(!isColorMenuOpen);
                                                 setIsIconMenuOpen(false);
@@ -180,7 +180,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                         </button>
 
                                         {isColorMenuOpen && (
-                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg p-3 max-h-64 overflow-y-auto">
+                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-lg shadow-lg p-3 max-h-64 overflow-y-auto">
                                                 <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
                                                     {colorOptions.map((color) => (
                                                         <button
@@ -215,7 +215,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                     <div ref={iconMenuRef} className="relative">
                                         <button
                                             type="button"
-                                            className="flex items-center justify-between w-full px-4 py-3 border rounded-md bg-white hover:bg-gray-50 transition-colors"
+                                            className="flex items-center justify-between w-full px-4 py-3 border rounded-lg bg-white hover:bg-gray-50 transition-colors"
                                             onClick={() => {
                                                 setIsIconMenuOpen(!isIconMenuOpen);
                                                 setIsColorMenuOpen(false);
@@ -224,7 +224,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                             aria-haspopup="true"
                                         >
                                             <div className="flex items-center gap-3">
-                                                <div className="text-gray-700 bg-gray-100 p-2 rounded-md">
+                                                <div className="text-gray-700 bg-gray-100 p-2 rounded-lg">
                                                     {getSelectedIcon().icon}
                                                 </div>
                                                 <span className="text-sm font-medium">{getSelectedIcon().label}</span>
@@ -235,13 +235,13 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                         </button>
 
                                         {isIconMenuOpen && (
-                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg p-3 max-h-64 overflow-y-auto">
+                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-lg shadow-lg p-3 max-h-64 overflow-y-auto">
                                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                                     {iconOptions.map((option) => (
                                                         <button
                                                             key={option.id}
                                                             type="button"
-                                                            className={`flex items-center gap-2 p-3 rounded-md w-full transition-colors ${
+                                                            className={`flex items-center gap-2 p-3 rounded-lg w-full transition-colors ${
                                                                 iconId === option.id
                                                                     ? 'bg-gray-100 ring-2 ring-oracleRed text-oracleRed'
                                                                     : 'hover:bg-gray-50'
@@ -331,9 +331,9 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
             <div className="w-full">
                 <div className={`flex items-center ${
                     !isMobile && !isOpen ? 'justify-center' : ''
-                } w-full ${isMobile ? 'py-2' : 'py-1.5'} rounded-md transition-all duration-300`}>
+                } w-full ${isMobile ? 'py-2' : 'py-1.5'} rounded-lg transition-all duration-300`}>
                     <div
-                        className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center transition-all duration-300 text-white bg-gray-300"
+                        className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center transition-all duration-300 text-white bg-gray-300"
                     >
                         <FiLoader className="animate-spin" />
                     </div>
@@ -352,14 +352,14 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
 
     const noProjectContainerClass = `flex items-center ${
         !isMobile && !isOpen ? 'justify-center' : ''
-    } w-full ${isMobile ? 'py-2' : 'py-1.5'} rounded-md transition-all duration-300`;
+    } w-full ${isMobile ? 'py-2' : 'py-1.5'} rounded-lg transition-all duration-300`;
 
     if (!projects || projects.length === 0) {
         return (
             <div className="w-full">
                 <div className={noProjectContainerClass}>
                     <div
-                        className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center transition-all duration-300 text-white bg-gray-400"
+                        className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center transition-all duration-300 text-white bg-gray-400"
                     >
                         <FiFolder />
                     </div>
@@ -385,9 +385,9 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                         onClick={() => setIsAddProjectModalOpen(true)}
                         className={`flex items-center ${
                             !isMobile && !isOpen ? 'justify-center' : ''
-                        } w-full mt-2 py-2 rounded-md hover:bg-gray-200 transition-all duration-300`}
+                        } w-full mt-2 py-2 rounded-lg hover:bg-gray-200 transition-all duration-300`}
                     >
-                        <div className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center text-oracleRed">
+                        <div className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center text-oracleRed">
                             <Plus size={20}/>
                         </div>
                         <div className={`flex-1 font-medium transition-all duration-300 ease-in-out ${
@@ -407,7 +407,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                 <div className="w-full">
                     <div className={noProjectContainerClass}>
                         <div
-                            className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center transition-all duration-300 text-white bg-gray-400"
+                            className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center transition-all duration-300 text-white bg-gray-400"
                         >
                             <FiFolder />
                         </div>
@@ -429,10 +429,10 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                 <div
                     className={`flex items-center ${
                         !isMobile && !isOpen ? 'justify-center' : ''
-                    } w-full ${isMobile ? 'py-2' : 'py-1.5'} rounded-md transition-all duration-300`}
+                    } w-full ${isMobile ? 'py-2' : 'py-1.5'} rounded-lg transition-all duration-300`}
                 >
                     <div
-                        className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center transition-all duration-300 text-white"
+                        className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center transition-all duration-300 text-white"
                         style={{ backgroundColor: userProject.color?.hexColor || '#4e4e4e' }}
                     >
                         {getProjectIcon(userProject.icon? userProject.icon : 1)}
@@ -459,10 +459,10 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                 }}
                 className={`flex items-center ${
                     !isMobile && !isOpen ? 'justify-center' : ''
-                } w-full ${isMobile ? 'py-2' : 'py-1.5'} hover:bg-gray-200 rounded-md transition-all duration-300`}
+                } w-full ${isMobile ? 'py-2' : 'py-1.5'} hover:bg-gray-200 rounded-lg transition-all duration-300`}
             >
                 <div
-                    className="w-8 h-8 rounded-md flex-shrink-0 grid place-items-center transition-all duration-300 text-white"
+                    className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center transition-all duration-300 text-white"
                     style={{ backgroundColor: contextSelectedProject?.color?.hexColor || '#4e4e4e' }}
                 >
                     {contextSelectedProject
@@ -484,7 +484,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
             </button>
 
             {projectDropdownOpen && (
-                <div className={`absolute left-0 right-0 top-full mt-1 bg-white rounded-md shadow-lg z-50 py-1 max-h-60 overflow-y-auto w-full`}>
+                <div className={`absolute left-0 right-0 top-full mt-1 bg-white rounded-lg shadow-lg z-50 py-1 max-h-60 overflow-y-auto w-full`}>
                     <div className="text-xs text-gray-500 px-3 py-1">Projects</div>
                     {projects && projects.map((project) => (
                         <button
@@ -495,7 +495,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                             }`}
                         >
                             <div
-                                className="w-6 h-6 rounded flex-shrink-0 grid place-items-center text-white"
+                                className="w-6 h-6 rounded-lg flex-shrink-0 grid place-items-center text-white"
                                 style={{ backgroundColor: project.color?.hexColor || '#808080' }}
                             >
                                 {getProjectIcon(project.icon ? project.icon : 1)}
@@ -565,7 +565,7 @@ const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }
                 className="flex items-center h-16"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-                <div className="w-8 h-8 rounded-md overflow-hidden">
+                <div className="w-8 h-8 rounded-lg overflow-hidden">
                     <AvatarRenderer config={user.avatar} className="w-full h-full" />
                 </div>
                 <div className={`ml-3 ${
@@ -587,7 +587,7 @@ const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }
                 <div className="absolute bottom-full mb-2 right-0 w-48 bg-white rounded-lg shadow-lg overflow-hidden z-50 border border-gray-200">
                     <div className="p-2">
                         <button
-                            className="w-full flex items-center gap-3 py-2 px-3 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                            className="w-full flex items-center gap-3 py-2 px-3 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                             onClick={goToUserSettings} // Updated to use the navigation function
                         >
                             <User size={18} className="text-gray-500" />
@@ -595,7 +595,7 @@ const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }
                         </button>
 
                         <button
-                            className="w-full flex items-center gap-3 py-2 px-3 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                            className="w-full flex items-center gap-3 py-2 px-3 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             onClick={() => {
                                 handleLogout();
                                 setDropdownOpen(false);
@@ -619,7 +619,7 @@ const MobileSidebar = ({ mobileMenuOpen, toggleMobileMenu, menuItems, selectedIt
                     <div className="flex items-center gap-x-4">
                         <button
                             onClick={toggleMobileMenu}
-                            className="p-2 rounded-md hover:bg-gray-100 transition-colors focus:outline-none"
+                            className="p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none"
                             aria-label="Toggle menu"
                         >
                             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -646,7 +646,7 @@ const MobileSidebar = ({ mobileMenuOpen, toggleMobileMenu, menuItems, selectedIt
                     </div>
                     <button
                         onClick={toggleMobileMenu}
-                        className="ml-2 p-1 rounded-md hover:bg-gray-100 transition-colors focus:outline-none flex-shrink-0"
+                        className="ml-2 p-1 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none flex-shrink-0"
                         aria-label="Close menu"
                     >
                         <X size={20} />
@@ -748,7 +748,7 @@ const DesktopSidebar = ({ sidebarRef, isOpen, handleMouseEnter, handleMouseLeave
 
                                 <button
                                     onClick={() => setSelectedItem(item.label)}
-                                    className={`flex items-center w-full h-12 rounded-md transition-colors duration-200 relative z-10 group`}
+                                    className={`flex items-center w-full h-12 rounded-lg transition-colors duration-200 relative z-10 group`}
                                 >
                                     <div className="w-16 flex-shrink-0 grid place-items-center">
                     <span className={`transition-colors ${
