@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { SprintsService } from '../api/sprintsService';
 import { BacklogService } from '../api/backlogService';
 import { useProjects } from './useProjects';
@@ -12,7 +12,7 @@ export const useSprints = () => {
     const [validationError, setValidationError] = useState(null);
 
     const [sprintFormData, setSprintFormData] = useState({
-        project: selectedProject?.id || null,
+        project: null, // Initialize as null, to avoid unnecessary calls.
         startDate: new Date().toISOString().split('T')[0],
         endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         sprintNumber: 1
@@ -21,27 +21,26 @@ export const useSprints = () => {
     const [selectedTasks, setSelectedTasks] = useState([]);
     const [availableTasks, setAvailableTasks] = useState([]);
 
+    // Update project ID in form data whenever selectedProject changes
     useEffect(() => {
         if (selectedProject) {
             setSprintFormData(prev => ({
                 ...prev,
                 project: selectedProject.id
             }));
-            fetchSprints();
-            fetchAvailableTasks();
         }
     }, [selectedProject]);
 
-    const resetSprintForm = () => {
-        setSprintFormData({
-            project: selectedProject?.id || null,
+    const resetSprintForm = useCallback(() => {
+        setSprintFormData(prev => ({ // Use prev to avoid stale selectedProject
+            ...prev,
             startDate: new Date().toISOString().split('T')[0],
             endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             sprintNumber: sprints.length > 0 ? Math.max(...sprints.map(s => s.sprintNumber)) + 1 : 1
-        });
+        }));
         setSelectedTasks([]);
         setValidationError(null);
-    };
+    }, [sprints]); // Add sprints as dependency
 
     const handleSprintFormChange = (e) => {
         const { name, value } = e.target;
@@ -82,25 +81,38 @@ export const useSprints = () => {
         }
     }, [selectedProject]);
 
-    const toggleTaskSelection = (taskId) => {
-        if (selectedTasks.some(task => task.id === taskId)) {
-            setSelectedTasks(selectedTasks.filter(task => task.id !== taskId));
-        } else {
-            const task = availableTasks.find(task => task.id === taskId);
-            setSelectedTasks([...selectedTasks, {
-                ...task,
-                estimatedHours: task.estimatedHours || 0,
-                assignedTo: task.assignedTo || null
-            }]);
+    // Fetch sprints and tasks only when selectedProject is available.
+    useEffect(() => {
+        if (selectedProject) {
+            fetchSprints();
+            fetchAvailableTasks();
         }
+    }, [fetchSprints, fetchAvailableTasks, selectedProject]); // Add fetchSprints and fetchAvailableTasks as dependencies
+
+    const toggleTaskSelection = (taskId) => {
+        setSelectedTasks(prevSelectedTasks => {
+            const isSelected = prevSelectedTasks.some(task => task.id === taskId);
+            if (isSelected) {
+                return prevSelectedTasks.filter(task => task.id !== taskId);
+            } else {
+                const taskToAdd = availableTasks.find(task => task.id === taskId);
+                return [...prevSelectedTasks, {
+                    ...taskToAdd,
+                    estimatedHours: taskToAdd.estimatedHours || 0,
+                    assignedTo: taskToAdd.assignedTo || null
+                }];
+            }
+        });
     };
 
     const updateTaskDetails = (taskId, field, value) => {
-        setSelectedTasks(selectedTasks.map(task =>
-            task.id === taskId
-                ? { ...task, [field]: field === 'estimatedHours' ? Number(value) : value }
-                : task
-        ));
+        setSelectedTasks(prevSelectedTasks =>
+            prevSelectedTasks.map(task =>
+                task.id === taskId
+                    ? { ...task, [field]: field === 'estimatedHours' ? Number(value) : value }
+                    : task
+            )
+        );
     };
 
     const validateSprintForm = () => {
@@ -127,6 +139,7 @@ export const useSprints = () => {
 
         try {
             setLoading(true);
+            setError(null); // Clear previous errors
 
             const sprintData = {
                 ...sprintFormData,
@@ -151,14 +164,17 @@ export const useSprints = () => {
                 await Promise.all(taskUpdatePromises);
 
                 resetSprintForm();
-                fetchSprints();
-                fetchAvailableTasks();
+                await fetchSprints(); // Await here to ensure refresh
+                await fetchAvailableTasks(); // Await here to ensure refresh
+                setCreateSprintModalOpen(false); // Close modal after successful creation
                 return true;
+            } else {
+                setValidationError(result.message || "Failed to create sprint. Please try again.");
+                return false;
             }
-            return false;
         } catch (err) {
             console.error("Error creating sprint:", err);
-            setValidationError("Failed to create sprint. Please try again.");
+            setError("Failed to create sprint. Please try again.");
             return false;
         } finally {
             setLoading(false);

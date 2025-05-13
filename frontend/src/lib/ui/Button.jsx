@@ -34,7 +34,7 @@ export const Button = ({
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         flex items-center justify-center
         ${className}
-        rounded-lg border bg-card text-card-foreground shadow-sm
+        rounded-xl border bg-card text-card-foreground shadow-sm
       `}
         >
             {startIcon && <span className="mr-2">{startIcon}</span>}
