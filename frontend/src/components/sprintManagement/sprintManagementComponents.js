@@ -140,7 +140,7 @@ export const ActualHoursModal = ({ isOpen, onClose, taskId, onSubmit, loading })
     );
 };
 
-export const DraggableTaskCard = ({ task, onSelect, projectId }) => {
+export const DraggableTaskCard = ({ task, onSelect, users, usersLoading }) => {
     const [{ isDragging }, dragRef] = useDrag(() => ({
         type: 'TASK',
         item: { id: task.id },
@@ -148,8 +148,6 @@ export const DraggableTaskCard = ({ task, onSelect, projectId }) => {
             isDragging: monitor.isDragging(),
         }),
     }));
-
-    const { users, usersLoading } = useProjectUsers(projectId);
 
     const renderAssignedUserContent = () => {
         if (!task.assignedTo) return "Unassigned";
@@ -218,8 +216,17 @@ export const DraggableTaskCard = ({ task, onSelect, projectId }) => {
         </div>
     );
 };
-
-export const TaskColumn = ({ icon, title, state, tasks, onTaskSelect, onTaskDrop }) => {
+export const TaskColumn = ({
+                               icon,
+                               title,
+                               state,
+                               tasks,
+                               onTaskSelect,
+                               onTaskDrop,
+                               users,
+                               usersLoading,
+                               projectId
+                           }) => {
     const [{ isOver }, dropRef] = useDrop(() => ({
         accept: 'TASK',
         drop: (item) => onTaskDrop(item.id, state),
@@ -252,7 +259,10 @@ export const TaskColumn = ({ icon, title, state, tasks, onTaskSelect, onTaskDrop
                             key={task.id}
                             task={task}
                             onSelect={onTaskSelect}
-                            projectId={task.projectId}
+                            // Pasamos los datos de usuarios en lugar de volver a hacer la consulta
+                            users={users}
+                            usersLoading={usersLoading}
+                            projectId={projectId}
                         />
                     ))
                 )}

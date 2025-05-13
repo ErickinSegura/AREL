@@ -14,6 +14,7 @@ import {
     TaskColumn
 } from '../components/sprintManagement/sprintManagementComponents';
 import {FiCheckCircle, FiClock, FiList} from "react-icons/fi";
+import {useProjectUsers} from "../hooks/useProjectUsers";
 
 
 const SprintManagement = () => {
@@ -34,6 +35,7 @@ const SprintManagement = () => {
     const { sprints, loading: sprintsLoading } = useSprints();
     const { selectedProject } = useProjects();
 
+    const { users, usersLoading } = useProjectUsers(selectedProject?.id);
     const [actualHoursModalOpen, setActualHoursModalOpen] = useState(false);
     const [taskForHours, setTaskForHours] = useState(null);
     const [updateLoading, setUpdateLoading] = useState(false);
@@ -87,6 +89,7 @@ const SprintManagement = () => {
         return <NoProjectState title={"selected"} message={"Please select a project to view its sprints."} />;
     }
 
+
     return (
         <DndProvider backend={HTML5Backend}>
             <div className="container mx-auto px-4 py-6 min-h-screen">
@@ -131,6 +134,8 @@ const SprintManagement = () => {
                                 tasks={todoTasks}
                                 onTaskSelect={handleTaskSelect}
                                 onTaskDrop={handleTaskDrop}
+                                users={users}
+                                usersLoading={usersLoading}
                             />
                             <TaskColumn
                                 icon={<FiClock/>}
@@ -139,6 +144,8 @@ const SprintManagement = () => {
                                 tasks={doingTasks}
                                 onTaskSelect={handleTaskSelect}
                                 onTaskDrop={handleTaskDrop}
+                                users={users}
+                                usersLoading={usersLoading}
                             />
                             <TaskColumn
                                 icon={<FiCheckCircle/>}
@@ -147,6 +154,8 @@ const SprintManagement = () => {
                                 tasks={doneTasks}
                                 onTaskSelect={handleTaskSelect}
                                 onTaskDrop={handleTaskDrop}
+                                users={users}
+                                usersLoading={usersLoading}
                             />
                         </div>
                     )
