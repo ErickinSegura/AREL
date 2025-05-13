@@ -235,13 +235,15 @@ const avatarOptions = {
         { id: 'eyes1', name: 'Thinker', style: 'thinker' },
         { id: 'eyes2', name: 'Neutral', style: 'neutral' },
         { id: 'eyes3', name: 'Baggy', style: 'baggy' },
-        { id: 'eyes4', name: 'Happy', style: 'happy' }
+        { id: 'eyes4', name: 'Happy', style: 'happy' },
+        { id: 'eyes5', name: 'Happy', style: 'happy' },
     ],
     eyeColors: [
         { id: 'eyeColor1', name: 'Green', color: '#345f33' },
         { id: 'eyeColor2', name: 'Blue', color: '#545fc8' },
         { id: 'eyeColor3', name: 'Black', color: '#000' },
         { id: 'eyeColor4', name: 'Brown', color: '#392424' },
+        { id: 'eyeColor5', name: 'Brown', color: '#392424' },
     ],
     spineColors: [
         { id: 'spineColor1', name: 'Blue', color: '#044DBA' },
@@ -257,7 +259,8 @@ const avatarOptions = {
         { id: 'mouth1', name: 'Smile', style: 'smile' },
         { id: 'mouth2', name: 'Neutral', style: 'neutral' },
         { id: 'mouth3', name: 'Surprised', style: 'surprised' },
-        { id: 'mouth4', name: 'wave', style: 'wave' }
+        { id: 'mouth4', name: 'wave', style: 'wave' },
+        { id: 'mouth5', name: 'wave', style: 'wave' }
     ],
     accessories: [
         { id: 'acc1', name: 'None', style: 'none' },
@@ -369,7 +372,7 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
         const options = avatarOptions[activeCategory] || [];
 
         return (
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mt-4 max-h-48 overflow-y-auto p-1">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 gap-2 mt-4 h-48 overflow-y-auto">
                 {options.map((option) => {
                     const isSelected = avatarConfig[property] === option.id;
 
@@ -416,9 +419,9 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
                     return (
                         <div
                             key={option.id}
-                            className={`p-2 cursor-pointer rounded-lg text-center transition-all duration-200 ${
+                            className={`p-2 cursor-pointer rounded-lg text-center ${
                                 isSelected
-                                    ? 'bg-blue-100 border-2 border-oracleRed transform scale-105'
+                                    ? 'border-2 border-oracleRed'
                                     : 'hover:bg-gray-100 border border-transparent'
                             }`}
                             onClick={() => updateAvatarProperty(property, option.id)}
@@ -433,7 +436,7 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} className="w-full max-w-md md:max-w-lg">
+        <Modal isOpen={isOpen} onClose={onClose} className="w-full max-w-lg md:max-w-xl">
             <ModalClose onClick={onClose} />
 
             <ModalHeader>
@@ -441,13 +444,13 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
             </ModalHeader>
 
             <ModalContent>
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                    {/* Vista previa del avatar */}
-                    <div className="flex flex-col items-center">
-                        <div className="w-32 h-32 rounded-3xl overflow-hidden bg-gray-50 border shadow-md flex items-center justify-center">
+                <div className="flex flex-col sm:flex-row items-center sm:items-center gap-6">
+                    <div className="flex flex-col items-center justify-center">
+                        <div className="w-44 h-44 rounded-3xl overflow-hidden bg-gray-50 border shadow-md flex items-center justify-center relative">
                             <AvatarRenderer config={avatarConfig} size={128} />
                         </div>
                     </div>
+
 
                     {/* Categorías y opciones */}
                     <div className="flex-1 w-full">
