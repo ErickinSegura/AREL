@@ -49,11 +49,6 @@ public class ShortcutController {
         return shortcutService.getShortcutsByProject(projectId);
     }
 
-    @GetMapping("/project/{projectId}")
-    public ResponseEntity<List<Shortcut>> getShortcutsByProject(@PathVariable int projectId) {
-        return shortcutService.getShortcutsByProject(projectId);
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteShortcut(@PathVariable int id) {
         Boolean flag = shortcutService.deleteShortcut(id);
