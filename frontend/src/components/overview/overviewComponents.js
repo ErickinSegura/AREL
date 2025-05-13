@@ -40,14 +40,6 @@ export const ErrorState = ({ error }) => (
                 <div className="bg-red-50 p-4 rounded-lg mb-6">
                     <p className="text-red-600 font-medium">{error}</p>
                 </div>
-                <Button
-                    variant="outline"
-                    className="flex items-center gap-2"
-                    onClick={() => window.location.reload()}
-                >
-                    <FiRefreshCw size={16} />
-                    Retry
-                </Button>
             </CardContent>
         </Card>
     </div>
@@ -161,12 +153,12 @@ export const ProjectHeader = ({ selectedProject, loading, isAdmin = false }) => 
                     ) : (
                         <div className="flex items-center">
                             <div
-                                className="w-12 h-12 rounded-md grid place-items-center text-white"
+                                className="w-12 h-12 rounded-xl grid place-items-center text-white"
                                 style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
                             >
                                 {getProjectIcon(selectedProject?.icon)}
                             </div>
-                            <h1 className="text-2xl font-bold px-2">{selectedProject?.projectName}</h1>
+                            <h1 className="text-2xl font-bold px-3">{selectedProject?.projectName}</h1>
                         </div>
                     )}
                 </CardTitle>

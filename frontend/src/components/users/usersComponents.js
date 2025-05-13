@@ -26,11 +26,11 @@ export const UsersHeader = ({ loading, onAddUser }) => (
                     ) : (
                         <div className="flex items-center">
                             <div
-                                className="w-12 h-12 rounded-md bg-oracleRed grid place-items-center text-white"
+                                className="w-12 h-12 rounded-xl bg-oracleRed grid place-items-center text-white"
                             >
                                 <UserCircle size={24} />
                             </div>
-                            <h1 className="text-2xl font-bold px-2">Team Members</h1>
+                            <h1 className="text-2xl font-bold px-3  ">Team Members</h1>
                         </div>
                     )}
                 </CardTitle>

@@ -14,10 +14,10 @@ export const UserHeader = () => (
             <div className={`flex items-center justify-between`}>
                 <CardTitle>
                     <div className="flex items-center">
-                        <div className="w-12 h-12 rounded-md bg-oracleRed grid place-items-center text-white">
+                        <div className="w-12 h-12 rounded-xl bg-oracleRed grid place-items-center text-white">
                             <UserCircle size={24} />
                         </div>
-                        <h1 className="text-2xl font-bold px-2">Account Settings</h1>
+                        <h1 className="text-2xl font-bold px-3">Account Settings</h1>
                     </div>
                 </CardTitle>
             </div>

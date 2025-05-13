@@ -61,12 +61,12 @@ export const SprintsHeader = ({ selectedProject, loading, onCreateTask, onCreate
                     ) : (
                         <div className="flex items-center">
                             <div
-                                className="w-12 h-12 rounded-md grid place-items-center text-white"
+                                className="w-12 h-12 rounded-xl grid place-items-center text-white"
                                 style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
                             >
                                 {getProjectIcon(selectedProject?.icon)}
                             </div>
-                            <h1 className="text-2xl font-bold px-2">Project Sprints</h1>
+                            <h1 className="text-2xl font-bold px-3">Project Sprints</h1>
                         </div>
                     )}
                 </CardTitle>
