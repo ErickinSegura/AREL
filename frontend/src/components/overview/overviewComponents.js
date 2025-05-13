@@ -527,3 +527,337 @@ export const DevStreakCard = ({ loading, selectedSprint }) => {
         </Card>
     );
 };
+
+export const SprintHoursChart = ({ loading, sprintOverviews }) => {
+    const maxHours = React.useMemo(() => {
+        if (!sprintOverviews || sprintOverviews.length === 0) return 0;
+
+        const allHours = sprintOverviews.flatMap(sprint => [
+            sprint.totalEstimatedHours || 0,
+            sprint.totalRealHours || 0
+        ]);
+
+        return Math.max(...allHours, 1);
+    }, [sprintOverviews]);
+
+    return (
+        <Card className="flex flex-col h-full">
+            <CardHeader>
+                <CardTitle>
+                    {loading ? (
+                        <SkeletonText className="w-40" />
+                    ) : (
+                        <>Hours <span className="text-oracleRed">Analysis</span></>
+                    )}
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow">
+                {loading ? (
+                    <div className="h-64 flex items-center justify-center">
+                        <div className="w-full">
+                            <SkeletonText className="h-48 w-full" />
+                        </div>
+                    </div>
+                ) : sprintOverviews && sprintOverviews.length > 0 ? (
+                    <div className="h-64 flex flex-col">
+                        <div className="h-3/4 flex items-end justify-between px-6 mb-8">
+                            {[...sprintOverviews]
+                                .sort((b, a) => b.sprintNumber - a.sprintNumber)
+                                .map((sprint) => (
+                                    <div key={sprint.sprintNumber} className="flex flex-col items-center">
+                                        <div className="flex items-end space-x-1 mb-2 h-40">
+                                            <div className="w-6 bg-red-200 rounded-t-md relative group"
+                                                 style={{
+                                                     height: `${Math.min((sprint.totalEstimatedHours / maxHours) * 80, 80)}%`,
+                                                     minHeight: sprint.totalEstimatedHours > 0 ? '4px' : '0px'
+                                                 }}>
+                                                <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap transition-opacity z-10">
+                                                    {sprint.totalEstimatedHours}h
+                                                </div>
+                                            </div>
+
+                                            <div className="w-6 bg-oracleRed rounded-t-md relative group"
+                                                 style={{
+                                                     height: `${Math.min((sprint.totalRealHours / maxHours) * 80, 80)}%`,
+                                                     minHeight: sprint.totalRealHours > 0 ? '4px' : '0px'
+                                                 }}>
+                                                <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap transition-opacity z-10">
+                                                    {sprint.totalRealHours}h
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="text-sm text-center">Sprint {sprint.sprintNumber}</div>
+                                    </div>
+                                ))}
+                        </div>
+
+                        <div className="flex items-center justify-center space-x-6 mt-4">
+                            <div className="flex items-center">
+                                <div className="w-3 h-3 bg-red-200 mr-2"></div>
+                                <span className="text-sm text-gray-600">Estimated Hours</span>
+                            </div>
+                            <div className="flex items-center">
+                                <div className="w-3 h-3 bg-oracleRed mr-2"></div>
+                                <span className="text-sm text-gray-600">Actual Hours</span>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="h-64 flex items-center justify-center text-gray-500">
+                        No sprint data available
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+};
+
+export const UserHoursChart = ({ loading, sprintOverviews, userPerformances }) => {
+    const [groupedData, setGroupedData] = React.useState([]);
+    const [sprints, setSprints] = React.useState([]);
+
+    React.useEffect(() => {
+        if (!userPerformances || userPerformances.length === 0 || !sprintOverviews) return;
+
+        const uniqueSprints = [...new Set(sprintOverviews.map(sprint => sprint.sprintNumber))].sort();
+        setSprints(uniqueSprints);
+
+        const userGroups = {};
+
+        userPerformances.forEach(performance => {
+            if (!userGroups[performance.userId]) {
+                userGroups[performance.userId] = {
+                    userId: performance.userId,
+                    userName: performance.userName,
+                    sprints: {}
+                };
+            }
+
+            userGroups[performance.userId].sprints[performance.sprintNumber] = {
+                estimatedHours: performance.estimatedHours || 0,
+                realHours: performance.realHours || 0
+            };
+        });
+
+        setGroupedData(Object.values(userGroups));
+    }, [userPerformances, sprintOverviews]);
+
+    const maxHours = React.useMemo(() => {
+        if (!groupedData || groupedData.length === 0) return 0;
+
+        const allHours = groupedData.flatMap(user =>
+            Object.values(user.sprints).flatMap(sprint => [
+                sprint.estimatedHours || 0,
+                sprint.realHours || 0
+            ])
+        );
+
+        return Math.max(...allHours, 1);
+    }, [groupedData]);
+
+    return (
+        <Card className="flex flex-col h-full">
+            <CardHeader>
+                <CardTitle>
+                    {loading ? (
+                        <SkeletonText className="w-40" />
+                    ) : (
+                        <>Horas por <span className="text-oracleRed">Usuario</span></>
+                    )}
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow overflow-x-auto">
+                {loading ? (
+                    <div className="h-64 flex items-center justify-center">
+                        <div className="w-full">
+                            <SkeletonText className="h-48 w-full" />
+                        </div>
+                    </div>
+                ) : groupedData && groupedData.length > 0 ? (
+                    <div className="h-64">
+                        <div className="h-3/4 flex items-end space-x-8 mb-8 min-w-max">
+                            {groupedData.map((user) => (
+                                <div key={user.userId} className="flex flex-col items-center">
+                                    <div className="flex items-end space-x-2 mb-2 h-40">
+                                        {sprints.map(sprintNumber => {
+                                            const sprintData = user.sprints[sprintNumber] || { estimatedHours: 0, realHours: 0 };
+                                            return (
+                                                <div key={sprintNumber} className="flex items-end space-x-1">
+                                                    <div className="w-6 bg-red-200 rounded-t-md relative group"
+                                                         style={{
+                                                             height: `${Math.min((sprintData.estimatedHours / maxHours) * 80, 80)}%`,
+                                                             minHeight: sprintData.estimatedHours > 0 ? '4px' : '0px'
+                                                         }}>
+                                                        <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap transition-opacity z-10">
+                                                            {sprintData.estimatedHours}h
+                                                        </div>
+                                                    </div>
+                                                    <div className="w-6 bg-oracleRed rounded-t-md relative group"
+                                                         style={{
+                                                             height: `${Math.min((sprintData.realHours / maxHours) * 80, 80)}%`,
+                                                             minHeight: sprintData.realHours > 0 ? '4px' : '0px'
+                                                         }}>
+                                                        <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap transition-opacity z-10">
+                                                            {sprintData.realHours}h
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="text-sm text-center font-medium truncate max-w-32">
+                                        {user.userName}
+                                    </div>
+                                    <div className="text-xs text-gray-500 text-center">
+                                        Sprints {sprints.join(', ')}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="flex items-center justify-center space-x-6 mt-4">
+                            <div className="flex items-center">
+                                <div className="w-3 h-3 bg-red-200 mr-2"></div>
+                                <span className="text-sm text-gray-600">Horas Estimadas</span>
+                            </div>
+                            <div className="flex items-center">
+                                <div className="w-3 h-3 bg-oracleRed mr-2"></div>
+                                <span className="text-sm text-gray-600">Horas Reales</span>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="h-64 flex items-center justify-center text-gray-500">
+                        No hay datos de usuarios disponibles
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+};
+
+export const UserTasksChart = ({ loading, sprintOverviews, userPerformances }) => {
+    const [groupedData, setGroupedData] = React.useState([]);
+    const [sprints, setSprints] = React.useState([]);
+
+    React.useEffect(() => {
+        if (!userPerformances || userPerformances.length === 0 || !sprintOverviews) return;
+
+        // Get unique sprint numbers
+        const uniqueSprints = [...new Set(sprintOverviews.map(sprint => sprint.sprintNumber))].sort();
+        setSprints(uniqueSprints);
+
+        // Group by userId and userName
+        const userGroups = {};
+
+        userPerformances.forEach(performance => {
+            if (!userGroups[performance.userId]) {
+                userGroups[performance.userId] = {
+                    userId: performance.userId,
+                    userName: performance.userName,
+                    sprints: {}
+                };
+            }
+
+            userGroups[performance.userId].sprints[performance.sprintNumber] = {
+                assignedTasks: performance.assignedTasks || 0,
+                completedTasks: performance.completedTasks || 0
+            };
+        });
+
+        setGroupedData(Object.values(userGroups));
+    }, [userPerformances, sprintOverviews]);
+
+    const maxTasks = React.useMemo(() => {
+        if (!groupedData || groupedData.length === 0) return 0;
+
+        const allTasks = groupedData.flatMap(user =>
+            Object.values(user.sprints).flatMap(sprint => [
+                sprint.assignedTasks || 0,
+                sprint.completedTasks || 0
+            ])
+        );
+
+        return Math.max(...allTasks, 1);
+    }, [groupedData]);
+
+    return (
+        <Card className="flex flex-col h-full">
+            <CardHeader>
+                <CardTitle>
+                    {loading ? (
+                        <SkeletonText className="w-40" />
+                    ) : (
+                        <>Tareas por <span className="text-oracleRed">Usuario</span></>
+                    )}
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow overflow-x-auto">
+                {loading ? (
+                    <div className="h-64 flex items-center justify-center">
+                        <div className="w-full">
+                            <SkeletonText className="h-48 w-full" />
+                        </div>
+                    </div>
+                ) : groupedData && groupedData.length > 0 ? (
+                    <div className="h-64">
+                        <div className="h-3/4 flex items-end space-x-8 mb-8 min-w-max">
+                            {groupedData.map((user) => (
+                                <div key={user.userId} className="flex flex-col items-center">
+                                    <div className="flex items-end space-x-2 mb-2 h-40">
+                                        {sprints.map(sprintNumber => {
+                                            const sprintData = user.sprints[sprintNumber] || { assignedTasks: 0, completedTasks: 0 };
+                                            return (
+                                                <div key={sprintNumber} className="flex items-end space-x-1">
+                                                    <div className="w-6 bg-blue-200 rounded-t-md relative group"
+                                                         style={{
+                                                             height: `${Math.min((sprintData.assignedTasks / maxTasks) * 80, 80)}%`,
+                                                             minHeight: sprintData.assignedTasks > 0 ? '4px' : '0px'
+                                                         }}>
+                                                        <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap transition-opacity z-10">
+                                                            {sprintData.assignedTasks} tareas
+                                                        </div>
+                                                    </div>
+                                                    <div className="w-6 bg-blue-500 rounded-t-md relative group"
+                                                         style={{
+                                                             height: `${Math.min((sprintData.completedTasks / maxTasks) * 80, 80)}%`,
+                                                             minHeight: sprintData.completedTasks > 0 ? '4px' : '0px'
+                                                         }}>
+                                                        <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap transition-opacity z-10">
+                                                            {sprintData.completedTasks} tareas
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="text-sm text-center font-medium truncate max-w-32">
+                                        {user.userName}
+                                    </div>
+                                    <div className="text-xs text-gray-500 text-center">
+                                        Sprints {sprints.join(', ')}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="flex items-center justify-center space-x-6 mt-4">
+                            <div className="flex items-center">
+                                <div className="w-3 h-3 bg-blue-200 mr-2"></div>
+                                <span className="text-sm text-gray-600">Tareas Asignadas</span>
+                            </div>
+                            <div className="flex items-center">
+                                <div className="w-3 h-3 bg-blue-500 mr-2"></div>
+                                <span className="text-sm text-gray-600">Tareas Completadas</span>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="h-64 flex items-center justify-center text-gray-500">
+                        No hay datos de usuarios disponibles
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+};

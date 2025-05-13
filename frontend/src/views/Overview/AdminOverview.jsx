@@ -8,7 +8,8 @@ import {
     DashboardHeader,
     SprintSummaryCard,
     SprintGoalCard,
-    TeamPerformanceCard
+    TeamPerformanceCard,
+    SprintHoursChart, UserTasksChart, UserHoursChart  // Import the new component
 } from '../../components/overview/overviewComponents';
 
 const AdminOverview = () => {
@@ -77,6 +78,26 @@ const AdminOverview = () => {
                 <TeamPerformanceCard
                     loading={loading}
                     sprintUserData={sprintUserData}
+                />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 mt-6">
+                <SprintHoursChart
+                    loading={loading}
+                    sprintOverviews={sprintOverviews}
+                />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 mt-6">
+                <UserHoursChart
+                    loading={loading}
+                    sprintOverviews={sprintOverviews}
+                    userPerformances={sprintUserData}
+                />
+                <UserTasksChart
+                    loading={loading}
+                    sprintOverviews={sprintOverviews}
+                    userPerformances={sprintUserData}
                 />
             </div>
         </div>
