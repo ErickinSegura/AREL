@@ -11,9 +11,6 @@ export const useOverview = () => {
         loading: dataLoading,
         error,
         currentSprint: latestSprint,
-        loadingUserPerformance,
-        userPerformanceError,
-        fetchUserPerformanceByID
     } = useOverviewData();
 
     const { user } = useAuth();
@@ -22,7 +19,6 @@ export const useOverview = () => {
     const [selectedSprint, setSelectedSprint] = useState(null);
     const [sprintUserData, setSprintUserData] = useState([]);
     const [showSprintDropdown, setShowSprintDropdown] = useState(false);
-    const [currentUserPerformance, setCurrentUserPerformance] = useState(null);
 
     useEffect(() => {
         if (latestSprint && !selectedSprintNumber) {
@@ -47,30 +43,10 @@ export const useOverview = () => {
             ).sort((a, b) => b.completedTasks - a.completedTasks);
 
             setSprintUserData(filteredUsers);
-
-            if (user) {
-                const userPerf = filteredUsers.find(
-                    perf => perf.userName === `${user.firstName} ${user.lastName}`
-                );
-                setCurrentUserPerformance(userPerf || null);
-            }
         }
-    }, [selectedSprintNumber, userPerformances, user]);
+    }, [selectedProject, user, selectedSprintNumber]);
 
-    useEffect(() => {
-        if (selectedProject && user && selectedSprintNumber) {
-            fetchUserPerformanceByID(user.id).then(data => {
-                if (data) {
-                    const sprintData = data.find(perf => perf.sprintNumber === selectedSprintNumber);
-                    if (sprintData) {
-                        setCurrentUserPerformance(sprintData);
-                    }
-                }
-            });
-        }
-    }, [selectedProject, user, selectedSprintNumber, fetchUserPerformanceByID]);
-
-    const loading = projectLoading || dataLoading || projectsLoading || loadingUserPerformance;
+    const loading = projectLoading || dataLoading || projectsLoading;
 
     const getProjectIcon = (iconName) => {
         switch (iconName) {
@@ -132,9 +108,5 @@ export const useOverview = () => {
         calculateProgressArc,
         toggleSprintDropdown,
         closeSprintDropdown,
-        currentUserPerformance,
-        loadingUserPerformance,
-        userPerformanceError,
-        fetchUserPerformanceByID
     };
 };

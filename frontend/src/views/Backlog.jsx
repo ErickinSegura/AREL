@@ -8,8 +8,10 @@ import { SkeletonCard, SkeletonText } from '../lib/ui/Skeleton';
 import { Search } from 'lucide-react';
 import { useProjects } from "../hooks/useProjects";
 import { Input } from "../lib/ui/Input";
+import {useAuth} from "../contexts/AuthContext";
 
 const Backlog = () => {
+    const { user } = useAuth();
     const {
         backlogTasks,
         loading,
@@ -100,6 +102,7 @@ const Backlog = () => {
                 loading={loading}
                 onCreateTask={handleOpenCreateModal}
                 onCreateSprint={handleOpenCreateSprintModal}
+                isAdmin={user && (user.userLevel === 1 || user.userLevel === 3)}
             />
 
             <div className="mb-6">

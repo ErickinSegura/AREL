@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -18,13 +19,16 @@ public class WebSecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationProvider authenticationProvider;
+    private final CorsFilter corsFilter; // Inyecta el filtro CORS
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
+                .cors() // Habilitar configuración CORS
+                .and()
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
-                                .antMatchers("/", "/index.html", "/static/**",
+                                .antMatchers("/", "/index.html", "/static/**", "/assets/**",
                                         "/*.js", "/*.css", "/*.ico", "/*.json", "/*.png").permitAll()
                                 .antMatchers("/auth/login", "/auth/register").permitAll()
                                 .anyRequest().authenticated()
@@ -32,7 +36,10 @@ public class WebSecurityConfiguration {
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                // Modificamos el orden de adición de filtros - primero el JWT, luego el CORS
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                // Usar addFilterBefore con una clase conocida por Spring Security en lugar de JwtAuthenticationFilter
+                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

@@ -56,7 +56,7 @@ const getProjectIcon = (iconID) => {
     }
 };
 
-export const BacklogHeader = ({ selectedProject, loading, onCreateTask, onCreateSprint }) => (
+export const BacklogHeader = ({ selectedProject, loading, onCreateTask, onCreateSprint, isAdmin = false }) => (
     <Card className="mb-6">
         <CardHeader>
             <div className={`flex items-center justify-between ${loading ? 'animate-pulse' : ''}`}>
@@ -81,7 +81,7 @@ export const BacklogHeader = ({ selectedProject, loading, onCreateTask, onCreate
                     )}
                 </CardTitle>
 
-                {!loading && (
+                {!loading && isAdmin && (
                     <div className="flex space-x-2">
                         <Button
                             variant="default"
