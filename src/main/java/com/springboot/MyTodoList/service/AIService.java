@@ -1,7 +1,6 @@
 package com.springboot.MyTodoList.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
@@ -9,6 +8,8 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.swagger.models.Response;
 
 @Service
 public class AIService {
@@ -43,4 +44,21 @@ public class AIService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
     }
+
+    public ResponseEntity<String> transcript(String texto) {
+    try {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+
+        HttpEntity<String> request = new HttpEntity<>(texto, headers);
+
+        String response = restTemplate.postForObject(aiUrl + "/transcript", request, String.class);
+
+        return ResponseEntity.ok(response);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Errrrrrrrror: " + e.getMessage());
+    }
+}
+
 }

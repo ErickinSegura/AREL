@@ -25,4 +25,11 @@ public class AIController {
 
         return aiService.prompt(prompt);
     }
+
+    // @GetMapping("/transcript")
+    // public ResponseEntity<String> transcript(@RequestBody Map<String, String> request) {
+    //     String file_id = request.get("file_id");
+
+    //     return aiService.transcript(file_id);
+    // }
 }
