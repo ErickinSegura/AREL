@@ -9,7 +9,7 @@ import {
     SprintSummaryCard,
     SprintGoalCard,
     TeamPerformanceCard,
-    SprintHoursChart, UserTasksChart, UserHoursChart  // Import the new component
+    SprintHoursChart
 } from '../../components/overview/overviewComponents';
 
 const AdminOverview = () => {
@@ -46,7 +46,8 @@ const AdminOverview = () => {
             <ProjectHeader
                 selectedProject={selectedProject}
                 loading={loading}
-                getProjectIcon={getProjectIcon(selectedProject?.icon?.iconName)}
+                getProjectIcon={getProjectIcon(selectedProject?.icon? selectedProject.icon : "")}
+                isAdmin={ true }
             />
 
             <DashboardHeader
@@ -85,19 +86,6 @@ const AdminOverview = () => {
                 <SprintHoursChart
                     loading={loading}
                     sprintOverviews={sprintOverviews}
-                />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 mt-6">
-                <UserHoursChart
-                    loading={loading}
-                    sprintOverviews={sprintOverviews}
-                    userPerformances={sprintUserData}
-                />
-                <UserTasksChart
-                    loading={loading}
-                    sprintOverviews={sprintOverviews}
-                    userPerformances={sprintUserData}
                 />
             </div>
         </div>
