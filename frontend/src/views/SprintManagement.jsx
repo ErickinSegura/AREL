@@ -88,7 +88,7 @@ const SprintManagement = () => {
     if (!selectedProject) {
         return <NoProjectState title={"selected"} message={"Please select a project to view its sprints."} />;
     }
-
+    
 
     return (
         <DndProvider backend={HTML5Backend}>
