@@ -3,7 +3,7 @@ import { ProjectService } from '../api/projectService';
 import { useProjects } from './useProjects';
 
 export const useSettings = () => {
-    const { selectedProject, setSelectedProject, projects } = useProjects();
+    const { selectedProject, setSelectedProject } = useProjects();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);

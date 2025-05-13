@@ -36,7 +36,7 @@ spec:
   selector:
     matchLabels:
       app: todolistapp-springboot
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -90,3 +90,40 @@ spec:
             matchLabels:
               app: todolistapp-springboot
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todolistapp-python-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: arel-ai
+  template:
+    metadata:
+      labels:
+        app: arel-ai
+        version: v1
+    spec:
+      containers:
+        - name: arel-ai-service
+          image: %DOCKER_REGISTRY%/arel-ai-service:0.1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080 #flask port
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: my-docker-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todolistapp-python-service
+spec:
+  selector:
+    app: arel-ai
+  ports:
+    - protocol: TCP
+      port: 5050
+      targetPort: 8080
+  type: ClusterIP

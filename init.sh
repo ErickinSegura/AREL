@@ -155,7 +155,7 @@ build() {
 deploy() {
   echo -e "${YELLOW}${BOLD}Desplegando aplicación:${RESET}"
   
-  execute_command "docker run --name '${CONTAINER_NAME}' -p 8080:8080 --env-file .env -d '${IMAGE_NAME}'" "Desplegando contenedor Docker"
+  execute_command "docker run --name '${CONTAINER_NAME}' --network arel-net -p 8080:8080 --env-file .env -d '${IMAGE_NAME}'" "Desplegando contenedor Docker"
 }
 
 # Mostrar ayuda
@@ -207,6 +207,15 @@ show_final_banner() {
   echo -e "${RESET}"
 }
 
+arel_net() {
+  if ! docker network inspect arel-net > /dev/null 2>&1; then
+  echo "Creando la red arel-net..."
+  docker network create arel-net
+  else
+    echo "Red arel-net ya existe."
+  fi
+}
+
 # Flujo principal
 main() {
   local start_time=$(date +%s)
@@ -216,6 +225,7 @@ main() {
   cleanup
   clean_target
   build
+  arel_net
   deploy
   show_final_banner $start_time
 }

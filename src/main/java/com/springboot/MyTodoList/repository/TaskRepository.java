@@ -19,6 +19,11 @@ import javax.transaction.Transactional;
 public interface TaskRepository extends JpaRepository<Task,Integer> {
     List<Task> findByAssignedTo_Id(int assignedToId);
 
+    @Query(
+        "select s from Task s where s.assignedTo.id = :assignedToID and s.state.id != 3"
+    )
+    List<Task> findActiveTasks(@Param("assignedToID") Integer assignedToID);
+
     List<Task> findBySprint(int sprintId);
 
     List<Task> findByProjectId(int projectId);

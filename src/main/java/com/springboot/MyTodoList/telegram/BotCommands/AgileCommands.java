@@ -93,7 +93,7 @@ public class AgileCommands {
 
             if (userLevel.equals("Developer")) {
                 //Get project tasks
-                List<Task> taskList = database.task.getTasksByUserProject(userProject.getID());
+                List<Task> taskList = database.task.getActiveTasksByUserProject(userProject.getID());
                 String noTask = "";
                 if (taskList.size() == 0 ) {
                     noTask = "\n\nNo tasks available";
@@ -106,23 +106,30 @@ public class AgileCommands {
             } else if (userLevel.equals("Manager") || userLevel.equals("Administrator")) {
                 state.setSelectedProject(actualProject.getID());
 
+                SendMessage selectedProject = new SendMessage();
+                selectedProject.setChatId(chatId);
+                selectedProject.setText(BotMessages.PROJECT_SELECTED_MANAGER.getMessage(actualProject.getName()));
+                messageSender.sendMessage(selectedProject);
+
                 //KPI
-                Integer actualSprint = actualProject.getActiveSprintId();
-                Long projectIDLong = Long.valueOf(actualProject.getID());
-                List<SprintOverview> sprintOverviews = database.kpi.getSprintOverviewsByProjectId(projectIDLong);
-                KPICommands commands = new KPICommands(database, messageSender);
-
+                Integer actualSprint = database.sprint.getActiveSprint(actualProject.getID());
                 
-                Optional<SprintOverview> activeSprintOverviewOptional = sprintOverviews.stream()
-                .filter(p -> p.getSprintNumber() == actualSprint)
-                .findFirst();
+                if (actualSprint != null) {
+                    Long projectIDLong = Long.valueOf(actualProject.getID());
+                    List<SprintOverview> sprintOverviews = database.kpi.getSprintOverviewsByProjectId(projectIDLong);
+                    KPICommands commands = new KPICommands(database, messageSender);
 
-                if (activeSprintOverviewOptional.isPresent()){
-                    SprintOverview overview = activeSprintOverviewOptional.get();
-                    message.setText(commands.formatSprintOverview(overview));
-                    message.setReplyMarkup(keyboardFactory.replyManagerOpenProject());
-                    //message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(actualProject.getID()));
-                }                
+                    
+                    Optional<SprintOverview> activeSprintOverviewOptional = sprintOverviews.stream()
+                    .filter(p -> p.getSprintNumber() == actualSprint)
+                    .findFirst();
+
+                    if (activeSprintOverviewOptional.isPresent()){
+                        SprintOverview overview = activeSprintOverviewOptional.get();
+                        message.setText(commands.formatSprintOverview(overview));
+                        message.setReplyMarkup(keyboardFactory.replyManagerOpenProject());
+                    }    
+                }            
             }
 
             messageSender.sendMessage(message);
@@ -184,7 +191,7 @@ public class AgileCommands {
             if (sprintList != null && !sprintList.isEmpty() && sprintList.size()>0) {
                 message.setText(BotMessages.OPENED_SPRINTS.getMessage());
 
-                int currentSprint = database.project.getActiveSprint(projectId);
+                Integer currentSprint = database.sprint.getActiveSprint(projectId);
                 message.setReplyMarkup(keyboardFactory.sprintList(sprintList, currentSprint));
             }else {
                 message.setText(BotMessages.NO_SPRINTS_AVAILABLE.getMessage());
@@ -197,7 +204,7 @@ public class AgileCommands {
     }
 
     public void showSprint(Long chatId, int projectId) {
-        Integer activeSprint = database.project.getActiveSprint(projectId);
+        Integer activeSprint = database.sprint.getActiveSprint(projectId);
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
 
@@ -208,8 +215,8 @@ public class AgileCommands {
                 message.setText(BotMessages.LIST_SPRINT.getMessage());
                 message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerTaskList(sprintTasks));
             } else {
-                //Null, no active sprint
-                message.setText(BotMessages.NO_ACTIVE_SPRINT.getMessage());
+                //Null, no tasks in sprint
+                message.setText(BotMessages.NO_TASKS_IN_SPRINT.getMessage());
             }
         }else {
             //Null, no active sprint
@@ -246,7 +253,7 @@ public class AgileCommands {
             Integer newNumber = database.sprint.getSprintNumberById(response.getID());
 
             message.setText(BotMessages.CREATE_SPRINT_CONFIRMATION.getMessage(newNumber));
-            message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(actualSprint.getProject()));
+            //message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(actualSprint.getProject()));
         }
         catch (DateTimeParseException e) {
             message.setText(BotMessages.CREATE_SPRINT_PARSE_ERROR.getMessage());
@@ -287,7 +294,7 @@ public class AgileCommands {
                     UserProject actualUserProject = userProjectList.get(0);
                     Project actualProject = actualUserProject.getProject();
                     //Get project tasks
-                    List<Task> taskList = database.task.getTasksByUserProject(actualUserProject.getID());
+                    List<Task> taskList = database.task.getActiveTasksByUserProject(actualUserProject.getID());
                     message.setReplyMarkup(keyboardFactory.createInlineKeyboardFromTasks(taskList));
 
                     String firstName = user.getFirstName();
@@ -320,23 +327,25 @@ public class AgileCommands {
         message.setChatId(chatId);
 
         String username = "";
-            //Get user and privileges
-            if (update.hasMessage()) {
-                username = update.getMessage().getFrom().getUserName();
-            } else if (update.hasCallbackQuery()) {
-                username = update.getCallbackQuery().getFrom().getUserName();
-            }
-            
-            ResponseEntity<User> userResponse = database.user.getUserByTelegramUsername(username);
-            User user = Optional.ofNullable(userResponse.getBody())
-                    .orElseThrow(() -> new RuntimeException("User not found, or couldn't reach database."));
-            String userLevelLabel = user.getUserLevel().getLabel();
-            
-            //Fetch all available projects to user
-            List<UserProject> userProjectList = database.userProject.getProjectsByUser(user.getId());
 
-            message.setText(BotMessages.NO_PROJECT_SELECTED.getMessage());
-            message.setReplyMarkup(keyboardFactory.multipleProjectList(userProjectList, userLevelLabel));
+        //Get user and privileges
+        if (update.hasMessage()) {
+            username = update.getMessage().getFrom().getUserName();
+        } else if (update.hasCallbackQuery()) {
+            username = update.getCallbackQuery().getFrom().getUserName();
+        }
+        
+        ResponseEntity<User> userResponse = database.user.getUserByTelegramUsername(username);
+        User user = Optional.ofNullable(userResponse.getBody())
+                .orElseThrow(() -> new RuntimeException("User not found, or couldn't reach database."));
+        String userLevelLabel = user.getUserLevel().getLabel();
+        
+        //Fetch all available projects to user
+        List<UserProject> userProjectList = database.userProject.getProjectsByUser(user.getId());
+
+        message.setText(BotMessages.NO_PROJECT_SELECTED.getMessage());
+        message.setReplyMarkup(keyboardFactory.multipleProjectList(userProjectList, userLevelLabel));
+
+        messageSender.sendMessage(message);
     }
-
 }

@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.model.Category;
 import com.springboot.MyTodoList.service.ServiceManager;
+import com.springboot.MyTodoList.telegram.BotCommands.AICommands;
 import com.springboot.MyTodoList.telegram.BotCommands.AgileCommands;
 import com.springboot.MyTodoList.telegram.BotCommands.KPICommands;
 import com.springboot.MyTodoList.telegram.BotCommands.TaskCreationCommands;
@@ -29,6 +30,7 @@ public class CommandHandler {
     private final TaskManagementCommands manageTask;
     private final AgileCommands agile;
     private final KPICommands kpi;
+    private final AICommands ai;
 
     public CommandHandler(MessageSender messageSender, ServiceManager serviceManager, 
                           InactivityManager inactivityManager) {
@@ -41,6 +43,7 @@ public class CommandHandler {
         this.manageTask = new TaskManagementCommands(serviceManager, messageSender, inactivityManager);
         this.agile = new AgileCommands(serviceManager, messageSender, inactivityManager);
         this.kpi = new KPICommands(serviceManager, messageSender);
+        this.ai = new AICommands(serviceManager, messageSender);
     }
 
     public void start(Long chatId, Update update){
@@ -217,35 +220,64 @@ public class CommandHandler {
 
             kpi.openKPIMenu(chatId, projectId);
         }
+        else if (callbackQuery.startsWith("see_tasks_developers_")) {
+            int projectId = Integer.parseInt(parts[3]);
+
+            manageTask.selectUserForTaskMonitoring(chatId, projectId);
+        }
+        else if (callbackQuery.startsWith("get_tasks_user_")) {
+            int userProjectId = Integer.parseInt(parts[3]);
+
+            manageTask.openTaskListUser(chatId, userProjectId);
+        }
     }    
 
     public void handleTextInput(UserState state, String messageText, Long chatId, Update update) {
-
+        if (messageText.startsWith("/ai ")){
+            ai.sendPrompt(chatId, messageText);
+            return;
+        }
         //Reply Keyboard Buttons
         if (messageText.equals("Open this Sprint")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
-            agile.showSprint(chatId, projectId);
+            if (projectId != null) {
+                agile.showSprint(chatId, projectId);
+            }
             return;
 
         } else if (messageText.equals("Create Task")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
-            String call = "create_task_project_"+ projectId;
-            createTask.handleCreateTask(call, chatId);
+            if (projectId != null) {
+                String call = "create_task_project_"+ projectId;
+                createTask.handleCreateTask(call, chatId);
+            }
             return;
 
         } else if (messageText.equals("See Backlog")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
-            agile.openBacklog(chatId, projectId);
+            if (projectId != null) {
+                agile.openBacklog(chatId, projectId);
+            }
             return;
 
         } else if (messageText.equals("Sprints")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
-            agile.sprintList(chatId, projectId);
+            if (projectId != null) {
+                agile.sprintList(chatId, projectId);
+            }
             return;
 
         } else if (messageText.equals("KPI Overview")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
-            kpi.openKPIMenu(chatId, projectId);
+            if (projectId != null) {
+                kpi.openKPIMenu(chatId, projectId);
+            }
+            return;
+        } else if (messageText.equals("See developers' tasks")) {
+            Integer projectId = checkForActiveProject(state, chatId, update);
+            if (projectId != null) {
+                manageTask.selectUserForTaskMonitoring(chatId, projectId);
+            }
             return;
         }
         SendMessage message = new SendMessage();
@@ -259,7 +291,7 @@ public class CommandHandler {
         } else if (state.getState() == UserStateType.CREATE_TASK_ENTER_NAME) {
             message.setText(BotMessages.CREATE_TASK_ENTER_DESCRIPTION.getMessage());
             createTask.handleSetTitle(state, messageText);
-            
+
         } else if (state.getState() == UserStateType.CREATE_TASK_ENTER_DESCRIPTION) {
             message.setText(BotMessages.CREATE_TASK_SET_CATEGORY.getMessage());
             List<Category> categories = createTask.handleSetDescription(state, messageText);
@@ -308,6 +340,7 @@ public class CommandHandler {
             return state.getSelectedProject();
 
         }else {
+            logger.debug("No active project");
             agile.noProjectSelectedManager(chatId, update);
             return null;
         }

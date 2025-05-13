@@ -2,6 +2,8 @@ package com.springboot.MyTodoList.controller;
 
 import com.springboot.MyTodoList.model.Project;
 import com.springboot.MyTodoList.service.ProjectService;
+import com.springboot.MyTodoList.service.SprintService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,9 @@ import java.util.List;
 public class ProjectController {
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private SprintService sprintService;
 
     // @CrossOrigin
     @GetMapping()
@@ -54,7 +59,7 @@ public class ProjectController {
 
     @GetMapping("/{id}/activeSprint")
     public ResponseEntity<Integer> getActiveSprint(@PathVariable("id") int id) {
-        Integer activeSprint = projectService.getActiveSprint(id);
+        Integer activeSprint = sprintService.getActiveSprint(id);
         if (activeSprint != null) {
             return new ResponseEntity<>(activeSprint, HttpStatus.OK);
         } else {

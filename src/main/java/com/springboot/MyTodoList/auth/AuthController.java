@@ -62,6 +62,7 @@ public class AuthController {
                     .projectId(userProject != null ? userProject.getID() : null)
                     .projectName(userProject != null ? userProject.getName() : null)
                     .projectRole(userRole)
+                    .avatar(currentUser.getAvatar())
                     .build();
 
             return ResponseEntity.ok(userResponse);

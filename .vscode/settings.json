@@ -1,4 +1,5 @@
 {
     "java.compile.nullAnalysis.mode": "automatic",
-    "java.checkstyle.configuration": "${workspaceFolder}/checkstyle.xml"
+    "java.checkstyle.configuration": "${workspaceFolder}/checkstyle.xml",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

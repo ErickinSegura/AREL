@@ -74,4 +74,15 @@ public class UserService {
         }
     }
 
+    public User updateUserAvatar(int id, String avatar){
+        Optional<User> userData = userRepository.findById(id);
+        if(userData.isPresent()){
+            User user = userData.get();
+            user.setAvatar(avatar);
+            return userRepository.save(user);
+        }else{
+            return null;
+        }
+    }
+
 }

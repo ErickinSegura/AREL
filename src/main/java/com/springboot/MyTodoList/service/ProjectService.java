@@ -56,9 +56,4 @@ public class ProjectService {
         }
     }
 
-    public Integer getActiveSprint(int projectId) {
-        Integer activeSprint = projectRepository.findActiveSprintById(projectId);
-        return activeSprint;
-    }
-
 }

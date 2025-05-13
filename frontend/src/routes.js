@@ -8,8 +8,8 @@ import Login from './views/Login';
 import Team from './views/Team';
 import Reports from './views/Reports';
 import MyTasks from './views/MyTasks';
-import Register from "./views/Register";
 import {Users} from "./views/Users";
+import UserSettings from "./views/UserSettings";
 
 export const routes = [
     {
@@ -17,12 +17,6 @@ export const routes = [
         label: 'Login',
         component: Login,
         public: true,
-    },
-    {
-        path: '/register',
-        label: 'register',
-        component: Register,
-        roles: [3] // Admin only
     },
     {
         path: '/overview',
@@ -42,18 +36,6 @@ export const routes = [
         label: 'Sprints',
         component: Sprints,
         roles: [1, 2, 3] // All roles can access
-    },
-    {
-        path: '/reports',
-        label: 'Reports',
-        component: Reports,
-        roles: [1, 3] // Manager and Admin only
-    },
-    {
-        path: '/team',
-        label: 'Team',
-        component: Team,
-        roles: [1, 3] // Manager and Admin only
     },
     {
         path: '/my-tasks',
@@ -83,6 +65,12 @@ export const routes = [
         path: '/settings',
         label: 'Settings',
         component: AppSettings,
+        roles: [1, 2, 3] // All roles can access
+    },
+    {
+        path: '/usersettings',
+        label: 'User Settings',
+        component: UserSettings,
         roles: [1, 2, 3] // All roles can access
     }
 ];

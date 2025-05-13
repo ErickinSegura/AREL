@@ -4,7 +4,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -15,8 +14,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 import io.jsonwebtoken.Jwts;
-
-import javax.crypto.SecretKey;
 
 @Service
 public class JwtService {

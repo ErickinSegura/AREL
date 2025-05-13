@@ -1,62 +1,97 @@
 import React, { useState } from 'react';
 import { useUsers } from '../hooks/useUsers';
-import { UserCard, UserDetailsSheet } from '../components/users/usersComponents';
-import { LoadingSpinner, ErrorMessage } from '../lib/ui/Loading';
-import { Button } from '../lib/ui/Button';
-import { PlusCircle } from 'lucide-react';
-import { useRoute } from '../contexts/RouteContext';
+import { UserCard, UserDetailsModal, RegisterModal, UsersHeader } from '../components/users/usersComponents';
+import { ErrorMessage } from '../lib/ui/Loading';
+import { SkeletonCard } from '../lib/ui/Skeleton';
 
 export const Users = () => {
-    const { users, loading, error } = useUsers();
+    const { users, loading, error, refetchUsers } = useUsers();
     const [selectedUser, setSelectedUser] = useState(null);
-    const [isSheetOpen, setIsSheetOpen] = useState(false);
-    const { setCurrentRoute } = useRoute();
+    const [isUserDetailsModalOpen, setIsUserDetailsModalOpen] = useState(false);
+    const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+    const [deleteLoading, setDeleteLoading] = useState(false);
 
     const openUserDetails = (user) => {
         setSelectedUser(user);
-        setIsSheetOpen(true);
+        setIsUserDetailsModalOpen(true);
     };
 
     const handleRemoveUser = async (userId) => {
-        console.log('Remove user with ID:', userId);
+        setDeleteLoading(true);
+        try {
+            console.log('Remove user with ID:', userId);
+            if (refetchUsers) {
+                await refetchUsers();
+            }
+
+            setIsUserDetailsModalOpen(false);
+        } catch (error) {
+            console.error('Error removing user:', error);
+        } finally {
+            setDeleteLoading(false);
+        }
     };
 
-    const navigateToRegister = () => {
-        setCurrentRoute('/register');
+    const openRegisterModal = () => {
+        setIsRegisterModalOpen(true);
     };
 
-    if (loading) return <LoadingSpinner message="Loading users..." centered />;
+    const closeRegisterModal = (success = false) => {
+        setIsRegisterModalOpen(false);
+
+        // If registration was successful, refetch users
+        if (success && refetchUsers) {
+            refetchUsers();
+        }
+    };
+
     if (error) return <ErrorMessage message={error} />;
 
     return (
-        <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Team Members</h1>
-                <Button
-                    variant="remarked"
-                    startIcon={<PlusCircle size={16} />}
-                    onClick={navigateToRegister} // Agregamos el manejador de eventos onClick
-                >
-                    Add User
-                </Button>
-            </div>
+        <div className="container mx-auto px-4 py-6">
+            <UsersHeader
+                loading={loading}
+                onAddUser={openRegisterModal}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {users.map((user) => (
-                    <UserCard
-                        key={user.id}
-                        user={user}
-                        onDetailsClick={openUserDetails}
-                        onRemoveClick={handleRemoveUser}
-                    />
-                ))}
+                {loading ? (
+                    // Render skeleton cards while loading
+                    [...Array(6)].map((_, index) => (
+                        <SkeletonCard key={index} header={true} lines={2} />
+                    ))
+                ) : (
+                    <>
+                        {users.map((user) => (
+                            <UserCard
+                                key={user.id}
+                                user={user}
+                                onDetailsClick={openUserDetails}
+                            />
+                        ))}
+                        {users.length === 0 && (
+                            <div className="col-span-3 text-center py-12 text-gray-500">
+                                No users found. Click "Add User" to create one.
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
 
-            <UserDetailsSheet
+            <UserDetailsModal
                 user={selectedUser}
-                isOpen={isSheetOpen}
-                onClose={() => setIsSheetOpen(false)}
+                isOpen={isUserDetailsModalOpen}
+                onClose={() => setIsUserDetailsModalOpen(false)}
+                onRemoveClick={handleRemoveUser}
+                deleteLoading={deleteLoading}
+            />
+
+            <RegisterModal
+                isOpen={isRegisterModalOpen}
+                onClose={(success) => closeRegisterModal(success)}
             />
         </div>
     );
 };
+
+export default Users;

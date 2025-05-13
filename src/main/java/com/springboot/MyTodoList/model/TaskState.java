@@ -13,16 +13,16 @@ public class TaskState {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name= "ID_STATE")
-    int ID;
+    int id;
     @Column(name = "STATE_NAME")
     String label;
 
-    public int getID() {
-        return ID;
+    public int getId() {
+        return id;
     }
 
-    public void setID(int ID) {
-        this.ID = ID;
+    public void setId(int ID) {
+        this.id = ID;
     }
 
     public String getLabel() {
@@ -33,16 +33,16 @@ public class TaskState {
         this.label = label;
 
         if (label.equals("todo")){
-            ID = 1;
+            id = 1;
         }
         if (label.equals("doing")){
-            ID = 2;
+            id = 2;
         }
         if (label.equals("done")){
-            ID = 3;
+            id = 3;
         }
         if (label.equals("cancelled")){
-            ID = 4;
+            id = 4;
         }
     }
 
@@ -65,7 +65,7 @@ public class TaskState {
     @Override
     public String toString() {
         return "TaskState:{" +
-                "id: " + ID +
+                "id: " + id +
                 "label: " + label
                 +"}";
     }

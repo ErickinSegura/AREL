@@ -11,7 +11,6 @@ export const useSprints = () => {
     const [createSprintModalOpen, setCreateSprintModalOpen] = useState(false);
     const [validationError, setValidationError] = useState(null);
 
-    // Form data for creating a new sprint
     const [sprintFormData, setSprintFormData] = useState({
         project: selectedProject?.id || null,
         startDate: new Date().toISOString().split('T')[0],
@@ -19,7 +18,6 @@ export const useSprints = () => {
         sprintNumber: 1
     });
 
-    // Selected tasks for the sprint
     const [selectedTasks, setSelectedTasks] = useState([]);
     const [availableTasks, setAvailableTasks] = useState([]);
 
@@ -34,7 +32,6 @@ export const useSprints = () => {
         }
     }, [selectedProject]);
 
-    // Reset form data
     const resetSprintForm = () => {
         setSprintFormData({
             project: selectedProject?.id || null,
@@ -46,7 +43,6 @@ export const useSprints = () => {
         setValidationError(null);
     };
 
-    // Handle form input changes
     const handleSprintFormChange = (e) => {
         const { name, value } = e.target;
         setSprintFormData(prev => ({
@@ -55,7 +51,6 @@ export const useSprints = () => {
         }));
     };
 
-    // Fetch all sprints for the current project
     const fetchSprints = useCallback(async () => {
         if (!selectedProject) return;
 
@@ -72,7 +67,6 @@ export const useSprints = () => {
         }
     }, [selectedProject]);
 
-    // Fetch available tasks (tasks in backlog with no sprint assigned)
     const fetchAvailableTasks = useCallback(async () => {
         if (!selectedProject) return;
 
@@ -88,7 +82,6 @@ export const useSprints = () => {
         }
     }, [selectedProject]);
 
-    // Toggle task selection
     const toggleTaskSelection = (taskId) => {
         if (selectedTasks.some(task => task.id === taskId)) {
             setSelectedTasks(selectedTasks.filter(task => task.id !== taskId));
@@ -102,7 +95,6 @@ export const useSprints = () => {
         }
     };
 
-    // Update task details (estimated hours and assignee)
     const updateTaskDetails = (taskId, field, value) => {
         setSelectedTasks(selectedTasks.map(task =>
             task.id === taskId
@@ -111,7 +103,6 @@ export const useSprints = () => {
         ));
     };
 
-    // Validate form before submission
     const validateSprintForm = () => {
         if (!sprintFormData.startDate) {
             setValidationError("Start date is required");
@@ -129,7 +120,6 @@ export const useSprints = () => {
         return true;
     };
 
-    // Create a new sprint
     const handleCreateSprint = async () => {
         if (!validateSprintForm()) {
             return false;
@@ -138,7 +128,6 @@ export const useSprints = () => {
         try {
             setLoading(true);
 
-            // Create the sprint
             const sprintData = {
                 ...sprintFormData,
                 startDate: new Date(sprintFormData.startDate).toISOString(),
@@ -150,7 +139,6 @@ export const useSprints = () => {
             if (result.success) {
                 const sprintId = parseInt(result.sprintId.split('/').pop());
 
-                // Update each selected task with the sprint ID
                 const taskUpdatePromises = selectedTasks.map(task =>
                     BacklogService.updateTask(task.id, {
                         ...task,

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { BacklogService } from '../api/backlogService';
 import { useProjects } from './useProjects';
 
@@ -20,6 +20,8 @@ export const useBacklog = () => {
         assignee: null,
         category: null
     });
+
+    const hasLoadedInitialData = useRef(false);
 
     const [taskFormData, setTaskFormData] = useState({
         title: '',
@@ -88,11 +90,12 @@ export const useBacklog = () => {
     };
 
     const fetchBacklogTasks = useCallback(async () => {
-        if (!selectedProject) return;
+        if (!selectedProject?.id) return;
 
         try {
             setLoading(true);
             setError(null);
+            console.log("Fetching backlog tasks for project:", selectedProject.id);
             const tasks = await BacklogService.getTasksByProject(selectedProject.id);
             setBacklogTasks(tasks);
         } catch (err) {
@@ -101,14 +104,15 @@ export const useBacklog = () => {
         } finally {
             setLoading(false);
         }
-    }, [selectedProject]);
+    }, [selectedProject?.id]);
 
     const fetchSprintTasks = useCallback(async (sprintId) => {
-        if (!selectedProject || !sprintId) return;
+        if (!selectedProject?.id || !sprintId) return;
 
         try {
             setLoading(true);
             setError(null);
+            console.log("Fetching sprint tasks for project:", selectedProject.id, "sprint:", sprintId);
             const tasks = await BacklogService.getTasksBySprintAndProject(selectedProject.id, sprintId);
             setSprintTasks(tasks);
         } catch (err) {
@@ -117,16 +121,24 @@ export const useBacklog = () => {
         } finally {
             setLoading(false);
         }
-    }, [selectedProject]);
+    }, [selectedProject?.id]);
 
     useEffect(() => {
-        fetchBacklogTasks();
-    }, [fetchBacklogTasks]);
+        if (selectedProject?.id && !hasLoadedInitialData.current) {
+            console.log("Initial backlog fetch for project:", selectedProject.id);
+            fetchBacklogTasks();
+            hasLoadedInitialData.current = true;
+        }
+
+        if (!selectedProject) {
+            hasLoadedInitialData.current = false;
+        }
+    }, [selectedProject?.id, fetchBacklogTasks]);
 
     useEffect(() => {
-        if (selectedSprint) {
+        if (selectedSprint && selectedProject?.id) {
             fetchSprintTasks(selectedSprint);
-        } else {
+        } else if (selectedProject?.id) {
             setSprintTasks([]);
         }
     }, [selectedSprint, fetchSprintTasks]);
@@ -181,8 +193,6 @@ export const useBacklog = () => {
 
     const handleTaskUpdate = async (taskId, taskData) => {
         try {
-            console.log("TaskID:", taskId, "Type:", typeof taskId);
-            console.log("Task data being sent:", JSON.stringify(taskData, null, 2));
             setLoading(true);
             await BacklogService.updateTask(taskId, taskData);
             fetchBacklogTasks();

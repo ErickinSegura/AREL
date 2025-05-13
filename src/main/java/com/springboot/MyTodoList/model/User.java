@@ -56,6 +56,9 @@ public class User implements UserDetails {
     @Column(name = "CREATED", columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
+    @Column(name = "AVATAR")
+    private String avatar;
+
     @Override
     public String getUsername() {
         return email;

@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
                 if (response.ok) {
                     const userData = await response.json();
                     setUser({
+                        id: userData.id,
                         email: userData.email,
                         firstName: userData.firstName,
                         lastName: userData.lastName,
@@ -27,7 +28,8 @@ export const AuthProvider = ({ children }) => {
                         userLevel: userData.userLevel,
                         projectId: userData.projectId,
                         projectName: userData.projectName,
-                        projectRole: userData.projectRole
+                        projectRole: userData.projectRole,
+                        avatar: userData.avatar ? JSON.parse(userData.avatar) : null
                     });
                     setIsAuthenticated(true);
                     return true;
@@ -89,7 +91,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (firstName, lastName, email, telegramUsername, password) => {
         try {
-            const response = await fetch('/auth/register', {
+            const response = await fetch('http://localhost:8080/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

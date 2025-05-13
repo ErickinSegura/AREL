@@ -3,6 +3,7 @@ import com.springboot.MyTodoList.model.User;
 import com.springboot.MyTodoList.model.UserProject;
 import com.springboot.MyTodoList.service.UserProjectService;
 import com.springboot.MyTodoList.service.UserService;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,9 +78,28 @@ public class UserController {
         }
     }
 
+    @PatchMapping(value = "userlist/{id}/avatar")
+    public ResponseEntity<User> updateUserAvatar(@PathVariable int id, @RequestBody AvatarRequest avatarRequest){
+        try{
+            User updatedUser = userService.updateUserAvatar(id, avatarRequest.getAvatar());
+            if (updatedUser != null) {
+                return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @DeleteMapping(value = "userlist/{id}")
     public ResponseEntity<Boolean> deleteUser(@PathVariable("id") int id){
         Boolean flag = userService.deleteUser(id);
         return new ResponseEntity<>(flag, flag ? HttpStatus.OK : HttpStatus.NOT_FOUND);
+    }
+
+    @Getter
+    public static class AvatarRequest {
+        private String avatar;
     }
 }
