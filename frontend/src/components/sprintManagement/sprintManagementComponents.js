@@ -219,7 +219,7 @@ export const DraggableTaskCard = ({ task, onSelect, projectId }) => {
     );
 };
 
-export const TaskColumn = ({ title, state, tasks, onTaskSelect, onTaskDrop, bgColor = 'bg-gray-50' }) => {
+export const TaskColumn = ({ icon, title, state, tasks, onTaskSelect, onTaskDrop }) => {
     const [{ isOver }, dropRef] = useDrop(() => ({
         accept: 'TASK',
         drop: (item) => onTaskDrop(item.id, state),
@@ -233,7 +233,13 @@ export const TaskColumn = ({ title, state, tasks, onTaskSelect, onTaskDrop, bgCo
             ref={dropRef}
             className={`flex flex-col h-full rounded-2xl border bg-card text-card-foreground shadow-sm p-4 ${isOver ? 'ring-2 ring-oracleRed' : ''}`}
         >
-            <h2 className="text-lg font-semibold mb-4">{title}</h2>
+            <div className="flex items-center mb-4">
+                <div className="text-oracleRed mr-4 flex items-center">
+                    {icon}
+                </div>
+                <h2 className="text-lg font-semibold">{title}</h2>
+            </div>
+
             <div className="flex-grow overflow-y-auto">
                 {tasks.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-28 border-2 border-dashed border-gray-300 rounded-lg">

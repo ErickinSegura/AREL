@@ -13,6 +13,7 @@ import {
     SprintsHeader,
     TaskColumn
 } from '../components/sprintManagement/sprintManagementComponents';
+import {FiCheckCircle, FiClock, FiList} from "react-icons/fi";
 
 
 const SprintManagement = () => {
@@ -124,6 +125,7 @@ const SprintManagement = () => {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-240px)]">
                             <TaskColumn
+                                icon={<FiList/>}
                                 title="To Do"
                                 state={1}
                                 tasks={todoTasks}
@@ -131,6 +133,7 @@ const SprintManagement = () => {
                                 onTaskDrop={handleTaskDrop}
                             />
                             <TaskColumn
+                                icon={<FiClock/>}
                                 title="Doing"
                                 state={2}
                                 tasks={doingTasks}
@@ -138,6 +141,7 @@ const SprintManagement = () => {
                                 onTaskDrop={handleTaskDrop}
                             />
                             <TaskColumn
+                                icon={<FiCheckCircle/>}
                                 title="Done"
                                 state={3}
                                 tasks={doneTasks}
