@@ -1,6 +1,5 @@
-package springboot.MyTodoList.controller;
+package com.springboot.MyTodoList.controller;
 
-import com.springboot.MyTodoList.controller.ShortcutController;
 import com.springboot.MyTodoList.model.Shortcut;
 import com.springboot.MyTodoList.service.ShortcutService;
 import org.junit.jupiter.api.BeforeEach;

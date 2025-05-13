@@ -1,6 +1,5 @@
-package springboot.MyTodoList.controller;
+package com.springboot.MyTodoList.controller;
 
-import com.springboot.MyTodoList.controller.UserController;
 import com.springboot.MyTodoList.model.User;
 import com.springboot.MyTodoList.model.UserLevel;
 import com.springboot.MyTodoList.service.UserService;

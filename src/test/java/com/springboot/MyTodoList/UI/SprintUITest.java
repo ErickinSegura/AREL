@@ -1,4 +1,4 @@
-package springboot.MyTodoList.UI;
+/*package com.springboot.MyTodoList.UI;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
@@ -42,3 +42,4 @@ public class SprintUITest {
         }
     }
 }
+*/

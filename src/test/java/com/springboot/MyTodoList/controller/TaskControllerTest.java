@@ -1,17 +1,14 @@
-package springboot.MyTodoList.controller;
+package com.springboot.MyTodoList.controller;
 
-import com.springboot.MyTodoList.controller.TaskController;
 import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;

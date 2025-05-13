@@ -1,4 +1,4 @@
-package springboot.MyTodoList.Bot;
+package com.springboot.MyTodoList.Bot;
 
 import com.springboot.MyTodoList.service.ServiceManager;
 import com.springboot.MyTodoList.telegram.BotSessionManager.InactivityManager;
