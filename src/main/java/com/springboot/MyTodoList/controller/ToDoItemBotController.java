@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import com.springboot.MyTodoList.telegram.CommandHandler;
@@ -70,19 +69,14 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 						logger.error("Error in message: {}", e.getLocalizedMessage(), e);
 						messageSender.sendErrorMessage(chatId);
 					}
-				} else if (update.getMessage().hasVoice()){
-					logger.debug("Voice Message Detected!!");
-					String fileId = update.getMessage().getVoice().getFileId();
-					commandHandler.transcript(update.getMessage().getChatId(), fileId);
-					return;
-				} else {
-					
+				}
+				else{
 					logger.debug("message has no text, doing nothing....");
 					return;
 				}
 			}
 			else {
-				logger.debug("Nothing detected, doing nothing...");
+				logger.debug("update has no message, doing nothing....");
 				return;
 			}
 		} else {

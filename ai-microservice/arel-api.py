@@ -23,15 +23,6 @@ def prompt():
     answer = openaiPrompt(prompt_text)
     return jsonify({"message": f"{answer}"})
 
-#Transcript audio
-@app.route("/transcript", methods=["POST"])
-def transcript():
-    file_id = request.data.decode("utf-8")
-
-    transcript = process_transcript(file_id)
-    return jsonify({"transcript": f"{transcript}"})
-
-
 #Process prompt through openai API
 def openaiPrompt(prompt):
     response = client.responses.create(
@@ -39,7 +30,3 @@ def openaiPrompt(prompt):
     input=prompt
     )
     return response.output_text
-
-#Process file_id and get file
-def process_transcript(file_id):
-    return "processed " + file_id

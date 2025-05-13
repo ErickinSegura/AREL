@@ -345,8 +345,4 @@ public class CommandHandler {
             return null;
         }
     }
-
-    public void transcript(Long chatId, String file_id) {
-        ai.transcriptAudio(chatId, file_id);
-    }
 }
