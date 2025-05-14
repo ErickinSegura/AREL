@@ -19,12 +19,12 @@ public class WebSecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationProvider authenticationProvider;
-    private final CorsFilter corsFilter; // Inyecta el filtro CORS
+    private final CorsFilter corsFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
-                .cors() // Habilitar configuración CORS
+                .cors()
                 .and()
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
@@ -36,11 +36,10 @@ public class WebSecurityConfiguration {
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
-                // Modificamos el orden de adición de filtros - primero el JWT, luego el CORS
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                // Usar addFilterBefore con una clase conocida por Spring Security en lugar de JwtAuthenticationFilter
                 .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 }
+

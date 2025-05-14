@@ -38,7 +38,6 @@ public class User implements UserDetails {
     @Column(name = "EMAIL")
     private String email;
 
-
     @ManyToOne
     @JoinColumn(name = "USER_LEVEL", referencedColumnName = "ID_USER_LEVEL")
     private UserLevel userLevel;
