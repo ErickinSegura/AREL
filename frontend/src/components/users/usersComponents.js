@@ -26,11 +26,11 @@ export const UsersHeader = ({ loading, onAddUser }) => (
                     ) : (
                         <div className="flex items-center">
                             <div
-                                className="w-12 h-12 rounded-md bg-oracleRed grid place-items-center text-white"
+                                className="w-12 h-12 rounded-xl bg-oracleRed grid place-items-center text-white"
                             >
                                 <UserCircle size={24} />
                             </div>
-                            <h1 className="text-2xl font-bold px-2">Team Members</h1>
+                            <h1 className="text-2xl font-bold px-3  ">Team Members</h1>
                         </div>
                     )}
                 </CardTitle>
@@ -56,22 +56,22 @@ const UserCard = ({ user, onDetailsClick }) => {
     return (
         <Card
             key={user.id}
-            className="hover:shadow-md transition-shadow cursor-pointer"
+            className="hover:shadow-lg transition-shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
             onClick={() => onDetailsClick(user)}
         >
             <CardHeader>
-                <div className="flex justify-between items-start">
-                    <div className="w-16 h-16 rounded-md overflow-hidden">
-                        <AvatarRenderer config={user.avatar} className="w-full h-full" />
+                <div className="flex justify-between items-center gap-4">
+                    <div className="w-16 aspect-square rounded-xl overflow-hidden">
+                        <AvatarRenderer config={user.avatar} />
                     </div>
-                    <div>
-                        <CardTitle>{user.firstName} {user.lastName}</CardTitle>
-                        <CardDescription>{user.email}</CardDescription>
+                    <div className="flex-1 min-w-0">
+                        <CardTitle className="truncate">{user.firstName} {user.lastName}</CardTitle> {/* Evita desbordamiento */}
+                        <CardDescription className="truncate text-sm">{user.email}</CardDescription> {/* Texto más pequeño y evita desbordamiento */}
                     </div>
-                    <span className={`inline-block px-2 py-1 text-xs rounded-full ${
-                        user.userLevel.id === 1 ? 'bg-blue-100 text-blue-800' :
-                            user.userLevel.id === 2 ? 'bg-green-100 text-green-800' :
-                                'bg-purple-100 text-purple-800'
+                    <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
+                        user.userLevel.id === 1 ? 'bg-blue-50 text-blue-700' :
+                            user.userLevel.id === 2 ? 'bg-green-50 text-green-700' :
+                                'bg-purple-50 text-purple-700'
                     }`}>
                         {user.userLevel.label}
                     </span>
@@ -119,8 +119,10 @@ const UserDetailsModal = ({ user, isOpen, onClose, onRemoveClick, deleteLoading 
             <ModalContent>
                 <div className="space-y-6">
                     <div>
-                        <div className="w-32 h-32 rounded-md overflow-hidden">
-                            <AvatarRenderer config={user.avatar} className="w-full h-full" />
+                        <div className="flex justify-center w-full h-36 rounded-xl overflow-hidden mb-4">
+                            <div className="w-36 h-36 rounded-xl overflow-hidden">
+                                <AvatarRenderer config={user.avatar} className="w-full h-full" />
+                            </div>
                         </div>
                         <h4 className="text-lg font-medium mb-2">User Information</h4>
                         <div className="space-y-2">
@@ -145,7 +147,7 @@ const UserDetailsModal = ({ user, isOpen, onClose, onRemoveClick, deleteLoading 
                     <div className="border-t pt-4">
                         <h4 className="text-lg font-medium text-red-600 mb-2">Danger Zone</h4>
                         {!showDangerZone ? (
-                            <div className="p-4 bg-red-50 rounded-md">
+                            <div className="p-4 bg-red-50 rounded-xl">
                                 <h3 className="font-medium text-red-700 mb-2">Delete this user</h3>
                                 <p className="text-red-600 text-sm mb-4">
                                     Once you delete a user, there is no going back. This action cannot be undone.
@@ -216,12 +218,6 @@ const UserDetailsModal = ({ user, isOpen, onClose, onRemoveClick, deleteLoading 
                     </div>
                 </div>
             </ModalContent>
-
-            <ModalFooter>
-                <Button variant="remarked" onClick={onClose}>
-                    Close
-                </Button>
-            </ModalFooter>
         </Modal>
     );
 };

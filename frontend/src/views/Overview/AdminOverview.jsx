@@ -9,7 +9,9 @@ import {
     SprintSummaryCard,
     SprintGoalCard,
     TeamPerformanceCard,
-    SprintHoursChart
+    SprintHoursChart,
+    DeveloperHoursChart,
+    DeveloperTasksChart
 } from '../../components/overview/overviewComponents';
 
 const AdminOverview = () => {
@@ -19,6 +21,7 @@ const AdminOverview = () => {
         loading,
         error,
         sprintOverviews,
+        userPerformances,
         selectedSprint,
         selectedSprintNumber,
         sprintUserData,
@@ -47,7 +50,7 @@ const AdminOverview = () => {
                 selectedProject={selectedProject}
                 loading={loading}
                 getProjectIcon={getProjectIcon(selectedProject?.icon? selectedProject.icon : "")}
-                isAdmin={ true }
+                isAdmin={true}
             />
 
             <DashboardHeader
@@ -88,6 +91,20 @@ const AdminOverview = () => {
                     sprintOverviews={sprintOverviews}
                 />
             </div>
+
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 mt-6">
+                <DeveloperTasksChart
+                    userPerformances={userPerformances}
+                    loading={loading}
+                />
+
+                <DeveloperHoursChart
+                    userPerformances={userPerformances}
+                    loading={loading}
+                />
+            </div>
+
         </div>
     );
 };

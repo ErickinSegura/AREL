@@ -13,7 +13,8 @@ import {
     SprintsHeader,
     TaskColumn
 } from '../components/sprintManagement/sprintManagementComponents';
-
+import {FiCheckCircle, FiClock, FiList} from "react-icons/fi";
+import {useProjectUsers} from "../hooks/useProjectUsers";
 
 const SprintManagement = () => {
     const {
@@ -28,11 +29,12 @@ const SprintManagement = () => {
         handleTaskUpdate,
         selectedSprint,
         setSelectedSprint,
+        taskDetailLoading
     } = useBacklog();
 
     const { sprints, loading: sprintsLoading } = useSprints();
     const { selectedProject } = useProjects();
-
+    const { users, usersLoading } = useProjectUsers(selectedProject?.id);
     const [actualHoursModalOpen, setActualHoursModalOpen] = useState(false);
     const [taskForHours, setTaskForHours] = useState(null);
     const [updateLoading, setUpdateLoading] = useState(false);
@@ -85,6 +87,7 @@ const SprintManagement = () => {
     if (!selectedProject) {
         return <NoProjectState title={"selected"} message={"Please select a project to view its sprints."} />;
     }
+    
 
     return (
         <DndProvider backend={HTML5Backend}>
@@ -122,27 +125,36 @@ const SprintManagement = () => {
                             ))}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-240px)]">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 h-[calc(100vh-240px)]">
                             <TaskColumn
+                                icon={<FiList/>}
                                 title="To Do"
                                 state={1}
                                 tasks={todoTasks}
                                 onTaskSelect={handleTaskSelect}
                                 onTaskDrop={handleTaskDrop}
+                                users={users}
+                                usersLoading={usersLoading}
                             />
                             <TaskColumn
+                                icon={<FiClock/>}
                                 title="Doing"
                                 state={2}
                                 tasks={doingTasks}
                                 onTaskSelect={handleTaskSelect}
                                 onTaskDrop={handleTaskDrop}
+                                users={users}
+                                usersLoading={usersLoading}
                             />
                             <TaskColumn
+                                icon={<FiCheckCircle/>}
                                 title="Done"
                                 state={3}
                                 tasks={doneTasks}
                                 onTaskSelect={handleTaskSelect}
                                 onTaskDrop={handleTaskDrop}
+                                users={users}
+                                usersLoading={usersLoading}
                             />
                         </div>
                     )
@@ -154,15 +166,15 @@ const SprintManagement = () => {
                     )
                 )}
 
-                {selectedTask && (
+                {(selectedTask || taskDetailLoading) && (
                     <TaskDetailModal
                         isOpen={taskModalOpen}
                         onClose={handleCloseTaskModal}
                         task={selectedTask}
                         onUpdate={handleTaskUpdate}
                         onDelete={() => {}}
-                        loading={loading}
-                        projectId={selectedProject?.id}
+                        loading={taskDetailLoading}
+                        users={users}
                     />
                 )}
 

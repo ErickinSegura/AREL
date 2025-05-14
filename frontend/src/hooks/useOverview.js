@@ -44,7 +44,7 @@ export const useOverview = () => {
 
             setSprintUserData(filteredUsers);
         }
-    }, [selectedProject, user, selectedSprintNumber]);
+    }, [selectedProject, user, selectedSprintNumber, userPerformances]);
 
     const loading = projectLoading || dataLoading || projectsLoading;
 
@@ -59,7 +59,7 @@ export const useOverview = () => {
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
-        return date.toLocaleDateString('default', { day: 'numeric', month: 'short', year: 'numeric' });
+        return date.toLocaleDateString();
     };
 
     const getCompletionRateColor = (completionRate) => {
@@ -97,6 +97,7 @@ export const useOverview = () => {
         loading,
         error,
         sprintOverviews,
+        userPerformances,
         selectedSprint,
         selectedSprintNumber,
         sprintUserData,
