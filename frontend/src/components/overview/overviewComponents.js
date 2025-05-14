@@ -9,14 +9,13 @@ import {
     FiCodesandbox,
     FiChevronDown,
     FiAlertTriangle,
-    FiArrowUp
+    FiArrowUp, FiActivity, FiClock, FiCheckCircle
 } from 'react-icons/fi';
 import { Skeleton, SkeletonText, SkeletonCircle } from '../../lib/ui/Skeleton';
 import { AICall, PDF } from '../../lib/ui/PDF/PDF';
 import { pdf } from '@react-pdf/renderer';
 import { OverviewService } from '../../api/overviewService';
 import {useAuth} from "../../contexts/AuthContext";
-import {useProjects} from "../../hooks/useProjects";
 import {useDeveloperCharts} from "../../hooks/useDeveloperCharts";
 
 const getProjectIcon = (iconID) => {
@@ -326,9 +325,131 @@ export const SprintSummaryCard = ({ loading, selectedSprint, formatDate }) => (
     </Card>
 );
 
+const FadeIn = ({ children, delay = 0, duration = 300 }) => {
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsVisible(true);
+        }, delay);
+
+        return () => clearTimeout(timer);
+    }, [delay]);
+
+    return (
+        <div
+            style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? 'translateY(0)' : 'translateY(10px)',
+                transition: `opacity ${duration}ms ease-out, transform ${duration}ms ease-out`,
+            }}
+        >
+            {children}
+        </div>
+    );
+};
+
+// Componente para animación del arco de progreso
+const AnimatedArc = ({ progressArc, completionRateColor }) => {
+    const [progress, setProgress] = useState(0);
+
+    useEffect(() => {
+        // Animación de 0 a valor final
+        const timer = setTimeout(() => {
+            setProgress(1);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    const animatedDashoffset = progressArc.strokeDashoffset * (1 - progress);
+
+    return (
+        <svg className="w-full h-full" viewBox="0 0 100 50">
+            <path
+                d="M5,45 A45,45 0 0,1 95,45"
+                fill="transparent"
+                stroke="#f0f0f0"
+                strokeWidth="10"
+                strokeLinecap="round"
+            />
+            <path
+                d="M5,45 A45,45 0 0,1 95,45"
+                fill="transparent"
+                stroke={completionRateColor}
+                strokeWidth="10"
+                strokeDasharray={progressArc.strokeDasharray}
+                strokeDashoffset={animatedDashoffset}
+                strokeLinecap="round"
+                style={{
+                    transition: 'stroke-dashoffset 1.2s ease-in-out'
+                }}
+            />
+        </svg>
+    );
+};
+
+// Componente de barra de progreso animada
+const AnimatedProgressBar = ({ percentage, color }) => {
+    const [width, setWidth] = useState(0);
+
+    useEffect(() => {
+        // Animación desde 0 hasta el porcentaje final
+        setTimeout(() => {
+            setWidth(percentage);
+        }, 300);
+    }, [percentage]);
+
+    return (
+        <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+            <div
+                className={`h-2 rounded-full ${color}`}
+                style={{
+                    width: `${width}%`,
+                    transition: 'width 1s ease-out'
+                }}
+            />
+        </div>
+    );
+};
+
+// Componente de contador animado
+const AnimatedCounter = ({ end, duration = 1000 }) => {
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        let startTime;
+        let animationFrame;
+
+        const updateCount = (timestamp) => {
+            if (!startTime) startTime = timestamp;
+            const progress = Math.min((timestamp - startTime) / duration, 1);
+
+            setCount(Math.floor(progress * end));
+
+            if (progress < 1) {
+                animationFrame = requestAnimationFrame(updateCount);
+            }
+        };
+
+        animationFrame = requestAnimationFrame(updateCount);
+
+        return () => {
+            cancelAnimationFrame(animationFrame);
+        };
+    }, [end, duration]);
+
+    return <>{count}</>;
+};
+
 export const SprintGoalCard = ({ loading, selectedSprint, calculateProgressArc }) => {
     const progressArc = calculateProgressArc ? calculateProgressArc() : {};
     const completionRateColor = progressArc.completionRateColor;
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     return (
         <Card className="flex flex-col h-full">
@@ -349,52 +470,41 @@ export const SprintGoalCard = ({ loading, selectedSprint, calculateProgressArc }
                             <SkeletonText lines={1} />
                         </div>
                     </>
-                ) : selectedSprint && (
+                ) : selectedSprint && mounted && (
                     <>
-                        <div className="relative w-60 h-36 mb-4">
-                            <svg className="w-full h-full" viewBox="0 0 100 50">
-                                <path
-                                    d="M5,45 A45,45 0 0,1 95,45"
-                                    fill="transparent"
-                                    stroke="#f0f0f0"
-                                    strokeWidth="10"
-                                    strokeLinecap="round"
-                                />
-                                <path
-                                    d="M5,45 A45,45 0 0,1 95,45"
-                                    fill="transparent"
-                                    stroke={completionRateColor}
-                                    strokeWidth="10"
-                                    strokeDasharray={progressArc.strokeDasharray}
-                                    strokeDashoffset={progressArc.strokeDashoffset}
-                                    strokeLinecap="round"
-                                />
-                            </svg>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center mt-6">
-                <span className="text-3xl font-bold">
-                  {selectedSprint.completedTasks}/{selectedSprint.totalTasks}
-                </span>
-                                <span className="text-xs text-gray-500">TASKS COMPLETED</span>
+                        <FadeIn delay={100}>
+                            <div className="relative w-60 h-36 mb-4">
+                                <AnimatedArc progressArc={progressArc} completionRateColor={completionRateColor} />
+                                <div className="absolute inset-0 flex flex-col items-center justify-center mt-6">
+                  <span className="text-3xl font-bold">
+                    <AnimatedCounter end={selectedSprint.completedTasks} duration={1200} />
+                    /{selectedSprint.totalTasks}
+                  </span>
+                                    <span className="text-xs text-gray-500">TASKS COMPLETED</span>
+                                </div>
                             </div>
-                        </div>
-                        <div className="flex items-center text-xs text-gray-600">
-                            {selectedSprint.completionRate >= 75 ? (
-                                <>
-                                    <FiArrowUp className="text-green-500 mr-1" />
-                                    <span>Great progress with {selectedSprint.completionRate.toFixed(0)}% completion rate!</span>
-                                </>
-                            ) : selectedSprint.completionRate >= 50 ? (
-                                <>
-                                    <FiArrowUp className="text-yellow-500 mr-1" />
-                                    <span>Decent progress at {selectedSprint.completionRate.toFixed(0)}% completion rate</span>
-                                </>
-                            ) : (
-                                <>
-                                    <FiArrowUp className="text-red-500 mr-1 transform rotate-180" />
-                                    <span>Low completion rate at {selectedSprint.completionRate.toFixed(0)}%</span>
-                                </>
-                            )}
-                        </div>
+                        </FadeIn>
+
+                        <FadeIn delay={600}>
+                            <div className="flex items-center text-xs text-gray-600">
+                                {selectedSprint.completionRate >= 75 ? (
+                                    <>
+                                        <FiArrowUp className="text-green-500 mr-1" />
+                                        <span>Great progress with {selectedSprint.completionRate.toFixed(0)}% completion rate!</span>
+                                    </>
+                                ) : selectedSprint.completionRate >= 50 ? (
+                                    <>
+                                        <FiArrowUp className="text-yellow-500 mr-1" />
+                                        <span>Decent progress at {selectedSprint.completionRate.toFixed(0)}% completion rate</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <FiArrowUp className="text-red-500 mr-1 transform rotate-180" />
+                                        <span>Low completion rate at {selectedSprint.completionRate.toFixed(0)}%</span>
+                                    </>
+                                )}
+                            </div>
+                        </FadeIn>
                     </>
                 )}
             </CardContent>
@@ -402,83 +512,104 @@ export const SprintGoalCard = ({ loading, selectedSprint, calculateProgressArc }
     );
 };
 
-export const TeamPerformanceCard = ({ loading, sprintUserData }) => (
-    <Card className="flex flex-col h-full">
-        <CardHeader>
-            <CardTitle>
-                {loading ? (
-                    <SkeletonText className="w-48" />
-                ) : (
-                    <>Sprint <span className="text-oracleRed">Team Performance</span></>
-                )}
-            </CardTitle>
-        </CardHeader>
-        <CardContent className="flex-grow">
-            {loading ? (
-                <div className="space-y-4">
-                    {[1, 2, 3].map((i) => (
-                        <div key={i} className="bg-gray-50 p-3 rounded-lg">
-                            <div className="flex justify-between mb-2">
-                                <SkeletonText className="w-32" />
-                                <SkeletonText className="w-24" />
-                            </div>
-                            <div className="grid grid-cols-3 gap-2 mt-2">
-                                <SkeletonText className="h-4" />
-                                <SkeletonText className="h-4" />
-                                <SkeletonText className="h-4" />
-                            </div>
-                            <Skeleton className="w-full h-2 mt-2" />
-                        </div>
-                    ))}
-                </div>
-            ) : (
-                <div className="space-y-4 overflow-y-auto max-h-64 pr-1">
-                    {sprintUserData && sprintUserData.length > 0 ? (
-                        sprintUserData.map((user, index) => (
-                            <UserPerformanceItem key={index} user={user} />
-                        ))
+export const TeamPerformanceCard = ({ loading, sprintUserData }) => {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    return (
+        <Card className="flex flex-col h-full">
+            <CardHeader>
+                <CardTitle>
+                    {loading ? (
+                        <SkeletonText className="w-48" />
                     ) : (
-                        <div className="text-center py-6 text-gray-500">
-                            No user performance data available for this sprint
-                        </div>
+                        <>Sprint <span className="text-oracleRed">Team Performance</span></>
                     )}
-                </div>
-            )}
-        </CardContent>
-    </Card>
-);
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow">
+                {loading ? (
+                    <div className="space-y-4">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="bg-gray-50 p-3 rounded-lg">
+                                <div className="flex justify-between mb-2">
+                                    <SkeletonText className="w-32" />
+                                    <SkeletonText className="w-24" />
+                                </div>
+                                <div className="grid grid-cols-3 gap-2 mt-2">
+                                    <SkeletonText className="h-4" />
+                                    <SkeletonText className="h-4" />
+                                    <SkeletonText className="h-4" />
+                                </div>
+                                <Skeleton className="w-full h-2 mt-2" />
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="space-y-4 overflow-y-auto max-h-64 pr-1">
+                        {sprintUserData && sprintUserData.length > 0 ? (
+                            sprintUserData.map((user, index) => (
+                                <FadeIn delay={100 + index * 150} key={index}>
+                                    <UserPerformanceItem user={user} />
+                                </FadeIn>
+                            ))
+                        ) : (
+                            <div className="text-center py-6 text-gray-500">
+                                No user performance data available for this sprint
+                            </div>
+                        )}
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+};
 
 export const UserPerformanceItem = ({ user }) => {
-    const { FiCheckCircle, FiClock, FiActivity } = require('react-icons/fi');
-
     return (
         <div className="bg-gray-50 p-3 rounded-lg">
             <div className="flex justify-between mb-2">
                 <div className="font-medium">{user.userName}</div>
-                <div className={`text-sm font-semibold ${user.completionRate >= 75 ? 'text-green-500' : user.completionRate >= 50 ? 'text-yellow-500' : 'text-red-500'}`}>
-                    {user.completionRate.toFixed(0)}% Completion
+                <div className={`text-sm font-semibold ${
+                    user.completionRate >= 75 ? 'text-green-500' :
+                        user.completionRate >= 50 ? 'text-yellow-500' :
+                            'text-red-500'
+                }`}>
+                    <AnimatedCounter end={Math.round(user.completionRate)} />% Completion
                 </div>
             </div>
             <div className="grid grid-cols-3 gap-2 text-xs">
                 <div className="flex items-center justify-center">
                     <FiCheckCircle className="mr-1 text-blue-500" />
-                    <span>{user.completedTasks}/{user.assignedTasks} Tasks</span>
+                    <span>
+            <AnimatedCounter end={user.completedTasks} duration={800} />
+            /{user.assignedTasks} Tasks
+          </span>
                 </div>
                 <div className="flex items-center justify-center">
                     <FiClock className="mr-1 text-purple-500" />
-                    <span>{user.totalEstimatedHours}h Estimated</span>
+                    <span>
+            <AnimatedCounter end={user.totalEstimatedHours} duration={800} />h Estimated
+          </span>
                 </div>
                 <div className="flex items-center justify-center">
                     <FiActivity className="mr-1 text-orange-500" />
-                    <span>{user.totalRealHours}h Spent</span>
+                    <span>
+            <AnimatedCounter end={user.totalRealHours} duration={800} />h Spent
+          </span>
                 </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                <div
-                    className={`h-2 rounded-full ${user.completionRate >= 75 ? 'bg-green-500' : user.completionRate >= 50 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                    style={{ width: `${user.completionRate}%` }}
-                ></div>
-            </div>
+            <AnimatedProgressBar
+                percentage={user.completionRate}
+                color={
+                    user.completionRate >= 75 ? 'bg-green-500' :
+                        user.completionRate >= 50 ? 'bg-yellow-500' :
+                            'bg-red-500'
+                }
+            />
         </div>
     );
 };
@@ -523,22 +654,410 @@ export const DevStreakCard = ({ loading, selectedSprint }) => {
     );
 };
 
-const RoundedBar = React.memo((props) => {
-    const { x, y, width, height, fill } = props;
-    const radius = Math.min(8, width / 4, height / 4);
+const RoundedBar = ({ x, y, width, height, fill, animationDelay = 0 }) => {
+    const [animated, setAnimated] = useState(false);
 
-    // Simplified path with fewer points
+    useEffect(() => {
+        const timer = setTimeout(() => setAnimated(true), animationDelay);
+        return () => clearTimeout(timer);
+    }, [animationDelay]);
+
+    const radius = Math.min(8, width / 2);
+    const animatedHeight = animated ? height : 0;
+    const animatedY = animated ? y : y + height;
+
     return (
-        <path
-            d={`M${x},${y + height}L${x},${y + radius}Q${x},${y} ${x + radius},${y}L${x + width - radius},${y}Q${x + width},${y} ${x + width},${y + radius}L${x + width},${y + height}Z`}
-            fill={fill}
-        />
+        <g>
+            <path
+                d={`
+          M ${x},${animatedY + animatedHeight}
+          L ${x},${animatedY + radius}
+          Q ${x},${animatedY} ${x + radius},${animatedY}
+          L ${x + width - radius},${animatedY}
+          Q ${x + width},${animatedY} ${x + width},${animatedY + radius}
+          L ${x + width},${animatedY + animatedHeight}
+          Z
+        `}
+                fill={fill}
+                style={{
+                    transition: "d 0.5s ease-out",
+                }}
+            />
+        </g>
     );
-});
+};
 
-const MemoizedResponsiveContainer = React.memo(({ children, ...props }) => (
-    <ResponsiveContainer {...props}>{children}</ResponsiveContainer>
-));
+const SimpleBarChart = ({
+                            data,
+                            keys,
+                            colors,
+                            width = "100%",
+                            height = 320,
+                            margin = { top: 20, right: 30, left: 60, bottom: 60 },
+                            xLabel = "",
+                            yLabel = "",
+                            tooltipFormatter = (value) => value,
+                            dataKeyNames = {},
+                        }) => {
+    const chartRef = useState(() => React.createRef())[0];
+    const [chartDimensions, setChartDimensions] = useState({ width: 600, height: 320 });
+    const [tooltipData, setTooltipData] = useState(null);
+    const [mounted, setMounted] = useState(false);
+    const [showNoDataMessage, setShowNoDataMessage] = useState(false);
+    const [isPortrait, setIsPortrait] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+
+        const updateDimensions = () => {
+            if (chartRef.current) {
+                const { width, height } = chartRef.current.getBoundingClientRect();
+                setChartDimensions({ width, height });
+                setIsPortrait(window.innerWidth < 768);
+            }
+        };
+
+        const timer = setTimeout(() => {
+            if (!data || data.length === 0) {
+                setShowNoDataMessage(true);
+            }
+        }, 500);
+
+        updateDimensions();
+        window.addEventListener("resize", updateDimensions);
+
+        return () => {
+            window.removeEventListener("resize", updateDimensions);
+            clearTimeout(timer);
+        };
+    }, [data, chartRef]);
+
+    if (showNoDataMessage) {
+        return (
+            <div
+                ref={chartRef}
+                style={{
+                    width,
+                    height,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "1px dashed #ccc",
+                    borderRadius: "8px",
+                    color: "#666"
+                }}
+            >
+                No data available
+            </div>
+        );
+    }
+
+    if (!mounted || !data || data.length === 0) {
+        return (
+            <div
+                ref={chartRef}
+                style={{
+                    width,
+                    height,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                }}
+            >
+                <div className="animate-pulse flex space-x-4">
+                    <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                </div>
+            </div>
+        );
+    }
+
+    const responsiveMargin = {
+        top: margin.top,
+        right: isPortrait ? 15 : margin.right,
+        left: isPortrait ? 40 : margin.left,
+        bottom: isPortrait ? 100 : margin.bottom,
+    };
+
+    const chartWidth = chartDimensions.width - responsiveMargin.left - responsiveMargin.right;
+    const chartHeight = chartDimensions.height - responsiveMargin.top - responsiveMargin.bottom;
+
+    const barCategories = data.map((d) => d.name);
+    const barCount = barCategories.length;
+    const maxVisibleBars = isPortrait ? 6 : 12;
+    const compactMode = barCount > maxVisibleBars;
+
+    const barWidth = Math.max(
+        8,
+        Math.min(90, (chartWidth / barCount) * 0.7)
+    );
+    const groupPadding = Math.max(2, (chartWidth / barCount) * 0.3);
+
+    const maxValue = Math.max(
+        ...data.flatMap((d) => keys.map((key) => d[key] || 0)),
+        0.1
+    );
+
+    const yScale = (value) => chartHeight - (value / maxValue) * chartHeight;
+
+    const getXPosition = (index) =>
+        responsiveMargin.left + index * (chartWidth / barCount) + groupPadding / 2;
+
+    const bars = [];
+    data.forEach((d, i) => {
+        const x = getXPosition(i);
+
+        keys.forEach((key, keyIndex) => {
+            const value = d[key] || 0;
+            const barX = x + (keyIndex * (barWidth / keys.length));
+            const barHeight = chartHeight - yScale(value);
+
+            bars.push(
+                <RoundedBar
+                    key={`bar-${i}-${key}`}
+                    x={barX}
+                    y={responsiveMargin.top + chartHeight - barHeight}
+                    width={barWidth / keys.length}
+                    height={barHeight}
+                    fill={colors[key]}
+                    animationDelay={i * 50 + keyIndex * 20}
+                />
+            );
+        });
+    });
+
+    const xAxisTicks = barCategories.map((category, i) => {
+        if (compactMode && i % Math.ceil(barCount / maxVisibleBars) !== 0 && i !== barCount - 1) {
+            return null;
+        }
+
+        const x = getXPosition(i) + barWidth / 2;
+        return (
+            <g key={`x-tick-${i}`}>
+                <line
+                    x1={x}
+                    y1={responsiveMargin.top + chartHeight}
+                    x2={x}
+                    y2={responsiveMargin.top + chartHeight + 5}
+                    stroke="#666"
+                />
+                <text
+                    x={x}
+                    y={responsiveMargin.top + chartHeight + (isPortrait ? 10 : 20)}
+                    textAnchor={isPortrait ? "end" : "middle"}
+                    fontSize="10"
+                    transform={isPortrait ? `rotate(-45, ${x}, ${responsiveMargin.top + chartHeight + 10})` : undefined}
+                    style={{ maxWidth: "50px", overflow: "hidden", textOverflow: "ellipsis" }}
+                >
+                    {category.length > 10 && isPortrait ? `${category.substring(0, 10)}...` : category}
+                </text>
+            </g>
+        );
+    });
+
+    // Determinar ticks del eje Y de forma dinámica
+    const yTicks = isPortrait ? 3 : 5;
+    const yAxisTicks = Array.from({ length: yTicks }).map((_, i) => {
+        const value = maxValue * (1 - i / (yTicks - 1));
+        const y = responsiveMargin.top + yScale(value);
+        return (
+            <g key={`y-tick-${i}`}>
+                <line
+                    x1={responsiveMargin.left - 5}
+                    y1={y}
+                    x2={responsiveMargin.left}
+                    y2={y}
+                    stroke="#666"
+                />
+                <text
+                    x={responsiveMargin.left - 10}
+                    y={y + 4}
+                    textAnchor="end"
+                    fontSize={isPortrait ? "9" : "11"}
+                >
+                    {Math.round(value)}
+                </text>
+                <line
+                    x1={responsiveMargin.left}
+                    y1={y}
+                    x2={responsiveMargin.left + chartWidth}
+                    y2={y}
+                    stroke="#ddd"
+                    strokeDasharray="3,3"
+                />
+            </g>
+        );
+    });
+
+    // Ajustar leyenda para ser responsiva
+    const legendItems = keys.map((key, i) => {
+        const itemsPerRow = isPortrait ? 2 : keys.length;
+        const rowIndex = Math.floor(i / itemsPerRow);
+        const colIndex = i % itemsPerRow;
+
+        return (
+            <g
+                key={`legend-${i}`}
+                transform={`translate(${responsiveMargin.left + (colIndex * (chartWidth / itemsPerRow))}, ${
+                    chartDimensions.height - 20 - (rowIndex * 20)
+                })`}
+            >
+                <rect width="10" height="10" fill={colors[key]} rx="2" />
+                <text x="15" y="8" fontSize={isPortrait ? "10" : "12"}>
+                    {dataKeyNames[key] || key}
+                </text>
+            </g>
+        );
+    });
+
+    // Manejo de eventos para el tooltip mejorado
+    const handleMouseMove = (e) => {
+        const svgRect = e.currentTarget.getBoundingClientRect();
+        const mouseX = e.clientX - svgRect.left;
+        const mouseY = e.clientY - svgRect.top;
+
+        const barIndex = Math.floor((mouseX - responsiveMargin.left) / (chartWidth / barCount));
+        if (barIndex >= 0 && barIndex < data.length) {
+            const item = data[barIndex];
+            const x = getXPosition(barIndex) + barWidth / 2;
+            setTooltipData({
+                item,
+                x,
+                y: responsiveMargin.top,
+                mouseX,
+                mouseY
+            });
+        }
+    };
+
+    const handleTouchStart = (e) => {
+        if (e.touches && e.touches[0]) {
+            // Para eventos táctiles, necesitamos manejar las coordenadas de manera diferente
+            const svgElement = e.currentTarget || e.target; // Usar e.target como fallback
+            const svgRect = svgElement.getBoundingClientRect();
+            const touchX = e.touches[0].clientX - svgRect.left;
+            const touchY = e.touches[0].clientY - svgRect.top;
+
+            const barIndex = Math.floor((touchX - responsiveMargin.left) / (chartWidth / barCount));
+            if (barIndex >= 0 && barIndex < data.length) {
+                const item = data[barIndex];
+                const x = getXPosition(barIndex) + barWidth / 2;
+                setTooltipData({
+                    item,
+                    x,
+                    y: responsiveMargin.top,
+                    mouseX: touchX,
+                    mouseY: touchY
+                });
+            }
+        }
+    };
+
+    const handleMouseLeave = () => {
+        setTooltipData(null);
+    };
+
+    // Crear tooltip responsivo y accesible
+    const tooltip = tooltipData && (
+        <div
+            role="tooltip"
+            aria-live="polite"
+            style={{
+                position: "absolute",
+                left: Math.min(
+                    tooltipData.mouseX + 10,
+                    chartDimensions.width - 150
+                ),
+                top: Math.min(
+                    tooltipData.mouseY - 50,
+                    chartDimensions.height - 100
+                ),
+                backgroundColor: "rgba(255,255,255,0.95)",
+                border: "1px solid #ddd",
+                borderRadius: "6px",
+                padding: "8px",
+                pointerEvents: "none",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
+                fontSize: "12px",
+                zIndex: 10,
+                minWidth: "120px",
+                maxWidth: isPortrait ? "150px" : "200px"
+            }}
+        >
+            <div className="font-bold mb-1">{tooltipData.item.name}</div>
+            {keys.map((key) => (
+                <div key={key} className="flex items-center mt-1">
+          <span
+              className="inline-block w-3 h-3 mr-2 rounded-sm"
+              style={{ backgroundColor: colors[key] }}
+          ></span>
+                    <span>
+            {dataKeyNames[key] || key}: {tooltipFormatter(tooltipData.item[key] || 0, key)}
+          </span>
+                </div>
+            ))}
+        </div>
+    );
+
+    return (
+        <div
+            ref={chartRef}
+            style={{ width, height, position: "relative" }}
+            className="font-sans text-gray-800"
+        >
+            <svg
+                width="100%"
+                height="100%"
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchStart}
+                onTouchEnd={handleMouseLeave}
+                role="img"
+                aria-label={`Gráfico de barras: ${xLabel} vs ${yLabel}`}
+            >
+                {/* Ejes X e Y */}
+                <line
+                    x1={responsiveMargin.left}
+                    y1={responsiveMargin.top + chartHeight}
+                    x2={responsiveMargin.left + chartWidth}
+                    y2={responsiveMargin.top + chartHeight}
+                    stroke="#666"
+                />
+                <line
+                    x1={responsiveMargin.left}
+                    y1={responsiveMargin.top}
+                    x2={responsiveMargin.left}
+                    y2={responsiveMargin.top + chartHeight}
+                    stroke="#666"
+                />
+
+                <text
+                    transform={`translate(${isPortrait ? 12 : 15}, ${
+                        responsiveMargin.top + chartHeight / 2
+                    }) rotate(-90)`}
+                    textAnchor="middle"
+                    fontSize={isPortrait ? "10" : "12"}
+                    fontWeight="bold"
+                >
+                    {yLabel}
+                </text>
+
+                {/* Líneas de cuadrícula y marcas */}
+                {yAxisTicks}
+                {xAxisTicks}
+
+                {/* Barras animadas */}
+                {bars}
+
+                {/* Leyenda responsiva */}
+                {legendItems}
+            </svg>
+
+            {/* Tooltip mejorado */}
+            {tooltip}
+        </div>
+    );
+};
 
 export const SprintHoursChart = React.memo(({ loading, sprintOverviews }) => {
     const chartData = useMemo(() => {
@@ -554,7 +1073,6 @@ export const SprintHoursChart = React.memo(({ loading, sprintOverviews }) => {
             }));
     }, [sprintOverviews]);
 
-    // Memoize the chart element to prevent re-rendering when parent rerenders
     const chartElement = useMemo(() => {
         if (loading) {
             return (
@@ -575,46 +1093,16 @@ export const SprintHoursChart = React.memo(({ loading, sprintOverviews }) => {
         }
 
         return (
-            <MemoizedResponsiveContainer width="100%" height={320}>
-                <BarChart
-                    data={chartData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
-                >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                        dataKey="name"
-                        label={{
-                            value: 'Sprints',
-                            position: 'insideBottomRight',
-                            offset: -10
-                        }}
-                    />
-                    <YAxis
-                        label={{
-                            value: 'Hours',
-                            angle: -90,
-                            position: 'insideLeft',
-                            style: { textAnchor: 'middle' }
-                        }}
-                    />
-                    <Tooltip formatter={(value) => [`${value} hours`]} />
-                    <Legend wrapperStyle={{ bottom: 0 }} />
-                    <Bar
-                        dataKey="estimated"
-                        name="Estimated Hours"
-                        fill="#EA6447"
-                        isAnimationActive={false}
-                        shape={<RoundedBar />}
-                    />
-                    <Bar
-                        dataKey="actual"
-                        name="Actual Hours"
-                        fill="#C74634"
-                        isAnimationActive={false}
-                        shape={<RoundedBar />}
-                    />
-                </BarChart>
-            </MemoizedResponsiveContainer>
+            <SimpleBarChart
+                data={chartData}
+                keys={['estimated', 'actual']}
+                colors={{ estimated: '#EA6447', actual: '#C74634' }}
+                xLabel="Sprints"
+                yLabel="Hours"
+                dataKeyNames={{ estimated: 'Estimated Hours', actual: 'Actual Hours' }}
+                tooltipFormatter={(value) => `${value} hours`}
+                height={320}
+            />
         );
     }, [loading, chartData]);
 
@@ -637,9 +1125,9 @@ export const SprintHoursChart = React.memo(({ loading, sprintOverviews }) => {
 });
 
 export const DeveloperHoursChart = React.memo(({ userPerformances, loading }) => {
+    // Use your existing useDeveloperCharts hook here
     const { chartData, developers, colors } = useDeveloperCharts(userPerformances, loading);
 
-    // Memoize the chart element to prevent re-rendering
     const chartElement = useMemo(() => {
         if (loading) {
             return (
@@ -659,48 +1147,23 @@ export const DeveloperHoursChart = React.memo(({ userPerformances, loading }) =>
             );
         }
 
-        // Pre-generate Bar components
-        const barComponents = developers.map((developer) => (
-            <Bar
-                key={developer}
-                dataKey={developer}
-                name={developer}
-                fill={colors[developer]}
-                isAnimationActive={false}
-                shape={<RoundedBar />}
-            />
-        ));
+        // Create a dataKeyNames object for the legend
+        const dataKeyNames = {};
+        developers.forEach(dev => {
+            dataKeyNames[dev] = dev;
+        });
 
         return (
-            <MemoizedResponsiveContainer width="100%" height={320}>
-                <BarChart
-                    data={chartData.hours}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
-                >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                        dataKey="name"
-                        label={{
-                            value: 'Sprints',
-                            position: 'insideBottomRight',
-                            offset: -10
-                        }}
-                    />
-                    <YAxis
-                        label={{
-                            value: 'Hours Worked',
-                            angle: -90,
-                            position: 'insideLeft',
-                            style: { textAnchor: 'middle' }
-                        }}
-                    />
-                    <Tooltip
-                        formatter={(value, name) => [`${value} hours`, name]}
-                    />
-                    <Legend wrapperStyle={{ bottom: 0 }} />
-                    {barComponents}
-                </BarChart>
-            </MemoizedResponsiveContainer>
+            <SimpleBarChart
+                data={chartData.hours}
+                keys={developers}
+                colors={colors}
+                xLabel="Sprints"
+                yLabel="Hours Worked"
+                dataKeyNames={dataKeyNames}
+                tooltipFormatter={(value, name) => `${value} hours`}
+                height={320}
+            />
         );
     }, [loading, chartData.hours, developers, colors]);
 
@@ -723,9 +1186,9 @@ export const DeveloperHoursChart = React.memo(({ userPerformances, loading }) =>
 });
 
 export const DeveloperTasksChart = React.memo(({ userPerformances, loading }) => {
+    // Use your existing useDeveloperCharts hook here
     const { chartData, developers, colors } = useDeveloperCharts(userPerformances, loading);
 
-    // Memoize the chart element to prevent re-rendering
     const chartElement = useMemo(() => {
         if (loading) {
             return (
@@ -745,48 +1208,23 @@ export const DeveloperTasksChart = React.memo(({ userPerformances, loading }) =>
             );
         }
 
-        // Pre-generate Bar components
-        const barComponents = developers.map((developer) => (
-            <Bar
-                key={developer}
-                dataKey={developer}
-                name={developer}
-                fill={colors[developer]}
-                isAnimationActive={false}
-                shape={<RoundedBar />}
-            />
-        ));
+        // Create a dataKeyNames object for the legend
+        const dataKeyNames = {};
+        developers.forEach(dev => {
+            dataKeyNames[dev] = dev;
+        });
 
         return (
-            <MemoizedResponsiveContainer width="100%" height={320}>
-                <BarChart
-                    data={chartData.tasks}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
-                >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                        dataKey="name"
-                        label={{
-                            value: 'Sprints',
-                            position: 'insideBottomRight',
-                            offset: -10
-                        }}
-                    />
-                    <YAxis
-                        label={{
-                            value: 'Tasks Completed',
-                            angle: -90,
-                            position: 'insideLeft',
-                            style: { textAnchor: 'middle' }
-                        }}
-                    />
-                    <Tooltip
-                        formatter={(value, name) => [`${value} tasks`, name]}
-                    />
-                    <Legend wrapperStyle={{ bottom: 0 }} />
-                    {barComponents}
-                </BarChart>
-            </MemoizedResponsiveContainer>
+            <SimpleBarChart
+                data={chartData.tasks}
+                keys={developers}
+                colors={colors}
+                xLabel="Sprints"
+                yLabel="Tasks Completed"
+                dataKeyNames={dataKeyNames}
+                tooltipFormatter={(value, name) => `${value} tasks`}
+                height={320}
+            />
         );
     }, [loading, chartData.tasks, developers, colors]);
 
