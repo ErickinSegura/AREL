@@ -7,20 +7,17 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import com.springboot.MyTodoList.service.ServiceManager;
 import com.springboot.MyTodoList.telegram.CommandHandler;
-import com.springboot.MyTodoList.telegram.KeyboardFactory;
 import com.springboot.MyTodoList.telegram.MessageSender;
 
 public class AICommands {
     private static final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 
-    private final ServiceManager database;
+    private final ServiceManager services;
     private final MessageSender messageSender;
-    private final KeyboardFactory keyboardFactory;
 
-    public AICommands(ServiceManager database, MessageSender messageSender) {
-        this.database = database;
+    public AICommands(ServiceManager services, MessageSender messageSender) {
+        this.services = services;
         this.messageSender = messageSender;
-        this.keyboardFactory = new KeyboardFactory();
     }
 
     public void sendPrompt(Long chatId, String prompt) {
@@ -28,7 +25,7 @@ public class AICommands {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
 
-        ResponseEntity<String> stringResponse = database.ai.prompt(prompt);
+        ResponseEntity<String> stringResponse = services.ai.prompt(prompt);
 
         if (stringResponse.getStatusCode().is2xxSuccessful() && stringResponse.hasBody()) {
             String response = stringResponse.getBody();
@@ -41,6 +38,22 @@ public class AICommands {
             }
         } else {
             logger.error("Error retrieving ai response in command /ai: " + stringResponse.toString());
+        }
+
+        messageSender.sendMessage(message);
+    }
+
+
+    //#region Audio Handling
+    public void transcriptAudio(Long chatId, String fileId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText("Handling voicenote...");
+
+        ResponseEntity<String> response = services.ai.transcript(fileId);
+        if (response.getStatusCode().is2xxSuccessful() && response.hasBody()) {
+            String string = response.getBody();
+            message.setText(string);
         }
 
         messageSender.sendMessage(message);
