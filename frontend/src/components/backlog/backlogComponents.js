@@ -148,7 +148,7 @@ export const TaskDetailModal = ({
                                     onUpdate,
                                     onDelete,
                                     loading,
-                                    projectId
+                                    users
                                 }) => {
     const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState({
@@ -163,9 +163,7 @@ export const TaskDetailModal = ({
         sprint: null
     });
 
-    const { users, usersLoading } = useProjectUsers(projectId);
 
-    // Actualizar formData cuando la tarea cambie
     useEffect(() => {
         if (task) {
             setFormData({
@@ -198,11 +196,7 @@ export const TaskDetailModal = ({
     };
 
     const renderAssignedUserContent = () => {
-        if (!task.assignedTo) return "Unassigned";
-
-        if (usersLoading) {
-            return <SkeletonText lines={1} className="w-24" />;
-        }
+        if (!task.assignedTo) return 'Unassigned';
 
         const assignedUser = users.find(u => u.id === task.assignedTo);
         if (assignedUser) {
@@ -212,7 +206,7 @@ export const TaskDetailModal = ({
         return "Usuario no encontrado";
     };
 
-    if (loading || !task) {
+    if (loading) {
         return (
             <Modal isOpen={isOpen} onClose={onClose}>
                 <ModalHeader>
@@ -308,11 +302,6 @@ export const TaskDetailModal = ({
 
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Assigned To</label>
-                                {usersLoading ? (
-                                    <div className="mt-1 w-full px-4 py-2 border rounded-md bg-gray-50">
-                                        <SkeletonText lines={1} />
-                                    </div>
-                                ) : (
                                     <select
                                         name="assignedTo"
                                         value={formData.assignedTo || ''}
@@ -326,7 +315,6 @@ export const TaskDetailModal = ({
                                             </option>
                                         ))}
                                     </select>
-                                )}
                             </div>
                         </div>
                     </div>

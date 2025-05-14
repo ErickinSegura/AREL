@@ -30,12 +30,13 @@ const SprintManagement = () => {
         handleTaskUpdate,
         selectedSprint,
         setSelectedSprint,
+        taskDetailLoading
     } = useBacklog();
 
     const { sprints, loading: sprintsLoading } = useSprints();
     const { selectedProject } = useProjects();
-
     const { users, usersLoading } = useProjectUsers(selectedProject?.id);
+    const isLoading = loading || usersLoading;
     const [actualHoursModalOpen, setActualHoursModalOpen] = useState(false);
     const [taskForHours, setTaskForHours] = useState(null);
     const [updateLoading, setUpdateLoading] = useState(false);
@@ -167,15 +168,15 @@ const SprintManagement = () => {
                     )
                 )}
 
-                {selectedTask && (
+                {(selectedTask || taskDetailLoading) && (
                     <TaskDetailModal
                         isOpen={taskModalOpen}
                         onClose={handleCloseTaskModal}
                         task={selectedTask}
                         onUpdate={handleTaskUpdate}
                         onDelete={() => {}}
-                        loading={loading}
-                        projectId={selectedProject?.id}
+                        loading={taskDetailLoading}
+                        users={users}
                     />
                 )}
 

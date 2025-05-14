@@ -9,6 +9,7 @@ import { Search } from 'lucide-react';
 import { useProjects } from "../hooks/useProjects";
 import { Input } from "../lib/ui/Input";
 import {useAuth} from "../contexts/AuthContext";
+import {useProjectUsers} from "../hooks/useProjectUsers";
 
 const Backlog = () => {
     const { user } = useAuth();
@@ -24,6 +25,7 @@ const Backlog = () => {
         handleTaskCreate,
         handleTaskUpdate,
         handleTaskDelete,
+        taskDetailLoading
     } = useBacklog();
 
     const {
@@ -32,6 +34,10 @@ const Backlog = () => {
     } = useSprints();
 
     const { selectedProject } = useProjects();
+
+    const { users, usersLoading } = useProjectUsers(selectedProject.id);
+
+    const isLoading = loading || usersLoading;
 
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -99,14 +105,14 @@ const Backlog = () => {
 
             <BacklogHeader
                 selectedProject={selectedProject}
-                loading={loading}
+                loading={isLoading}
                 onCreateTask={handleOpenCreateModal}
                 onCreateSprint={handleOpenCreateSprintModal}
                 isAdmin={user && (user.userLevel === 1 || user.userLevel === 3)}
             />
 
             <div className="mb-6">
-                {loading ? (
+                {isLoading ? (
                     <div className="space-y-4">
                         <SkeletonText lines={1} className="w-1/3 mb-2" />
                     </div>
@@ -121,7 +127,7 @@ const Backlog = () => {
                 )}
             </div>
 
-            {loading ? (
+            {isLoading ? (
                 <div className="space-y-4">
                     {[1, 2, 3].map(i => (
                         <SkeletonCard key={i} lines={2} />
@@ -153,15 +159,15 @@ const Backlog = () => {
                 </div>
             )}
 
-            {selectedTask && (
+            {(selectedTask || taskDetailLoading) && (
                 <TaskDetailModal
                     isOpen={taskModalOpen}
                     onClose={handleCloseTaskModal}
                     task={selectedTask}
                     onUpdate={handleTaskUpdateWrap}
                     onDelete={handleTaskDeleteWrap}
-                    loading={loading}
-                    projectId={selectedProject?.id}
+                    loading={taskDetailLoading}
+                    users={users}
                 />
             )}
 

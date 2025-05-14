@@ -13,6 +13,7 @@ export const useBacklog = () => {
     const [taskModalOpen, setTaskModalOpen] = useState(false);
     const [createTaskModalOpen, setCreateTaskModalOpen] = useState(false);
     const [validationError, setValidationError] = useState(null);
+    const [taskDetailLoading, setTaskDetailLoading] = useState(false);
     const [filterOptions, setFilterOptions] = useState({
         type: null,
         priority: null,
@@ -144,13 +145,18 @@ export const useBacklog = () => {
     }, [selectedSprint, fetchSprintTasks]);
 
     const handleTaskSelect = async (taskId) => {
+        setTaskModalOpen(true);
+        setSelectedTask(null);
+        console.log("Fetching task details for task:", taskId);
         try {
+            setTaskDetailLoading(true);
             const task = await BacklogService.getTaskById(taskId);
             setSelectedTask(task);
-            setTaskModalOpen(true);
         } catch (err) {
             console.error("Error fetching task details:", err);
             setError("Failed to load task details.");
+        } finally {
+            setTaskDetailLoading(false);
         }
     };
 
@@ -287,6 +293,7 @@ export const useBacklog = () => {
         setTaskModalOpen,
         createTaskModalOpen,
         setCreateTaskModalOpen,
+        taskDetailLoading,
         handleTaskSelect,
         handleTaskCreate,
         handleTaskUpdate,
