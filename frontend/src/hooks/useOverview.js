@@ -44,7 +44,7 @@ export const useOverview = () => {
 
             setSprintUserData(filteredUsers);
         }
-    }, [selectedProject, user, selectedSprintNumber]);
+    }, [selectedProject, user, selectedSprintNumber, userPerformances]);
 
     const loading = projectLoading || dataLoading || projectsLoading;
 
@@ -97,6 +97,7 @@ export const useOverview = () => {
         loading,
         error,
         sprintOverviews,
+        userPerformances,
         selectedSprint,
         selectedSprintNumber,
         sprintUserData,
