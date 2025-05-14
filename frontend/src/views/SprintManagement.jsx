@@ -127,7 +127,7 @@ const SprintManagement = () => {
                             ))}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-240px)]">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 h-[calc(100vh-240px)]">
                             <TaskColumn
                                 icon={<FiList/>}
                                 title="To Do"

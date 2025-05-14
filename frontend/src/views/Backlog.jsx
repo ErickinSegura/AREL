@@ -148,12 +148,6 @@ const Backlog = () => {
                     ) : (
                         <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg border-2 border-dashed">
                             <p className="text-gray-500 mb-4">No tasks in backlog</p>
-                            <Button
-                                variant="default"
-                                onClick={handleOpenCreateModal}
-                            >
-                                Create your first task
-                            </Button>
                         </div>
                     )}
                 </div>

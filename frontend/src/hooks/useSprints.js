@@ -12,7 +12,7 @@ export const useSprints = () => {
     const [validationError, setValidationError] = useState(null);
 
     const [sprintFormData, setSprintFormData] = useState({
-        project: null, // Initialize as null, to avoid unnecessary calls.
+        project: null,
         startDate: new Date().toISOString().split('T')[0],
         endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         sprintNumber: 1
@@ -21,7 +21,6 @@ export const useSprints = () => {
     const [selectedTasks, setSelectedTasks] = useState([]);
     const [availableTasks, setAvailableTasks] = useState([]);
 
-    // Update project ID in form data whenever selectedProject changes
     useEffect(() => {
         if (selectedProject) {
             setSprintFormData(prev => ({
@@ -32,7 +31,7 @@ export const useSprints = () => {
     }, [selectedProject]);
 
     const resetSprintForm = useCallback(() => {
-        setSprintFormData(prev => ({ // Use prev to avoid stale selectedProject
+        setSprintFormData(prev => ({
             ...prev,
             startDate: new Date().toISOString().split('T')[0],
             endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -40,7 +39,7 @@ export const useSprints = () => {
         }));
         setSelectedTasks([]);
         setValidationError(null);
-    }, [sprints]); // Add sprints as dependency
+    }, [sprints]);
 
     const handleSprintFormChange = (e) => {
         const { name, value } = e.target;

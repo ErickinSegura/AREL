@@ -109,11 +109,9 @@ export const useBacklog = () => {
 
     const fetchSprintTasks = useCallback(async (sprintId) => {
         if (!selectedProject?.id || !sprintId) return;
-
         try {
             setLoading(true);
             setError(null);
-            console.log("Fetching sprint tasks for project:", selectedProject.id, "sprint:", sprintId);
             const tasks = await BacklogService.getTasksBySprintAndProject(selectedProject.id, sprintId);
             setSprintTasks(tasks);
         } catch (err) {
@@ -126,7 +124,6 @@ export const useBacklog = () => {
 
     useEffect(() => {
         if (selectedProject?.id && !hasLoadedInitialData.current) {
-            console.log("Initial backlog fetch for project:", selectedProject.id);
             fetchBacklogTasks();
             hasLoadedInitialData.current = true;
         }

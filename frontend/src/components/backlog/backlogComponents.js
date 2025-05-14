@@ -131,10 +131,13 @@ export const TaskCard = ({ task, onSelect }) => {
                         {categoryLabels[task.category]}
                     </div>
 
-                    <div className="inline-flex items-center text-xs text-gray-600">
-                        <Clock size={14} className="mr-1" />
-                        {task.estimatedHours}h
-                    </div>
+                    {task.estimatedHours && (
+                        <div className="inline-flex items-center text-xs text-gray-600">
+                            <Clock size={14} className="mr-1" />
+                            {task.estimatedHours}h
+                        </div>
+                    ) }
+
                 </div>
             </CardContent>
         </Card>
@@ -196,7 +199,7 @@ export const TaskDetailModal = ({
     };
 
     const renderAssignedUserContent = () => {
-        if (!task.assignedTo) return 'Unassigned';
+        if (!task.assignedTo) return;
 
         const assignedUser = users.find(u => u.id === task.assignedTo);
         if (assignedUser) {
@@ -350,13 +353,16 @@ export const TaskDetailModal = ({
                                 </div>
                             </div>
 
-                            <div className="flex items-center">
-                                <Clock size={18} className="text-gray-500 mr-2" />
-                                <div>
-                                    <p className="text-sm font-medium text-gray-600">Estimated Hours</p>
-                                    <p>{task.estimatedHours}h</p>
+                            {task.estimatedHours && (
+                                <div className="flex items-center">
+                                    <Clock size={18} className="text-gray-500 mr-2" />
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-600">Estimated Hours</p>
+                                        <p>{task.estimatedHours}h</p>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
+
 
                             {task.realHours && (
                                 <div className="flex items-center">
@@ -368,13 +374,15 @@ export const TaskDetailModal = ({
                                 </div>
                             )}
 
-                            <div className="flex items-center">
-                                <User size={18} className="text-gray-500 mr-2" />
-                                <div>
-                                    <p className="text-sm font-medium text-gray-600">Assigned To</p>
-                                    <div>{renderAssignedUserContent()}</div>
+                            {task.assignedTo && (
+                                <div className="flex items-center">
+                                    <User size={18} className="text-gray-500 mr-2" />
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-600">Assigned To</p>
+                                        <div>{renderAssignedUserContent()}</div>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             <div className="flex items-center">
                                 <CalendarDays size={18} className="text-gray-500 mr-2" />
