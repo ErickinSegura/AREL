@@ -1,7 +1,5 @@
 import React, {useMemo, useState} from 'react';
 import { useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import _ from 'lodash';
 import { Card, CardHeader, CardTitle, CardContent } from '../../lib/ui/Card';
 import { Button } from '../../lib/ui/Button';
 import {
@@ -142,36 +140,39 @@ export const PDFButton = ({ selectedProject }) => {
 };
 
 export const ProjectHeader = ({ selectedProject, loading, isAdmin = false }) => (
-    <Card className="mb-6">
-        <CardHeader>
-            <div className={`flex items-center justify-between ${loading ? 'animate-pulse' : ''}`}>
-                <CardTitle>
+    <Card className="mb-4 sm:mb-6">
+        <CardHeader className="px-3 py-3 sm:px-6 sm:py-4">
+            <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${loading ? 'animate-pulse' : ''}`}>
+                <CardTitle className="w-full sm:w-auto">
                     {loading ? (
                         <div className="flex items-center">
                             <SkeletonCircle size="md" />
-                            <div className="ml-3 w-48">
+                            <div className="ml-3 w-32 sm:w-48">
                                 <SkeletonText lines={1} />
                             </div>
                         </div>
                     ) : (
-                        <div className="flex items-center">
+                        <div className="flex items-center w-full">
                             <div
-                                className="w-12 h-12 rounded-xl grid place-items-center text-white"
+                                className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl grid place-items-center text-white flex-shrink-0"
                                 style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
                             >
                                 {getProjectIcon(selectedProject?.icon)}
                             </div>
-                            <h1 className="text-2xl font-bold px-3">{selectedProject?.projectName}</h1>
+                            <h1 className="text-xl sm:text-2xl font-bold sm:px-3 ml-3 sm:ml-0 break-words max-w-full truncate">
+                                {selectedProject?.projectName}
+                            </h1>
                         </div>
                     )}
                 </CardTitle>
 
                 {!loading && isAdmin && (
-                    <PDFButton
-                        selectedProject={selectedProject}
-                    />
+                    <div className="mt-2 sm:mt-0">
+                        <PDFButton
+                            selectedProject={selectedProject}
+                        />
+                    </div>
                 )}
-
             </div>
         </CardHeader>
     </Card>
