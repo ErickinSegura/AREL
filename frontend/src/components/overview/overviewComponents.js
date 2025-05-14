@@ -1,11 +1,13 @@
 import React, {useState} from 'react';
+import { useEffect } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import _ from 'lodash';
 import { Card, CardHeader, CardTitle, CardContent } from '../../lib/ui/Card';
 import { Button } from '../../lib/ui/Button';
 import {
     FiFolder,
     FiCodesandbox,
     FiChevronDown,
-    FiRefreshCw,
     FiAlertTriangle,
     FiArrowUp
 } from 'react-icons/fi';
@@ -14,6 +16,7 @@ import { AICall, PDF } from '../../lib/ui/PDF/PDF';
 import { pdf } from '@react-pdf/renderer';
 import { OverviewService } from '../../api/overviewService';
 import {useAuth} from "../../contexts/AuthContext";
+import {useProjects} from "../../hooks/useProjects";
 
 const getProjectIcon = (iconID) => {
     switch (iconID) {
@@ -596,6 +599,296 @@ export const SprintHoursChart = ({ loading, sprintOverviews }) => {
                 ) : (
                     <div className="h-64 flex items-center justify-center text-gray-500">
                         No sprint data available
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+};
+
+export const DeveloperHoursChart = ({ userPerformances, loading }) => {
+    const [chartData, setChartData] = useState([]);
+    const [sprintNumbers, setSprintNumbers] = useState([]);
+    const [developers, setDevelopers] = useState([]);
+    const [colors, setColors] = useState({});
+    const [allUserPerformances, setAllUserPerformances] = useState([]);
+    const [localLoading, setLocalLoading] = useState(false);
+    const { selectedProject } = useProjects();
+
+    // Define color palette at component level
+    const colorPalette = ['#4F46E5', '#10B981', '#3B82F6', '#06B6D4', '#EC4899', '#6366F1', '#F59E0B'];
+
+    // Fetch all user performance data
+    useEffect(() => {
+        const fetchAllData = async () => {
+            if (!selectedProject) return;
+
+            try {
+                setLocalLoading(true);
+                // Use the actual data service to get complete data
+                const data = await OverviewService.getOverviewData(selectedProject.id);
+                if (data && data.userPerformances) {
+                    setAllUserPerformances(data.userPerformances);
+                }
+            } catch (error) {
+                console.error("Error fetching all user performances:", error);
+            } finally {
+                setLocalLoading(false);
+            }
+        };
+
+        fetchAllData();
+    }, [selectedProject]);
+
+    useEffect(() => {
+        // Use the complete user performance data from the API
+        const dataToProcess = allUserPerformances.length > 0 ? allUserPerformances : userPerformances;
+
+        if (dataToProcess && dataToProcess.length > 0) {
+            // Get unique developers
+            const uniqueDevelopers = _.uniqBy(dataToProcess, 'userName').map(dev => dev.userName);
+            setDevelopers(uniqueDevelopers);
+
+            // Get unique sprint numbers (excluding sprint 5 which has no data)
+            const uniqueSprints = _.uniqBy(dataToProcess.filter(item => item.totalRealHours > 0), 'sprintNumber')
+                .map(sprint => sprint.sprintNumber)
+                .sort((a, b) => a - b); // Ensure sprints are sorted numerically
+            setSprintNumbers(uniqueSprints);
+
+            // Assign colors to developers - maintain consistent colors
+            const developerColors = {};
+            uniqueDevelopers.forEach((dev, index) => {
+                developerColors[dev] = colorPalette[index % colorPalette.length];
+            });
+            setColors(developerColors);
+
+            // Prepare data for the grouped bar chart
+            const formattedData = uniqueSprints.map(sprintNumber => {
+                // Create an object for this sprint
+                const sprintData = {
+                    name: `Sprint ${sprintNumber}`,
+                };
+
+                // Add hours for each developer in this sprint
+                uniqueDevelopers.forEach(developer => {
+                    // Find the entry for this developer in this sprint
+                    const entry = dataToProcess.find(
+                        item => item.userName === developer && item.sprintNumber === sprintNumber
+                    );
+
+                    // Add hours to sprintData (use 0 if no entry found)
+                    sprintData[developer] = entry ? entry.totalRealHours : 0;
+                });
+
+                return sprintData;
+            });
+
+            setChartData(formattedData);
+        }
+    }, [allUserPerformances, userPerformances]);
+
+    const isDataLoading = loading || localLoading;
+
+    return (
+        <Card className="flex flex-col h-full">
+            <CardHeader>
+                <CardTitle>
+                    Horas Trabajadas por Developer por Sprint
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow">
+                {isDataLoading ? (
+                    <div className="h-64 flex items-center justify-center">
+                        <div className="w-full text-center text-gray-500">
+                            Cargando datos...
+                        </div>
+                    </div>
+                ) : chartData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={320}>
+                        <BarChart
+                            data={chartData}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis
+                                dataKey="name"
+                                label={{
+                                    value: 'Sprints',
+                                    position: 'insideBottomRight',
+                                    offset: -10
+                                }}
+                            />
+                            <YAxis
+                                label={{
+                                    value: 'Horas trabajadas',
+                                    angle: -90,
+                                    position: 'insideLeft',
+                                    style: { textAnchor: 'middle' }
+                                }}
+                            />
+                            <Tooltip
+                                formatter={(value, name) => [`${value} horas`, name]}
+                            />
+                            <Legend wrapperStyle={{ bottom: 0 }} />
+                            {developers.map((developer, index) => (
+                                <Bar
+                                    key={developer}
+                                    dataKey={developer}
+                                    name={developer}
+                                    fill={colors[developer] || colorPalette[index % colorPalette.length]}
+                                    isAnimationActive={true}
+                                />
+                            ))}
+                        </BarChart>
+                    </ResponsiveContainer>
+                ) : (
+                    <div className="h-64 flex items-center justify-center text-gray-500">
+                        No hay datos disponibles
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+};
+
+export const DeveloperTasksChart = ({ userPerformances, loading }) => {
+    const [chartData, setChartData] = useState([]);
+    const [sprintNumbers, setSprintNumbers] = useState([]);
+    const [developers, setDevelopers] = useState([]);
+    const [colors, setColors] = useState({});
+    const [allUserPerformances, setAllUserPerformances] = useState([]);
+    const [localLoading, setLocalLoading] = useState(false);
+    const { selectedProject } = useProjects();
+
+    // Define color palette at component level
+    const colorPalette = ['#4F46E5', '#10B981', '#3B82F6', '#06B6D4', '#EC4899', '#6366F1', '#F59E0B'];
+
+    // Fetch all user performance data
+    useEffect(() => {
+        const fetchAllData = async () => {
+            if (!selectedProject) return;
+
+            try {
+                setLocalLoading(true);
+                // Use the actual data service to get complete data
+                const data = await OverviewService.getOverviewData(selectedProject.id);
+                if (data && data.userPerformances) {
+                    setAllUserPerformances(data.userPerformances);
+                }
+            } catch (error) {
+                console.error("Error fetching all user performances:", error);
+            } finally {
+                setLocalLoading(false);
+            }
+        };
+
+        fetchAllData();
+    }, [selectedProject]);
+
+    useEffect(() => {
+        // Use the complete user performance data from the API
+        const dataToProcess = allUserPerformances.length > 0 ? allUserPerformances : userPerformances;
+
+        if (dataToProcess && dataToProcess.length > 0) {
+            // Get unique developers
+            const uniqueDevelopers = _.uniqBy(dataToProcess, 'userName').map(dev => dev.userName);
+            setDevelopers(uniqueDevelopers);
+
+            // Get unique sprint numbers (excluding sprints with no tasks)
+            const uniqueSprints = _.uniqBy(dataToProcess.filter(item => item.completedTasks > 0), 'sprintNumber')
+                .map(sprint => sprint.sprintNumber)
+                .sort((a, b) => a - b); // Ensure sprints are sorted numerically
+            setSprintNumbers(uniqueSprints);
+
+            // Assign colors to developers - maintain consistent colors
+            const developerColors = {};
+            uniqueDevelopers.forEach((dev, index) => {
+                developerColors[dev] = colorPalette[index % colorPalette.length];
+            });
+            setColors(developerColors);
+
+            // Prepare data for the grouped bar chart
+            const formattedData = uniqueSprints.map(sprintNumber => {
+                // Create an object for this sprint
+                const sprintData = {
+                    name: `Sprint ${sprintNumber}`,
+                };
+
+                // Add completed tasks for each developer in this sprint
+                uniqueDevelopers.forEach(developer => {
+                    // Find the entry for this developer in this sprint
+                    const entry = dataToProcess.find(
+                        item => item.userName === developer && item.sprintNumber === sprintNumber
+                    );
+
+                    // Add completed tasks to sprintData (use 0 if no entry found)
+                    sprintData[developer] = entry ? entry.completedTasks : 0;
+                });
+
+                return sprintData;
+            });
+
+            setChartData(formattedData);
+        }
+    }, [allUserPerformances, userPerformances]);
+
+    const isDataLoading = loading || localLoading;
+
+    return (
+        <Card className="flex flex-col h-full">
+            <CardHeader>
+                <CardTitle>
+                    Tareas Completadas por Developer por Sprint
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow">
+                {isDataLoading ? (
+                    <div className="h-64 flex items-center justify-center">
+                        <div className="w-full text-center text-gray-500">
+                            Cargando datos...
+                        </div>
+                    </div>
+                ) : chartData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={320}>
+                        <BarChart
+                            data={chartData}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis
+                                dataKey="name"
+                                label={{
+                                    value: 'Sprints',
+                                    position: 'insideBottomRight',
+                                    offset: -10
+                                }}
+                            />
+                            <YAxis
+                                label={{
+                                    value: 'Tareas completadas',
+                                    angle: -90,
+                                    position: 'insideLeft',
+                                    style: { textAnchor: 'middle' }
+                                }}
+                            />
+                            <Tooltip
+                                formatter={(value, name) => [`${value} tareas`, name]}
+                            />
+                            <Legend wrapperStyle={{ bottom: 0 }} />
+                            {developers.map((developer, index) => (
+                                <Bar
+                                    key={developer}
+                                    dataKey={developer}
+                                    name={developer}
+                                    fill={colors[developer] || colorPalette[index % colorPalette.length]}
+                                    isAnimationActive={true}
+                                />
+                            ))}
+                        </BarChart>
+                    </ResponsiveContainer>
+                ) : (
+                    <div className="h-64 flex items-center justify-center text-gray-500">
+                        No hay datos disponibles
                     </div>
                 )}
             </CardContent>

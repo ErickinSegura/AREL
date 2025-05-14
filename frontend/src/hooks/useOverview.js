@@ -59,7 +59,7 @@ export const useOverview = () => {
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
-        return date.toLocaleDateString('default', { day: 'numeric', month: 'short', year: 'numeric' });
+        return date.toLocaleDateString();
     };
 
     const getCompletionRateColor = (completionRate) => {
