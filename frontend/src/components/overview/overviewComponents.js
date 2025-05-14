@@ -349,23 +349,25 @@ const FadeIn = ({ children, delay = 0, duration = 300 }) => {
     );
 };
 
-// Componente para animación del arco de progreso
 const AnimatedArc = ({ progressArc, completionRateColor }) => {
-    const [progress, setProgress] = useState(0);
+    const [animatedOffset, setAnimatedOffset] = useState(progressArc.strokeDasharray);
 
+    // Resetear y animar el offset cuando cambia el sprint seleccionado
     useEffect(() => {
-        // Animación de 0 a valor final
+        // Primero reseteamos al valor máximo (sin progreso)
+        setAnimatedOffset(progressArc.strokeDasharray);
+
+        // Luego animamos hasta el offset calculado
         const timer = setTimeout(() => {
-            setProgress(1);
-        }, 300);
+            setAnimatedOffset(progressArc.strokeDashoffset);
+        }, 50);
 
         return () => clearTimeout(timer);
-    }, []);
-
-    const animatedDashoffset = progressArc.strokeDashoffset * (1 - progress);
+    }, [progressArc.strokeDashoffset, progressArc.strokeDasharray]);
 
     return (
         <svg className="w-full h-full" viewBox="0 0 100 50">
+            {/* Arco de fondo (gris) */}
             <path
                 d="M5,45 A45,45 0 0,1 95,45"
                 fill="transparent"
@@ -373,23 +375,23 @@ const AnimatedArc = ({ progressArc, completionRateColor }) => {
                 strokeWidth="10"
                 strokeLinecap="round"
             />
+            {/* Arco de progreso (coloreado según completitud) */}
             <path
                 d="M5,45 A45,45 0 0,1 95,45"
                 fill="transparent"
                 stroke={completionRateColor}
                 strokeWidth="10"
                 strokeDasharray={progressArc.strokeDasharray}
-                strokeDashoffset={animatedDashoffset}
+                strokeDashoffset={animatedOffset}
                 strokeLinecap="round"
                 style={{
-                    transition: 'stroke-dashoffset 1.2s ease-in-out'
+                    transition: 'stroke-dashoffset 0.8s ease-in-out'
                 }}
             />
         </svg>
     );
 };
 
-// Componente de barra de progreso animada
 const AnimatedProgressBar = ({ percentage, color }) => {
     const [width, setWidth] = useState(0);
 
@@ -413,7 +415,6 @@ const AnimatedProgressBar = ({ percentage, color }) => {
     );
 };
 
-// Componente de contador animado
 const AnimatedCounter = ({ end, duration = 1000 }) => {
     const [count, setCount] = useState(0);
 
@@ -443,6 +444,7 @@ const AnimatedCounter = ({ end, duration = 1000 }) => {
 };
 
 export const SprintGoalCard = ({ loading, selectedSprint, calculateProgressArc }) => {
+    const [resetKey, setResetKey] = useState(0);
     const progressArc = calculateProgressArc ? calculateProgressArc() : {};
     const completionRateColor = progressArc.completionRateColor;
     const [mounted, setMounted] = useState(false);
@@ -450,6 +452,12 @@ export const SprintGoalCard = ({ loading, selectedSprint, calculateProgressArc }
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    useEffect(() => {
+        if (selectedSprint) {
+            setResetKey(prevKey => prevKey + 1);
+        }
+    }, [selectedSprint?.id]);
 
     return (
         <Card className="flex flex-col h-full">
@@ -474,12 +482,20 @@ export const SprintGoalCard = ({ loading, selectedSprint, calculateProgressArc }
                     <>
                         <FadeIn delay={100}>
                             <div className="relative w-60 h-36 mb-4">
-                                <AnimatedArc progressArc={progressArc} completionRateColor={completionRateColor} />
+                                <AnimatedArc
+                                    key={resetKey}
+                                    progressArc={progressArc}
+                                    completionRateColor={completionRateColor}
+                                />
                                 <div className="absolute inset-0 flex flex-col items-center justify-center mt-6">
-                  <span className="text-3xl font-bold">
-                    <AnimatedCounter end={selectedSprint.completedTasks} duration={1200} />
-                    /{selectedSprint.totalTasks}
-                  </span>
+                                    <span className="text-3xl font-bold">
+                                        <AnimatedCounter
+                                            key={resetKey}
+                                            end={selectedSprint.completedTasks}
+                                            duration={1200}
+                                        />
+                                        /{selectedSprint.totalTasks}
+                                    </span>
                                     <span className="text-xs text-gray-500">TASKS COMPLETED</span>
                                 </div>
                             </div>
@@ -551,7 +567,9 @@ export const TeamPerformanceCard = ({ loading, sprintUserData }) => {
                 ) : (
                     <div className="space-y-4 overflow-y-auto max-h-64 pr-1">
                         {sprintUserData && sprintUserData.length > 0 ? (
-                            sprintUserData.map((user, index) => (
+                            sprintUserData
+                                .sort((a, b) => a.userName.localeCompare(b.userName))
+                                .map((user, index) => (
                                 <FadeIn delay={100 + index * 150} key={index}>
                                     <UserPerformanceItem user={user} />
                                 </FadeIn>
@@ -1125,7 +1143,6 @@ export const SprintHoursChart = React.memo(({ loading, sprintOverviews }) => {
 });
 
 export const DeveloperHoursChart = React.memo(({ userPerformances, loading }) => {
-    // Use your existing useDeveloperCharts hook here
     const { chartData, developers, colors } = useDeveloperCharts(userPerformances, loading);
 
     const chartElement = useMemo(() => {
@@ -1147,11 +1164,13 @@ export const DeveloperHoursChart = React.memo(({ userPerformances, loading }) =>
             );
         }
 
-        // Create a dataKeyNames object for the legend
+
         const dataKeyNames = {};
         developers.forEach(dev => {
             dataKeyNames[dev] = dev;
         });
+        developers.sort((a, b) => a.localeCompare(b));
+
 
         return (
             <SimpleBarChart
@@ -1208,11 +1227,11 @@ export const DeveloperTasksChart = React.memo(({ userPerformances, loading }) =>
             );
         }
 
-        // Create a dataKeyNames object for the legend
         const dataKeyNames = {};
         developers.forEach(dev => {
             dataKeyNames[dev] = dev;
         });
+        developers.sort((a, b) => a.localeCompare(b));
 
         return (
             <SimpleBarChart
