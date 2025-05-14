@@ -21,7 +21,7 @@ const Login = () => {
         <div className="min-h-screen p-4 sm:p-6 md:p-8 lg:p-12 flex items-center justify-center">
             <Card className="w-full max-w-5xl overflow-hidden flex flex-col md:flex-row shadow-lg bg-white">
                 {/* Left side - Image */}
-                <div className="w-full md:w-1/2 h-48 md:h-auto bg-gradient-to-br from-red-600 to-oracleRed flex items-center justify-center">
+                <div className="w-full md:w-1/2 h-48 md:h-auto bg-gradient-to-br from-red-600 to-blue-700 flex items-center justify-center">
                     <img
                         src=""
                         alt=""
@@ -32,7 +32,7 @@ const Login = () => {
                 {/* Right side - Form */}
                 <div className="w-full md:w-1/2 p-6 sm:p-8 md:p-12">
                     <div className="max-w-md mx-auto">
-                        <AuthHeader title={"Login"} subtitle={"Login to your account"}/>
+                        <AuthHeader title={"Login OUYEAAA CICD"} subtitle={"Login to your account"}/>
 
                         <FormError message={errors.general} />
 
