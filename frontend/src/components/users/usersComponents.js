@@ -61,7 +61,7 @@ const UserCard = ({ user, onDetailsClick }) => {
         >
             <CardHeader>
                 <div className="flex justify-between items-center gap-4">
-                    <div className="w-16 aspect-square rounded-md overflow-hidden">
+                    <div className="w-16 aspect-square rounded-xl overflow-hidden">
                         <AvatarRenderer config={user.avatar} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -119,8 +119,10 @@ const UserDetailsModal = ({ user, isOpen, onClose, onRemoveClick, deleteLoading 
             <ModalContent>
                 <div className="space-y-6">
                     <div>
-                        <div className="w-32 h-32 rounded-md overflow-hidden">
-                            <AvatarRenderer config={user.avatar} className="w-full h-full" />
+                        <div className="flex justify-center w-full h-36 rounded-xl overflow-hidden mb-4">
+                            <div className="w-36 h-36 rounded-xl overflow-hidden">
+                                <AvatarRenderer config={user.avatar} className="w-full h-full" />
+                            </div>
                         </div>
                         <h4 className="text-lg font-medium mb-2">User Information</h4>
                         <div className="space-y-2">
@@ -145,7 +147,7 @@ const UserDetailsModal = ({ user, isOpen, onClose, onRemoveClick, deleteLoading 
                     <div className="border-t pt-4">
                         <h4 className="text-lg font-medium text-red-600 mb-2">Danger Zone</h4>
                         {!showDangerZone ? (
-                            <div className="p-4 bg-red-50 rounded-md">
+                            <div className="p-4 bg-red-50 rounded-xl">
                                 <h3 className="font-medium text-red-700 mb-2">Delete this user</h3>
                                 <p className="text-red-600 text-sm mb-4">
                                     Once you delete a user, there is no going back. This action cannot be undone.
@@ -216,12 +218,6 @@ const UserDetailsModal = ({ user, isOpen, onClose, onRemoveClick, deleteLoading 
                     </div>
                 </div>
             </ModalContent>
-
-            <ModalFooter>
-                <Button variant="remarked" onClick={onClose}>
-                    Close
-                </Button>
-            </ModalFooter>
         </Modal>
     );
 };

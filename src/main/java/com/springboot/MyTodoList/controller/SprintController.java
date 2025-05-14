@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -19,8 +20,8 @@ public class SprintController {
     @GetMapping("/sprint/{id}")
     public ResponseEntity<List<Sprint>> getAllSprints(@PathVariable int id){
         List<Sprint> sprints = sprintService.getAllSprints(id).getBody();
-        if(sprints == null || sprints.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if(sprints == null){
+            sprints = new ArrayList<>();
         }
         return new ResponseEntity<>(sprints, HttpStatus.OK);
     }
@@ -28,8 +29,8 @@ public class SprintController {
     @GetMapping("/sprint/{id}/active")
     public ResponseEntity<List<Sprint>> getAvailableSprints(@PathVariable int id){
         List<Sprint> sprints = sprintService.getAvailableSprints(id).getBody();
-        if(sprints == null || sprints.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if(sprints == null){
+            sprints = new ArrayList<>();
         }
         return new ResponseEntity<>(sprints, HttpStatus.OK);
     }
@@ -47,7 +48,7 @@ public class SprintController {
     public ResponseEntity deleteSprint(@PathVariable int id) throws Exception{
         Sprint sprint = sprintService.deleteSprint(id);
         if(sprint == null){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new Sprint(), HttpStatus.OK);
         }
         return new ResponseEntity<>(sprint, HttpStatus.OK);
     }
@@ -56,10 +57,8 @@ public class SprintController {
     public ResponseEntity updateSprint(@PathVariable int id, @RequestBody Sprint sprint) throws Exception{
         Sprint sp = sprintService.updateSprint(id, sprint);
         if(sp == null){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new Sprint(), HttpStatus.OK);
         }
         return new ResponseEntity<>(sp, HttpStatus.OK);
     }
-
-
 }

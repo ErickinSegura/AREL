@@ -483,7 +483,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                 </div>
             </button>
 
-            {projectDropdownOpen && (
+            {(projectDropdownOpen) && (
                 <div className={`absolute left-0 right-0 top-full mt-1 bg-white rounded-lg shadow-lg z-50 py-1 max-h-60 overflow-y-auto w-full`}>
                     <div className="text-xs text-gray-500 px-3 py-1">Projects</div>
                     {projects && projects.map((project) => (
@@ -504,7 +504,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                         </button>
                     ))}
 
-                    {(userRole === 1 || userRole === 3) && (
+                    {((userRole === 1 || userRole === 3 ) &&  (!isOpen)) && (
                         <>
                             <div className="border-t border-gray-200 my-1"></div>
                             <button
@@ -662,7 +662,7 @@ const MobileSidebar = ({ mobileMenuOpen, toggleMobileMenu, menuItems, selectedIt
                             >
                                 {selectedItem === item.label && (
                                     <div
-                                        className="absolute inset-0 rounded-lg transition-all duration-300"
+                                        className="absolute inset-0 rounded-xl transition-all duration-300"
                                         style={{ backgroundColor: accentColor }}>
                                     </div>
                                 )}
@@ -741,7 +741,7 @@ const DesktopSidebar = ({ sidebarRef, isOpen, handleMouseEnter, handleMouseLeave
                             <li key={index} className="relative">
                                 {selectedItem === item.label && (
                                     <div
-                                        className="absolute inset-1.5 rounded-lg"
+                                        className="absolute inset-1.5 rounded-xl"
                                         style={{ backgroundColor: accentColor }}>
                                     </div>
                                 )}
@@ -839,29 +839,28 @@ const Sidebar = ({
             1: [
                 { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: true },
                 { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: true },
+                { icon: <FiLink size={20} />, label: 'Shortcuts', hasSubmenu: false },
+                { icon: <FiSettings size={20} />, label: 'Settings', hasSubmenu: false }
             ],
             2: [
                 { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: false },
-                { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: false }
+                { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: false },
+                { icon: <FiLink size={20} />, label: 'Shortcuts', hasSubmenu: false },
             ],
             3: [
                 { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: false },
                 { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: false },
-                { icon: <FiUsers size={20} />, label: 'Users', hasSubmenu: true },
+                { icon: <FiLink size={20} />, label: 'Shortcuts', hasSubmenu: false },
+                { icon: <FiSettings size={20} />, label: 'Settings', hasSubmenu: false },
+                { icon: <FiUsers size={20} />, label: 'Users', hasSubmenu: true }
             ]
         };
-
-        const additionalItems = [
-            { icon: <FiLink size={20} />, label: 'Shortcuts', hasSubmenu: false },
-            { icon: <FiSettings size={20} />, label: 'Settings', hasSubmenu: false },
-        ];
 
         const userRole = user?.userLevel || 2;
 
         return [
             ...commonItems,
             ...(roleSpecificItems[userRole] || []),
-            ...additionalItems
         ];
     };
 

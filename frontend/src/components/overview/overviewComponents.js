@@ -523,33 +523,29 @@ export const DevStreakCard = ({ loading, selectedSprint }) => {
     );
 };
 
-const RoundedBar = (props) => {
+const RoundedBar = React.memo((props) => {
     const { x, y, width, height, fill } = props;
-    const radius = 8;
+    const radius = Math.min(8, width / 4, height / 4);
 
+    // Simplified path with fewer points
     return (
         <path
-            d={`
-                    M${x},${y + height}
-                    L${x},${y + radius}
-                    Q${x},${y} ${x + radius},${y}
-                    L${x + width - radius},${y}
-                    Q${x + width},${y} ${x + width},${y + radius}
-                    L${x + width},${y + height}
-                    Z
-                `}
+            d={`M${x},${y + height}L${x},${y + radius}Q${x},${y} ${x + radius},${y}L${x + width - radius},${y}Q${x + width},${y} ${x + width},${y + radius}L${x + width},${y + height}Z`}
             fill={fill}
         />
     );
-};
+});
 
-export const SprintHoursChart = ({ loading, sprintOverviews }) => {
+const MemoizedResponsiveContainer = React.memo(({ children, ...props }) => (
+    <ResponsiveContainer {...props}>{children}</ResponsiveContainer>
+));
+
+export const SprintHoursChart = React.memo(({ loading, sprintOverviews }) => {
     const chartData = useMemo(() => {
         if (!sprintOverviews || sprintOverviews.length === 0) return [];
 
         return [...sprintOverviews]
-            .filter(
-                (sprint) => sprint.totalEstimatedHours > 0 || sprint.totalRealHours > 0)
+            .filter(sprint => sprint.totalEstimatedHours > 0 || sprint.totalRealHours > 0)
             .sort((a, b) => a.sprintNumber - b.sprintNumber)
             .map(sprint => ({
                 name: `Sprint ${sprint.sprintNumber}`,
@@ -557,6 +553,70 @@ export const SprintHoursChart = ({ loading, sprintOverviews }) => {
                 actual: sprint.totalRealHours || 0
             }));
     }, [sprintOverviews]);
+
+    // Memoize the chart element to prevent re-rendering when parent rerenders
+    const chartElement = useMemo(() => {
+        if (loading) {
+            return (
+                <div className="h-64 flex items-center justify-center">
+                    <div className="w-full">
+                        <SkeletonText className="h-48 w-full" />
+                    </div>
+                </div>
+            );
+        }
+
+        if (!chartData.length) {
+            return (
+                <div className="h-64 flex items-center justify-center text-gray-500">
+                    No sprint data available
+                </div>
+            );
+        }
+
+        return (
+            <MemoizedResponsiveContainer width="100%" height={320}>
+                <BarChart
+                    data={chartData}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                        dataKey="name"
+                        label={{
+                            value: 'Sprints',
+                            position: 'insideBottomRight',
+                            offset: -10
+                        }}
+                    />
+                    <YAxis
+                        label={{
+                            value: 'Hours',
+                            angle: -90,
+                            position: 'insideLeft',
+                            style: { textAnchor: 'middle' }
+                        }}
+                    />
+                    <Tooltip formatter={(value) => [`${value} hours`]} />
+                    <Legend wrapperStyle={{ bottom: 0 }} />
+                    <Bar
+                        dataKey="estimated"
+                        name="Estimated Hours"
+                        fill="#EA6447"
+                        isAnimationActive={false}
+                        shape={<RoundedBar />}
+                    />
+                    <Bar
+                        dataKey="actual"
+                        name="Actual Hours"
+                        fill="#C74634"
+                        isAnimationActive={false}
+                        shape={<RoundedBar />}
+                    />
+                </BarChart>
+            </MemoizedResponsiveContainer>
+        );
+    }, [loading, chartData]);
 
     return (
         <Card className="flex flex-col h-full">
@@ -570,65 +630,79 @@ export const SprintHoursChart = ({ loading, sprintOverviews }) => {
                 </CardTitle>
             </CardHeader>
             <CardContent className="flex-grow">
-                {loading ? (
-                    <div className="h-64 flex items-center justify-center">
-                        <div className="w-full">
-                            <SkeletonText className="h-48 w-full" />
-                        </div>
-                    </div>
-                ) : sprintOverviews && sprintOverviews.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={320}>
-                        <BarChart
-                            data={chartData}
-                            margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis
-                                dataKey="name"
-                                label={{
-                                    value: 'Sprints',
-                                    position: 'insideBottomRight',
-                                    offset: -10
-                                }}
-                            />
-                            <YAxis
-                                label={{
-                                    value: 'Hours',
-                                    angle: -90,
-                                    position: 'insideLeft',
-                                    style: { textAnchor: 'middle' }
-                                }}
-                            />
-                            <Tooltip formatter={(value) => [`${value} hours`]} />
-                            <Legend wrapperStyle={{ bottom: 0 }} />
-                            <Bar
-                                dataKey="estimated"
-                                name="Estimated Hours"
-                                fill="#EA6447"
-                                isAnimationActive={true}
-                                shape={<RoundedBar />}
-                            />
-                            <Bar
-                                dataKey="actual"
-                                name="Actual Hours"
-                                fill="#C74634"
-                                isAnimationActive={true}
-                                shape={<RoundedBar />}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
-                ) : (
-                    <div className="h-64 flex items-center justify-center text-gray-500">
-                        No sprint data available
-                    </div>
-                )}
+                {chartElement}
             </CardContent>
         </Card>
     );
-};
+});
 
-export const DeveloperHoursChart = ({ userPerformances, loading }) => {
+export const DeveloperHoursChart = React.memo(({ userPerformances, loading }) => {
     const { chartData, developers, colors } = useDeveloperCharts(userPerformances, loading);
+
+    // Memoize the chart element to prevent re-rendering
+    const chartElement = useMemo(() => {
+        if (loading) {
+            return (
+                <div className="h-64 flex items-center justify-center">
+                    <div className="w-full">
+                        <SkeletonText className="h-48 w-full" />
+                    </div>
+                </div>
+            );
+        }
+
+        if (!chartData.hours.length) {
+            return (
+                <div className="h-64 flex items-center justify-center text-gray-500">
+                    No data available
+                </div>
+            );
+        }
+
+        // Pre-generate Bar components
+        const barComponents = developers.map((developer) => (
+            <Bar
+                key={developer}
+                dataKey={developer}
+                name={developer}
+                fill={colors[developer]}
+                isAnimationActive={false}
+                shape={<RoundedBar />}
+            />
+        ));
+
+        return (
+            <MemoizedResponsiveContainer width="100%" height={320}>
+                <BarChart
+                    data={chartData.hours}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                        dataKey="name"
+                        label={{
+                            value: 'Sprints',
+                            position: 'insideBottomRight',
+                            offset: -10
+                        }}
+                    />
+                    <YAxis
+                        label={{
+                            value: 'Hours Worked',
+                            angle: -90,
+                            position: 'insideLeft',
+                            style: { textAnchor: 'middle' }
+                        }}
+                    />
+                    <Tooltip
+                        formatter={(value, name) => [`${value} hours`, name]}
+                    />
+                    <Legend wrapperStyle={{ bottom: 0 }} />
+                    {barComponents}
+                </BarChart>
+            </MemoizedResponsiveContainer>
+        );
+    }, [loading, chartData.hours, developers, colors]);
 
     return (
         <Card className="flex flex-col h-full">
@@ -642,63 +716,79 @@ export const DeveloperHoursChart = ({ userPerformances, loading }) => {
                 </CardTitle>
             </CardHeader>
             <CardContent className="flex-grow">
-                {loading ? (
-                    <div className="h-64 flex items-center justify-center">
-                        <div className="w-full">
-                            <SkeletonText className="h-48 w-full" />
-                        </div>
-                    </div>
-                ) : chartData.hours.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={320}>
-                        <BarChart
-                            data={chartData.hours}
-                            margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis
-                                dataKey="name"
-                                label={{
-                                    value: 'Sprints',
-                                    position: 'insideBottomRight',
-                                    offset: -10
-                                }}
-                            />
-                            <YAxis
-                                label={{
-                                    value: 'Hours Worked',
-                                    angle: -90,
-                                    position: 'insideLeft',
-                                    style: { textAnchor: 'middle' }
-                                }}
-                            />
-                            <Tooltip
-                                formatter={(value, name) => [`${value} hours`, name]}
-                            />
-                            <Legend wrapperStyle={{ bottom: 0 }} />
-                            {developers.map((developer) => (
-                                <Bar
-                                    key={developer}
-                                    dataKey={developer}
-                                    name={developer}
-                                    fill={colors[developer]}
-                                    isAnimationActive={true}
-                                    shape={<RoundedBar />}
-                                />
-                            ))}
-                        </BarChart>
-                    </ResponsiveContainer>
-                ) : (
-                    <div className="h-64 flex items-center justify-center text-gray-500">
-                        No data available
-                    </div>
-                )}
+                {chartElement}
             </CardContent>
         </Card>
     );
-};
+});
 
-export const DeveloperTasksChart = ({ userPerformances, loading }) => {
+export const DeveloperTasksChart = React.memo(({ userPerformances, loading }) => {
     const { chartData, developers, colors } = useDeveloperCharts(userPerformances, loading);
+
+    // Memoize the chart element to prevent re-rendering
+    const chartElement = useMemo(() => {
+        if (loading) {
+            return (
+                <div className="h-64 flex items-center justify-center">
+                    <div className="w-full">
+                        <SkeletonText className="h-48 w-full" />
+                    </div>
+                </div>
+            );
+        }
+
+        if (!chartData.tasks.length) {
+            return (
+                <div className="h-64 flex items-center justify-center text-gray-500">
+                    No data available
+                </div>
+            );
+        }
+
+        // Pre-generate Bar components
+        const barComponents = developers.map((developer) => (
+            <Bar
+                key={developer}
+                dataKey={developer}
+                name={developer}
+                fill={colors[developer]}
+                isAnimationActive={false}
+                shape={<RoundedBar />}
+            />
+        ));
+
+        return (
+            <MemoizedResponsiveContainer width="100%" height={320}>
+                <BarChart
+                    data={chartData.tasks}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                        dataKey="name"
+                        label={{
+                            value: 'Sprints',
+                            position: 'insideBottomRight',
+                            offset: -10
+                        }}
+                    />
+                    <YAxis
+                        label={{
+                            value: 'Tasks Completed',
+                            angle: -90,
+                            position: 'insideLeft',
+                            style: { textAnchor: 'middle' }
+                        }}
+                    />
+                    <Tooltip
+                        formatter={(value, name) => [`${value} tasks`, name]}
+                    />
+                    <Legend wrapperStyle={{ bottom: 0 }} />
+                    {barComponents}
+                </BarChart>
+            </MemoizedResponsiveContainer>
+        );
+    }, [loading, chartData.tasks, developers, colors]);
 
     return (
         <Card className="flex flex-col h-full">
@@ -712,57 +802,8 @@ export const DeveloperTasksChart = ({ userPerformances, loading }) => {
                 </CardTitle>
             </CardHeader>
             <CardContent className="flex-grow">
-                {loading ? (
-                    <div className="h-64 flex items-center justify-center">
-                        <div className="w-full">
-                            <SkeletonText className="h-48 w-full" />
-                        </div>
-                    </div>
-                ) : chartData.tasks.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={320}>
-                        <BarChart
-                            data={chartData.tasks}
-                            margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis
-                                dataKey="name"
-                                label={{
-                                    value: 'Sprints',
-                                    position: 'insideBottomRight',
-                                    offset: -10
-                                }}
-                            />
-                            <YAxis
-                                label={{
-                                    value: 'Tasks Completed',
-                                    angle: -90,
-                                    position: 'insideLeft',
-                                    style: { textAnchor: 'middle' }
-                                }}
-                            />
-                            <Tooltip
-                                formatter={(value, name) => [`${value} tasks`, name]}
-                            />
-                            <Legend wrapperStyle={{ bottom: 0 }} />
-                            {developers.map((developer) => (
-                                <Bar
-                                    key={developer}
-                                    dataKey={developer}
-                                    name={developer}
-                                    fill={colors[developer]}
-                                    isAnimationActive={true}
-                                    shape={<RoundedBar />}
-                                />
-                            ))}
-                        </BarChart>
-                    </ResponsiveContainer>
-                ) : (
-                    <div className="h-64 flex items-center justify-center text-gray-500">
-                        No data available
-                    </div>
-                )}
+                {chartElement}
             </CardContent>
         </Card>
     );
-};
+});
