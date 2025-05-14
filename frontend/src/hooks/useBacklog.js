@@ -13,6 +13,7 @@ export const useBacklog = () => {
     const [taskModalOpen, setTaskModalOpen] = useState(false);
     const [createTaskModalOpen, setCreateTaskModalOpen] = useState(false);
     const [validationError, setValidationError] = useState(null);
+    const [taskDetailLoading, setTaskDetailLoading] = useState(false);
     const [filterOptions, setFilterOptions] = useState({
         type: null,
         priority: null,
@@ -21,7 +22,8 @@ export const useBacklog = () => {
         category: null
     });
 
-    const hasLoadedInitialData = useRef(false);
+    // Remove the hasLoadedInitialData ref as it's preventing reloading when project changes
+    const previousProjectId = useRef(null);
 
     const [taskFormData, setTaskFormData] = useState({
         title: '',
@@ -36,6 +38,7 @@ export const useBacklog = () => {
         sprint: null
     });
 
+    // Update the task form when project changes
     useEffect(() => {
         if (selectedProject) {
             setTaskFormData(prev => ({
@@ -108,11 +111,9 @@ export const useBacklog = () => {
 
     const fetchSprintTasks = useCallback(async (sprintId) => {
         if (!selectedProject?.id || !sprintId) return;
-
         try {
             setLoading(true);
             setError(null);
-            console.log("Fetching sprint tasks for project:", selectedProject.id, "sprint:", sprintId);
             const tasks = await BacklogService.getTasksBySprintAndProject(selectedProject.id, sprintId);
             setSprintTasks(tasks);
         } catch (err) {
@@ -123,15 +124,21 @@ export const useBacklog = () => {
         }
     }, [selectedProject?.id]);
 
+    // This effect will run whenever selectedProject changes
     useEffect(() => {
-        if (selectedProject?.id && !hasLoadedInitialData.current) {
-            console.log("Initial backlog fetch for project:", selectedProject.id);
-            fetchBacklogTasks();
-            hasLoadedInitialData.current = true;
-        }
+        // Reset selectedSprint when project changes
+        setSelectedSprint(null);
 
-        if (!selectedProject) {
-            hasLoadedInitialData.current = false;
+        // Clear existing tasks when changing projects
+        setBacklogTasks([]);
+        setSprintTasks([]);
+
+        // Check if project ID changed and fetch new data
+        if (selectedProject?.id) {
+            fetchBacklogTasks();
+
+            // Update the previousProjectId ref
+            previousProjectId.current = selectedProject.id;
         }
     }, [selectedProject?.id, fetchBacklogTasks]);
 
@@ -141,16 +148,21 @@ export const useBacklog = () => {
         } else if (selectedProject?.id) {
             setSprintTasks([]);
         }
-    }, [selectedSprint, fetchSprintTasks]);
+    }, [selectedSprint, fetchSprintTasks, selectedProject?.id]);
 
     const handleTaskSelect = async (taskId) => {
+        setTaskModalOpen(true);
+        setSelectedTask(null);
+        console.log("Fetching task details for task:", taskId);
         try {
+            setTaskDetailLoading(true);
             const task = await BacklogService.getTaskById(taskId);
             setSelectedTask(task);
-            setTaskModalOpen(true);
         } catch (err) {
             console.error("Error fetching task details:", err);
             setError("Failed to load task details.");
+        } finally {
+            setTaskDetailLoading(false);
         }
     };
 
@@ -287,6 +299,7 @@ export const useBacklog = () => {
         setTaskModalOpen,
         createTaskModalOpen,
         setCreateTaskModalOpen,
+        taskDetailLoading,
         handleTaskSelect,
         handleTaskCreate,
         handleTaskUpdate,

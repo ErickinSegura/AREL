@@ -19,9 +19,6 @@ public class TaskController {
     @GetMapping("/task/{projectId}/tasks")
     public ResponseEntity<List<Task>> getTasksByProject(@PathVariable int projectId) {
         List<Task> tasks = taskService.getTasksByProject(projectId);
-        if(tasks.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 
@@ -30,9 +27,6 @@ public class TaskController {
             @PathVariable int projectId,
             @PathVariable int sprintId) {
         List<Task> tasks = taskService.getTasksBySprintAndProject(sprintId, projectId);
-        if(tasks.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 
