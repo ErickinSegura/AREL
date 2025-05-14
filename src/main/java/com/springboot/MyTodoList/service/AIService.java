@@ -4,12 +4,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
+
+import java.net.URLDecoder;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.swagger.models.Response;
 
 @Service
 public class AIService {
@@ -46,19 +46,20 @@ public class AIService {
     }
 
     public ResponseEntity<String> transcript(String texto) {
-    try {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.TEXT_PLAIN);
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.TEXT_PLAIN);
 
-        HttpEntity<String> request = new HttpEntity<>(texto, headers);
+            HttpEntity<String> request = new HttpEntity<>(texto, headers);
 
-        String response = restTemplate.postForObject(aiUrl + "/transcript", request, String.class);
+            String response = restTemplate.postForObject(aiUrl + "/transcript", request, String.class);
 
-        return ResponseEntity.ok(response);
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body("Errrrrrrrror: " + e.getMessage());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body("Errrrrrrrror: " + e.getMessage());
+        }
     }
-}
 
 }
+
