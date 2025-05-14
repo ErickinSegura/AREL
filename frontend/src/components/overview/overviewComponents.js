@@ -15,6 +15,8 @@ import { pdf } from '@react-pdf/renderer';
 import { OverviewService } from '../../api/overviewService';
 import {useAuth} from "../../contexts/AuthContext";
 import {useDeveloperCharts} from "../../hooks/useDeveloperCharts";
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 const getProjectIcon = (iconID) => {
     switch (iconID) {
@@ -325,6 +327,91 @@ export const SprintSummaryCard = ({ loading, selectedSprint, formatDate }) => (
         </CardContent>
     </Card>
 );
+
+export const LogsCard = ({ loading, logs, formatDate}) => {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    return (
+        <Card className="flex flex-col h-full">
+            <CardHeader>
+                <CardTitle>
+                    {loading ? (
+                        <SkeletonText className="w-40" />
+                    ) : (
+                        <>Project <span className="text-oracleRed">Logs</span></>
+                    )}
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow overflow-y-auto max-h-96">
+                {loading ? (
+                    <div className="space-y-4">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="bg-gray-50 p-3 rounded-lg">
+                                <div className="flex justify-between mb-2">
+                                    <SkeletonText className="w-32" />
+                                    <SkeletonText className="w-24" />
+                                </div>
+                                <div className="grid grid-cols-3 gap-2 mt-2">
+                                    <SkeletonText className="h-4" />
+                                    <SkeletonText className="h-4" />
+                                    <SkeletonText className="h-4" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : logs && logs.length > 0 && mounted ? (
+                    <div className="space-y-3">
+                        {logs.map((log, index) => (
+                            <FadeIn delay={100 + index * 150} key={log.id}>
+                                <LogItem log={log} formatDate={formatDate}/>
+                            </FadeIn>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-6 text-gray-500">
+                        No logs available for this sprint
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
+const LogItem = ({ log, formatDate }) => {
+    const formattedDate = formatDate(log.timeOfLog);
+    const actionText = getActionLog(log.actionLog);
+
+    return (
+        <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+            <div className="flex justify-between items-center mb-2">
+                <div className="font-medium">{actionText}</div>
+                <div className="text-sm text-gray-500">{formattedDate}</div>
+            </div>
+            <div className="text-sm text-gray-600">
+                Task ID: {log.description}
+            </div>
+        </div>
+    );
+}
+
+const getActionLog = (action) => {
+    switch (action) {
+        case 1:
+            return 'Completed a task';
+        case 2:
+            return 'Doing a task';
+        case 3:
+            return 'Created a task';
+        case 4:
+            return 'Sprint Started';
+        default:
+            return 'Unknown action';
+    }
+}
 
 const FadeIn = ({ children, delay = 0, duration = 300 }) => {
     const [isVisible, setIsVisible] = useState(false);

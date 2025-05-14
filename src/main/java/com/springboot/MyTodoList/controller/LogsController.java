@@ -8,19 +8,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.List;
+
 @Controller
 public class LogsController {
-    @Autowired
     private final LogsService logsService;
+
     public LogsController(LogsService logsService) {
         this.logsService = logsService;
     }
 
-
-    // Method to get the last 10 logs by project ID
     @GetMapping("/logs/{projectId}")
-    public ResponseEntity<Logs> getLast10LogsByProject(@PathVariable int projectId) {
+    public ResponseEntity<List<Logs>> getLast10LogsByProject(@PathVariable int projectId) {
         return logsService.getLast10LogsByProjectID(projectId);
-
-
+    }
 }
