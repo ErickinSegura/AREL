@@ -16,7 +16,6 @@ import {
 import {FiCheckCircle, FiClock, FiList} from "react-icons/fi";
 import {useProjectUsers} from "../hooks/useProjectUsers";
 
-
 const SprintManagement = () => {
     const {
         sprintTasks,

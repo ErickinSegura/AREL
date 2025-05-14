@@ -504,7 +504,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                         </button>
                     ))}
 
-                    {((userRole === 1 || userRole === 3 ) &&  (!isOpen)) && (
+                    {((userRole === 1 || userRole === 3 )) && (
                         <>
                             <div className="border-t border-gray-200 my-1"></div>
                             <button
