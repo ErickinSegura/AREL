@@ -35,7 +35,7 @@ const Backlog = () => {
 
     const { selectedProject } = useProjects();
 
-    const { users, usersLoading } = useProjectUsers(selectedProject.id);
+    const { users, usersLoading } = useProjectUsers(selectedProject?.id);
 
     const isLoading = loading || usersLoading;
 

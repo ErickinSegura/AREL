@@ -33,13 +33,14 @@ export const useSprints = () => {
     const resetSprintForm = useCallback(() => {
         setSprintFormData(prev => ({
             ...prev,
+            project: selectedProject?.id || null,
             startDate: new Date().toISOString().split('T')[0],
             endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             sprintNumber: sprints.length > 0 ? Math.max(...sprints.map(s => s.sprintNumber)) + 1 : 1
         }));
         setSelectedTasks([]);
         setValidationError(null);
-    }, [sprints]);
+    }, [sprints, selectedProject]);
 
     const handleSprintFormChange = (e) => {
         const { name, value } = e.target;
@@ -80,13 +81,22 @@ export const useSprints = () => {
         }
     }, [selectedProject]);
 
-    // Fetch sprints and tasks only when selectedProject is available.
     useEffect(() => {
         if (selectedProject) {
+            setSprints([]);
+            setAvailableTasks([]);
+            setSelectedTasks([]);
+
+            setSprintFormData(prev => ({
+                ...prev,
+                project: selectedProject.id,
+                sprintNumber: sprints.length > 0 ? Math.max(...sprints.map(s => s.sprintNumber)) + 1 : 1
+            }));
+
             fetchSprints();
             fetchAvailableTasks();
         }
-    }, [fetchSprints, fetchAvailableTasks, selectedProject]); // Add fetchSprints and fetchAvailableTasks as dependencies
+    }, [fetchSprints, fetchAvailableTasks, selectedProject]);
 
     const toggleTaskSelection = (taskId) => {
         setSelectedTasks(prevSelectedTasks => {

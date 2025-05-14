@@ -22,7 +22,8 @@ export const useBacklog = () => {
         category: null
     });
 
-    const hasLoadedInitialData = useRef(false);
+    // Remove the hasLoadedInitialData ref as it's preventing reloading when project changes
+    const previousProjectId = useRef(null);
 
     const [taskFormData, setTaskFormData] = useState({
         title: '',
@@ -37,6 +38,7 @@ export const useBacklog = () => {
         sprint: null
     });
 
+    // Update the task form when project changes
     useEffect(() => {
         if (selectedProject) {
             setTaskFormData(prev => ({
@@ -122,14 +124,21 @@ export const useBacklog = () => {
         }
     }, [selectedProject?.id]);
 
+    // This effect will run whenever selectedProject changes
     useEffect(() => {
-        if (selectedProject?.id && !hasLoadedInitialData.current) {
-            fetchBacklogTasks();
-            hasLoadedInitialData.current = true;
-        }
+        // Reset selectedSprint when project changes
+        setSelectedSprint(null);
 
-        if (!selectedProject) {
-            hasLoadedInitialData.current = false;
+        // Clear existing tasks when changing projects
+        setBacklogTasks([]);
+        setSprintTasks([]);
+
+        // Check if project ID changed and fetch new data
+        if (selectedProject?.id) {
+            fetchBacklogTasks();
+
+            // Update the previousProjectId ref
+            previousProjectId.current = selectedProject.id;
         }
     }, [selectedProject?.id, fetchBacklogTasks]);
 
@@ -139,7 +148,7 @@ export const useBacklog = () => {
         } else if (selectedProject?.id) {
             setSprintTasks([]);
         }
-    }, [selectedSprint, fetchSprintTasks]);
+    }, [selectedSprint, fetchSprintTasks, selectedProject?.id]);
 
     const handleTaskSelect = async (taskId) => {
         setTaskModalOpen(true);

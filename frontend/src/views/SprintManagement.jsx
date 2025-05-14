@@ -36,7 +36,6 @@ const SprintManagement = () => {
     const { sprints, loading: sprintsLoading } = useSprints();
     const { selectedProject } = useProjects();
     const { users, usersLoading } = useProjectUsers(selectedProject?.id);
-    const isLoading = loading || usersLoading;
     const [actualHoursModalOpen, setActualHoursModalOpen] = useState(false);
     const [taskForHours, setTaskForHours] = useState(null);
     const [updateLoading, setUpdateLoading] = useState(false);
