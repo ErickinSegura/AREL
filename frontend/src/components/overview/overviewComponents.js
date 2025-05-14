@@ -759,7 +759,7 @@ export const DeveloperTasksChart = ({ userPerformances, loading }) => {
                     </ResponsiveContainer>
                 ) : (
                     <div className="h-64 flex items-center justify-center text-gray-500">
-                        No hay datos disponibles
+                        No data available
                     </div>
                 )}
             </CardContent>
