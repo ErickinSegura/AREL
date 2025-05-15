@@ -94,7 +94,7 @@ const AdminOverview = () => {
                     sprintOverviews={sprintOverviews}
                 />
                 <LogsCard
-                    loading={loadingLogs}
+                    loading={loading}
                     logs={logs}
                     formatDate={formatDate}
                     />

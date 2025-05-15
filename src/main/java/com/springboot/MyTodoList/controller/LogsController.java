@@ -1,8 +1,7 @@
 package com.springboot.MyTodoList.controller;
 
-import com.springboot.MyTodoList.model.Logs;
+import com.springboot.MyTodoList.model.LogsDTO;
 import com.springboot.MyTodoList.service.LogsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +18,7 @@ public class LogsController {
     }
 
     @GetMapping("/logs/{projectId}")
-    public ResponseEntity<List<Logs>> getLast10LogsByProject(@PathVariable int projectId) {
-        return logsService.getLast10LogsByProjectID(projectId);
+    public ResponseEntity<List<LogsDTO>> getLogsByProject(@PathVariable int projectId) {
+        return logsService.getLogsByProjectID(projectId);
     }
 }
