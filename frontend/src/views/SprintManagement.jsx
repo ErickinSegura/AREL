@@ -130,7 +130,7 @@ const SprintManagement = () => {
                                 icon={<FiList/>}
                                 title="To Do"
                                 state={1}
-                                tasks={todoTasks}
+                                tasks={todoTasks.sort((a => a.priority))}
                                 onTaskSelect={handleTaskSelect}
                                 onTaskDrop={handleTaskDrop}
                                 users={users}
@@ -140,7 +140,7 @@ const SprintManagement = () => {
                                 icon={<FiClock/>}
                                 title="Doing"
                                 state={2}
-                                tasks={doingTasks}
+                                tasks={doingTasks.sort((a => a.priority))}
                                 onTaskSelect={handleTaskSelect}
                                 onTaskDrop={handleTaskDrop}
                                 users={users}
@@ -150,7 +150,7 @@ const SprintManagement = () => {
                                 icon={<FiCheckCircle/>}
                                 title="Done"
                                 state={3}
-                                tasks={doneTasks}
+                                tasks={doneTasks.sort((a => a.priority))}
                                 onTaskSelect={handleTaskSelect}
                                 onTaskDrop={handleTaskDrop}
                                 users={users}
