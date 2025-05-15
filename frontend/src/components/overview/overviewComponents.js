@@ -82,19 +82,37 @@ export const PDFButton = ({ selectedProject }) => {
     const handleGenerateAndDownloadPdf = async () => {
         setLoading(true);
         try {
+            // Show a loading message to the user
+            console.log("Fetching project data...");
+
+            // Get all the data we need for the PDF
             const overviewData = await OverviewService.getOverviewData(selectedProject.id);
 
+            // Transform the sprint data for the PDF
             const projectData = transformOverviewDataToProjectFormat(overviewData);
 
+            // Extract user performance data
+            const userPerformances = overviewData.userPerformances || [];
+
+            console.log("Generating AI insights...");
+
+            // Get AI-generated insights
             const aiResponse = await AICall(projectData);
 
+            console.log("Creating PDF...");
+
+            // Generate the PDF with all the data
             const pdfBlob = await pdf(
                 <PDF
                     insightsHtml={aiResponse}
                     projectData={projectData}
+                    userPerformances={userPerformances}
                 />
             ).toBlob();
 
+            console.log("Downloading PDF...");
+
+            // Create a download link for the PDF
             const url = URL.createObjectURL(pdfBlob);
             const link = document.createElement('a');
             link.href = url;
@@ -104,8 +122,11 @@ export const PDFButton = ({ selectedProject }) => {
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
 
+            console.log("PDF downloaded successfully!");
+
         } catch (error) {
             console.error("Error generating or downloading PDF:", error);
+            alert("There was an error generating the PDF. Please try again later.");
         }
         setLoading(false);
     };
