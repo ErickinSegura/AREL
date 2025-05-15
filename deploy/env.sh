@@ -32,7 +32,7 @@ function set_javahome(){
 }
 
 #set mtdrworkshop_location
-export MTDRWORKSHOP_LOCATION="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+export MTDRWORKSHOP_LOCATION="$( cd "$( dirname "${BASH_SOURCE[0]}" )/deploy" &> /dev/null && pwd )"
 cd $MTDRWORKSHOP_LOCATION
 echo "MTDRWORKSHOP_LOCATION: $MTDRWORKSHOP_LOCATION"
 
