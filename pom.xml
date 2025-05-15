@@ -190,19 +190,19 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>5.7.0</version>
+			<version>4.11.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-junit-jupiter</artifactId>
-			<version>5.7.0</version>
+			<version>4.11.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
-			<version>1.14.0</version>
+			<version>1.12.18</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -262,6 +262,30 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>3.2.0</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<nonFilteredFileExtensions>
+						<nonFilteredFileExtension>pdf</nonFilteredFileExtension>
+						<nonFilteredFileExtension>swf</nonFilteredFileExtension>
+						<nonFilteredFileExtension>png</nonFilteredFileExtension>
+						<nonFilteredFileExtension>jpg</nonFilteredFileExtension>
+						<nonFilteredFileExtension>jpeg</nonFilteredFileExtension>
+						<nonFilteredFileExtension>gif</nonFilteredFileExtension>
+						<nonFilteredFileExtension>ico</nonFilteredFileExtension>
+						<nonFilteredFileExtension>woff</nonFilteredFileExtension>
+						<nonFilteredFileExtension>woff2</nonFilteredFileExtension>
+						<nonFilteredFileExtension>ttf</nonFilteredFileExtension>
+						<nonFilteredFileExtension>eot</nonFilteredFileExtension>
+						<nonFilteredFileExtension>svg</nonFilteredFileExtension>
+						<nonFilteredFileExtension>mp4</nonFilteredFileExtension>
+						<nonFilteredFileExtension>webp</nonFilteredFileExtension>
+						<nonFilteredFileExtension>bmp</nonFilteredFileExtension>
+					</nonFilteredFileExtensions>
+					<delimiters>
+						<delimiter>${*}</delimiter>
+					</delimiters>
+					<useDefaultDelimiters>false</useDefaultDelimiters>
+				</configuration>
 				<executions>
 					<execution>
 						<id>position-react-build</id>
@@ -307,6 +331,7 @@
                 <includes>
                     <include>**/*Test.java</include>
                 </includes>
+                <argLine>-Dnet.bytebuddy.experimental=true</argLine>
             </configuration>
         </plugin>
 		</plugins>
