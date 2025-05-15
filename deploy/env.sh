@@ -32,7 +32,12 @@ function set_javahome(){
 }
 
 #set mtdrworkshop_location
-export MTDRWORKSHOP_LOCATION="$( cd "$( dirname "${BASH_SOURCE[0]}" )/deploy" &> /dev/null && pwd )"
+SCRIPT_PATH="${BASH_SOURCE[0]:-$0}"
+# Cambiar al directorio del script y obtener ruta absoluta
+SCRIPT_DIR="$( cd "$( dirname "$SCRIPT_PATH" )" &>/dev/null && pwd )"
+# Fijar la ruta absoluta al subdirectorio deploy
+export MTDRWORKSHOP_LOCATION="$SCRIPT_DIR/deploy"
+
 cd $MTDRWORKSHOP_LOCATION
 echo "MTDRWORKSHOP_LOCATION: $MTDRWORKSHOP_LOCATION"
 
