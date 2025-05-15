@@ -48,7 +48,7 @@ fi
 if test -d ~/mtdrworkshop-state; then
   export MTDRWORKSHOP_STATE_HOME=~/mtdrworkshop-state
 else
-  export MTDRWORKSHOP_STATE_HOME=$MTDRWORKSHOP_LOCATION
+  export MTDRWORKSHOP_STATE_HOME="$(dirname "$MTDRWORKSHOP_LOCATION")"
 fi
 echo "MTDRWORKSOP_STATE_HOME: $MTDRWORKSHOP_STATE_HOME"
 #Log Directory
