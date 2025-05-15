@@ -7,7 +7,7 @@ import {
     FiCodesandbox,
     FiChevronDown,
     FiAlertTriangle,
-    FiArrowUp, FiActivity, FiClock, FiCheckCircle
+    FiArrowUp, FiActivity, FiClock, FiCheckCircle, FiUser
 } from 'react-icons/fi';
 import { Skeleton, SkeletonText, SkeletonCircle } from '../../lib/ui/Skeleton';
 import { AICall, PDF } from '../../lib/ui/PDF/PDF';
@@ -15,6 +15,10 @@ import { pdf } from '@react-pdf/renderer';
 import { OverviewService } from '../../api/overviewService';
 import {useAuth} from "../../contexts/AuthContext";
 import {useDeveloperCharts} from "../../hooks/useDeveloperCharts";
+import { format } from 'date-fns';
+import { enUS } from 'date-fns/locale';
+import {UserCircle} from "lucide-react";
+import {Task} from "@mui/icons-material";
 
 const getProjectIcon = (iconID) => {
     switch (iconID) {
@@ -346,6 +350,108 @@ export const SprintSummaryCard = ({ loading, selectedSprint, formatDate }) => (
         </CardContent>
     </Card>
 );
+
+export const LogsCard = ({ loading, logs}) => {
+    const [mounted, setMounted] = useState(false);
+    console.log("loading logs", loading)
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    return (
+        <Card className="flex flex-col h-full">
+            <CardHeader>
+                <CardTitle>
+                    {loading ? (
+                        <SkeletonText className="w-40" />
+                    ) : (
+                        <>Project <span className="text-oracleRed">Logs</span></>
+                    )}
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow overflow-y-auto max-h-96">
+                {loading ? (
+                    <div className="space-y-4">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="bg-gray-50 p-3 rounded-lg">
+                                <div className="flex justify-between mb-2">
+                                    <SkeletonText className="w-32" />
+                                    <SkeletonText className="w-24" />
+                                </div>
+                                <div className="grid grid-cols-3 gap-2 mt-2">
+                                    <SkeletonText className="h-4" />
+                                    <SkeletonText className="h-4" />
+                                    <SkeletonText className="h-4" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : logs && logs.length > 0 && mounted ? (
+                    <div className="space-y-3">
+                        {logs.map((log, index) => (
+                            <FadeIn delay={100 + index * 150} key={log.id}>
+                                <LogItem log={log} formatDate={formatDate}/>
+                            </FadeIn>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-6 text-gray-500">
+                        No logs available for this sprint
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return format(date, 'dd/MM/yyyy HH:mm', { locale: enUS });
+}
+
+const LogItem = ({ log }) => {
+    const formattedDate = formatDate(log.timeOfLog);
+    const actionText = getActionLog(log.actionLog);
+
+    return (
+        <div className="bg-white p-3 rounded-xl border border-gray-200">
+            <div className="flex justify-between items-center">
+                <div className="font-medium text-oracleRed">{actionText}</div>
+                <div className="text-sm text-gray-500">{formattedDate}</div>
+            </div>
+            <div className="text-sm text-gray-600 flex flex-wrap gap-x-4">
+                {log.title && (
+                    <div className="flex items-center">
+                        <FiCheckCircle className="mr-1 shrink-0" size={16} />
+                        <span>{log.title}</span>
+                    </div>
+                )}
+                {!(log.firstname === "Sistema") && (
+                    <div className="flex items-center">
+                        <FiUser className="mr-1 shrink-0" size={16} />
+                        <span>{log.firstname}</span>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+const getActionLog = (action) => {
+    switch (action) {
+        case 1:
+            return 'A task was set as done';
+        case 2:
+            return 'A task was set as doing';
+        case 3:
+            return 'A task was created';
+        case 4:
+            return 'A sprint was created';
+        default:
+            return 'Unknown action';
+    }
+}
 
 const FadeIn = ({ children, delay = 0, duration = 300 }) => {
     const [isVisible, setIsVisible] = useState(false);

@@ -11,8 +11,9 @@ import {
     TeamPerformanceCard,
     SprintHoursChart,
     DeveloperHoursChart,
-    DeveloperTasksChart
+    DeveloperTasksChart, LogsCard
 } from '../../components/overview/overviewComponents';
+import {useLogs} from "../../hooks/useLogs";
 
 const AdminOverview = () => {
     const {
@@ -33,6 +34,8 @@ const AdminOverview = () => {
         toggleSprintDropdown,
         closeSprintDropdown
     } = useOverview();
+
+    const {logs, loadingLogs, erroLogsr} = useLogs();
 
     const [currentGreeting] = React.useState(greeting());
 
@@ -90,6 +93,11 @@ const AdminOverview = () => {
                     loading={loading}
                     sprintOverviews={sprintOverviews}
                 />
+                <LogsCard
+                    loading={loading}
+                    logs={logs}
+                    formatDate={formatDate}
+                    />
             </div>
 
 
