@@ -55,7 +55,7 @@ echo "MTDRWORKSOP_STATE_HOME: $MTDRWORKSHOP_STATE_HOME"
 export MTDRWORKSHOP_LOG=$MTDRWORKSHOP_STATE_HOME/log
 mkdir -p $MTDRWORKSHOP_LOG
 
-source $MTDRWORKSHOP_LOCATION/deploy/utils/state-functions.sh
+source $MTDRWORKSHOP_LOCATION/utils/state-functions.sh
 
 # SHORTCUT ALIASES AND UTILS...
 alias k='kubectl'
