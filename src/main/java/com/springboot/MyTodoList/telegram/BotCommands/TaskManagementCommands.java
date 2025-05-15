@@ -157,7 +157,7 @@ public class TaskManagementCommands {
                 task.setSprint(null);
                 task.setProjectId(projectID);
 
-                Task result = database.task.updateTask(taskId, task);
+                Task result = database.task.moveToBacklog(taskId);
 
                 if (result != null ) {
                     message.setText(BotMessages.SUCCESSFULLY_MOVED_TO_BACKLOG.getMessage());
@@ -350,15 +350,6 @@ public class TaskManagementCommands {
             return task.getProjectId();
         } else {
             return null;
-            //Probably not necesary
-
-            // Integer idResponse = database.sprint.getProjectbyId(task.getSprintId());
-            // if (idResponse != null) {
-            //     return idResponse;
-            // }
-            // else {
-            //     return null;
-            // }
         }
     }
 }

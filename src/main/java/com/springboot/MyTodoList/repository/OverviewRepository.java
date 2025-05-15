@@ -22,6 +22,7 @@ public class OverviewRepository {
         String sql = "SELECT " +
                 "p.PROJECT_NAME, " +
                 "p.ID_PROJECT, " +
+                "s.ID_SPRINT, " +
                 "s.SPRINT_NUMBER, " +
                 "s.START_DATE, " +
                 "s.END_DATE, " +
@@ -39,7 +40,7 @@ public class OverviewRepository {
                 "WHERE " +
                 "t.DELETED = 0 OR t.DELETED IS NULL " +
                 "GROUP BY " +
-                "p.PROJECT_NAME, p.ID_PROJECT, s.SPRINT_NUMBER, s.START_DATE, s.END_DATE " +
+                "p.PROJECT_NAME, p.ID_PROJECT, s.ID_SPRINT, s.SPRINT_NUMBER, s.START_DATE, s.END_DATE " +
                 "ORDER BY " +
                 "p.PROJECT_NAME, s.SPRINT_NUMBER";
 
@@ -50,6 +51,7 @@ public class OverviewRepository {
         String sql = "SELECT " +
                 "p.PROJECT_NAME, " +
                 "p.ID_PROJECT, " +
+                "s.ID_SPRINT, " +
                 "s.SPRINT_NUMBER, " +
                 "s.START_DATE, " +
                 "s.END_DATE, " +
@@ -68,7 +70,7 @@ public class OverviewRepository {
                 "(t.DELETED = 0 OR t.DELETED IS NULL) " +
                 "AND p.ID_PROJECT = ? " +
                 "GROUP BY " +
-                "p.PROJECT_NAME, p.ID_PROJECT, s.SPRINT_NUMBER, s.START_DATE, s.END_DATE " +
+                "p.PROJECT_NAME, p.ID_PROJECT, s.ID_SPRINT, s.SPRINT_NUMBER, s.START_DATE, s.END_DATE " +
                 "ORDER BY " +
                 "s.SPRINT_NUMBER";
 
@@ -186,6 +188,7 @@ public class OverviewRepository {
             return new SprintOverview(
                     rs.getString("PROJECT_NAME"),
                     rs.getLong("ID_PROJECT"),
+                    rs.getInt("ID_SPRINT"),
                     rs.getInt("SPRINT_NUMBER"),
                     rs.getObject("START_DATE", LocalDateTime.class),
                     rs.getObject("END_DATE", LocalDateTime.class),

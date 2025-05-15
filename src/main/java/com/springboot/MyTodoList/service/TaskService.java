@@ -108,6 +108,19 @@ public class TaskService {
         }
     }
 
+    public Task moveToBacklog(int id) {
+        Optional<Task> existingTaskOptional = taskRepository.findById(id);
+
+        if (existingTaskOptional.isPresent()) {
+            Task task = existingTaskOptional.get();
+
+            task.setSprint(null);
+            return taskRepository.save(task);
+        }else{
+            return null;
+        }
+    }
+
     public List<Task> getTasksByProject(int projectId) {
         return taskRepository.findByProjectId(projectId);
     }

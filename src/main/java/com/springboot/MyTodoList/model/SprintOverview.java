@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class SprintOverview {
     private String projectName;
     private Long projectId;
+    private int sprintId;
     private int sprintNumber;
     private LocalDateTime startDate;
     private LocalDateTime endDate;

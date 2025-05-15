@@ -111,4 +111,8 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 	public String getBotUsername() {
 		return botName;
 	}
+
+	public CommandHandler getCommandHandler() {
+        return commandHandler;
+    }
 }

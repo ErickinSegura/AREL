@@ -46,6 +46,24 @@ public class CommandHandler {
         this.ai = new AICommands(serviceManager, messageSender);
     }
 
+    public CommandHandler(MessageSender messageSender, ServiceManager serviceManager, 
+                          InactivityManager inactivityManager, KPICommands kpi) {
+        this.messageSender = messageSender;
+        this.database = serviceManager;
+        //this.inactivityManager = inactivityManager;
+        // Create a new CRUD controller using the ToDoItemService from ServiceManager
+        this.keyboardFactory = new KeyboardFactory();
+        this.createTask = new TaskCreationCommands(database, messageSender, inactivityManager);
+        this.manageTask = new TaskManagementCommands(serviceManager, messageSender, inactivityManager);
+        this.agile = new AgileCommands(serviceManager, messageSender, inactivityManager);
+        this.kpi = kpi;
+        this.ai = new AICommands(serviceManager, messageSender);
+    }
+
+    public KPICommands getKpiCommands() {
+        return kpi;
+    }
+
     public void start(Long chatId, Update update){
         agile.handleStartCommand(chatId, update);
     }
@@ -230,6 +248,12 @@ public class CommandHandler {
 
             manageTask.openTaskListUser(chatId, userProjectId);
         }
+        else if (callbackQuery.startsWith("ct_sprint_")) {
+            int sprintId = Integer.parseInt(parts[2]);
+            int projectId = Integer.parseInt(parts[3]);
+
+            kpi.showSprintsCompletedTasks(chatId, sprintId, projectId);
+        }
     }    
 
     public void handleTextInput(UserState state, String messageText, Long chatId, Update update) {
@@ -277,6 +301,12 @@ public class CommandHandler {
             Integer projectId = checkForActiveProject(state, chatId, update);
             if (projectId != null) {
                 manageTask.selectUserForTaskMonitoring(chatId, projectId);
+            }
+            return;
+        } else if (messageText.equals("See completed tasks")) {
+            Integer projectId = checkForActiveProject(state, chatId, update);
+            if (projectId != null) {
+                kpi.CompletedTasksMenuSprints(chatId, projectId);
             }
             return;
         }
