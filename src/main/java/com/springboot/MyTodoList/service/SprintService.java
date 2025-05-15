@@ -84,7 +84,7 @@ public class SprintService {
             return null;
         }
         else {
-            return sprint_response.get(0).getSprintNumber();
+            return sprint_response.get(0).getID();
         }
     }
 

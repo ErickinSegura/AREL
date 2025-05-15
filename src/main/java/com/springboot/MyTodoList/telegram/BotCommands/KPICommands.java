@@ -1,6 +1,7 @@
 package com.springboot.MyTodoList.telegram.BotCommands;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,6 +10,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import com.springboot.MyTodoList.model.Sprint;
 import com.springboot.MyTodoList.model.SprintOverview;
+import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.model.UserPerformance;
 import com.springboot.MyTodoList.model.UserProject;
 import com.springboot.MyTodoList.service.ServiceManager;
@@ -35,7 +37,7 @@ public class KPICommands {
         List<SprintOverview> sprintOverviews = database.kpi.getSprintOverviewsByProjectId(Long.valueOf(projectId));
         
         Optional<SprintOverview> activeSprintOverviewOptional = sprintOverviews.stream()
-        .filter(p -> p.getSprintNumber() == sprintId)
+        .filter(p -> p.getSprintId() == sprintId)
         .findFirst();
 
         if (activeSprintOverviewOptional.isPresent()) {
@@ -121,6 +123,57 @@ public class KPICommands {
         }
 
         messageSender.sendMessage(message);
+    }
+
+    public void CompletedTasksMenuSprints(Long chatId, Integer projectId){
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        ResponseEntity<List<Sprint>> sprintsResponse = database.sprint.getSprintsByProjectID(projectId);
+
+        if ( sprintsResponse.getStatusCode().is2xxSuccessful() && sprintsResponse.hasBody() ) {
+            List<Sprint> sprints = sprintsResponse.getBody();
+            if (sprints != null && sprints.size() > 0) {
+                message.setText(BotMessages.KPI_OPEN_SPRINTS.getMessage());
+                message.setReplyMarkup(keyboardFactory.inlineCompletedTasksSprintList(sprints));
+
+            }else{
+                message.setText(BotMessages.NO_SPRINTS_AVAILABLE.getMessage());
+            }
+        }
+
+        messageSender.sendMessage(message);
+    }
+
+    public void showSprintsCompletedTasks(Long chatId, int sprintId, int projectId) {
+        List<UserProject> userProjects = database.userProject.getUsersByProject(projectId);
+        List<Task> sprintTasks = database.task.getTasksBySprintID(sprintId);
+
+        for (UserProject user : userProjects) {
+            int userProjectId = user.getID();
+            List<Task> userCompletedTasks = new ArrayList<>();
+
+            for (Task task : sprintTasks) {
+                if (task.getAssignedToId() == userProjectId) {
+                    userCompletedTasks.add(task);
+                }
+            }
+
+            SendMessage message = new SendMessage();
+            message.setChatId(chatId);
+            String name = user.getUser().getFirstName() + " " + user.getUser().getLastName();
+            String role = user.getRole();
+
+            if (userCompletedTasks.size() > 0) {
+                message.setText("Tasks for " + name + " (" + role + ")");
+                message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerTaskList(userCompletedTasks));
+            } else {
+                message.setText(name + " (" + role + ") has no completed tasks");
+            }
+            messageSender.sendMessage(message);
+        }
+
+
     }
 
     public void KPIMenuUsers(Long chatId, Integer projectId) {

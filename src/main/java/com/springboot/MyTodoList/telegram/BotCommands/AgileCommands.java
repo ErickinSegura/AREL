@@ -121,7 +121,7 @@ public class AgileCommands {
 
                     
                     Optional<SprintOverview> activeSprintOverviewOptional = sprintOverviews.stream()
-                    .filter(p -> p.getSprintNumber() == actualSprint)
+                    .filter(p -> p.getSprintId() == actualSprint)
                     .findFirst();
 
                     if (activeSprintOverviewOptional.isPresent()){
