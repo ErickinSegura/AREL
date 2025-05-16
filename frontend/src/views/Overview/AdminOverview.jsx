@@ -35,7 +35,7 @@ const AdminOverview = () => {
         closeSprintDropdown
     } = useOverview();
 
-    const {logs, loadingLogs, erroLogsr} = useLogs();
+    const {logs} = useLogs();
 
     const [currentGreeting] = React.useState(greeting());
 

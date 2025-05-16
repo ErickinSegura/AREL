@@ -6,7 +6,6 @@ import { Input } from "../../lib/ui/Input";
 import { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter, ModalClose } from "../../lib/ui/Modal";
 import { AvatarRenderer } from "../../lib/AvatarRenderer";
 import {useAvatarUpdate} from "../../hooks/useAvatarUpdate";
-import {SkeletonAvatar} from "../../lib/ui/Skeleton";
 
 export const UserHeader = () => (
     <Card className="mb-6">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { SprintsService } from '../api/sprintsService';
 import { BacklogService } from '../api/backlogService';
 import { useProjects } from './useProjects';

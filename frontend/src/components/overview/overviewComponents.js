@@ -17,8 +17,6 @@ import {useAuth} from "../../contexts/AuthContext";
 import {useDeveloperCharts} from "../../hooks/useDeveloperCharts";
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
-import {UserCircle} from "lucide-react";
-import {Task} from "@mui/icons-material";
 
 const getProjectIcon = (iconID) => {
     switch (iconID) {
@@ -657,12 +655,6 @@ export const SprintGoalCard = ({ loading, selectedSprint, calculateProgressArc }
 };
 
 export const TeamPerformanceCard = ({ loading, sprintUserData }) => {
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
     return (
         <Card className="flex flex-col h-full">
             <CardHeader>

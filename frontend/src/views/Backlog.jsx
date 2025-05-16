@@ -3,7 +3,6 @@ import { useBacklog } from '../hooks/useBacklog';
 import { useSprints } from '../hooks/useSprints';
 import { TaskCard, CreateTaskModal, TaskDetailModal, BacklogHeader, CreateSprintModal } from '../components/backlog/backlogComponents';
 import { NoProjectState } from "../components/overview/overviewComponents";
-import { Button } from '../lib/ui/Button';
 import { SkeletonCard, SkeletonText } from '../lib/ui/Skeleton';
 import { Search } from 'lucide-react';
 import { useProjects } from "../hooks/useProjects";

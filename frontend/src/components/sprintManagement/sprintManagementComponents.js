@@ -17,7 +17,6 @@ import {
     ModalClose
 } from '../../lib/ui/Modal';
 import {FiCodesandbox, FiFolder} from "react-icons/fi";
-import {useProjectUsers} from "../../hooks/useProjectUsers";
 
 const priorityColors = {
     1: 'bg-green-100 text-green-800 border-green-200',
