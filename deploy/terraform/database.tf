@@ -29,7 +29,7 @@ resource "oci_database_autonomous_database" "autonomous_database_atp" {
   #Optional #db_workload = "${var.autonomous_database_db_workload}"
   db_workload                                    = var.autonomous_database_db_workload
   display_name ="MTDRDB"
-  is_auto_scaling_enabled                        = "true"
+  is_auto_scaling_enabled                        = "false"
   is_preview_version_with_service_terms_accepted = "false"
 }
 data "oci_database_autonomous_databases" "autonomous_databases_atp" {
