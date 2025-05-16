@@ -64,7 +64,7 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
   }
   node_source_details {
     #Required
-    image_id    = ocid1.image.oc1.mx-queretaro-1.aaaaaaaafuqaptcnpj635h4cyop2oj362dbskfkcanwhb66bdeo7vrfbxdja # Latest
+    image_id    = "ocid1.image.oc1.mx-queretaro-1.aaaaaaaafuqaptcnpj635h4cyop2oj362dbskfkcanwhb66bdeo7vrfbxdja" # Latest
     source_type = "IMAGE"
     #Optional
     #boot_volume_size_in_gbs = "60"
