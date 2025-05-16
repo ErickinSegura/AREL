@@ -204,6 +204,7 @@ export const useBacklog = () => {
     };
 
     const handleTaskUpdate = async (taskId, taskData) => {
+        console.log("Updating task:", taskId, taskData);
         try {
             setLoading(true);
             await BacklogService.updateTask(taskId, taskData);

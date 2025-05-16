@@ -351,7 +351,6 @@ export const SprintSummaryCard = ({ loading, selectedSprint, formatDate }) => (
 
 export const LogsCard = ({ loading, logs}) => {
     const [mounted, setMounted] = useState(false);
-    console.log("loading logs", loading)
 
     useEffect(() => {
         setMounted(true);

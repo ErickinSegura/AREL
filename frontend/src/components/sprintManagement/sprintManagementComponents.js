@@ -215,6 +215,7 @@ export const DraggableTaskCard = ({ task, onSelect, users, usersLoading }) => {
         </div>
     );
 };
+
 export const TaskColumn = ({
                                icon,
                                title,
