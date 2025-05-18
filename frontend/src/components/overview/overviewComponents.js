@@ -477,12 +477,9 @@ const FadeIn = ({ children, delay = 0, duration = 300 }) => {
 const AnimatedArc = ({ progressArc, completionRateColor }) => {
     const [animatedOffset, setAnimatedOffset] = useState(progressArc.strokeDasharray);
 
-    // Resetear y animar el offset cuando cambia el sprint seleccionado
     useEffect(() => {
-        // Primero reseteamos al valor máximo (sin progreso)
         setAnimatedOffset(progressArc.strokeDasharray);
 
-        // Luego animamos hasta el offset calculado
         const timer = setTimeout(() => {
             setAnimatedOffset(progressArc.strokeDashoffset);
         }, 50);
@@ -521,7 +518,6 @@ const AnimatedProgressBar = ({ percentage, color }) => {
     const [width, setWidth] = useState(0);
 
     useEffect(() => {
-        // Animación desde 0 hasta el porcentaje final
         setTimeout(() => {
             setWidth(percentage);
         }, 300);
@@ -802,6 +798,10 @@ const RoundedBar = ({ x, y, width, height, fill, animationDelay = 0 }) => {
     const radius = Math.min(8, width / 2);
     const animatedHeight = animated ? height : 0;
     const animatedY = animated ? y : y + height;
+
+    if (animatedHeight <= 0) {
+        return null;
+    }
 
     return (
         <g>
