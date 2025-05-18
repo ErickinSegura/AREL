@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { useBacklog } from '../hooks/useBacklog';
 import { useSprints } from '../hooks/useSprints';
-import { TaskCard, CreateTaskModal, TaskDetailModal, BacklogHeader, CreateSprintModal } from '../components/backlog/backlogComponents';
+import { TaskCard, CreateTaskModal, TaskDetailModal, BacklogHeader, SortControls, CreateSprintModal } from '../components/backlog/backlogComponents';
 import { NoProjectState } from "../components/overview/overviewComponents";
 import { SkeletonCard, SkeletonText } from '../lib/ui/Skeleton';
 import { Search } from 'lucide-react';
 import { useProjects } from "../hooks/useProjects";
 import { Input } from "../lib/ui/Input";
-import {useAuth} from "../contexts/AuthContext";
-import {useProjectUsers} from "../hooks/useProjectUsers";
+import { useAuth } from "../contexts/AuthContext";
+import { useProjectUsers } from "../hooks/useProjectUsers";
+
 
 const Backlog = () => {
     const { user } = useAuth();
@@ -40,6 +41,7 @@ const Backlog = () => {
 
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortBy, setSortBy] = useState('priority'); // Estado para el tipo de ordenación
 
     const nonSprintTasks = backlogTasks.filter(task => task.sprint === null);
 
@@ -50,16 +52,53 @@ const Backlog = () => {
         )
         : nonSprintTasks;
 
-    const priorityOrder = {
-        4: 0, // Critical
-        3: 1, // High
-        2: 2, // Medium
-        1: 3  // Low
+    const sortTasks = (tasks) => {
+        const sortedArray = [...tasks];
+
+        switch(sortBy) {
+            case 'priority-desc':
+                const priorityOrderDesc = {
+                    4: 0, // Critical
+                    3: 1, // High
+                    2: 2, // Medium
+                    1: 3  // Low
+                };
+                return sortedArray.sort((a, b) => priorityOrderDesc[a.priority] - priorityOrderDesc[b.priority]);
+
+            case 'priority-asc':
+                const priorityOrderAsc = {
+                    1: 0, // Low
+                    2: 1, // Medium
+                    3: 2, // High
+                    4: 3  // Critical
+                };
+                return sortedArray.sort((a, b) => priorityOrderAsc[a.priority] - priorityOrderAsc[b.priority]);
+
+
+            case 'category':
+                return sortedArray.sort((a, b) => {
+                    const categoryA = a.category || '';
+                    const categoryB = b.category || '';
+                    return categoryA.localeCompare(categoryB);
+                });
+
+            case 'state':
+                return sortedArray.sort((a, b) => {
+                    const stateA = a.state || '';
+                    const stateB = b.state || '';
+                    return stateA.localeCompare(stateB);
+                });
+
+            default:
+                return sortedArray;
+        }
     };
 
-    const sortedTasks = [...filteredTasks].sort((a, b) => {
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
-    });
+    const sortedTasks = sortTasks(filteredTasks);
+
+    const handleSortChange = (sortType) => {
+        setSortBy(sortType);
+    };
 
     const handleCloseTaskModal = () => {
         setTaskModalOpen(false);
@@ -126,6 +165,13 @@ const Backlog = () => {
                 )}
             </div>
 
+            {!isLoading && (
+                <SortControls
+                    currentSort={sortBy}
+                    onSortChange={handleSortChange}
+                />
+            )}
+
             {isLoading ? (
                 <div className="space-y-4">
                     {[1, 2, 3].map(i => (
@@ -175,6 +221,7 @@ const Backlog = () => {
                 isOpen={createSprintModalOpen}
                 onClose={() => setCreateSprintModalOpen(false)}
                 projectId={selectedProject?.id}
+                users={users}
             />
         </div>
     );

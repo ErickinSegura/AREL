@@ -51,7 +51,8 @@ export const useSprints = () => {
     };
 
     const fetchSprints = useCallback(async () => {
-        if (!selectedProject) return;
+
+        if (!selectedProject || loading) return;
 
         try {
             setLoading(true);
@@ -67,7 +68,7 @@ export const useSprints = () => {
     }, [selectedProject]);
 
     const fetchAvailableTasks = useCallback(async () => {
-        if (!selectedProject) return;
+        if (!selectedProject || loading) return;
 
         try {
             setLoading(true);
