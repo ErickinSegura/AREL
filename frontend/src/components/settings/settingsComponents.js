@@ -27,6 +27,7 @@ import {
 import { FiCheck as Check } from 'react-icons/fi';
 import { Skeleton, SkeletonText, SkeletonCircle } from '../../lib/ui/Skeleton';
 import {useCategory} from "../../hooks/useCategory";
+import {AvatarRenderer} from "../../lib/AvatarRenderer";
 
 const getProjectIcon = (iconID) => {
     switch (iconID) {
@@ -606,7 +607,9 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                                         >
                                             <div className="flex items-center space-x-3">
                                                 <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
-                                                    <FiUser size={20} />
+                                                    <div className="w-16 aspect-square rounded-xl overflow-hidden">
+                                                        <AvatarRenderer config={user.avatar} />
+                                                    </div>
                                                 </div>
                                                 <div>
                                                     <h3 className="font-medium">{user.firstName} {user.lastName}</h3>
@@ -678,7 +681,9 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                                                         ? 'bg-red-100 text-oracleRed'
                                                         : 'bg-gray-200 text-gray-500'
                                                 }`}>
-                                                    <FiUser size={20} />
+                                                    <div className="w-16 aspect-square rounded-xl overflow-hidden">
+                                                        <AvatarRenderer config={user.avatar} />
+                                                    </div>
                                                 </div>
                                                 <div>
                                                     <h3 className="font-medium">{user.firstName} {user.lastName}</h3>
