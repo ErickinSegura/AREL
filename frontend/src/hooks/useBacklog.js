@@ -22,7 +22,6 @@ export const useBacklog = () => {
         category: null
     });
 
-    // Remove the hasLoadedInitialData ref as it's preventing reloading when project changes
     const previousProjectId = useRef(null);
 
     const [taskFormData, setTaskFormData] = useState({
@@ -38,7 +37,6 @@ export const useBacklog = () => {
         sprint: null
     });
 
-    // Update the task form when project changes
     useEffect(() => {
         if (selectedProject) {
             setTaskFormData(prev => ({

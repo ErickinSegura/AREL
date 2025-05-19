@@ -6,7 +6,7 @@ import {
     ProjectHeader,
     SettingsForm,
     DangerZoneCard,
-    ProjectUsers
+    ProjectUsers, ProjectCategories
 } from '../components/settings/settingsComponents';
 
 const ProjectSettings = () => {
@@ -52,6 +52,10 @@ const ProjectSettings = () => {
 
             <ProjectUsers
                 projectId={selectedProject.id}
+                loading={loading}
+            />
+
+            <ProjectCategories
                 loading={loading}
             />
 

@@ -22,10 +22,11 @@ import {
     FiSearch,
     FiCheck,
     FiUserX,
-    FiUsers
+    FiUsers, FiTag
 } from 'react-icons/fi';
 import { FiCheck as Check } from 'react-icons/fi';
 import { Skeleton, SkeletonText, SkeletonCircle } from '../../lib/ui/Skeleton';
+import {useCategory} from "../../hooks/useCategory";
 
 const getProjectIcon = (iconID) => {
     switch (iconID) {
@@ -225,7 +226,7 @@ export const SettingsForm = ({
                                     value={formData.description}
                                     onChange={handleChange}
                                     placeholder="Enter project description"
-                                    className="px-4 py-2 border rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                                    className="px-4 py-2 border rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-oracleRed"
                                     rows={3}
                                 />
                             </div>
@@ -238,7 +239,7 @@ export const SettingsForm = ({
                                     <div ref={colorMenuRef} className="relative">
                                         <button
                                             type="button"
-                                            className="flex items-center justify-between w-full px-4 py-3 border rounded-md bg-white hover:bg-gray-50 transition-colors"
+                                            className="flex items-center justify-between w-full px-4 py-3 border rounded-xl bg-white hover:bg-gray-50 transition-colors"
                                             onClick={() => {
                                                 setIsColorMenuOpen(!isColorMenuOpen);
                                                 setIsIconMenuOpen(false);
@@ -262,7 +263,7 @@ export const SettingsForm = ({
                                         </button>
 
                                         {isColorMenuOpen && (
-                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg p-3 max-h-64 overflow-y-auto">
+                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-xl shadow-lg p-3 max-h-64 overflow-y-auto">
                                                 <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
                                                     {colorOptions.map((color) => (
                                                         <button
@@ -297,7 +298,7 @@ export const SettingsForm = ({
                                     <div ref={iconMenuRef} className="relative">
                                         <button
                                             type="button"
-                                            className="flex items-center justify-between w-full px-4 py-3 border rounded-md bg-white hover:bg-gray-50 transition-colors"
+                                            className="flex items-center justify-between w-full px-4 py-3 border rounded-xl bg-white hover:bg-gray-50 transition-colors"
                                             onClick={() => {
                                                 setIsIconMenuOpen(!isIconMenuOpen);
                                                 setIsColorMenuOpen(false);
@@ -306,7 +307,7 @@ export const SettingsForm = ({
                                             aria-haspopup="true"
                                         >
                                             <div className="flex items-center gap-3">
-                                                <div className="text-gray-700 bg-gray-100 p-2 rounded-md">
+                                                <div className="text-gray-700 bg-gray-100 p-2 rounded-xl">
                                                     {getSelectedIcon().icon}
                                                 </div>
                                                 <span className="text-sm font-medium">{getSelectedIcon().label}</span>
@@ -317,13 +318,13 @@ export const SettingsForm = ({
                                         </button>
 
                                         {isIconMenuOpen && (
-                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg p-3 max-h-64 overflow-y-auto">
+                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-xl shadow-lg p-3 max-h-64 overflow-y-auto">
                                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                                     {iconOptions.map((option) => (
                                                         <button
                                                             key={option.id}
                                                             type="button"
-                                                            className={`flex items-center gap-2 p-3 rounded-md w-full transition-colors ${
+                                                            className={`flex items-center gap-2 p-3 rounded-xl w-full transition-colors ${
                                                                 formData.iconId === option.id
                                                                     ? 'bg-gray-100 ring-2 ring-oracleRed text-oracleRed'
                                                                     : 'hover:bg-gray-50'
@@ -428,7 +429,7 @@ export const DangerZoneCard = ({
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            <div className="p-4 bg-red-50 rounded-md">
+                            <div className="p-4 bg-red-50 rounded-xl">
                                 <h3 className="font-medium text-red-700 mb-2">Delete this project</h3>
                                 <p className="text-red-600 text-sm mb-4">
                                     Once you delete a project, there is no going back. This action cannot be undone.
@@ -517,7 +518,7 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
     const UserListSkeleton = () => (
         <div className="space-y-4">
             {[1, 2, 3, 4].map((item) => (
-                <div key={item} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                <div key={item} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                     <div className="flex items-center space-x-3">
                         <SkeletonCircle size="md" />
                         <div>
@@ -601,7 +602,7 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                                     {filteredUsers.map(user => (
                                         <div
                                             key={user.id}
-                                            className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"
+                                            className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
                                         >
                                             <div className="flex items-center space-x-3">
                                                 <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
@@ -664,7 +665,7 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                                     {availableUsers.map(user => (
                                         <div
                                             key={user.id}
-                                            className={`flex items-center justify-between p-3 rounded-md cursor-pointer transition-colors ${
+                                            className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${
                                                 selectedUsers.includes(user.id)
                                                     ? 'bg-red-50 border border-red-200'
                                                     : 'bg-gray-50 border border-white hover:bg-gray-100'
@@ -726,5 +727,279 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                 </ModalFooter>
             </Modal>
         </>
+    );
+};
+
+export const ProjectCategories = ({ loading = false }) => {
+    const { categories, loading: categoriesLoading, error, addCategory, deleteCategory, updateCategory } = useCategory();
+    const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
+    const [formSubmitting, setFormSubmitting] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+
+    const handleOpenAddCategoryModal = () => {
+        setIsAddCategoryModalOpen(true);
+        setNewCategoryName("");
+        setErrorMessage("");
+    };
+
+    const handleCloseAddCategoryModal = () => {
+        setIsAddCategoryModalOpen(false);
+    };
+
+    const handleAddCategory = async (e) => {
+        e?.preventDefault();
+        if (!newCategoryName.trim()) return;
+
+        setFormSubmitting(true);
+        try {
+            await addCategory({ name: newCategoryName });
+            setNewCategoryName("");
+            handleCloseAddCategoryModal();
+        } catch (error) {
+            console.error("Error adding category:", error);
+            setErrorMessage(error?.message || "Failed to add category");
+        } finally {
+            setFormSubmitting(false);
+        }
+    };
+
+    const handleDeleteCategory = async (categoryId) => {
+        try {
+            await deleteCategory(categoryId);
+        } catch (error) {
+            console.error("Error deleting category:", error);
+            setErrorMessage(error?.message || "Failed to delete category");
+        }
+    };
+
+    const handleUpdateCategory = async (categoryId, category) => {
+        try {
+            await updateCategory(categoryId, category);
+        } catch (error) {
+            console.error("Error updating category:", error);
+            setErrorMessage(error?.message || "Failed to update category");
+        }
+    };
+
+    return (
+        <>
+            <Card className="mt-6">
+                <CardHeader>
+                    <div className={`flex items-center justify-between ${categoriesLoading ? 'animate-pulse' : ''}`}>
+                        <CardTitle>
+                            {categoriesLoading ? (
+                                <div className="flex items-center">
+                                    <SkeletonCircle size="md" />
+                                    <div className="ml-3 w-48">
+                                        <SkeletonText lines={1} />
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex items-center">
+                                    <h1 className="text-2xl font-bold px-2">Project <span className="text-oracleRed">Categories</span></h1>
+                                </div>
+                            )}
+                        </CardTitle>
+
+                        {!categoriesLoading && (
+                            <div className="flex space-x-2">
+                                <Button
+                                    variant="remarked"
+                                    className="flex items-center gap-2"
+                                    onClick={handleOpenAddCategoryModal}
+                                >
+                                    <FiPlus size={16} />
+                                    Add Category
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    {loading || categoriesLoading ? (
+                        <div className="space-y-4">
+                            {[1, 2, 3, 4].map((item) => (
+                                <div key={item} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                    <div className="flex items-center space-x-3">
+                                        <SkeletonCircle size="md" />
+                                        <div>
+                                            <SkeletonText className="w-32" />
+                                            <SkeletonText className="w-48" />
+                                        </div>
+                                    </div>
+                                    <Skeleton className="w-24 h-8" />
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {error && (
+                                <div className="bg-red-50 p-4 rounded-lg">
+                                    <p className="text-red-600 font-medium">
+                                        {typeof error === 'object' ? (error.message || "An error occurred while loading categories") : error}
+                                    </p>
+                                </div>
+                            )}
+
+                            {categories.length === 0 ? (
+                                <div className="text-center py-8">
+                                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mx-auto mb-4">
+                                        <FiTag size={32} />
+                                    </div>
+                                    <h3 className="text-lg font-medium text-gray-700 mb-1">No categories found</h3>
+                                    <p className="text-gray-500 text-sm mb-4">This project doesn't have any categories assigned</p>
+                                </div>
+                            ) : (
+                                categories.map(category => (
+                                    <CategoryItem
+                                        key={category.id}
+                                        category={category}
+                                        onDelete={handleDeleteCategory}
+                                        onUpdate={handleUpdateCategory}
+                                    />
+                                ))
+                            )}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Add Category Modal */}
+            <Modal isOpen={isAddCategoryModalOpen} onClose={handleCloseAddCategoryModal}>
+                <ModalClose onClick={handleCloseAddCategoryModal} />
+                <ModalHeader>
+                    <ModalTitle className="flex items-center gap-2">
+                        <FiPlus /> Add Category
+                    </ModalTitle>
+                    <ModalDescription>
+                        Create a new category for this project
+                    </ModalDescription>
+                </ModalHeader>
+
+                <form onSubmit={handleAddCategory}>
+                    <ModalContent>
+                        <div className="space-y-4">
+                            {errorMessage && (
+                                <div className="bg-red-50 p-3 rounded-lg">
+                                    <p className="text-red-600 text-sm">{errorMessage}</p>
+                                </div>
+                            )}
+                            <Input
+                                type="text"
+                                placeholder="Category Name"
+                                value={newCategoryName}
+                                onChange={(e) => setNewCategoryName(e.target.value)}
+                                required
+                            />
+                        </div>
+                    </ModalContent>
+
+                    <ModalFooter>
+                        <Button
+                            variant="remarked"
+                            type="submit"
+                            disabled={formSubmitting || !newCategoryName.trim()}
+                            className="flex items-center gap-2 w-40"
+                        >
+                            {formSubmitting ? (
+                                <>
+                                    <FiLoader className="animate-spin" size={16} />
+                                    <span>Adding...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <FiPlus size={16} />
+                                    <span>Add Category</span>
+                                </>
+                            )}
+                        </Button>
+                    </ModalFooter>
+                </form>
+            </Modal>
+        </>
+    );
+};
+
+export const CategoryItem = ({ category, onDelete, onUpdate }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [categoryName, setCategoryName] = useState(category.name);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleUpdate = async () => {
+        if (!categoryName.trim()) return;
+
+        setIsLoading(true);
+        try {
+            await onUpdate(category.id, { name: categoryName });
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Error updating category:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleCancel = () => {
+        setCategoryName(category.name);
+        setIsEditing(false);
+    };
+
+    return (
+        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+            {isEditing ? (
+                <div className="flex items-center space-x-3">
+                    <Input
+                        type="text"
+                        value={categoryName}
+                        onChange={(e) => setCategoryName(e.target.value)}
+                        className="w-1/2"
+                    />
+                </div>
+            ) : (
+                <div className="flex items-center space-x-3">
+                    <div
+                        className="w-10 h-10 rounded-full"
+                        style={{ backgroundColor: "#C74634" }}
+                    ></div>
+                    <span>{category.name}</span>
+                </div>
+            )}
+            <div className="flex items-center space-x-2">
+                {isEditing ? (
+                    <>
+                        <Button
+                            variant="default"
+                            onClick={handleUpdate}
+                            disabled={isLoading || !categoryName.trim()}
+                        >
+                            {isLoading ? <FiLoader className="animate-spin" size={16} /> : "Save"}
+                        </Button>
+                        <Button
+                            variant="default"
+                            onClick={handleCancel}
+                            disabled={isLoading}
+                        >
+                            Cancel
+                        </Button>
+                    </>
+                ) : (
+                    <>
+                        <Button
+                            variant="default"
+                            onClick={() => setIsEditing(true)}
+                        >
+                            Edit
+                        </Button>
+                        <Button
+                            variant="danger"
+                            onClick={() => onDelete(category.id)}
+                        >
+                            Delete
+                        </Button>
+                    </>
+                )}
+            </div>
+        </div>
     );
 };
