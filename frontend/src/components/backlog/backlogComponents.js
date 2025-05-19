@@ -704,7 +704,7 @@ export const CreateSprintModal = ({ isOpen, onClose, users }) => {
         validationError,
         loading,
         resetSprintForm,
-    } = useSprints();
+    } = useSprints(false);
 
     const [hoursWarnings, setHoursWarnings] = useState({});
     const [taskValidation, setTaskValidation] = useState({});

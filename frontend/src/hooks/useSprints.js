@@ -3,7 +3,7 @@ import { SprintsService } from '../api/sprintsService';
 import { BacklogService } from '../api/backlogService';
 import { useProjects } from './useProjects';
 
-export const useSprints = () => {
+export const useSprints = (isBacklog = true) => {
     const { selectedProject } = useProjects();
     const [sprints, setSprints] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -79,7 +79,9 @@ export const useSprints = () => {
                 sprintNumber: sprints.length > 0 ? Math.max(...sprints.map(s => s.sprintNumber)) + 1 : 1
             }));
 
-            fetchSprints();
+            if (isBacklog) {
+                fetchSprints();
+            }
         }
     }, [fetchSprints, selectedProject]);
 
