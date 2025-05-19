@@ -219,9 +219,7 @@ export const useBacklog = () => {
             }
 
             if (selectedSprint) {
-                // Podemos evitar esta recarga completa en actualizaciones de estado
-                // ya que ya actualizamos el estado localmente
-                if (!taskData.state || isBacklog) {
+                if (!taskData.state || !isBacklog) {
                     fetchSprintTasks(selectedSprint);
                 }
             }
