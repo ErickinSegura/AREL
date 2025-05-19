@@ -616,7 +616,8 @@ const MobileSidebar = ({ mobileMenuOpen, toggleMobileMenu, menuItems, selectedIt
         <>
             <div className="fixed top-0 left-0 right-0 bg-white shadow-md z-20 h-16">
                 <div className="flex items-center justify-between px-4 h-full">
-                    <div className="flex items-center gap-x-4">
+                    {/* Botón a la izquierda */}
+                    <div>
                         <button
                             onClick={toggleMobileMenu}
                             className="p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none"
@@ -625,6 +626,24 @@ const MobileSidebar = ({ mobileMenuOpen, toggleMobileMenu, menuItems, selectedIt
                             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
                     </div>
+
+                    {/* Logo y texto RIFT centrados */}
+                    <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center">
+                        <img
+                            src="/assets/logo.png"
+                            alt="Logo"
+                            className="h-16"
+                        />
+                        <span
+                            className="font-bold text-xl"
+                            style={{ fontFamily: "'Chakra Petch', sans-serif" }}
+                        >
+            RIFT
+        </span>
+                    </div>
+
+                    {/* Espacio a la derecha para mantener el balance */}
+                    <div className="w-14"></div>
                 </div>
             </div>
 
@@ -721,13 +740,42 @@ const DesktopSidebar = ({ sidebarRef, isOpen, handleMouseEnter, handleMouseLeave
         <div
             ref={sidebarRef}
             className={`h-screen bg-gray-100 transition-all duration-300 ease-out flex flex-col fixed md:relative z-10
-        ${isOpen ? 'w-64' : 'w-16'} items-center`}
+${isOpen ? 'w-64' : 'w-16'} items-center`}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
             <div className="flex flex-col h-full w-full">
-                <div className={`px-4 py-4 transition-all duration-300 h-16`}>
-                    <div className={`relative h-12 transition-all duration-300 flex items-center ${
+                {/* Icono en la parte superior con texto RIFT */}
+                <div className={`px-4 pt-4 pb-4`}>
+                    <div className={`flex items-center ${!isOpen ? 'justify-center' : ''} w-full transition-all duration-300`}>
+                        {/* El icono siempre en la misma posición */}
+                        <div className="w-8 h-8 flex-shrink-0 grid place-items-center">
+                            <img
+                                src="/assets/logo.png"
+                                alt="Icono"
+                                className="h-8 w-8"
+                            />
+                        </div>
+
+                        {/* Texto RIFT con la fuente Chakra Petch */}
+                        <div className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                            !isOpen ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
+                        }`}>
+                            <div
+                                className="text-base font-bold text-black text-center"
+                                style={{ fontFamily: "'Chakra Petch', sans-serif" }}
+                            >
+                                RIFT
+                            </div>
+                        </div>
+
+                        {/* Espacio para mantener el balance */}
+                        <div className="w-8"></div>
+                    </div>
+                </div>
+
+                <div className={`px-4 pb-4 transition-all duration-300`}>
+                    <div className={`relative transition-all duration-300 flex items-center ${
                         !isOpen ? 'justify-center' : ''
                     }`}>
                         <ProjectSelector {...projectSelectorProps} />
