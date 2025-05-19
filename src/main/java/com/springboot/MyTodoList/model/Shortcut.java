@@ -23,11 +23,15 @@ public class Shortcut {
     @Column(name = "SHORTCUT_URL")
     private String url;
 
+    @Column(name = "NAME")
+    private String name;
+
     public Shortcut() {}
 
-    public Shortcut(Integer project, String url) {
+    public Shortcut(Integer project, String url, String name) {
         this.project = project;
         this.url = url;
+        this.name = name;
     }
 
     public int getId() {
@@ -52,6 +56,14 @@ public class Shortcut {
 
     public void setURL(String url) {
         this.url = url;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @JsonProperty("projectId")

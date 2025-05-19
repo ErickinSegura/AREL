@@ -4,7 +4,7 @@ import { Button } from "../../lib/ui/Button";
 import { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter, ModalClose } from "../../lib/ui/Modal";
 import { Input } from "../../lib/ui/Input";
 import { SkeletonCircle, SkeletonText } from "../../lib/ui/Skeleton";
-import { Link, ExternalLink, Plus, Loader2, Trash2, Edit2, Save, AlertTriangle, Globe } from 'lucide-react';
+import {Link, ExternalLink, Plus, Loader2, Trash2, Edit2, Save, AlertTriangle, Globe, Book, Clipboard, InfoIcon} from 'lucide-react';
 import {
     FiBookmark,
     FiCode,
@@ -114,15 +114,16 @@ export const ShortcutsHeader = ({ selectedProject, loading, onAddShortcut }) => 
     </Card>
 );
 
+const getDomainFromUrl = (url) => {
+    try {
+        const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
+        return urlObj.hostname;
+    } catch (error) {
+        return url;
+    }
+};
+
 export const ShortcutCard = ({ shortcut, onSelectShortcut }) => {
-    const getDomainFromUrl = (url) => {
-        try {
-            const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
-            return urlObj.hostname;
-        } catch (error) {
-            return url;
-        }
-    };
 
     const displayUrl = getDomainFromUrl(shortcut.url || '');
 
@@ -131,25 +132,29 @@ export const ShortcutCard = ({ shortcut, onSelectShortcut }) => {
             className="hover:shadow-md transition-all cursor-pointer"
             onClick={() => onSelectShortcut(shortcut.id)}
         >
-            <CardContent className="p-3 sm:p-4">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <div className="flex items-center w-full">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center text-oracleRed flex-shrink-0">
-                            <Globe size={16} className="sm:w-5 sm:h-5" />
+            <CardContent className="pt-4 pb-4">
+                <div className="flex flex-row justify-between items-center gap-2">
+                    <div className="flex items-center min-w-0 flex-1">
+                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gray-100 flex items-center justify-center text-oracleRed flex-shrink-0">
+                            <Globe size={16} className="md:w-5 md:h-5" />
                         </div>
-                        <div className="ml-2 sm:ml-3 overflow-hidden">
-                            <h3 className="font-medium text-base sm:text-lg truncate">{displayUrl}</h3>
-                            <p className="text-xs sm:text-sm text-gray-500 truncate">{shortcut.url}</p>
+                        <div className="ml-2 md:ml-3 overflow-hidden">
+                            <h3 className="font-medium text-sm md:text-base lg:text-lg truncate">
+                                {shortcut.name || displayUrl}
+                            </h3>
+                            <p className="text-xs md:text-sm text-gray-500 truncate max-w-full">
+                                {shortcut.url}
+                            </p>
                         </div>
                     </div>
                     <Button
-                        className="ml-auto sm:ml-0 flex-shrink-0"
+                        className="flex-shrink-0 ml-2"
                         onClick={(e) => {
                             e.stopPropagation();
                             window.open(shortcut.url, '_blank');
                         }}
                     >
-                        <ExternalLink size={14} className="sm:w-4 sm:h-4" />
+                        <ExternalLink size={14} className="md:w-4 md:h-4" />
                     </Button>
                 </div>
             </CardContent>
@@ -172,6 +177,8 @@ export const ShortcutDetailModal = ({
         project: shortcut?.projectId || null
     });
     const [isValidUrl, setIsValidUrl] = useState(true);
+    const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+    const displayUrl = getDomainFromUrl(shortcut?.url || '');
 
     useEffect(() => {
         if (shortcut) {
@@ -179,6 +186,8 @@ export const ShortcutDetailModal = ({
                 url: shortcut.url || '',
                 project: shortcut.projectId || null
             });
+            setEditMode(false);
+            setShowConfirmDelete(false);
         }
     }, [shortcut]);
 
@@ -208,87 +217,181 @@ export const ShortcutDetailModal = ({
         setEditMode(false);
     };
 
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(shortcut.url);
+    };
+
+    const openUrl = () => {
+        window.open(shortcut.url, '_blank');
+    };
+
+    // Estado de carga
     if (loading || !shortcut) {
         return (
             <Modal isOpen={isOpen} onClose={onClose}>
                 <ModalHeader>
-                    <ModalTitle>Shortcut Details</ModalTitle>
+                    <ModalTitle>Detalles del Acceso Directo</ModalTitle>
                     <ModalClose onClick={onClose} />
                 </ModalHeader>
                 <ModalContent>
-                    <SkeletonText lines={5} />
+                    <div className="space-y-6 py-4">
+                        <SkeletonText className="h-6 w-3/4" />
+                        <SkeletonText className="h-5 w-full" />
+                        <SkeletonText className="h-5 w-2/3" />
+                    </div>
                 </ModalContent>
             </Modal>
         );
     }
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal isOpen={isOpen} onClose={onClose} className="max-w-lg">
             <ModalHeader>
-                <ModalTitle>{editMode ? 'Edit Shortcut' : 'Shortcut Details'}</ModalTitle>
+                <ModalTitle className="text-xl font-semibold">
+                    {editMode ? 'Edit URL' : 'URL Details'}
+                </ModalTitle>
                 <ModalClose onClick={onClose} />
             </ModalHeader>
-            <ModalContent>
+
+            <ModalContent className="p-6">
                 {editMode ? (
-                    <div className="space-y-4">
-                        <Input
-                            label="URL"
-                            name="url"
-                            value={formData.url}
-                            onChange={handleChange}
-                            className={`w-full ${!isValidUrl ? 'border-red-400' : ''}`}
-                        />
-                        {!isValidUrl && (
-                            <p className="text-red-500 text-sm mt-1">Please enter a valid URL</p>
-                        )}
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Name
+                            </label>
+                            <Input
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                placeholder="Enter name"
+                                className={`w-full ${!isValidUrl ? 'border-red-400 focus:ring-red-400' : ''}`}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                URL
+                            </label>
+                            <Input
+                                name="url"
+                                value={formData.url}
+                                onChange={handleChange}
+                                placeholder="https://ejemplo.com"
+                                className={`w-full ${!isValidUrl ? 'border-red-400 focus:ring-red-400' : ''}`}
+                            />
+                            {!isValidUrl && (
+                                <p className="text-red-500 text-sm mt-1">Please, enter a valid URL</p>
+                            )}
+                        </div>
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        <div className="flex justify-between items-start">
-                            <h3 className="font-bold text-xl truncate max-w-md">{shortcut.url}</h3>
+                        {/* Información del acceso directo */}
+                        <div className="flex flex-col space-y-4">
+                            <div>
+                                <h3 className="text-sm font-medium text-gray-500">Name</h3>
+                                <p className="mt-1 text-lg font-medium">{shortcut.name || displayUrl}</p>
+                            </div>
+
+                            <div>
+                                <h3 className="text-sm font-medium text-gray-500">URL</h3>
+                                <div className="mt-1 flex items-center">
+                                    <div className="bg-gray-100 rounded-md p-3 flex-grow overflow-hidden">
+                                        <p className="text-gray-800 font-mono text-sm truncate">{shortcut.url}</p>
+                                    </div>
+                                    <button
+                                        onClick={copyToClipboard}
+                                        className="ml-2 p-2 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100"
+                                        title="Copiar URL"
+                                    >
+                                        <Clipboard className="h-5 w-5" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="pt-4">
+                                <Button
+                                    onClick={openUrl}
+                                    variant="outline"
+                                    className="w-full flex items-center justify-center"
+                                >
+                                    <ExternalLink size={16} className="mr-2" />
+                                    Open in new tab
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Panel de confirmación de eliminación */}
+                {showConfirmDelete && !editMode && (
+                    <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-md">
+                        <h4 className="font-medium text-red-800">¿Eliminar este acceso directo?</h4>
+                        <p className="mt-1 text-sm text-red-600">Esta acción no se puede deshacer.</p>
+
+                        <div className="mt-4 flex space-x-3">
+                            <Button
+                                onClick={() => setShowConfirmDelete(false)}
+                                className="border-red-300 text-red-700 hover:bg-red-50"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={() => onDelete(shortcut.id)}
+                                disabled={deleteLoading}
+                                className="bg-red-600 text-white hover:bg-red-700"
+                            >
+                                {deleteLoading ? (
+                                    <>
+                                        <Loader2 size={14} className="mr-2 animate-spin" />
+                                        Deleting...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Trash2 size={14} className="mr-2" />
+                                        Confirm Delete
+                                    </>
+                                )}
+                            </Button>
                         </div>
                     </div>
                 )}
             </ModalContent>
+
             <ModalFooter>
                 {editMode ? (
-                    <>
-                        <Button onClick={() => setEditMode(false)} variant="default">
+                    <div className="flex justify-end space-x-3 w-full">
+                        <Button onClick={() => setEditMode(false)} variant="outline">
                             Cancel
                         </Button>
                         <Button
                             onClick={handleSubmit}
                             variant="remarked"
                             disabled={!isValidUrl}
+                            className="bg-oracleRed"
                         >
                             <Save size={16} className="mr-2" />
                             Save Changes
                         </Button>
-                    </>
+                    </div>
                 ) : (
-                    <>
+                    <div className="flex justify-end space-x-3 w-full">
                         <Button
-                            onClick={() => onDelete(shortcut.id)}
-                            variant="danger"
-                            disabled={deleteLoading}
+                            onClick={() => setShowConfirmDelete(true)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            disabled={deleteLoading || showConfirmDelete}
                         >
-                            {deleteLoading ? (
-                                <>
-                                    <Loader2 size={16} className="mr-2 animate-spin" />
-                                    Deleting...
-                                </>
-                            ) : (
-                                <>
-                                    <Trash2 size={16} className="mr-2" />
-                                    Delete
-                                </>
-                            )}
+                            <Trash2 size={16} className="mr-2" />
+                            Delete
                         </Button>
-                        <Button onClick={() => setEditMode(true)} variant="default">
+                        <Button
+                            onClick={() => setEditMode(true)}
+                            className="bg-oracleRed text-white hover:bg-red-700"
+                        >
                             <Edit2 size={16} className="mr-2" />
                             Edit
                         </Button>
-                    </>
+                    </div>
                 )}
             </ModalFooter>
         </Modal>
@@ -313,6 +416,16 @@ export const CreateShortcutModal = ({
         onChange(e);
     };
 
+    const handleNameChange = (e) => {
+        const { value } = e.target;
+        onChange({
+            target: {
+                name: 'name',
+                value
+            }
+        });
+    }
+
     const handleSubmit = () => {
         if (!isValidUrl) return;
         onSubmit();
@@ -336,6 +449,23 @@ export const CreateShortcutModal = ({
                             <span>{validationError}</span>
                         </div>
                     )}
+
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                            <Book size={14} className="mr-2" />
+                            Name
+                        </label>
+                        <input
+                            name="name"
+                            type="text"
+                            value={formData.name}
+                            onChange={handleNameChange}
+                            placeholder=""
+                            className={`mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                                !isValidUrl ? 'border-red-400 focus:ring-red-400' : 'focus:ring-oracleRed'
+                            }`}
+                        />
+                    </div>
 
                     <div>
                         <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
