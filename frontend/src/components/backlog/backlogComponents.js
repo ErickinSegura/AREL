@@ -497,7 +497,7 @@ export const CreateTaskModal = ({
         if (!isOpen) {
             resetTaskForm();
         }
-    }, [isOpen, resetTaskForm]);
+    }, [isOpen]); // Removed resetTaskForm from the dependency array
 
     const handleSubmit = async () => {
         const result = await handleTaskCreate();

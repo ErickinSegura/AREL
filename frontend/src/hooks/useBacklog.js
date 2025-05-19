@@ -124,20 +124,15 @@ export const useBacklog = () => {
         }
     }, [selectedProject?.id]);
 
-    // This effect will run whenever selectedProject changes
     useEffect(() => {
-        // Reset selectedSprint when project changes
         setSelectedSprint(null);
 
-        // Clear existing tasks when changing projects
         setBacklogTasks([]);
         setSprintTasks([]);
 
-        // Check if project ID changed and fetch new data
         if (selectedProject?.id) {
             fetchBacklogTasks();
 
-            // Update the previousProjectId ref
             previousProjectId.current = selectedProject.id;
         }
     }, [selectedProject?.id, fetchBacklogTasks]);
