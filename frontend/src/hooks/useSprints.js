@@ -67,21 +67,6 @@ export const useSprints = () => {
         }
     }, [selectedProject]);
 
-    const fetchAvailableTasks = useCallback(async () => {
-        if (!selectedProject || loading) return;
-
-        try {
-            setLoading(true);
-            const tasks = await BacklogService.getTasksByProject(selectedProject.id);
-            setAvailableTasks(tasks.filter(task => task.sprint === null));
-        } catch (err) {
-            console.error("Error fetching available tasks:", err);
-            setError("Failed to load available tasks.");
-        } finally {
-            setLoading(false);
-        }
-    }, [selectedProject]);
-
     useEffect(() => {
         if (selectedProject) {
             setSprints([]);
@@ -95,9 +80,8 @@ export const useSprints = () => {
             }));
 
             fetchSprints();
-            fetchAvailableTasks();
         }
-    }, [fetchSprints, fetchAvailableTasks, selectedProject]);
+    }, [fetchSprints, selectedProject]);
 
     const toggleTaskSelection = (taskId) => {
         setSelectedTasks(prevSelectedTasks => {
@@ -175,8 +159,7 @@ export const useSprints = () => {
 
                 resetSprintForm();
                 await fetchSprints(); // Await here to ensure refresh
-                await fetchAvailableTasks(); // Await here to ensure refresh
-                setCreateSprintModalOpen(false); // Close modal after successful creation
+                setCreateSprintModalOpen(false);
                 return true;
             } else {
                 setValidationError(result.message || "Failed to create sprint. Please try again.");

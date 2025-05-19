@@ -25,7 +25,11 @@ const Backlog = () => {
         handleTaskCreate,
         handleTaskUpdate,
         handleTaskDelete,
-        taskDetailLoading
+        taskDetailLoading,
+        taskFormData,
+        handleTaskFormChange,
+        validationError,
+        resetTaskForm
     } = useBacklog();
 
     const {
@@ -215,6 +219,12 @@ const Backlog = () => {
                 onClose={() => setCreateModalOpen(false)}
                 onCreate={handleTaskCreate}
                 projectId={selectedProject.id}
+                taskFormData={taskFormData}
+                handleTaskFormChange={handleTaskFormChange}
+                handleTaskCreate={handleTaskCreate}
+                validationError={validationError}
+                loading={loading}
+                resetTaskForm ={resetTaskForm}
             />
 
             <CreateSprintModal

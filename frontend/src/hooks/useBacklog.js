@@ -133,7 +133,7 @@ export const useBacklog = () => {
 
             previousProjectId.current = selectedProject.id;
         }
-    }, [selectedProject?.id, fetchBacklogTasks]);
+    }, [selectedProject?.id]);
 
     useEffect(() => {
         if (selectedSprint && selectedProject?.id) {
@@ -199,8 +199,6 @@ export const useBacklog = () => {
     const handleTaskUpdate = async (taskId, taskData, isBacklog = false) => {
         console.log("Updating task:", taskId, taskData);
 
-        // Si estamos actualizando estado, hacemos el cambio optimista
-        // (solo cuando la llamada no venga del drag & drop que ya lo maneja)
         if (taskData.state && !isBacklog) {
             const updatedTasks = sprintTasks.map(task =>
                 task.id === taskId ? { ...task, ...taskData } : task
@@ -211,7 +209,6 @@ export const useBacklog = () => {
         try {
             await BacklogService.updateTask(taskId, taskData);
 
-            // Recargar solo si no es una actualización optimista ya manejada
             if (!isBacklog) {
                 fetchBacklogTasks();
             }
@@ -225,9 +222,7 @@ export const useBacklog = () => {
         } catch (err) {
             console.error("Error updating task:", err);
 
-            // Si falló y fue una actualización de estado, debemos revertir
             if (taskData.state && !isBacklog) {
-                // Recargar desde el servidor para asegurar datos correctos
                 fetchSprintTasks(selectedSprint);
             }
 

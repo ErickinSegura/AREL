@@ -34,7 +34,6 @@ import { Button } from '../../lib/ui/Button';
 import { Input } from '../../lib/ui/Input';
 import {SkeletonCircle, SkeletonText} from '../../lib/ui/Skeleton';
 import {FiCodesandbox, FiFolder} from "react-icons/fi";
-import {useBacklog} from "../../hooks/useBacklog";
 import { useSprints } from '../../hooks/useSprints';
 
 const priorityColors = {
@@ -481,23 +480,20 @@ export const TaskDetailModal = ({
 
 export const CreateTaskModal = ({
                                     isOpen,
-                                    onClose
+                                    onClose,
+                                    taskFormData,
+                                    handleTaskFormChange,
+                                    handleTaskCreate,
+                                    validationError,
+                                    loading,
+                                    resetTaskForm
                                 }) => {
-    const {
-        taskFormData,
-        handleTaskFormChange,
-        handleTaskCreate,
-        validationError,
-        loading,
-        resetTaskForm
-    } = useBacklog();
 
-    // Reset the form when modal is closed
     useEffect(() => {
         if (!isOpen) {
             resetTaskForm();
         }
-    }, [isOpen]); // Removed resetTaskForm from the dependency array
+    }, [isOpen]);
 
     const handleSubmit = async () => {
         const result = await handleTaskCreate();
