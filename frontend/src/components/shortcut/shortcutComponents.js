@@ -296,12 +296,12 @@ export const ShortcutDetailModal = ({
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500">URL</h3>
                                 <div className="mt-1 flex items-center">
-                                    <div className="bg-gray-100 rounded-md p-3 flex-grow overflow-hidden">
+                                    <div className="bg-gray-100 rounded-xl p-3 flex-grow overflow-hidden">
                                         <p className="text-gray-800 font-mono text-sm truncate">{shortcut.url}</p>
                                     </div>
                                     <button
                                         onClick={copyToClipboard}
-                                        className="ml-2 p-2 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100"
+                                        className="ml-2 p-2 text-gray-500 hover:text-gray-700 rounded-xl hover:bg-gray-100"
                                         title="Copiar URL"
                                     >
                                         <Clipboard className="h-5 w-5" />
@@ -325,7 +325,7 @@ export const ShortcutDetailModal = ({
 
                 {/* Panel de confirmación de eliminación */}
                 {showConfirmDelete && !editMode && (
-                    <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-md">
+                    <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
                         <h4 className="font-medium text-red-800">¿Eliminar este acceso directo?</h4>
                         <p className="mt-1 text-sm text-red-600">Esta acción no se puede deshacer.</p>
 
@@ -444,7 +444,7 @@ export const CreateShortcutModal = ({
             <ModalContent>
                 <div className="space-y-6">
                     {validationError && (
-                        <div className="text-red-500 text-sm flex items-center p-3 bg-red-50 rounded-md">
+                        <div className="text-red-500 text-sm flex items-center p-3 bg-red-50 rounded-xl">
                             <AlertTriangle size={16} className="mr-2 flex-shrink-0" />
                             <span>{validationError}</span>
                         </div>
@@ -461,7 +461,7 @@ export const CreateShortcutModal = ({
                             value={formData.name}
                             onChange={handleNameChange}
                             placeholder=""
-                            className={`mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                            className={`mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 ${
                                 !isValidUrl ? 'border-red-400 focus:ring-red-400' : 'focus:ring-oracleRed'
                             }`}
                         />
@@ -478,7 +478,7 @@ export const CreateShortcutModal = ({
                             value={formData.url}
                             onChange={handleUrlChange}
                             placeholder="https://example.com"
-                            className={`mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                            className={`mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 ${
                                 !isValidUrl ? 'border-red-400 focus:ring-red-400' : 'focus:ring-oracleRed'
                             }`}
                         />
