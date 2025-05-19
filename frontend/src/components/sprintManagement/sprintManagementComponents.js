@@ -82,9 +82,12 @@ export const SprintsHeader = ({ selectedProject, loading, onCreateTask, onCreate
 
 export const ActualHoursModal = ({ isOpen, onClose, taskId, onSubmit, loading }) => {
     const [actualHours, setActualHours] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async () => {
         if (!actualHours) return;
+
+        setIsSubmitting(true);
 
         const success = await onSubmit(taskId, {
             realHours: Number(actualHours)
@@ -92,8 +95,19 @@ export const ActualHoursModal = ({ isOpen, onClose, taskId, onSubmit, loading })
 
         if (success) {
             onClose();
+            setActualHours('');
         }
+
+        setIsSubmitting(false);
     };
+
+    // Resetear el estado cuando se abre el modal
+    useEffect(() => {
+        if (isOpen) {
+            setActualHours('');
+            setIsSubmitting(false);
+        }
+    }, [isOpen]);
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
@@ -108,7 +122,7 @@ export const ActualHoursModal = ({ isOpen, onClose, taskId, onSubmit, loading })
                         label="Actual Hours"
                         type="number"
                         min="0"
-                        step="1"
+                        step="0.5"
                         value={actualHours}
                         onChange={(e) => setActualHours(e.target.value)}
                         className="w-full"
@@ -117,15 +131,15 @@ export const ActualHoursModal = ({ isOpen, onClose, taskId, onSubmit, loading })
                 </div>
             </ModalContent>
             <ModalFooter>
-                <Button onClick={onClose} variant="default">
+                <Button onClick={onClose} variant="default" disabled={isSubmitting}>
                     Cancel
                 </Button>
                 <Button
                     onClick={handleSubmit}
                     variant="remarked"
-                    disabled={!actualHours || loading}
+                    disabled={!actualHours || isSubmitting}
                 >
-                    {loading ? (
+                    {isSubmitting ? (
                         <>
                             <Loader2 size={16} className="mr-2 animate-spin" />
                             Saving...

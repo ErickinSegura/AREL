@@ -200,23 +200,43 @@ export const useBacklog = () => {
 
     const handleTaskUpdate = async (taskId, taskData, isBacklog = false) => {
         console.log("Updating task:", taskId, taskData);
+
+        // Si estamos actualizando estado, hacemos el cambio optimista
+        // (solo cuando la llamada no venga del drag & drop que ya lo maneja)
+        if (taskData.state && !isBacklog) {
+            const updatedTasks = sprintTasks.map(task =>
+                task.id === taskId ? { ...task, ...taskData } : task
+            );
+            setSprintTasks(updatedTasks);
+        }
+
         try {
-            setLoading(true);
             await BacklogService.updateTask(taskId, taskData);
+
+            // Recargar solo si no es una actualización optimista ya manejada
             if (!isBacklog) {
                 fetchBacklogTasks();
             }
 
             if (selectedSprint) {
-                fetchSprintTasks(selectedSprint);
+                // Podemos evitar esta recarga completa en actualizaciones de estado
+                // ya que ya actualizamos el estado localmente
+                if (!taskData.state || isBacklog) {
+                    fetchSprintTasks(selectedSprint);
+                }
             }
             return true;
         } catch (err) {
             console.error("Error updating task:", err);
+
+            // Si falló y fue una actualización de estado, debemos revertir
+            if (taskData.state && !isBacklog) {
+                // Recargar desde el servidor para asegurar datos correctos
+                fetchSprintTasks(selectedSprint);
+            }
+
             setError("Failed to update task.");
             return false;
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -309,6 +329,7 @@ export const useBacklog = () => {
         taskFormData,
         handleTaskFormChange,
         validationError,
-        resetTaskForm
+        resetTaskForm,
+        setSprintTasks
     };
 };
