@@ -35,6 +35,7 @@ import { Input } from '../../lib/ui/Input';
 import {SkeletonCircle, SkeletonText} from '../../lib/ui/Skeleton';
 import {FiCodesandbox, FiFolder} from "react-icons/fi";
 import { useSprints } from '../../hooks/useSprints';
+import {AvatarRenderer} from "../../lib/AvatarRenderer";
 
 const priorityColors = {
     1: 'bg-green-100 text-green-800 border-green-200',
@@ -431,7 +432,9 @@ export const TaskDetailModal = ({
 
                             {task.assignedTo && (
                                 <div className="flex items-center">
-                                    <User size={18} className="text-gray-500 mr-2" />
+                                    <div className="w-6 h-6 rounded-full overflow-hidden mr-1">
+                                        <AvatarRenderer config={users.find(u => u.id === task.assignedTo)?.avatar} />
+                                    </div>
                                     <div>
                                         <p className="text-sm font-medium text-gray-600">Assigned To</p>
                                         <div>{renderAssignedUserContent()}</div>

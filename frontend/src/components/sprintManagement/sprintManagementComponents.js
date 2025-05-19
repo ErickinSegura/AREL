@@ -17,6 +17,7 @@ import {
     ModalClose
 } from '../../lib/ui/Modal';
 import {FiCodesandbox, FiFolder} from "react-icons/fi";
+import {AvatarRenderer} from "../../lib/AvatarRenderer";
 
 const priorityColors = {
     1: 'bg-green-100 text-green-800 border-green-200',
@@ -218,7 +219,11 @@ export const DraggableTaskCard = ({ task, onSelect, users, usersLoading }) => {
 
                         {task.assignedTo && (
                             <div className="inline-flex items-center text-xs text-gray-600">
-                                <User size={14} className="mr-1" />
+                                {!usersLoading && users.find(u => u.id === task.assignedTo)?.avatar && (
+                                    <div className="w-6 h-6 rounded-full overflow-hidden mr-1">
+                                        <AvatarRenderer config={users.find(u => u.id === task.assignedTo).avatar} />
+                                    </div>
+                                )}
                                 {renderAssignedUserContent()}
                             </div>
                         )}
