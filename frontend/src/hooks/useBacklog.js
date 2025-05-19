@@ -198,12 +198,15 @@ export const useBacklog = () => {
         }
     };
 
-    const handleTaskUpdate = async (taskId, taskData) => {
+    const handleTaskUpdate = async (taskId, taskData, isBacklog = false) => {
         console.log("Updating task:", taskId, taskData);
         try {
             setLoading(true);
             await BacklogService.updateTask(taskId, taskData);
-            fetchBacklogTasks();
+            if (!isBacklog) {
+                fetchBacklogTasks();
+            }
+
             if (selectedSprint) {
                 fetchSprintTasks(selectedSprint);
             }

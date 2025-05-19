@@ -60,7 +60,7 @@ const SprintManagement = () => {
 
             try {
                 setUpdateLoading(true);
-                await handleTaskUpdate(taskId, { state: newState });
+                await handleTaskUpdate(taskId, { state: newState }, true);
             } catch (error) {
                 console.error("Error updating task state:", error);
             } finally {
