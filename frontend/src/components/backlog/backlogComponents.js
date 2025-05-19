@@ -1,9 +1,7 @@
 import React, {useEffect, useState, useMemo} from 'react';
 import {Card, CardContent, CardHeader, CardTitle} from '../../lib/ui/Card';
 import {
-    X,
     Check,
-    Search,
     Clock,
     Tag,
     User,
@@ -494,11 +492,12 @@ export const CreateTaskModal = ({
         resetTaskForm
     } = useBacklog();
 
+    // Reset the form when modal is closed
     useEffect(() => {
         if (!isOpen) {
             resetTaskForm();
         }
-    }, [isOpen]);
+    }, [isOpen, resetTaskForm]);
 
     const handleSubmit = async () => {
         const result = await handleTaskCreate();
@@ -596,11 +595,11 @@ export const CreateTaskModal = ({
                                 <div>
                                     <label className="text-sm font-medium text-gray-700 flex items-center">
                                         <Book size={14} className="mr-2" />
-                                        Category
+                                        Type
                                     </label>
                                     <select
                                         name="type"
-                                        value={taskFormData.category}
+                                        value={taskFormData.type}
                                         onChange={handleTaskFormChange}
                                         className="mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-oracleRed"
                                     >
@@ -609,7 +608,6 @@ export const CreateTaskModal = ({
                                         ))}
                                     </select>
                                 </div>
-
                             </div>
                         </div>
                     </div>
