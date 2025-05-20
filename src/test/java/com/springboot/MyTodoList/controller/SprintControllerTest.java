@@ -11,7 +11,10 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -72,4 +75,41 @@ class SprintControllerTest {
         ResponseEntity response = sprintController.updateSprint(1, mockSprint);
         assertEquals(200, response.getStatusCodeValue());
     }
+    
+    @Test
+    void testGetAllSprintsEmptyList() {
+        when(sprintService.getAllSprints(1)).thenReturn(ResponseEntity.ok(Collections.emptyList()));
+        ResponseEntity<List<Sprint>> response = sprintController.getAllSprints(1);
+        assertEquals(200, response.getStatusCodeValue());
+        assertTrue(response.getBody().isEmpty());
+    }
+
+    @Test
+    void testAddSprintWithInvalidDates() throws Exception {
+        Sprint invalidSprint = new Sprint(1, 1);
+        invalidSprint.setStartDate(LocalDateTime.now());
+        invalidSprint.setEndDate(LocalDateTime.now().minusDays(1));
+        when(sprintService.addSprint(any(Sprint.class))).thenThrow(new IllegalArgumentException("Invalid dates"));
+        Exception exception = assertThrows(Exception.class, () -> {
+            sprintController.addSprint(invalidSprint);
+        });
+        assertTrue(exception.getMessage().contains("Invalid dates"));
+    }
+
+    @Test
+    void testGetAllSprintsNullResponse() {
+        when(sprintService.getAllSprints(1)).thenReturn(ResponseEntity.ok(null));
+        ResponseEntity<List<Sprint>> response = sprintController.getAllSprints(1);
+        assertEquals(200, response.getStatusCodeValue());
+        assertTrue(response.getBody().isEmpty());
+    }
+    
+    /*@Test
+    void testAddSprintWithNullData() throws Exception {
+        Sprint nullSprint = null;
+        Exception exception = assertThrows(Exception.class, () -> {
+            sprintController.addSprint(nullSprint);
+        });
+        assertTrue(exception instanceof IllegalArgumentException);
+    }*/
 }

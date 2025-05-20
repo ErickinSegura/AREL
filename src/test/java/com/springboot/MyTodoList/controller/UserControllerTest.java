@@ -2,6 +2,7 @@ package com.springboot.MyTodoList.controller;
 
 import com.springboot.MyTodoList.model.User;
 import com.springboot.MyTodoList.model.UserLevel;
+import com.springboot.MyTodoList.model.UserProject;
 import com.springboot.MyTodoList.service.UserService;
 import com.springboot.MyTodoList.service.UserProjectService;
 
@@ -15,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class UserControllerTest {
@@ -97,5 +100,119 @@ public class UserControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody());
+    }
+    
+    @Test
+    public void testGetUsersByProject() {
+        int projectId = 1;
+        User user1 = User.builder()
+                .id(1)
+                .email("user1@test.com")
+                .firstName("User")
+                .lastName("One")
+                .build();
+        User user2 = User.builder()
+                .id(2)
+                .email("user2@test.com")
+                .firstName("User")
+                .lastName("Two")
+                .build();
+        
+        UserProject userProject1 = new UserProject();
+        userProject1.setUser(user1);
+        UserProject userProject2 = new UserProject();
+        userProject2.setUser(user2);
+        
+        List<UserProject> userProjects = Arrays.asList(userProject1, userProject2);
+        
+        when(userProjectService.getUsersByProject(projectId)).thenReturn(userProjects);
+        
+        ResponseEntity<List<User>> response = userController.getUsersByProject(projectId);
+        
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(2, response.getBody().size());
+        assertEquals("user1@test.com", response.getBody().get(0).getEmail());
+        assertEquals("user2@test.com", response.getBody().get(1).getEmail());
+    }
+
+    @Test
+    public void testGetUsersByProjectEmpty() {
+        int projectId = 1;
+        when(userProjectService.getUsersByProject(projectId)).thenReturn(Arrays.asList());
+        
+        ResponseEntity<List<User>> response = userController.getUsersByProject(projectId);
+        
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertNull(response.getBody());
+    }
+
+    @Test
+    public void testUpdateUserAvatar() {
+        int userId = 1;
+        String newAvatar = "new-avatar-url";
+        User updatedUser = User.builder()
+                .id(userId)
+                .email("test@example.com")
+                .avatar(newAvatar)
+                .build();
+        
+        UserController.AvatarRequest avatarRequest = new UserController.AvatarRequest();
+        // Set avatar using reflection since it's private
+        try {
+            java.lang.reflect.Field avatarField = UserController.AvatarRequest.class.getDeclaredField("avatar");
+            avatarField.setAccessible(true);
+            avatarField.set(avatarRequest, newAvatar);
+        } catch (Exception e) {
+            fail("Failed to set avatar field");
+        }
+        
+        when(userService.updateUserAvatar(userId, newAvatar)).thenReturn(updatedUser);
+        
+        ResponseEntity<User> response = userController.updateUserAvatar(userId, avatarRequest);
+        
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(newAvatar, response.getBody().getAvatar());
+    }
+
+    @Test
+    public void testUpdateUserAvatarNotFound() {
+        int userId = 999;
+        UserController.AvatarRequest avatarRequest = new UserController.AvatarRequest();
+        try {
+            java.lang.reflect.Field avatarField = UserController.AvatarRequest.class.getDeclaredField("avatar");
+            avatarField.setAccessible(true);
+            avatarField.set(avatarRequest, "new-avatar-url");
+        } catch (Exception e) {
+            fail("Failed to set avatar field");
+        }
+        
+        when(userService.updateUserAvatar(userId, "new-avatar-url")).thenReturn(null);
+        
+        ResponseEntity<User> response = userController.updateUserAvatar(userId, avatarRequest);
+        
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    public void testGetUsersByLevelWithInvalidLevel() {
+        when(userService.findAll()).thenReturn(Arrays.asList());
+        
+        ResponseEntity<List<User>> response = userController.getUsersByLevel(Arrays.asList(999));
+        
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().isEmpty());
+    }
+
+    @Test
+    public void testUpdateUserNotFound() {
+        int userId = 999;
+        User user = new User();
+        user.setEmail("notfound@example.com");
+        
+        when(userService.updateUser(userId, user)).thenThrow(new RuntimeException("User not found"));
+        
+        ResponseEntity<User> response = userController.updateUser(user, userId);
+        
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }
