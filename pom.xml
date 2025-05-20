@@ -262,30 +262,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>3.2.0</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
-					<nonFilteredFileExtensions>
-						<nonFilteredFileExtension>pdf</nonFilteredFileExtension>
-						<nonFilteredFileExtension>swf</nonFilteredFileExtension>
-						<nonFilteredFileExtension>png</nonFilteredFileExtension>
-						<nonFilteredFileExtension>jpg</nonFilteredFileExtension>
-						<nonFilteredFileExtension>jpeg</nonFilteredFileExtension>
-						<nonFilteredFileExtension>gif</nonFilteredFileExtension>
-						<nonFilteredFileExtension>ico</nonFilteredFileExtension>
-						<nonFilteredFileExtension>woff</nonFilteredFileExtension>
-						<nonFilteredFileExtension>woff2</nonFilteredFileExtension>
-						<nonFilteredFileExtension>ttf</nonFilteredFileExtension>
-						<nonFilteredFileExtension>eot</nonFilteredFileExtension>
-						<nonFilteredFileExtension>svg</nonFilteredFileExtension>
-						<nonFilteredFileExtension>mp4</nonFilteredFileExtension>
-						<nonFilteredFileExtension>webp</nonFilteredFileExtension>
-						<nonFilteredFileExtension>bmp</nonFilteredFileExtension>
-					</nonFilteredFileExtensions>
-					<delimiters>
-						<delimiter>${*}</delimiter>
-					</delimiters>
-					<useDefaultDelimiters>false</useDefaultDelimiters>
-				</configuration>
 				<executions>
 					<execution>
 						<id>position-react-build</id>
