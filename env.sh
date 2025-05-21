@@ -74,4 +74,4 @@ alias virtualservices='kubectl get virtualservices --all-namespaces'
 alias deployments='kubectl get deployments --all-namespaces'
 alias mtdrworkshop='echo deployments... ; deployments|grep mtdrworkshop ; echo pods... ; pods|grep mtdrworkshop ; echo services... ; services | grep mtdrworkshop ; echo secrets... ; secrets|grep mtdrworkshop ; echo "other shortcut commands... most can take partial podname as argument, such as [logpod front] or [deletepod order]...  pods  services secrets deployments " ; ls $MTDRWORKSHOP_LOCATION/utils/'
 
-export PATH=$PATH:$MTDRWORKSHOP_LOCATION/deploy/utils/
+export PATH=$PATH:$MTDRWORKSHOP_LOCATION/utils/

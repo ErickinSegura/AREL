@@ -13,10 +13,10 @@ $MTDRWORKSHOP_LOCATION/utils/main-destroy.sh
 
 deleteDir=toDelete_$(date +%Y%m%d_%H%M%S)
 mkdir $deleteDir
-mv state $deleteDir
-mv tls $deleteDir
-mv wallet $deleteDir
-mv log $deleteDir
+mv ../state $deleteDir
+mv ../tls $deleteDir
+mv ../wallet $deleteDir
+mv ../log $deleteDir
 
 echo 'Recommendations:'
 echo '  1. Manually rename compartment'
