@@ -1,9 +1,6 @@
 package com.springboot.MyTodoList.controller;
 
 import com.springboot.MyTodoList.auth.*;
-import com.springboot.MyTodoList.model.User;
-import com.springboot.MyTodoList.model.UserProject;
-import com.springboot.MyTodoList.model.Project;
 import com.springboot.MyTodoList.repository.UserProjectRepository;
 import com.springboot.MyTodoList.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
