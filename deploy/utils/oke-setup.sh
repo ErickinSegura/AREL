@@ -8,8 +8,9 @@ set -e
 
 # Create SSL Certs
 while ! state_done SSL; do
-  mkdir -p $MTDRWORKSHOP_LOCATION/tls
-  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $MTDRWORKSHOP_LOCATION/tls/tls.key -out $MTDRWORKSHOP_LOCATION/tls/tls.crt -subj "/CN=grabdish/O=grabdish"
+  cd "$(dirname "$MTDRWORKSHOP_LOCATION")"
+  mkdir -p tls
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls/tls.key -out tls/tls.crt -subj "/CN=grabdish/O=grabdish"
   state_set_done SSL
 done
 
