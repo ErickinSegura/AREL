@@ -66,13 +66,17 @@ done
 
 # Create OKE Namespace
 while ! state_done OKE_NAMESPACE; do
-  if kubectl create ns mtdrworkshop; then
+  if kubectl get ns mtdrworkshop >/dev/null 2>&1; then
+    echo "Namespace 'mtdrworkshop' already exists."
+    state_set_done OKE_NAMESPACE
+  elif kubectl create ns mtdrworkshop; then
     state_set_done OKE_NAMESPACE
   else
-    echo "Failed to create namespace.  Retrying..."
+    echo "Failed to create namespace. Retrying..."
     sleep 10
   fi
 done
+
 
 # Wait for TO DO User (avoid concurrent kubectl)
 while ! state_done TODO_USER; do
