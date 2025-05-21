@@ -27,7 +27,7 @@ done
 # Get Wallet
 while ! state_done WALLET_GET; do
   echo "creating wallet"
-  cd $MTDRWORKSHOP_LOCATION
+  cd "$(dirname "$MTDRWORKSHOP_LOCATION")"
   mkdir wallet
   cd wallet
   oci db autonomous-database generate-wallet --autonomous-database-id "$(state_get MTDR_DB_OCID)" --file 'wallet.zip' --password 'Welcome1' --generate-type 'ALL'
@@ -41,7 +41,8 @@ done
 # Get DB Connection Wallet and to Object Store
 while ! state_done CWALLET_SSO_OBJECT; do
   echo "grabbing wallet"
-  cd $MTDRWORKSHOP_LOCATION/wallet
+  cd "$(dirname "$MTDRWORKSHOP_LOCATION")"
+  cd wallet
   oci os object put --bucket-name "$(state_get RUN_NAME)-$(state_get MTDR_KEY)" --name "cwallet.sso" --file 'cwallet.sso'
   cd $MTDRWORKSHOP_LOCATION
   state_set_done CWALLET_SSO_OBJECT
@@ -68,7 +69,8 @@ done
 # Create Inventory ATP Bindings
 while ! state_done DB_WALLET_SECRET; do
   echo "creating Inventory ATP Bindings"
-  cd $MTDRWORKSHOP_LOCATION/wallet
+  cd "$(dirname "$MTDRWORKSHOP_LOCATION")"
+  cd wallet
   cat - >sqlnet.ora <<!
 WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY="/mtdrworkshop/creds")))
 SSL_SERVER_DN_MATCH=yes
@@ -98,7 +100,7 @@ done
 
 
 # DB Connection Setup
-export TNS_ADMIN=$MTDRWORKSHOP_LOCATION/wallet
+export TNS_ADMIN="$(dirname "$MTDRWORKSHOP_LOCATION")/wallet"
 cat - >$TNS_ADMIN/sqlnet.ora <<!
 WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY="$TNS_ADMIN")))
 SSL_SERVER_DN_MATCH=yes
