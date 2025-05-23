@@ -695,12 +695,11 @@ export const SortControls = ({ currentSort, onSortChange }) => {
     );
 };
 
-export const CreateSprintModal = ({ isOpen, onClose, users }) => {
+export const CreateSprintModal = ({ isOpen, onClose, users, availableTasks = [] }) => {
     const {
         sprintFormData,
         handleSprintFormChange,
         selectedTasks,
-        availableTasks,
         toggleTaskSelection,
         updateTaskDetails,
         handleCreateSprint,
@@ -958,7 +957,7 @@ export const CreateSprintModal = ({ isOpen, onClose, users }) => {
                                                         ? 'ring-2 ring-oracleRed bg-gray-50'
                                                         : 'hover:bg-gray-50'
                                                 }`}
-                                                onClick={() => toggleTaskSelection(task.id)}
+                                                onClick={() => toggleTaskSelection(task.id, availableTasks)}
                                             >
                                                 <div className="flex justify-between items-center">
                                                     <div className="flex items-center">

@@ -232,6 +232,7 @@ const Backlog = () => {
                 onClose={() => setCreateSprintModalOpen(false)}
                 projectId={selectedProject?.id}
                 users={users}
+                availableTasks={nonSprintTasks}
             />
         </div>
     );

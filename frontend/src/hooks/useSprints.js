@@ -85,13 +85,17 @@ export const useSprints = (isBacklog = true) => {
         }
     }, [fetchSprints, selectedProject]);
 
-    const toggleTaskSelection = (taskId) => {
+    const toggleTaskSelection = (taskId, tasksSource = availableTasks) => {
         setSelectedTasks(prevSelectedTasks => {
             const isSelected = prevSelectedTasks.some(task => task.id === taskId);
             if (isSelected) {
                 return prevSelectedTasks.filter(task => task.id !== taskId);
             } else {
-                const taskToAdd = availableTasks.find(task => task.id === taskId);
+                const taskToAdd = tasksSource.find(task => task.id === taskId);
+                if (!taskToAdd) {
+                    console.error(`Task with id ${taskId} not found in tasks source`);
+                    return prevSelectedTasks;
+                }
                 return [...prevSelectedTasks, {
                     ...taskToAdd,
                     estimatedHours: taskToAdd.estimatedHours || 0,
