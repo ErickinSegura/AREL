@@ -17,7 +17,7 @@ import {
     ModalClose
 } from '../../lib/ui/Modal';
 import {FiCodesandbox, FiFolder} from "react-icons/fi";
-import {AvatarRenderer} from "../../lib/AvatarRenderer";
+import {useProjectUsers} from "../../hooks/useProjectUsers";
 
 const priorityColors = {
     1: 'bg-green-100 text-green-800 border-green-200',
@@ -83,12 +83,9 @@ export const SprintsHeader = ({ selectedProject, loading, onCreateTask, onCreate
 
 export const ActualHoursModal = ({ isOpen, onClose, taskId, onSubmit, loading }) => {
     const [actualHours, setActualHours] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async () => {
         if (!actualHours) return;
-
-        setIsSubmitting(true);
 
         const success = await onSubmit(taskId, {
             realHours: Number(actualHours)
@@ -96,19 +93,8 @@ export const ActualHoursModal = ({ isOpen, onClose, taskId, onSubmit, loading })
 
         if (success) {
             onClose();
-            setActualHours('');
         }
-
-        setIsSubmitting(false);
     };
-
-    // Resetear el estado cuando se abre el modal
-    useEffect(() => {
-        if (isOpen) {
-            setActualHours('');
-            setIsSubmitting(false);
-        }
-    }, [isOpen]);
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
@@ -123,7 +109,7 @@ export const ActualHoursModal = ({ isOpen, onClose, taskId, onSubmit, loading })
                         label="Actual Hours"
                         type="number"
                         min="0"
-                        step="0.5"
+                        step="1"
                         value={actualHours}
                         onChange={(e) => setActualHours(e.target.value)}
                         className="w-full"
@@ -132,15 +118,15 @@ export const ActualHoursModal = ({ isOpen, onClose, taskId, onSubmit, loading })
                 </div>
             </ModalContent>
             <ModalFooter>
-                <Button onClick={onClose} variant="default" disabled={isSubmitting}>
+                <Button onClick={onClose} variant="default">
                     Cancel
                 </Button>
                 <Button
                     onClick={handleSubmit}
                     variant="remarked"
-                    disabled={!actualHours || isSubmitting}
+                    disabled={!actualHours || loading}
                 >
-                    {isSubmitting ? (
+                    {loading ? (
                         <>
                             <Loader2 size={16} className="mr-2 animate-spin" />
                             Saving...
@@ -219,11 +205,7 @@ export const DraggableTaskCard = ({ task, onSelect, users, usersLoading }) => {
 
                         {task.assignedTo && (
                             <div className="inline-flex items-center text-xs text-gray-600">
-                                {!usersLoading && users.find(u => u.id === task.assignedTo)?.avatar && (
-                                    <div className="w-6 h-6 rounded-full overflow-hidden mr-1">
-                                        <AvatarRenderer config={users.find(u => u.id === task.assignedTo).avatar} />
-                                    </div>
-                                )}
+                                <User size={14} className="mr-1" />
                                 {renderAssignedUserContent()}
                             </div>
                         )}
@@ -234,7 +216,6 @@ export const DraggableTaskCard = ({ task, onSelect, users, usersLoading }) => {
         </div>
     );
 };
-
 export const TaskColumn = ({
                                icon,
                                title,
@@ -384,4 +365,3 @@ export const SprintSelector = ({ sprints, selectedSprint, onSprintChange, loadin
         </div>
     );
 };
-

@@ -29,8 +29,7 @@ const SprintManagement = () => {
         handleTaskUpdate,
         selectedSprint,
         setSelectedSprint,
-        taskDetailLoading,
-        setSprintTasks
+        taskDetailLoading
     } = useBacklog();
 
     const { sprints, loading: sprintsLoading } = useSprints();
@@ -53,33 +52,19 @@ const SprintManagement = () => {
         const taskToUpdate = sprintTasks.find(task => task.id === taskId);
 
         if (taskToUpdate && taskToUpdate.state !== newState) {
-            // Si es estado "Done" y no tiene horas reales, mostrar modal
             if (newState === 3 && !taskToUpdate.realHours) {
                 setTaskForHours(taskId);
                 setActualHoursModalOpen(true);
                 return;
             }
 
-            // Crear copia del estado actual para poder revertir
-            const originalTasks = [...sprintTasks];
-
             try {
-                // Actualización optimista: actualizar UI inmediatamente
-                const updatedTasks = sprintTasks.map(task =>
-                    task.id === taskId ? { ...task, state: newState } : task
-                );
-
-                // Actualizamos el estado local inmediatamente sin esperar al servidor
-                // Esto requiere exponer una función setter desde useBacklog
-                setSprintTasks(updatedTasks);
-
-                // Llamada al servidor en segundo plano
-                await handleTaskUpdate(taskId, { state: newState }, true);
+                setUpdateLoading(true);
+                await handleTaskUpdate(taskId, { state: newState });
             } catch (error) {
-                // En caso de error, revertimos al estado original
                 console.error("Error updating task state:", error);
-                setSprintTasks(originalTasks);
-                // Mostrar notificación de error al usuario (opcional)
+            } finally {
+                setUpdateLoading(false);
             }
         }
     };
@@ -102,7 +87,7 @@ const SprintManagement = () => {
     if (!selectedProject) {
         return <NoProjectState title={"selected"} message={"Please select a project to view its sprints."} />;
     }
-    
+
 
     return (
         <DndProvider backend={HTML5Backend}>
