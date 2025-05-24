@@ -880,13 +880,13 @@ const Sidebar = ({
 
     const getMenuItemsByRole = () => {
         const commonItems = [
-            { icon: <FiHome size={20} />, label: 'Overview', hasSubmenu: true },
+            { icon: <FiHome size={20} />, label: 'Overview', hasSubmenu: false },
         ];
 
         const roleSpecificItems = {
             1: [
-                { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: true },
-                { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: true },
+                { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: false },
+                { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: false },
                 { icon: <FiLink size={20} />, label: 'Shortcuts', hasSubmenu: false },
                 { icon: <FiSettings size={20} />, label: 'Settings', hasSubmenu: false }
             ],
@@ -900,7 +900,7 @@ const Sidebar = ({
                 { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: false },
                 { icon: <FiLink size={20} />, label: 'Shortcuts', hasSubmenu: false },
                 { icon: <FiSettings size={20} />, label: 'Settings', hasSubmenu: false },
-                { icon: <FiUsers size={20} />, label: 'Users', hasSubmenu: true }
+                { icon: <FiUsers size={20} />, label: 'Users', hasSubmenu: false }
             ]
         };
 

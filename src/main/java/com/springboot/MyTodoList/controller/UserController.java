@@ -25,10 +25,6 @@ public class UserController {
         try {
             List<UserProject> userProjects = userProjectService.getUsersByProject(projectId);
 
-            if (userProjects.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-
             List<User> users = userProjects.stream()
                     .map(UserProject::getUser)
                     .distinct()

@@ -1046,7 +1046,7 @@ export const CreateSprintModal = ({ isOpen, onClose, users, availableTasks = [] 
                                                         {task.assignedTo ? (
                                                             <>
                                                                 <div className="h-6 w-6 rounded-full bg-oracleRed/10 text-oracleRed flex items-center justify-center mr-2 flex-shrink-0">
-                                                                    <User size={12} />
+                                                                    <AvatarRenderer config={users.find(u => u.id === task.assignedTo)?.avatar} />
                                                                 </div>
                                                                 <span className="truncate">{getAssignedUserName(task.id)}</span>
                                                             </>
@@ -1076,7 +1076,7 @@ export const CreateSprintModal = ({ isOpen, onClose, users, availableTasks = [] 
                                                                         }}
                                                                     >
                                                                         <div className="h-6 w-6 rounded-full bg-gray-100 flex items-center justify-center mr-2">
-                                                                            <User size={12} className="text-gray-600" />
+                                                                            <AvatarRenderer config={user.avatar} />
                                                                         </div>
                                                                         <span>{user.firstName} {user.lastName}</span>
                                                                         {task.assignedTo === user.id && (

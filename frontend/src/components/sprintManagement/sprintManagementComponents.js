@@ -18,6 +18,7 @@ import {
 } from '../../lib/ui/Modal';
 import {FiCodesandbox, FiFolder} from "react-icons/fi";
 import {useProjectUsers} from "../../hooks/useProjectUsers";
+import {AvatarRenderer} from "../../lib/AvatarRenderer";
 
 const priorityColors = {
     1: 'bg-green-100 text-green-800 border-green-200',
@@ -46,7 +47,7 @@ const getProjectIcon = (iconID) => {
     }
 };
 
-export const SprintsHeader = ({ selectedProject, loading, onCreateTask, onCreateSprint, selector }) => (
+export const SprintsHeader = ({ selectedProject, loading, selector }) => (
     <Card className="mb-6">
         <CardHeader>
             <div className={`flex items-center justify-between ${loading ? 'animate-pulse' : ''}`}>
@@ -204,10 +205,16 @@ export const DraggableTaskCard = ({ task, onSelect, users, usersLoading }) => {
                         )}
 
                         {task.assignedTo && (
-                            <div className="inline-flex items-center text-xs text-gray-600">
-                                <User size={14} className="mr-1" />
-                                {renderAssignedUserContent()}
-                            </div>
+                            <>
+                                <div className="inline-flex items-center">
+                                    <div className="w-6 h-6 rounded-full overflow-hidden mr-2">
+                                        <AvatarRenderer config={users.find(u => u.id === task.assignedTo)?.avatar} />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-600">{renderAssignedUserContent()}</p>
+                                    </div>
+                                </div>
+                            </>
                         )}
 
                     </div>
@@ -216,6 +223,7 @@ export const DraggableTaskCard = ({ task, onSelect, users, usersLoading }) => {
         </div>
     );
 };
+
 export const TaskColumn = ({
                                icon,
                                title,
@@ -284,6 +292,15 @@ export const SprintSelector = ({ sprints, selectedSprint, onSprintChange, loadin
             return dateString;
         }
     };
+
+    useEffect(() => {
+        if (sprints.length > 0 && !selectedSprint) {
+            const lastSprint = sprints.reduce((prev, current) =>
+                (prev.sprintNumber > current.sprintNumber) ? prev : current
+            );
+            onSprintChange(lastSprint.id);
+        }
+    }, [sprints, selectedSprint, onSprintChange]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {

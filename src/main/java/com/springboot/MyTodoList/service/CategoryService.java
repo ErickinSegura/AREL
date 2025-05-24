@@ -30,9 +30,6 @@ public class CategoryService {
 
     public ResponseEntity<List<Category>> getCategoriesByProject(int projectId) {
         List<Category> shortcuts = categoryRepository.findByProjectId(projectId);
-        if (shortcuts.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
         return new ResponseEntity<>(shortcuts, HttpStatus.OK);
     }
 

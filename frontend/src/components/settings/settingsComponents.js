@@ -588,7 +588,7 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                                 />
                             </div>
 
-                            {filteredUsers.length === 0 ? (
+                            {filteredUsers.length < 1 ? (
                                 <div className="text-center py-8">
                                     <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mx-auto mb-4">
                                         <FiUsers size={32} />
