@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -17,5 +18,6 @@ import javax.transaction.Transactional;
 public interface UserProjectRepository extends JpaRepository<UserProject,Integer> {
     List<UserProject> findByProjectId(int projectId);
     List<UserProject> findByUserId(int userId);
-    boolean existsUserProjectByUserIdAndProjectId(int userId, int projectId);
+
+    Optional<UserProject> findByUserIdAndProjectId(int userId, int projectId);
 }

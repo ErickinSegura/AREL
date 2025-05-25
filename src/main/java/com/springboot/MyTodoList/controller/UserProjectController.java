@@ -22,7 +22,7 @@ public class UserProjectController {
 
     // CREATE - Asignar usuario a proyecto
     @PostMapping("/userproject")
-    public ResponseEntity<UserProjectDTO> assignUserToProject(@RequestBody AssignUserRequest request) {
+    public ResponseEntity<?> assignUserToProject(@RequestBody AssignUserRequest request) {
         try {
             UserProject userProject = userProjectService.assignUserToProject(
                     request.getUserId(),
@@ -30,14 +30,14 @@ public class UserProjectController {
                     request.getRole()
             );
 
-            if (userProject != null) {
-                UserProjectDTO dto = convertToDTO(userProject);
-                return new ResponseEntity<>(dto, HttpStatus.CREATED);
-            } else {
-                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-            }
+            UserProjectDTO dto = convertToDTO(userProject);
+            return new ResponseEntity<>(dto, HttpStatus.CREATED);
+
+        } catch (RuntimeException e) {
+            // Manejo específico de errores de validación
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new ErrorResponse("Error interno del servidor"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -147,7 +147,6 @@ public class UserProjectController {
         private String role;
 
         public AssignUserRequest() {}
-
     }
 
     @Getter
@@ -155,5 +154,15 @@ public class UserProjectController {
     public static class UpdateRoleRequest {
         private String role;
         public UpdateRoleRequest() {}
+    }
+
+    @Getter
+    @Setter
+    public static class ErrorResponse {
+        private String message;
+
+        public ErrorResponse(String message) {
+            this.message = message;
+        }
     }
 }
