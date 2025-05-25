@@ -29,6 +29,10 @@ public class UserProjectService {
         Optional<Project> project = projectRepository.findById(projectId);
 
         if (user.isPresent() && project.isPresent()) {
+            if (isUserAssignedToProject(userId, projectId)) {
+                return null;
+            }
+
             UserProject userProject = new UserProject(user.get(), project.get(), role);
             return userProjectRepository.save(userProject);
         }
@@ -46,4 +50,28 @@ public class UserProjectService {
     public Optional<UserProject> getUserProjectByID(int userProjectId) {
         return userProjectRepository.findById(userProjectId);
     }
+
+    public UserProject updateUserProjectRole(int userProjectId, String newRole) {
+        Optional<UserProject> userProjectOpt = userProjectRepository.findById(userProjectId);
+
+        if (userProjectOpt.isPresent()) {
+            UserProject userProject = userProjectOpt.get();
+            userProject.setRole(newRole);
+            return userProjectRepository.save(userProject);
+        }
+        return null;
+    }
+
+    public boolean deleteUserProject(int userProjectId) {
+        if (userProjectRepository.existsById(userProjectId)) {
+            userProjectRepository.deleteById(userProjectId);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isUserAssignedToProject(int userId, int projectId) {
+        return userProjectRepository.existsUserProjectByUserIdAndProjectId(userId, projectId);
+    }
+
 }

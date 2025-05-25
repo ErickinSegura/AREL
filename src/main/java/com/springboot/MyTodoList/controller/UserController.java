@@ -1,7 +1,5 @@
 package com.springboot.MyTodoList.controller;
 import com.springboot.MyTodoList.model.User;
-import com.springboot.MyTodoList.model.UserProject;
-import com.springboot.MyTodoList.service.UserProjectService;
 import com.springboot.MyTodoList.service.UserService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,24 +15,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private UserProjectService userProjectService;
-
-    @GetMapping("/userlist/{projectId}/users")
-    public ResponseEntity<List<User>> getUsersByProject(@PathVariable int projectId) {
-        try {
-            List<UserProject> userProjects = userProjectService.getUsersByProject(projectId);
-
-            List<User> users = userProjects.stream()
-                    .map(UserProject::getUser)
-                    .distinct()
-                    .collect(Collectors.toList());
-
-            return new ResponseEntity<>(users, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 
     @GetMapping(value = "/userlist/by-level")
     public ResponseEntity<List<User>> getUsersByLevel(@RequestParam(required = false) List<Integer> levelIds){

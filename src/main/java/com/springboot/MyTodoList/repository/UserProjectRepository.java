@@ -17,5 +17,5 @@ import javax.transaction.Transactional;
 public interface UserProjectRepository extends JpaRepository<UserProject,Integer> {
     List<UserProject> findByProjectId(int projectId);
     List<UserProject> findByUserId(int userId);
-
+    boolean existsUserProjectByUserIdAndProjectId(int userId, int projectId);
 }
