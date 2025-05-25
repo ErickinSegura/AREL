@@ -9,9 +9,14 @@ export const useProjectUsers = (projectId) => {
     const [error, setError] = useState(null);
     const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
     const [availableUsers, setAvailableUsers] = useState([]);
+    const [allAvailableUsers, setAllAvailableUsers] = useState([]); // Para mantener la lista completa
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [addingUsers, setAddingUsers] = useState(false);
     const [removingUserId, setRemovingUserId] = useState(null);
+    const [loadingAvailableUsers, setLoadingAvailableUsers] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [userToDelete, setUserToDelete] = useState(null);
+    const [userRoles, setUserRoles] = useState({}); // Para almacenar el rol de cada usuario seleccionado
 
     useEffect(() => {
         const fetchProjectUsers = async () => {
@@ -50,30 +55,42 @@ export const useProjectUsers = (projectId) => {
     };
 
     const handleOpenAddUserModal = async () => {
+        setIsAddUserModalOpen(true);
+        setLoadingAvailableUsers(true);
+        setSelectedUsers([]);
+        setUserRoles({});
+
         try {
             const allUsers = await UserService.getAvailableUsers([1, 2]);
-
             const projectUserIds = users.map(user => user.userId);
             const usersToAdd = allUsers.filter(user => !projectUserIds.includes(user.id));
 
+            setAllAvailableUsers(usersToAdd);
             setAvailableUsers(usersToAdd);
-            setSelectedUsers([]);
-            setIsAddUserModalOpen(true);
+            setLoadingAvailableUsers(false);
         } catch (err) {
             setError("Failed to load available users");
+            setLoadingAvailableUsers(false);
         }
     };
 
     const handleCloseAddUserModal = () => {
         setIsAddUserModalOpen(false);
         setSelectedUsers([]);
+        setUserRoles({});
+        setAvailableUsers([]);
+        setAllAvailableUsers([]);
     };
 
     const toggleUserSelection = (userId) => {
         if (selectedUsers.includes(userId)) {
             setSelectedUsers(selectedUsers.filter(id => id !== userId));
+            const newUserRoles = { ...userRoles };
+            delete newUserRoles[userId];
+            setUserRoles(newUserRoles);
         } else {
             setSelectedUsers([...selectedUsers, userId]);
+            setUserRoles(prev => ({ ...prev, [userId]: 'member' }));
         }
     };
 
@@ -82,44 +99,72 @@ export const useProjectUsers = (projectId) => {
 
         setAddingUsers(true);
         try {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const assignPromises = selectedUsers.map(userId =>
+                UserService.assignUserToProject(userId, projectId, userRoles[userId] || 'member')
+            );
 
-            const newUsers = availableUsers.filter(user => selectedUsers.includes(user.id));
+            await Promise.all(assignPromises);
 
-            setUsers(prevUsers => [...prevUsers, ...newUsers]);
+            const updatedUsers = await UserService.getUsersByProject(projectId);
+            setUsers(updatedUsers);
+
             setAddingUsers(false);
             handleCloseAddUserModal();
         } catch (err) {
-            setError("Failed to add users to project");
+            console.error('Error adding users:', err);
+            setError(err.message || "Failed to add users to project");
             setAddingUsers(false);
         }
     };
 
-    const handleRemoveUser = async (userId) => {
-        setRemovingUserId(userId);
-        try {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+    const handleOpenDeleteModal = (user) => {
+        setUserToDelete(user);
+        setIsDeleteModalOpen(true);
+    };
 
-            setUsers(users.filter(user => user.userId !== userId));
+    const handleCloseDeleteModal = () => {
+        setIsDeleteModalOpen(false);
+        setUserToDelete(null);
+    };
+
+    const handleConfirmRemoveUser = async () => {
+        if (!userToDelete) return;
+
+        setRemovingUserId(userToDelete.id);
+        try {
+            await UserService.removeUserFromProject(userToDelete.userProjectId);
+
+            setUsers(prevUsers =>
+                prevUsers.filter(user => user.userProjectId !== userToDelete.userProjectId)
+            );
+
             setRemovingUserId(null);
+            handleCloseDeleteModal();
         } catch (err) {
-            setError("Failed to remove user from project");
+            console.error('Error removing user:', err);
+            setError(err.message || "Failed to remove user from project");
             setRemovingUserId(null);
+            handleCloseDeleteModal();
         }
     };
 
     const filterAvailableUsers = (searchVal) => {
         if (!searchVal) {
+            setAvailableUsers(allAvailableUsers);
             return;
         }
 
         const searchTerm = searchVal.toLowerCase();
-        const filtered = availableUsers.filter(user =>
+        const filtered = allAvailableUsers.filter(user =>
             user.firstName.toLowerCase().includes(searchTerm) ||
             user.lastName.toLowerCase().includes(searchTerm) ||
             user.email.toLowerCase().includes(searchTerm)
         );
         setAvailableUsers(filtered);
+    };
+
+    const handleUserRoleChange = (userId, role) => {
+        setUserRoles(prev => ({ ...prev, [userId]: role }));
     };
 
     return {
@@ -133,12 +178,19 @@ export const useProjectUsers = (projectId) => {
         selectedUsers,
         addingUsers,
         removingUserId,
+        loadingAvailableUsers,
+        isDeleteModalOpen,
+        userToDelete,
+        userRoles,
         handleSearchChange,
         handleOpenAddUserModal,
         handleCloseAddUserModal,
         toggleUserSelection,
         handleAddUsers,
-        handleRemoveUser,
-        filterAvailableUsers
+        handleOpenDeleteModal,
+        handleCloseDeleteModal,
+        handleConfirmRemoveUser,
+        filterAvailableUsers,
+        handleUserRoleChange
     };
 };

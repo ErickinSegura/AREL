@@ -17,7 +17,6 @@ import {
     FiLoader,
     FiTrash2,
     FiPlus,
-    FiUser,
     FiUserPlus,
     FiSearch,
     FiCheck,
@@ -507,13 +506,20 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
         selectedUsers,
         addingUsers,
         removingUserId,
+        loadingAvailableUsers,
+        isDeleteModalOpen,
+        userToDelete,
+        userRoles,
         handleSearchChange,
         handleOpenAddUserModal,
         handleCloseAddUserModal,
         toggleUserSelection,
         handleAddUsers,
-        handleRemoveUser,
-        filterAvailableUsers
+        handleOpenDeleteModal,
+        handleCloseDeleteModal,
+        handleConfirmRemoveUser,
+        filterAvailableUsers,
+        handleUserRoleChange
     } = useProjectUsers(projectId);
 
     const UserListSkeleton = () => (
@@ -618,7 +624,7 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                                             </div>
                                             <Button
                                                 className="text-red-500 hover:bg-red-50 hover:border-red-200"
-                                                onClick={() => handleRemoveUser(user.id)}
+                                                onClick={() => handleOpenDeleteModal(user)}
                                                 disabled={removingUserId === user.id}
                                             >
                                                 {removingUserId === user.id ? (
@@ -659,43 +665,77 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                         </div>
 
                         <div className="max-h-72 overflow-y-auto">
-                            {availableUsers.length === 0 ? (
+                            {loadingAvailableUsers ? (
+                                <div className="space-y-4">
+                                    {[1, 2, 3, 4].map((item) => (
+                                        <div key={item} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                            <div className="flex items-center space-x-3">
+                                                <SkeletonCircle size="md" />
+                                                <div>
+                                                    <SkeletonText className="w-32" />
+                                                    <SkeletonText className="w-48" />
+                                                </div>
+                                            </div>
+                                            <Skeleton className="w-6 h-6 rounded-full" />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : availableUsers.length === 0 ? (
                                 <div className="text-center py-8">
                                     <p className="text-gray-500">No available users found</p>
                                 </div>
                             ) : (
                                 <div className="space-y-2">
                                     {availableUsers.map(user => (
-                                        <div
-                                            key={user.id}
-                                            className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${
-                                                selectedUsers.includes(user.id)
-                                                    ? 'bg-red-50 border border-red-200'
-                                                    : 'bg-gray-50 border border-white hover:bg-gray-100'
-                                            }`}
-                                            onClick={() => toggleUserSelection(user.id)}
-                                        >
-                                            <div className="flex items-center space-x-3">
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                        <div key={user.id} className="space-y-2">
+                                            <div
+                                                className={`flex items-center justify-between p-3 rounded-xl transition-colors ${
                                                     selectedUsers.includes(user.id)
-                                                        ? 'bg-red-100 text-oracleRed'
-                                                        : 'bg-gray-200 text-gray-500'
-                                                }`}>
-                                                    <div className="w-16 aspect-square rounded-xl overflow-hidden">
-                                                        <AvatarRenderer config={user.avatar} />
+                                                        ? 'bg-red-50 border border-red-200'
+                                                        : 'bg-gray-50 border border-white hover:bg-gray-100'
+                                                }`}
+                                            >
+                                                <div
+                                                    className="flex items-center space-x-3 flex-1 cursor-pointer"
+                                                    onClick={() => toggleUserSelection(user.id)}
+                                                >
+                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                                        selectedUsers.includes(user.id)
+                                                            ? 'bg-red-100 text-oracleRed'
+                                                            : 'bg-gray-200 text-gray-500'
+                                                    }`}>
+                                                        <div className="w-16 aspect-square rounded-xl overflow-hidden">
+                                                            <AvatarRenderer config={user.avatar} />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h3 className="font-medium">{user.firstName} {user.lastName}</h3>
+                                                        <p className="text-sm text-gray-500">{user.email}</p>
+                                                        {selectedUsers.includes(user.id) && (
+                                                            <div
+                                                                className="mt-3 flex items-center gap-2"
+                                                                onClick={(e) => e.stopPropagation()}
+                                                                onMouseDown={(e) => e.stopPropagation()}
+                                                            >
+                                                                <Input
+                                                                    placeholder="Enter user role (e.g., member, admin, viewer)"
+                                                                    value={userRoles[user.id] || ''}
+                                                                    onChange={(e) => handleUserRoleChange(user.id, e.target.value)}
+                                                                    className="text-sm"
+                                                                />
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
-                                                <div>
-                                                    <h3 className="font-medium">{user.firstName} {user.lastName}</h3>
-                                                    <p className="text-sm text-gray-500">{user.email}</p>
+                                                <div className={`w-6 h-6 rounded-full border flex items-center justify-center cursor-pointer ${
+                                                    selectedUsers.includes(user.id)
+                                                        ? 'border-oracleRed bg-oracleRed text-white'
+                                                        : 'border-gray-300'
+                                                }`}
+                                                     onClick={() => toggleUserSelection(user.id)}
+                                                >
+                                                    {selectedUsers.includes(user.id) && <FiCheck size={14} />}
                                                 </div>
-                                            </div>
-                                            <div className={`w-6 h-6 rounded-full border flex items-center justify-center ${
-                                                selectedUsers.includes(user.id)
-                                                    ? 'border-oracleRed bg-oracleRed text-white'
-                                                    : 'border-gray-300'
-                                            }`}>
-                                                {selectedUsers.includes(user.id) && <FiCheck size={14} />}
                                             </div>
                                         </div>
                                     ))}
@@ -714,7 +754,7 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                     <Button
                         variant="remarked"
                         onClick={handleAddUsers}
-                        disabled={selectedUsers.length === 0 || addingUsers}
+                        disabled={selectedUsers.length === 0 || addingUsers || loadingAvailableUsers}
                         className="flex items-center gap-2 w-40"
                     >
                         {addingUsers ? (
@@ -726,6 +766,54 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                             <>
                                 <FiPlus size={16} />
                                 <span className="w-4/5">Add {selectedUsers.length} {selectedUsers.length === 1 ? 'User' : 'Users'}</span>
+                            </>
+                        )}
+                    </Button>
+                </ModalFooter>
+            </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal isOpen={isDeleteModalOpen} onClose={handleCloseDeleteModal}>
+                <ModalClose onClick={handleCloseDeleteModal} />
+                <ModalHeader>
+                    <ModalTitle className="flex items-center gap-2 text-red-600">
+                        <FiAlertTriangle /> Confirm User Removal
+                    </ModalTitle>
+                    <ModalDescription>
+                        This action cannot be undone
+                    </ModalDescription>
+                </ModalHeader>
+                <ModalContent>
+                    <div>
+                        {userToDelete && (
+                            <p className="text-gray-700">
+                                Are you sure you want to remove <strong>{userToDelete.firstName} {userToDelete.lastName}</strong> from this project?
+                            </p>
+                        )}
+                    </div>
+                </ModalContent>
+                <ModalFooter>
+                    <Button
+                        variant="default"
+                        onClick={handleCloseDeleteModal}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="destructive"
+                        onClick={handleConfirmRemoveUser}
+                        disabled={removingUserId === userToDelete?.id}
+                        className="flex items-center gap-2"
+                    >
+                        {removingUserId === userToDelete?.id ? (
+                            <>
+                                <FiLoader className="animate-spin" size={16} />
+                                <span>Removing...</span>
+                            </>
+                        ) : (
+                            <>
+                                <FiUserX size={16} />
+                                <span>Remove User</span>
                             </>
                         )}
                     </Button>
