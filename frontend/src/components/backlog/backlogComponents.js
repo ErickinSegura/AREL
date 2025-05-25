@@ -75,60 +75,6 @@ const stateColors = {
     3: 'bg-green-100 text-green-800'
 };
 
-const getProjectIcon = (iconID) => {
-    switch (iconID) {
-        case 1: return <FiFolder />;
-        case 2: return <FiCodesandbox />;
-        default: return <FiCodesandbox />;
-    }
-};
-
-export const BacklogHeader = ({ selectedProject, loading, onCreateTask, onCreateSprint, isAdmin = false }) => (
-    <Card className="mb-4">
-        <CardHeader>
-            <div className={`flex items-center justify-between ${loading ? 'animate-pulse' : ''}`}>
-                <CardTitle>
-                    {loading ? (
-                        <div className="flex items-center">
-                            <SkeletonCircle size="md" />
-                            <div className="ml-3 w-48">
-                                <SkeletonText lines={1} />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex items-center">
-                            <div
-                                className="w-12 h-12 rounded-xl grid place-items-center text-white"
-                                style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
-                            >
-                                {getProjectIcon(selectedProject?.icon)}
-                            </div>
-                            <h1 className="text-2xl font-bold px-3">Project Backlog</h1>
-                        </div>
-                    )}
-                </CardTitle>
-
-                {!loading && isAdmin && (
-                    <div className="flex space-x-2">
-                        <Button
-                            variant="default"
-                            onClick={onCreateSprint}
-                        >
-                            Create Sprint
-                        </Button>
-                        <Button
-                            variant="remarked"
-                            onClick={onCreateTask}
-                        >
-                            Add Task
-                        </Button>
-                    </div>
-                )}
-            </div>
-        </CardHeader>
-    </Card>
-);
-
 export const TaskCard = ({ task, onSelect }) => {
     return (
         <Card

@@ -18,14 +18,6 @@ import {useDeveloperCharts} from "../../hooks/useDeveloperCharts";
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
-const getProjectIcon = (iconID) => {
-    switch (iconID) {
-        case 1: return <FiFolder />;
-        case 2: return <FiCodesandbox />;
-        default: return <FiCodesandbox />;
-    }
-};
-
 export const ErrorState = ({ error }) => (
     <div className="p-6 flex flex-col items-center justify-center h-full">
         <Card className="w-full max-w-md text-center">
@@ -161,45 +153,6 @@ export const PDFButton = ({ selectedProject }) => {
         </div>
     );
 };
-
-export const ProjectHeader = ({ selectedProject, loading, isAdmin = false }) => (
-    <Card className="mb-4 sm:mb-6">
-        <CardHeader className="px-3 py-3 sm:px-6 sm:py-4">
-            <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${loading ? 'animate-pulse' : ''}`}>
-                <CardTitle className="w-full sm:w-auto">
-                    {loading ? (
-                        <div className="flex items-center">
-                            <SkeletonCircle size="md" />
-                            <div className="ml-3 w-32 sm:w-48">
-                                <SkeletonText lines={1} />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex items-center w-full">
-                            <div
-                                className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl grid place-items-center text-white flex-shrink-0"
-                                style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
-                            >
-                                {getProjectIcon(selectedProject?.icon)}
-                            </div>
-                            <h1 className="text-xl sm:text-2xl font-bold sm:px-3 ml-3 sm:ml-0 break-words max-w-full truncate">
-                                {selectedProject?.projectName}
-                            </h1>
-                        </div>
-                    )}
-                </CardTitle>
-
-                {!loading && isAdmin && (
-                    <div className="mt-2 sm:mt-0">
-                        <PDFButton
-                            selectedProject={selectedProject}
-                        />
-                    </div>
-                )}
-            </div>
-        </CardHeader>
-    </Card>
-);
 
 export const DashboardHeader = ({
                                     loading,

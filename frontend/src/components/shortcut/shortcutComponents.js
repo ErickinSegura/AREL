@@ -14,18 +14,6 @@ import {
     FiStar
 } from "react-icons/fi";
 
-const getProjectIcon = (iconID) => {
-    switch (iconID) {
-        case 1: return <FiFolder size={24} />;
-        case 2: return <FiCodesandbox size={24} />;
-        case 3: return <FiCode size={24} />;
-        case 4: return <FiFileText size={24} />;
-        case 5: return <FiStar size={24} />;
-        case 6: return <FiBookmark size={24} />;
-        default: return <FiFolder size={24} />;
-    }
-};
-
 export const NoProjectState = ({ title, message }) => (
     <div className="p-6 flex flex-col items-center justify-center h-full">
         <Card className="w-full max-w-md text-center">
@@ -68,50 +56,6 @@ export const NoProjectShortcuts = () => (
             </CardContent>
         </Card>
     </div>
-);
-
-export const ShortcutsHeader = ({ selectedProject, loading, onAddShortcut }) => (
-    <Card className="mb-6">
-        <CardHeader>
-            <div className={`flex items-center justify-between ${loading ? 'animate-pulse' : ''}`}>
-                <CardTitle>
-                    {loading ? (
-                        <div className="flex items-center">
-                            <SkeletonCircle size="md" />
-                            <div className="ml-3 w-48">
-                                <SkeletonText lines={1} />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex items-center">
-                            <div
-                                className="w-12 h-12 rounded-xl grid place-items-center text-white"
-                                style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
-                            >
-                                {getProjectIcon(selectedProject?.icon)}
-                            </div>
-                            <h1 className="text-2xl font-bold px-3">
-                                Project Shortcuts
-                            </h1>
-                        </div>
-                    )}
-                </CardTitle>
-
-                {!loading && (
-                    <div className="flex space-x-2">
-                        <Button
-                            variant="remarked"
-                            onClick={onAddShortcut}
-                            className="flex items-center gap-2"
-                        >
-                            <Plus size={16} />
-                            Add Shortcut
-                        </Button>
-                    </div>
-                )}
-            </div>
-        </CardHeader>
-    </Card>
 );
 
 const getDomainFromUrl = (url) => {

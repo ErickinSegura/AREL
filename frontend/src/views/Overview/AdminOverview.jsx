@@ -4,16 +4,16 @@ import { greeting } from '../../lib/greetings';
 import {
     ErrorState,
     NoProjectState,
-    ProjectHeader,
     DashboardHeader,
     SprintSummaryCard,
     SprintGoalCard,
     TeamPerformanceCard,
     SprintHoursChart,
     DeveloperHoursChart,
-    DeveloperTasksChart, LogsCard
+    DeveloperTasksChart, LogsCard, PDFButton
 } from '../../components/overview/overviewComponents';
 import {useLogs} from "../../hooks/useLogs";
+import {Header} from "../../lib/ui/Header";
 
 const AdminOverview = () => {
     const {
@@ -49,11 +49,17 @@ const AdminOverview = () => {
 
     return (
         <div className="container mx-auto px-4 py-6">
-            <ProjectHeader
+            <Header
+                title={selectedProject.projectName}
                 selectedProject={selectedProject}
                 loading={loading}
-                getProjectIcon={getProjectIcon(selectedProject?.icon? selectedProject.icon : "")}
-                isAdmin={true}
+                props={
+                    <div className="mt-2 sm:mt-0">
+                        <PDFButton
+                            selectedProject={selectedProject}
+                        />
+                    </div>
+                }
             />
 
             <DashboardHeader

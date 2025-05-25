@@ -16,7 +16,7 @@ export const UserHeader = () => (
                         <div className="w-12 h-12 rounded-xl bg-oracleRed grid place-items-center text-white">
                             <UserCircle size={24} />
                         </div>
-                        <h1 className="text-2xl font-bold px-3">Account Settings</h1>
+                        <h1 className="text-2xl font-bold px-3">Account <span className="text-oracleRed">Settings</span></h1>
                     </div>
                 </CardTitle>
             </div>

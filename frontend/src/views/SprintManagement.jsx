@@ -10,11 +10,11 @@ import {SkeletonCard, SkeletonText} from '../lib/ui/Skeleton';
 import {
     ActualHoursModal,
     SprintSelector,
-    SprintsHeader,
     TaskColumn
 } from '../components/sprintManagement/sprintManagementComponents';
 import {FiCheckCircle, FiClock, FiList} from "react-icons/fi";
 import {useProjectUsers} from "../hooks/useProjectUsers";
+import {Header} from "../lib/ui/Header";
 
 const SprintManagement = () => {
     const {
@@ -98,12 +98,12 @@ const SprintManagement = () => {
                     </div>
                 )}
 
-                <SprintsHeader
+                <Header
+                    title="Project"
+                    marked={"Sprints"}
                     selectedProject={selectedProject}
                     loading={loading}
-                    onCreateTask={() => {}}
-                    onCreateSprint={() => {}}
-                    selector = {
+                    props = {
                         <SprintSelector
                             sprints={sprints || []}
                             selectedSprint={selectedSprint}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useBacklog } from '../hooks/useBacklog';
 import { useSprints } from '../hooks/useSprints';
-import { TaskCard, CreateTaskModal, TaskDetailModal, BacklogHeader, SortControls, CreateSprintModal } from '../components/backlog/backlogComponents';
+import { TaskCard, CreateTaskModal, TaskDetailModal, SortControls, CreateSprintModal } from '../components/backlog/backlogComponents';
 import { NoProjectState } from "../components/overview/overviewComponents";
 import { SkeletonCard, SkeletonText } from '../lib/ui/Skeleton';
 import { Search } from 'lucide-react';
@@ -9,6 +9,8 @@ import { useProjects } from "../hooks/useProjects";
 import { Input } from "../lib/ui/Input";
 import { useAuth } from "../contexts/AuthContext";
 import { useProjectUsers } from "../hooks/useProjectUsers";
+import {Header} from "../lib/ui/Header";
+import {Button} from "../lib/ui/Button";
 
 
 const Backlog = () => {
@@ -137,6 +139,8 @@ const Backlog = () => {
         );
     }
 
+    const isAdmin = user && (user.userLevel === 1 || user.userLevel === 3);
+
     return (
         <div className="container mx-auto px-4 py-6">
             {error && (
@@ -145,12 +149,29 @@ const Backlog = () => {
                 </div>
             )}
 
-            <BacklogHeader
+            <Header
+                title={"Project"}
+                marked={"Backlog"}
                 selectedProject={selectedProject}
                 loading={isLoading}
-                onCreateTask={handleOpenCreateModal}
-                onCreateSprint={handleOpenCreateSprintModal}
-                isAdmin={user && (user.userLevel === 1 || user.userLevel === 3)}
+                props={
+                    isAdmin && (
+                        <div className="flex space-x-2">
+                            <Button
+                                variant="default"
+                                onClick={handleOpenCreateSprintModal}
+                            >
+                                Create Sprint
+                            </Button>
+                            <Button
+                                variant="remarked"
+                                onClick={handleOpenCreateModal}
+                            >
+                                Add Task
+                            </Button>
+                        </div>
+                    )
+                }
             />
 
             <div className="mb-6">

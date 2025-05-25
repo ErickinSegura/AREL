@@ -30,7 +30,7 @@ export const UsersHeader = ({ loading, onAddUser }) => (
                             >
                                 <UserCircle size={24} />
                             </div>
-                            <h1 className="text-2xl font-bold px-3  ">Team Members</h1>
+                            <h1 className="text-2xl font-bold px-3  ">Users</h1>
                         </div>
                     )}
                 </CardTitle>

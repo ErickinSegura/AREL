@@ -5,13 +5,13 @@ import { greeting } from '../../lib/greetings';
 import {
     ErrorState,
     NoProjectState,
-    ProjectHeader,
     DashboardHeader,
     SprintSummaryCard,
     DevStreakCard,
-    UserPerformanceItem
+    UserPerformanceItem, PDFButton
 } from '../../components/overview/overviewComponents';
 import { FiArrowUp } from 'react-icons/fi';
+import {Header} from "../../lib/ui/Header";
 
 const DeveloperOverview = () => {
     const {
@@ -25,7 +25,6 @@ const DeveloperOverview = () => {
         setSelectedSprintNumber,
         showSprintDropdown,
         formatDate,
-        getProjectIcon,
         toggleSprintDropdown,
         closeSprintDropdown,
         currentUserPerformance,
@@ -48,10 +47,10 @@ const DeveloperOverview = () => {
 
     return (
         <div className="container mx-auto px-4 py-6">
-            <ProjectHeader
+            <Header
+                title={selectedProject.projectName}
                 selectedProject={selectedProject}
                 loading={loading}
-                getProjectIcon={getProjectIcon(selectedProject?.icon?.iconName)}
             />
 
             <DashboardHeader

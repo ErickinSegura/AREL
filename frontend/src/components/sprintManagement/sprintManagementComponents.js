@@ -17,7 +17,6 @@ import {
     ModalClose
 } from '../../lib/ui/Modal';
 import {FiCodesandbox, FiFolder} from "react-icons/fi";
-import {useProjectUsers} from "../../hooks/useProjectUsers";
 import {AvatarRenderer} from "../../lib/AvatarRenderer";
 
 const priorityColors = {
@@ -38,49 +37,6 @@ const categoryLabels = {
     1: 'Web',
     2: 'Bot'
 };
-
-const getProjectIcon = (iconID) => {
-    switch (iconID) {
-        case 1: return <FiFolder />;
-        case 2: return <FiCodesandbox />;
-        default: return <FiCodesandbox />;
-    }
-};
-
-export const SprintsHeader = ({ selectedProject, loading, selector }) => (
-    <Card className="mb-6">
-        <CardHeader>
-            <div className={`flex items-center justify-between ${loading ? 'animate-pulse' : ''}`}>
-                <CardTitle>
-                    {loading ? (
-                        <div className="flex items-center">
-                            <SkeletonCircle size="md" />
-                            <div className="ml-3 w-48">
-                                <SkeletonText lines={1} />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex items-center">
-                            <div
-                                className="w-12 h-12 rounded-xl grid place-items-center text-white"
-                                style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
-                            >
-                                {getProjectIcon(selectedProject?.icon)}
-                            </div>
-                            <h1 className="text-2xl font-bold px-3">Project Sprints</h1>
-                        </div>
-                    )}
-                </CardTitle>
-
-                {!loading && (
-                    <div className="flex space-x-2">
-                        {selector}
-                    </div>
-                )}
-            </div>
-        </CardHeader>
-    </Card>
-);
 
 export const ActualHoursModal = ({ isOpen, onClose, taskId, onSubmit, loading }) => {
     const [actualHours, setActualHours] = useState('');
