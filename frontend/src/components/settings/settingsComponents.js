@@ -21,7 +21,9 @@ import {
     FiSearch,
     FiCheck,
     FiUserX,
-    FiUsers, FiTag
+    FiUsers,
+    FiTag,
+    FiEdit3
 } from 'react-icons/fi';
 import { FiCheck as Check } from 'react-icons/fi';
 import { Skeleton, SkeletonText, SkeletonCircle } from '../../lib/ui/Skeleton';
@@ -510,6 +512,10 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
         isDeleteModalOpen,
         userToDelete,
         userRoles,
+        isEditRoleModalOpen,
+        userToEditRole,
+        newRole,
+        updatingRole,
         handleSearchChange,
         handleOpenAddUserModal,
         handleCloseAddUserModal,
@@ -519,7 +525,11 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
         handleCloseDeleteModal,
         handleConfirmRemoveUser,
         filterAvailableUsers,
-        handleUserRoleChange
+        handleUserRoleChange,
+        handleOpenEditRoleModal,
+        handleCloseEditRoleModal,
+        handleUpdateUserRole,
+        setNewRole
     } = useProjectUsers(projectId);
 
     const UserListSkeleton = () => (
@@ -619,21 +629,36 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                                                 </div>
                                                 <div>
                                                     <h3 className="font-medium">{user.firstName} {user.lastName}</h3>
-                                                    <p className="text-sm text-gray-500">{user.role}</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-sm text-gray-500">{user.role}</p>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <Button
-                                                className="text-red-500 hover:bg-red-50 hover:border-red-200"
-                                                onClick={() => handleOpenDeleteModal(user)}
-                                                disabled={removingUserId === user.id}
-                                            >
-                                                {removingUserId === user.id ? (
-                                                    <FiLoader className="animate-spin" size={16} />
-                                                ) : (
-                                                    <FiUserX size={16} />
-                                                )}
-                                            </Button>
+                                            <div className="flex items-center gap-2">
+                                                <Button
+                                                    onClick={() => handleOpenEditRoleModal(user)}
+                                                    disabled={removingUserId === user.id}
+                                                >
+                                                    {removingUserId === user.id ? (
+                                                        <FiLoader className="animate-spin" size={16} />
+                                                    ) : (
+                                                        <FiEdit3 size={16} />
+                                                    )}
+                                                </Button>
+                                                <Button
+                                                    className="text-red-500 hover:bg-red-50 hover:border-red-200"
+                                                    onClick={() => handleOpenDeleteModal(user)}
+                                                    disabled={removingUserId === user.id}
+                                                >
+                                                    {removingUserId === user.id ? (
+                                                        <FiLoader className="animate-spin" size={16} />
+                                                    ) : (
+                                                        <FiUserX size={16} />
+                                                    )}
+                                                </Button>
+                                            </div>
                                         </div>
+
                                     ))}
                                 </div>
                             )}
@@ -766,6 +791,76 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                             <>
                                 <FiPlus size={16} />
                                 <span className="w-4/5">Add {selectedUsers.length} {selectedUsers.length === 1 ? 'User' : 'Users'}</span>
+                            </>
+                        )}
+                    </Button>
+                </ModalFooter>
+            </Modal>
+
+            {/* Edit Role Modal */}
+            <Modal isOpen={isEditRoleModalOpen} onClose={handleCloseEditRoleModal}>
+                <ModalClose onClick={handleCloseEditRoleModal} />
+                <ModalHeader>
+                    <ModalTitle className="flex items-center gap-2">
+                        <FiEdit3 /> Edit User Role
+                    </ModalTitle>
+                    <ModalDescription>
+                        Update the role for this user in the project
+                    </ModalDescription>
+                </ModalHeader>
+                <ModalContent>
+                    <div className="space-y-4">
+                        {userToEditRole && (
+                            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                                    <div className="w-16 aspect-square rounded-xl overflow-hidden">
+                                        <AvatarRenderer config={userToEditRole.avatar} />
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 className="font-medium">{userToEditRole.firstName} {userToEditRole.lastName}</h3>
+                                    <p className="text-sm text-gray-500">{userToEditRole.email}</p>
+                                    <p className="text-xs text-gray-400">Current role: {userToEditRole.role}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        <div>
+                            <label htmlFor="newRole" className="block text-sm font-medium text-gray-700 mb-2">
+                                New Role
+                            </label>
+                            <Input
+                                id="newRole"
+                                placeholder="Enter new role (e.g., admin, member, viewer, lead)"
+                                value={newRole}
+                                onChange={(e) => setNewRole(e.target.value)}
+                                className="w-full"
+                            />
+                        </div>
+                    </div>
+                </ModalContent>
+                <ModalFooter>
+                    <Button
+                        variant="default"
+                        onClick={handleCloseEditRoleModal}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="remarked"
+                        onClick={handleUpdateUserRole}
+                        disabled={!newRole.trim() || updatingRole}
+                        className="flex items-center gap-2"
+                    >
+                        {updatingRole ? (
+                            <>
+                                <FiLoader className="animate-spin" size={16} />
+                                <span>Updating...</span>
+                            </>
+                        ) : (
+                            <>
+                                <FiEdit3 size={16} />
+                                <span>Update Role</span>
                             </>
                         )}
                     </Button>
@@ -1082,13 +1177,13 @@ export const CategoryItem = ({ category, onDelete, onUpdate }) => {
                             variant="default"
                             onClick={() => setIsEditing(true)}
                         >
-                            Edit
+                            <FiEdit3 size={16} />
                         </Button>
                         <Button
                             variant="danger"
                             onClick={() => onDelete(category.id)}
                         >
-                            Delete
+                            <FiTrash2 size={16} />
                         </Button>
                     </>
                 )}

@@ -9,14 +9,18 @@ export const useProjectUsers = (projectId) => {
     const [error, setError] = useState(null);
     const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
     const [availableUsers, setAvailableUsers] = useState([]);
-    const [allAvailableUsers, setAllAvailableUsers] = useState([]); // Para mantener la lista completa
+    const [allAvailableUsers, setAllAvailableUsers] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [addingUsers, setAddingUsers] = useState(false);
     const [removingUserId, setRemovingUserId] = useState(null);
     const [loadingAvailableUsers, setLoadingAvailableUsers] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
-    const [userRoles, setUserRoles] = useState({}); // Para almacenar el rol de cada usuario seleccionado
+    const [userRoles, setUserRoles] = useState({});
+    const [isEditRoleModalOpen, setIsEditRoleModalOpen] = useState(false);
+    const [userToEditRole, setUserToEditRole] = useState(null);
+    const [newRole, setNewRole] = useState('');
+    const [updatingRole, setUpdatingRole] = useState(false);
 
     useEffect(() => {
         const fetchProjectUsers = async () => {
@@ -167,6 +171,42 @@ export const useProjectUsers = (projectId) => {
         setUserRoles(prev => ({ ...prev, [userId]: role }));
     };
 
+    const handleOpenEditRoleModal = (user) => {
+        setUserToEditRole(user);
+        setNewRole(user.role || '');
+        setIsEditRoleModalOpen(true);
+    };
+
+    const handleCloseEditRoleModal = () => {
+        setIsEditRoleModalOpen(false);
+        setUserToEditRole(null);
+        setNewRole('');
+    };
+
+    const handleUpdateUserRole = async () => {
+        if (!userToEditRole || !newRole.trim()) return;
+
+        setUpdatingRole(true);
+        try {
+            await UserService.updateUserProjectRole(userToEditRole.userProjectId, newRole.trim());
+
+            setUsers(prevUsers =>
+                prevUsers.map(user =>
+                    user.userProjectId === userToEditRole.userProjectId
+                        ? { ...user, role: newRole.trim() }
+                        : user
+                )
+            );
+
+            setUpdatingRole(false);
+            handleCloseEditRoleModal();
+        } catch (err) {
+            console.error('Error updating user role:', err);
+            setError(err.message || "Failed to update user role");
+            setUpdatingRole(false);
+        }
+    };
+
     return {
         users,
         filteredUsers,
@@ -182,6 +222,10 @@ export const useProjectUsers = (projectId) => {
         isDeleteModalOpen,
         userToDelete,
         userRoles,
+        isEditRoleModalOpen,
+        userToEditRole,
+        newRole,
+        updatingRole,
         handleSearchChange,
         handleOpenAddUserModal,
         handleCloseAddUserModal,
@@ -191,6 +235,10 @@ export const useProjectUsers = (projectId) => {
         handleCloseDeleteModal,
         handleConfirmRemoveUser,
         filterAvailableUsers,
-        handleUserRoleChange
+        handleUserRoleChange,
+        handleOpenEditRoleModal,
+        handleCloseEditRoleModal,
+        handleUpdateUserRole,
+        setNewRole
     };
 };
