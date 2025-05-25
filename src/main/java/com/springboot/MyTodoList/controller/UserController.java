@@ -15,7 +15,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
     @GetMapping(value = "/userlist/by-level")
     public ResponseEntity<List<User>> getUsersByLevel(@RequestParam(required = false) List<Integer> levelIds){
         try {
@@ -29,6 +28,24 @@ public class UserController {
             }
 
             return new ResponseEntity<>(allUsers, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "/userlist/available")
+    public ResponseEntity<List<User>> getAvailableUsersByLevel(@RequestParam(required = false) List<Integer> levelIds){
+        try {
+            List<User> availableUsers = userService.findAvailableUsers();
+
+            if (levelIds != null && !levelIds.isEmpty()) {
+                List<User> filteredUsers = availableUsers.stream()
+                        .filter(user -> levelIds.contains(user.getUserLevel().getID()))
+                        .collect(Collectors.toList());
+                return new ResponseEntity<>(filteredUsers, HttpStatus.OK);
+            }
+
+            return new ResponseEntity<>(availableUsers, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }

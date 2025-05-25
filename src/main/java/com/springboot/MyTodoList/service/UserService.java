@@ -2,6 +2,7 @@ package com.springboot.MyTodoList.service;
 
 import com.springboot.MyTodoList.model.User;
 import com.springboot.MyTodoList.repository.UserRepository;
+import com.springboot.MyTodoList.repository.UserProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,16 +10,36 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserProjectRepository userProjectRepository;
+
     public List<User> findAll(){
         List<User> users = userRepository.findAll();
         return users;
     }
+
+    public List<User> findAvailableUsers(){
+        List<User> allUsers = userRepository.findAll();
+
+        List<Integer> assignedUserIds = userProjectRepository.findAll()
+                .stream()
+                .map(userProject -> userProject.getUser().getId())
+                .distinct()
+                .collect(Collectors.toList());
+
+        return allUsers.stream()
+                .filter(user -> !assignedUserIds.contains(user.getId()))
+                .collect(Collectors.toList());
+    }
+
     public ResponseEntity<User> getItemById(int id){
         Optional<User> userData = userRepository.findById(id);
         if (userData.isPresent()){
@@ -27,6 +48,7 @@ public class UserService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
     public ResponseEntity<User> getUserByTelegramUsername(String telegramUsername){
         Optional<User> userData = userRepository.findByTelegramUsername(telegramUsername);
         if (userData.isPresent()){
@@ -84,5 +106,4 @@ public class UserService {
             return null;
         }
     }
-
 }
