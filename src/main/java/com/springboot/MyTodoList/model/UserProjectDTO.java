@@ -2,7 +2,7 @@ package com.springboot.MyTodoList.model;
 
 public class UserProjectDTO {
     private int userProjectId;
-    private int userId;
+    private int id;
     private String firstName;
     private String lastName;
     private String email;
@@ -17,11 +17,11 @@ public class UserProjectDTO {
     }
 
     // Constructor completo
-    public UserProjectDTO(int userProjectId, int userId, String firstName, String lastName,
+    public UserProjectDTO(int userProjectId, int id, String firstName, String lastName,
                           String email, String telegramUsername, String avatar, String role,
                           int projectId, String projectName) {
         this.userProjectId = userProjectId;
-        this.userId = userId;
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -41,12 +41,12 @@ public class UserProjectDTO {
         this.userProjectId = userProjectId;
     }
 
-    public int getUserId() {
-        return userId;
+    public int getid() {
+        return id;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setid(int id) {
+        this.id = id;
     }
 
     public String getFirstName() {
