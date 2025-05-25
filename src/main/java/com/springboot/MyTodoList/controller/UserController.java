@@ -40,7 +40,7 @@ public class UserController {
 
             if (levelIds != null && !levelIds.isEmpty()) {
                 List<User> filteredUsers = availableUsers.stream()
-                        .filter(user -> levelIds.contains(user.getUserLevel().getID()))
+                        .filter(user -> user.getUserLevel() != null && levelIds.contains(user.getUserLevel().getID()))
                         .collect(Collectors.toList());
                 return new ResponseEntity<>(filteredUsers, HttpStatus.OK);
             }

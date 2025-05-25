@@ -51,9 +51,9 @@ export const useProjectUsers = (projectId) => {
 
     const handleOpenAddUserModal = async () => {
         try {
-            const allUsers = await UserService.getUsersByLevel([1, 2]);
+            const allUsers = await UserService.getAvailableUsers([1, 2]);
 
-            const projectUserIds = users.map(user => user.id);
+            const projectUserIds = users.map(user => user.userId);
             const usersToAdd = allUsers.filter(user => !projectUserIds.includes(user.id));
 
             setAvailableUsers(usersToAdd);
@@ -100,7 +100,7 @@ export const useProjectUsers = (projectId) => {
         try {
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            setUsers(users.filter(user => user.id !== userId));
+            setUsers(users.filter(user => user.userId !== userId));
             setRemovingUserId(null);
         } catch (err) {
             setError("Failed to remove user from project");

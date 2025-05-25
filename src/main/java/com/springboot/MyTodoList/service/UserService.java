@@ -29,14 +29,25 @@ public class UserService {
     public List<User> findAvailableUsers(){
         List<User> allUsers = userRepository.findAll();
 
+        // Obtener los IDs de usuarios que ya están asignados a proyectos
         List<Integer> assignedUserIds = userProjectRepository.findAll()
                 .stream()
                 .map(userProject -> userProject.getUser().getId())
                 .distinct()
                 .collect(Collectors.toList());
 
+        // Filtrar usuarios según las reglas:
+        // - Level 1: Siempre incluir
+        // - Level 2: Solo si no están asignados
+        // - Otros levels: Solo si no están asignados
         return allUsers.stream()
-                .filter(user -> !assignedUserIds.contains(user.getId()))
+                .filter(user -> {
+                    if (user.getUserLevel() != null && user.getUserLevel().getID() == 1) {
+                        return true; // Siempre incluir usuarios level 1
+                    } else {
+                        return !assignedUserIds.contains(user.getId()); // Para level 2 y otros, solo si no están asignados
+                    }
+                })
                 .collect(Collectors.toList());
     }
 

@@ -10,6 +10,15 @@ export const UserService = {
         return await response.json();
     },
 
+    async getAvailableUsers(levelIds) {
+        const queryString = Array.isArray(levelIds)
+            ? levelIds.map(id => `levelIds=${id}`).join('&')
+            : `levelIds=${levelIds}`;
+
+        const response = await fetchWithAuth(`/userlist/available?${queryString}`);
+        return await response.json();
+    },
+
     async getUsersByProject(projectID) {
         const response = await fetchWithAuth(`/userlist/${projectID}/users`);
         return await response.json()
