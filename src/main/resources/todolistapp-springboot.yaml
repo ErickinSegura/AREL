@@ -4,6 +4,7 @@ metadata:
   name: todolistapp-springboot-service
   annotations:
     oci.oraclecloud.com/loadbalancer-policy: "IP_HASH"
+    oci.oraclecloud.com/public-ip: "ocid1.publicip.oc1.mx-queretaro-1.amaaaaaa3kp2rhiautn6rcsyu67tpuzg2g4tovmoxphz7thb2ppapxdh6gga"
 spec:
   type: LoadBalancer
   externalTrafficPolicy: Local
