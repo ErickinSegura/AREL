@@ -27,9 +27,11 @@ const DeveloperOverview = () => {
         formatDate,
         toggleSprintDropdown,
         closeSprintDropdown,
-        currentUserPerformance,
+        userPerformances,
         calculateProgressArc
     } = useOverview();
+
+    const currentUserPerformance = userPerformances.find(perf => perf.sprintNumber === selectedSprintNumber) || null;
 
     const [currentGreeting] = React.useState(greeting());
 

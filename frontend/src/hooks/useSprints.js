@@ -154,9 +154,7 @@ export const useSprints = (isBacklog = true) => {
 
                 const taskUpdatePromises = selectedTasks.map(task =>
                     BacklogService.updateTask(task.id, {
-                        ...task,
                         sprint: sprintId,
-                        estimatedHours: task.estimatedHours,
                         assignedTo: task.assignedTo
                     })
                 );

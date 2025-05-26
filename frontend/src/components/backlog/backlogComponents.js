@@ -1,40 +1,32 @@
-import React, {useEffect, useState, useMemo} from 'react';
-import {Card, CardContent, CardHeader, CardTitle} from '../../lib/ui/Card';
+import React, {useEffect, useState} from 'react';
+import {Card, CardContent} from '../../lib/ui/Card';
 import {
-    Check,
-    Clock,
-    Tag,
-    User,
-    CalendarDays,
-    AlertTriangle,
-    Calendar,
-    Loader2,
-    Inbox,
-    CheckCircle,
-    Circle,
     AlertCircle,
-    Save,
-    FileText,
+    AlertTriangle,
     AlignLeft,
-    Flag,
+    ArrowDownUp,
+    Book,
+    Calendar,
+    CalendarDays,
+    Check,
+    CheckCircle,
     ChevronDown,
     ChevronUp,
-    ArrowDownUp,
-    Book
+    Circle,
+    Clock,
+    FileText,
+    Flag,
+    Inbox,
+    Loader2,
+    Save,
+    Tag,
+    User
 } from 'lucide-react';
-import {
-    Modal,
-    ModalHeader,
-    ModalTitle,
-    ModalContent,
-    ModalFooter,
-    ModalClose
-} from '../../lib/ui/Modal';
-import { Button } from '../../lib/ui/Button';
-import { Input } from '../../lib/ui/Input';
-import {SkeletonCircle, SkeletonText} from '../../lib/ui/Skeleton';
-import {FiCodesandbox, FiFolder} from "react-icons/fi";
-import { useSprints } from '../../hooks/useSprints';
+import {Modal, ModalClose, ModalContent, ModalFooter, ModalHeader, ModalTitle} from '../../lib/ui/Modal';
+import {Button} from '../../lib/ui/Button';
+import {Input} from '../../lib/ui/Input';
+import {SkeletonText} from '../../lib/ui/Skeleton';
+import {useSprints} from '../../hooks/useSprints';
 import {AvatarRenderer} from "../../lib/AvatarRenderer";
 
 const priorityColors = {
@@ -64,10 +56,6 @@ const stateLabels = {
     3: 'Done'
 };
 
-const categoryLabels = {
-    1: 'Web',
-    2: 'Bot'
-};
 
 const stateColors = {
     1: 'bg-gray-100 text-gray-800',
@@ -149,13 +137,18 @@ export const TaskDetailModal = ({
         priority: task?.priority || 2,
         state: task?.state || 1,
         assignedTo: task?.assignedTo || '',
-        category: task?.category || 1,
+        category: task?.category,
         sprint: null
     });
 
-
     useEffect(() => {
-        if (task) {
+        if (task && categories) {
+            const categoryExists = categories.find(cat => cat.id === task.category);
+            const finalCategory = categoryExists ? task.category : (categories.length > 0 ? categories[0].id : null);
+
+            if (!categoryExists && categories.length > 0) {
+            }
+
             setFormData({
                 title: task.title || '',
                 description: task.description || '',
@@ -164,20 +157,25 @@ export const TaskDetailModal = ({
                 priority: task.priority || 2,
                 state: task.state || 1,
                 assignedTo: task.assignedTo || '',
-                category: task.category || 1,
+                category: finalCategory,
                 sprint: task.sprint || null
             });
         }
-    }, [task]);
+    }, [task, categories]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: name === 'estimatedHours' || name === 'priority' || name === 'state' || name === 'type' || name === 'category' || name === 'assignedTo'
-                ? Number(value)
-                : value
-        }));
+
+        setFormData(prev => {
+            return {
+                ...prev,
+                [name]: name === 'estimatedHours' || name === 'priority' || name === 'state' || name === 'type' || name === 'assignedTo'
+                    ? Number(value)
+                    : name === 'category'
+                        ? value // Mantener category como string o el tipo original
+                        : value
+            };
+        });
     };
 
     const handleSubmit = () => {
@@ -188,7 +186,7 @@ export const TaskDetailModal = ({
     const renderAssignedUserContent = () => {
         if (!task.assignedTo) return;
 
-        const assignedUser = users.find(u => u.id === task.assignedTo);
+        const assignedUser = users.find(u => u.userProjectId === task.assignedTo);
         if (assignedUser) {
             return `${assignedUser.firstName} ${assignedUser.lastName}`;
         }
@@ -316,7 +314,7 @@ export const TaskDetailModal = ({
                                 >
                                     <option value="">Unassigned</option>
                                     {users.map(user => (
-                                        <option key={user.id} value={user.id}>
+                                        <option key={user.userProjectId} value={user.userProjectId}>
                                             {user.firstName} {user.lastName}
                                         </option>
                                     ))}
@@ -373,7 +371,6 @@ export const TaskDetailModal = ({
                                     </div>
                                 </div>
                             )}
-
 
                             {task.realHours && (
                                 <div className="flex items-center">
@@ -610,8 +607,6 @@ export const SortControls = ({ currentSort, onSortChange }) => {
     const sortOptions = [
         { value: 'priority-desc', label: 'Priority (High → Low)' },
         { value: 'priority-asc', label: 'Priority (Low → High)' },
-        { value: 'category', label: 'Category' },
-        { value: 'state', label: 'State' }
     ];
 
     return (
@@ -780,18 +775,11 @@ export const CreateSprintModal = ({ isOpen, onClose, users, availableTasks = [] 
             return newValidation;
         });
 
-        // Cerrar dropdown después de seleccionar
         toggleDropdown(taskId, false);
     };
 
-    // Ordenar las tareas disponibles por prioridad (más alta primero)
-    const sortedAvailableTasks = useMemo(() => {
-        return [...availableTasks].sort((a, b) => b.priority - a.priority);
-    }, [availableTasks]);
-
     const hasUnassignedTasks = Object.keys(taskValidation).length > 0;
 
-    // Métodos para el dropdown mejorado
     const toggleDropdown = (taskId, forceState = null) => {
         setOpenDropdowns(prev => {
             const newState = { ...prev };
@@ -804,12 +792,6 @@ export const CreateSprintModal = ({ isOpen, onClose, users, availableTasks = [] 
         });
     };
 
-    const handleSearchChange = (taskId, value) => {
-        setSearchQueries(prev => ({
-            ...prev,
-            [taskId]: value.toLowerCase()
-        }));
-    };
 
     const getFilteredUsers = (taskId) => {
         const query = searchQueries[taskId] || '';
@@ -1006,7 +988,7 @@ export const CreateSprintModal = ({ isOpen, onClose, users, availableTasks = [] 
                                                         {task.assignedTo ? (
                                                             <>
                                                                 <div className="h-6 w-6 rounded-full bg-oracleRed/10 text-oracleRed flex items-center justify-center mr-2 flex-shrink-0">
-                                                                    <AvatarRenderer config={users.find(u => u.id === task.assignedTo)?.avatar} />
+                                                                    <AvatarRenderer config={users.find(u => u.userProjectId === task.assignedTo)?.avatar} />
                                                                 </div>
                                                                 <span className="truncate">{getAssignedUserName(task.id)}</span>
                                                             </>
@@ -1026,20 +1008,20 @@ export const CreateSprintModal = ({ isOpen, onClose, users, availableTasks = [] 
                                                             {getFilteredUsers(task.id).length > 0 ? (
                                                                 getFilteredUsers(task.id).map(user => (
                                                                     <div
-                                                                        key={user.id}
+                                                                        key={user.userProjectId}
                                                                         className={`px-3 py-2 hover:bg-gray-100 flex items-center text-sm cursor-pointer ${
-                                                                            task.assignedTo === user.id ? 'bg-oracleRed/10' : ''
+                                                                            task.assignedTo === user.userProjectId ? 'bg-oracleRed/10' : ''
                                                                         }`}
                                                                         onClick={(e) => {
                                                                             e.stopPropagation();
-                                                                            handleUserAssignment(task.id, user.id);
+                                                                            handleUserAssignment(task.id, user.userProjectId);
                                                                         }}
                                                                     >
                                                                         <div className="h-6 w-6 rounded-full bg-gray-100 flex items-center justify-center mr-2">
                                                                             <AvatarRenderer config={user.avatar} />
                                                                         </div>
                                                                         <span>{user.firstName} {user.lastName}</span>
-                                                                        {task.assignedTo === user.id && (
+                                                                        {task.assignedTo === user.userProjectId && (
                                                                             <Check size={16} className="ml-auto text-oracleRed" />
                                                                         )}
                                                                     </div>
