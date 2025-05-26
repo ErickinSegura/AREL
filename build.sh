@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export IMAGE_NAME=todolistapp-springboot
-export IMAGE_NAME_AI=arel-ai-service
+export IMAGE_NAME_AI=arel-py-ai-service
 export IMAGE_VERSION=0.1
 
 
