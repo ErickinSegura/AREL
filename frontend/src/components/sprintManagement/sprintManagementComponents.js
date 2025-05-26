@@ -1,12 +1,14 @@
 import React, {useEffect, useState, useRef} from 'react';
 import { useDrag, useDrop } from 'react-dnd';
-import {Card, CardContent, CardHeader, CardTitle} from '../../lib/ui/Card';
+import {Card, CardContent} from '../../lib/ui/Card';
 import { Button } from '../../lib/ui/Button';
 import { Input } from '../../lib/ui/Input';
-import {SkeletonCircle, SkeletonText} from '../../lib/ui/Skeleton';
+import {SkeletonText} from '../../lib/ui/Skeleton';
 import {Clock, Tag, CheckCircle, ArrowDownCircle, Loader2, User,} from 'lucide-react';
 import { FiChevronDown } from 'react-icons/fi';
 import { format } from 'date-fns';
+import {useCategory} from "../../hooks/useCategory";
+
 
 import {
     Modal,
@@ -16,7 +18,6 @@ import {
     ModalFooter,
     ModalClose
 } from '../../lib/ui/Modal';
-import {FiCodesandbox, FiFolder} from "react-icons/fi";
 import {AvatarRenderer} from "../../lib/AvatarRenderer";
 
 const priorityColors = {
@@ -33,10 +34,6 @@ const priorityLabels = {
     4: 'Critical'
 };
 
-const categoryLabels = {
-    1: 'Web',
-    2: 'Bot'
-};
 
 export const ActualHoursModal = ({ isOpen, onClose, taskId, onSubmit, loading }) => {
     const [actualHours, setActualHours] = useState('');
@@ -97,7 +94,7 @@ export const ActualHoursModal = ({ isOpen, onClose, taskId, onSubmit, loading })
     );
 };
 
-export const DraggableTaskCard = ({ task, onSelect, users, usersLoading }) => {
+export const DraggableTaskCard = ({ task, onSelect, users, usersLoading, categories }) => {
     const [{ isDragging }, dragRef] = useDrag(() => ({
         type: 'TASK',
         item: { id: task.id },
@@ -118,7 +115,14 @@ export const DraggableTaskCard = ({ task, onSelect, users, usersLoading }) => {
             return `${assignedUser.firstName} ${assignedUser.lastName}`;
         }
 
-        return "Usuario no encontrado";
+        return "User not found";
+    };
+
+    const getCategoryName = () => {
+        if (!task.category) return 'Unknown';
+
+        const category = categories.find(cat => cat.id === task.category);
+        return category ? category.name : 'Unknown';
     };
 
     return (
@@ -145,7 +149,7 @@ export const DraggableTaskCard = ({ task, onSelect, users, usersLoading }) => {
                     <div className="flex flex-wrap items-center gap-3 mt-3">
                         <div className="inline-flex items-center text-xs text-gray-600">
                             <Tag size={14} className="mr-1" />
-                            {categoryLabels[task.category] || 'Unknown'}
+                            {getCategoryName()}
                         </div>
 
                         <div className="inline-flex items-center text-xs text-gray-600">
@@ -199,6 +203,8 @@ export const TaskColumn = ({
         }),
     }));
 
+    const {categories} = useCategory();
+
     return (
         <div
             ref={dropRef}
@@ -223,7 +229,7 @@ export const TaskColumn = ({
                             key={task.id}
                             task={task}
                             onSelect={onTaskSelect}
-                            // Pasamos los datos de usuarios en lugar de volver a hacer la consulta
+                            categories={categories}
                             users={users}
                             usersLoading={usersLoading}
                             projectId={projectId}

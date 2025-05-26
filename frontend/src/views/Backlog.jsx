@@ -11,6 +11,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useProjectUsers } from "../hooks/useProjectUsers";
 import {Header} from "../lib/ui/Header";
 import {Button} from "../lib/ui/Button";
+import {useCategory} from "../hooks/useCategory";
 
 
 const Backlog = () => {
@@ -33,6 +34,8 @@ const Backlog = () => {
         validationError,
         resetTaskForm
     } = useBacklog();
+
+    const {categories} = useCategory();
 
     const {
         setCreateSprintModalOpen,
@@ -212,6 +215,7 @@ const Backlog = () => {
                                     key={task.id}
                                     task={task}
                                     onSelect={handleTaskSelect}
+                                    categories={categories}
                                 />
                             ))}
                         </div>
@@ -232,6 +236,7 @@ const Backlog = () => {
                     onDelete={handleTaskDeleteWrap}
                     loading={taskDetailLoading}
                     users={users}
+                    categories={categories}
                 />
             )}
 
@@ -246,6 +251,7 @@ const Backlog = () => {
                 validationError={validationError}
                 loading={loading}
                 resetTaskForm ={resetTaskForm}
+                categories={categories}
             />
 
             <CreateSprintModal

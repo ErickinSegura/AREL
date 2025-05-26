@@ -75,7 +75,14 @@ const stateColors = {
     3: 'bg-green-100 text-green-800'
 };
 
-export const TaskCard = ({ task, onSelect }) => {
+export const getCategoryName = (categoryId, categories) => {
+    if (!categoryId || !categories) return 'Unknown';
+
+    const category = categories.find(cat => cat.id === categoryId);
+    return category ? category.name : 'Unknown';
+};
+
+export const TaskCard = ({ task, onSelect, categories }) => {
     return (
         <Card
             className="hover:shadow-md transition-all cursor-pointer"
@@ -89,7 +96,6 @@ export const TaskCard = ({ task, onSelect }) => {
                             <div className={`text-xs font-medium px-2 py-1 rounded-full w-20 ${priorityColors[task.priority]} border flex justify-center items-center`}>
                                 {priorityLabels[task.priority]}
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -101,7 +107,7 @@ export const TaskCard = ({ task, onSelect }) => {
 
                     <div className="inline-flex items-center text-xs text-gray-600">
                         <Tag size={14} className="mr-1" />
-                        {categoryLabels[task.category]}
+                        {getCategoryName(task.category, categories)}
                     </div>
 
                     {task.estimatedHours && (
@@ -109,7 +115,7 @@ export const TaskCard = ({ task, onSelect }) => {
                             <Clock size={14} className="mr-1" />
                             {task.estimatedHours}h
                         </div>
-                    ) }
+                    )}
 
                     {task.type && (
                         <div className="inline-flex items-center text-xs text-gray-600">
@@ -117,7 +123,6 @@ export const TaskCard = ({ task, onSelect }) => {
                             {typeLabels[task.type]}
                         </div>
                     )}
-
                 </div>
             </CardContent>
         </Card>
@@ -131,7 +136,8 @@ export const TaskDetailModal = ({
                                     onUpdate,
                                     onDelete,
                                     loading,
-                                    users
+                                    users,
+                                    categories
                                 }) => {
     const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState({
@@ -277,8 +283,10 @@ export const TaskDetailModal = ({
                                     onChange={handleChange}
                                     className="mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-oracleRed"
                                 >
-                                    {Object.entries(categoryLabels).map(([key, value]) => (
-                                        <option key={key} value={key}>{value}</option>
+                                    {categories && categories.map((category) => (
+                                        <option key={category.id} value={category.id}>
+                                            {category.name}
+                                        </option>
                                     ))}
                                 </select>
                             </div>
@@ -335,7 +343,7 @@ export const TaskDetailModal = ({
                                 <Tag size={18} className="text-gray-500 mr-2" />
                                 <div>
                                     <p className="text-sm font-medium text-gray-600">Category</p>
-                                    <p>{categoryLabels[task.category]}</p>
+                                    <p>{getCategoryName(task.category, categories)}</p>
                                 </div>
                             </div>
 
@@ -435,7 +443,8 @@ export const CreateTaskModal = ({
                                     handleTaskCreate,
                                     validationError,
                                     loading,
-                                    resetTaskForm
+                                    resetTaskForm,
+                                    categories
                                 }) => {
 
     useEffect(() => {
@@ -531,8 +540,10 @@ export const CreateTaskModal = ({
                                         onChange={handleTaskFormChange}
                                         className="mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-oracleRed"
                                     >
-                                        {Object.entries(categoryLabels).map(([key, value]) => (
-                                            <option key={key} value={key}>{value}</option>
+                                        {categories && categories.map((category) => (
+                                            <option key={category.id} value={category.id}>
+                                                {category.name}
+                                            </option>
                                         ))}
                                     </select>
                                 </div>
