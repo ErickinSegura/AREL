@@ -45,10 +45,18 @@ const SprintManagement = () => {
     const isAdmin = user && (user.userLevel === 1 || user.userLevel === 3);
 
     const sprintTasks = useMemo(() => {
+        let tasks = originalSprintTasks;
+
         if (!isAdmin && user?.id) {
-            return originalSprintTasks.filter(task => task.assignedTo === user.id);
+            tasks = tasks.filter(task => task.assignedTo === user.id);
         }
-        return originalSprintTasks;
+
+        return tasks.sort((a, b) => {
+            if (a.assignedTo !== b.assignedTo) {
+                return a.assignedTo - b.assignedTo;
+            }
+            return a.priority - b.priority;
+        });
     }, [originalSprintTasks, isAdmin, user?.id]);
 
     const todoTasks = sprintTasks.filter(task => task.state === 1);
@@ -142,7 +150,7 @@ const SprintManagement = () => {
                                 icon={<FiList/>}
                                 title="To Do"
                                 state={1}
-                                tasks={todoTasks.sort((a => a.priority))}
+                                tasks={todoTasks}
                                 onTaskSelect={handleTaskSelect}
                                 onTaskDrop={handleTaskDrop}
                                 users={users}
