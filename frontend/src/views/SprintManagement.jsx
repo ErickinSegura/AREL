@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useMemo, useState} from "react";
 import {useProjects} from "../hooks/useProjects";
 import {HTML5Backend} from 'react-dnd-html5-backend';
 import {useBacklog} from '../hooks/useBacklog';
@@ -15,10 +15,11 @@ import {
 import {FiCheckCircle, FiClock, FiList} from "react-icons/fi";
 import {useProjectUsers} from "../hooks/useProjectUsers";
 import {Header} from "../lib/ui/Header";
+import {useAuth} from "../contexts/AuthContext";
 
 const SprintManagement = () => {
     const {
-        sprintTasks,
+        sprintTasks: originalSprintTasks,
         loading,
         error,
         selectedTask,
@@ -32,12 +33,23 @@ const SprintManagement = () => {
         taskDetailLoading
     } = useBacklog();
 
+
     const { sprints, loading: sprintsLoading } = useSprints();
     const { selectedProject } = useProjects();
     const { users, usersLoading } = useProjectUsers(selectedProject?.id);
     const [actualHoursModalOpen, setActualHoursModalOpen] = useState(false);
     const [taskForHours, setTaskForHours] = useState(null);
     const [updateLoading, setUpdateLoading] = useState(false);
+
+    const { user } = useAuth();
+    const isAdmin = user && (user.userLevel === 1 || user.userLevel === 3);
+
+    const sprintTasks = useMemo(() => {
+        if (!isAdmin && user?.id) {
+            return originalSprintTasks.filter(task => task.assignedTo === user.id);
+        }
+        return originalSprintTasks;
+    }, [originalSprintTasks, isAdmin, user?.id]);
 
     const todoTasks = sprintTasks.filter(task => task.state === 1);
     const doingTasks = sprintTasks.filter(task => task.state === 2);
@@ -175,6 +187,7 @@ const SprintManagement = () => {
                         onDelete={() => {}}
                         loading={taskDetailLoading}
                         users={users}
+                        isAdmin={isAdmin}
                     />
                 )}
 

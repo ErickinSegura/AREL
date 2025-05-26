@@ -46,6 +46,8 @@ const Backlog = () => {
 
     const { users, usersLoading } = useProjectUsers(selectedProject?.id);
 
+    const isAdmin = user && (user.userLevel === 1 || user.userLevel === 3);
+
     const isLoading = loading || usersLoading;
 
     const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -142,8 +144,6 @@ const Backlog = () => {
         );
     }
 
-    const isAdmin = user && (user.userLevel === 1 || user.userLevel === 3);
-
     return (
         <div className="container mx-auto px-4 py-6">
             {error && (
@@ -237,6 +237,7 @@ const Backlog = () => {
                     loading={taskDetailLoading}
                     users={users}
                     categories={categories}
+                    isAdmin={isAdmin}
                 />
             )}
 

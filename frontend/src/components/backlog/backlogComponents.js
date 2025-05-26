@@ -137,7 +137,8 @@ export const TaskDetailModal = ({
                                     onDelete,
                                     loading,
                                     users,
-                                    categories
+                                    categories,
+                                    isAdmin = true
                                 }) => {
     const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState({
@@ -407,30 +408,32 @@ export const TaskDetailModal = ({
                     </div>
                 )}
             </ModalContent>
-            <ModalFooter>
-                {editMode ? (
-                    <>
-                        <Button onClick={() => setEditMode(false)} variant="default">
-                            Cancel
-                        </Button>
-                        <Button onClick={handleSubmit} variant="remarked">
-                            Save Changes
-                        </Button>
-                    </>
-                ) : (
-                    <>
-                        <Button
-                            onClick={() => onDelete(task.id)}
-                            variant="danger"
-                        >
-                            Delete
-                        </Button>
-                        <Button onClick={() => setEditMode(true)} variant="default">
-                            Edit
-                        </Button>
-                    </>
-                )}
-            </ModalFooter>
+            {isAdmin && (
+                <ModalFooter>
+                    {editMode ? (
+                        <>
+                            <Button onClick={() => setEditMode(false)} variant="default">
+                                Cancel
+                            </Button>
+                            <Button onClick={handleSubmit} variant="remarked">
+                                Save Changes
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button
+                                onClick={() => onDelete(task.id)}
+                                variant="danger"
+                            >
+                                Delete
+                            </Button>
+                            <Button onClick={() => setEditMode(true)} variant="default">
+                                Edit
+                            </Button>
+                        </>
+                    )}
+                </ModalFooter>
+            )}
         </Modal>
     );
 };
