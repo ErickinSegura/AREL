@@ -33,26 +33,20 @@ export const PDFButton = ({ selectedProject }) => {
     const handleGenerateAndDownloadPdf = async () => {
         setLoading(true);
         try {
-            // Show a loading message to the user
             console.log("Fetching project data...");
 
-            // Get all the data we need for the PDF
             const overviewData = await OverviewService.getOverviewData(selectedProject.id);
 
-            // Transform the sprint data for the PDF
             const projectData = transformOverviewDataToProjectFormat(overviewData);
 
-            // Extract user performance data
             const userPerformances = overviewData.userPerformances || [];
 
             console.log("Generating AI insights...");
 
-            // Get AI-generated insights
             const aiResponse = await AICall(projectData);
 
             console.log("Creating PDF...");
 
-            // Generate the PDF with all the data
             const pdfBlob = await pdf(
                 <PDF
                     insightsHtml={aiResponse}
@@ -63,7 +57,6 @@ export const PDFButton = ({ selectedProject }) => {
 
             console.log("Downloading PDF...");
 
-            // Create a download link for the PDF
             const url = URL.createObjectURL(pdfBlob);
             const link = document.createElement('a');
             link.href = url;
@@ -657,46 +650,6 @@ export const UserPerformanceItem = ({ user }) => {
     );
 };
 
-export const DevStreakCard = ({ loading, selectedSprint }) => {
-    const { BsFire } = require('react-icons/bs');
-
-    return (
-        <Card className="flex flex-col h-full">
-            <CardHeader>
-                <CardTitle>
-                    {loading ? (
-                        <SkeletonText className="w-36" />
-                    ) : (
-                        <>Dev <span className="text-oracleRed">Streak</span></>
-                    )}
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center flex-grow justify-center">
-                {loading ? (
-                    <>
-                        <SkeletonCircle size="3xl" />
-                        <div className="mt-4 w-40">
-                            <SkeletonText lines={1} />
-                        </div>
-                    </>
-                ) : selectedSprint && (
-                    <>
-                        <div className="relative mb-4">
-                            <BsFire size={80} className="text-orange-500" />
-                        </div>
-
-                        <div className="text-center">
-                            <h1 className="text-4xl font-bold mb-2">
-                                <span className="text-oracleRed">10</span> Days
-                            </h1>
-                        </div>
-                    </>
-                )}
-            </CardContent>
-        </Card>
-    );
-};
-
 const RoundedBar = ({ x, y, width, height, fill, animationDelay = 0 }) => {
     const [animated, setAnimated] = useState(false);
 
@@ -735,17 +688,17 @@ const RoundedBar = ({ x, y, width, height, fill, animationDelay = 0 }) => {
 };
 
 const SimpleBarChart = ({
-                            data,
-                            keys,
-                            colors,
-                            width = "100%",
-                            height = 320,
-                            margin = { top: 20, right: 30, left: 60, bottom: 60 },
-                            xLabel = "",
-                            yLabel = "",
-                            tooltipFormatter = (value) => value,
-                            dataKeyNames = {},
-                        }) => {
+                                data,
+                                keys,
+                                colors,
+                                width = "100%",
+                                height = 320,
+                                margin = { top: 20, right: 30, left: 60, bottom: 60 },
+                                xLabel = "",
+                                yLabel = "",
+                                tooltipFormatter = (value) => value,
+                                dataKeyNames = {},
+                            }) => {
     const chartRef = useState(() => React.createRef())[0];
     const [chartDimensions, setChartDimensions] = useState({ width: 600, height: 320 });
     const [tooltipData, setTooltipData] = useState(null);
@@ -822,7 +775,7 @@ const SimpleBarChart = ({
         top: margin.top,
         right: isPortrait ? 15 : margin.right,
         left: isPortrait ? 40 : margin.left,
-        bottom: isPortrait ? 100 : margin.bottom,
+        bottom: isPortrait ? 120 : margin.bottom,
     };
 
     const chartWidth = chartDimensions.width - responsiveMargin.left - responsiveMargin.right;
@@ -830,14 +783,16 @@ const SimpleBarChart = ({
 
     const barCategories = data.map((d) => d.name);
     const barCount = barCategories.length;
-    const maxVisibleBars = isPortrait ? 6 : 12;
-    const compactMode = barCount > maxVisibleBars;
 
-    const barWidth = Math.max(
-        8,
-        Math.min(90, (chartWidth / barCount) * 0.7)
-    );
-    const groupPadding = Math.max(2, (chartWidth / barCount) * 0.3);
+    const minBarWidth = 20;
+    const maxBarWidth = 80;
+    const idealBarWidth = (chartWidth / barCount) * 0.7;
+
+    const barWidth = Math.max(minBarWidth, Math.min(maxBarWidth, idealBarWidth));
+    const groupPadding = Math.max(4, (chartWidth / barCount) * 0.3);
+
+    const shouldShowAllLabels = barWidth > 30;
+    const labelSkip = shouldShowAllLabels ? 1 : Math.ceil(barCount / 8);
 
     const maxValue = Math.max(
         ...data.flatMap((d) => keys.map((key) => d[key] || 0)),
@@ -863,7 +818,7 @@ const SimpleBarChart = ({
                     key={`bar-${i}-${key}`}
                     x={barX}
                     y={responsiveMargin.top + chartHeight - barHeight}
-                    width={barWidth / keys.length}
+                    width={Math.max(8, barWidth / keys.length)}
                     height={barHeight}
                     fill={colors[key]}
                     animationDelay={i * 50 + keyIndex * 20}
@@ -873,11 +828,13 @@ const SimpleBarChart = ({
     });
 
     const xAxisTicks = barCategories.map((category, i) => {
-        if (compactMode && i % Math.ceil(barCount / maxVisibleBars) !== 0 && i !== barCount - 1) {
+        if (i % labelSkip !== 0 && i !== barCount - 1) {
             return null;
         }
 
         const x = getXPosition(i) + barWidth / 2;
+        const truncatedCategory = category.length > 12 ? `${category.substring(0, 12)}...` : category;
+
         return (
             <g key={`x-tick-${i}`}>
                 <line
@@ -889,20 +846,18 @@ const SimpleBarChart = ({
                 />
                 <text
                     x={x}
-                    y={responsiveMargin.top + chartHeight + (isPortrait ? 10 : 20)}
+                    y={responsiveMargin.top + chartHeight + (isPortrait ? 15 : 20)}
                     textAnchor={isPortrait ? "end" : "middle"}
-                    fontSize="10"
-                    transform={isPortrait ? `rotate(-45, ${x}, ${responsiveMargin.top + chartHeight + 10})` : undefined}
-                    style={{ maxWidth: "50px", overflow: "hidden", textOverflow: "ellipsis" }}
+                    fontSize={Math.max(9, Math.min(11, barWidth / 6))}
+                    transform={isPortrait ? `rotate(-45, ${x}, ${responsiveMargin.top + chartHeight + 15})` : undefined}
                 >
-                    {category.length > 10 && isPortrait ? `${category.substring(0, 10)}...` : category}
+                    {truncatedCategory}
                 </text>
             </g>
         );
     });
 
-    // Determinar ticks del eje Y de forma dinámica
-    const yTicks = isPortrait ? 3 : 5;
+    const yTicks = isPortrait ? 4 : 6;
     const yAxisTicks = Array.from({ length: yTicks }).map((_, i) => {
         const value = maxValue * (1 - i / (yTicks - 1));
         const y = responsiveMargin.top + yScale(value);
@@ -935,9 +890,8 @@ const SimpleBarChart = ({
         );
     });
 
-    // Ajustar leyenda para ser responsiva
     const legendItems = keys.map((key, i) => {
-        const itemsPerRow = isPortrait ? 2 : keys.length;
+        const itemsPerRow = isPortrait ? 2 : Math.min(keys.length, 4);
         const rowIndex = Math.floor(i / itemsPerRow);
         const colIndex = i % itemsPerRow;
 
@@ -945,7 +899,7 @@ const SimpleBarChart = ({
             <g
                 key={`legend-${i}`}
                 transform={`translate(${responsiveMargin.left + (colIndex * (chartWidth / itemsPerRow))}, ${
-                    chartDimensions.height - 20 - (rowIndex * 20)
+                    chartDimensions.height - 30 - (rowIndex * 20)
                 })`}
             >
                 <rect width="10" height="10" fill={colors[key]} rx="2" />
@@ -956,7 +910,6 @@ const SimpleBarChart = ({
         );
     });
 
-    // Manejo de eventos para el tooltip mejorado
     const handleMouseMove = (e) => {
         const svgRect = e.currentTarget.getBoundingClientRect();
         const mouseX = e.clientX - svgRect.left;
@@ -978,8 +931,7 @@ const SimpleBarChart = ({
 
     const handleTouchStart = (e) => {
         if (e.touches && e.touches[0]) {
-            // Para eventos táctiles, necesitamos manejar las coordenadas de manera diferente
-            const svgElement = e.currentTarget || e.target; // Usar e.target como fallback
+            const svgElement = e.currentTarget || e.target;
             const svgRect = svgElement.getBoundingClientRect();
             const touchX = e.touches[0].clientX - svgRect.left;
             const touchY = e.touches[0].clientY - svgRect.top;
@@ -1003,7 +955,6 @@ const SimpleBarChart = ({
         setTooltipData(null);
     };
 
-    // Crear tooltip responsivo y accesible
     const tooltip = tooltipData && (
         <div
             role="tooltip"
@@ -1033,13 +984,13 @@ const SimpleBarChart = ({
             <div className="font-bold mb-1">{tooltipData.item.name}</div>
             {keys.map((key) => (
                 <div key={key} className="flex items-center mt-1">
-          <span
-              className="inline-block w-3 h-3 mr-2 rounded-sm"
-              style={{ backgroundColor: colors[key] }}
-          ></span>
+                    <span
+                        className="inline-block w-3 h-3 mr-2 rounded-sm"
+                        style={{ backgroundColor: colors[key] }}
+                    ></span>
                     <span>
-            {dataKeyNames[key] || key}: {tooltipFormatter(tooltipData.item[key] || 0, key)}
-          </span>
+                        {dataKeyNames[key] || key}: {tooltipFormatter(tooltipData.item[key] || 0, key)}
+                    </span>
                 </div>
             ))}
         </div>
@@ -1062,7 +1013,6 @@ const SimpleBarChart = ({
                 role="img"
                 aria-label={`Gráfico de barras: ${xLabel} vs ${yLabel}`}
             >
-                {/* Ejes X e Y */}
                 <line
                     x1={responsiveMargin.left}
                     y1={responsiveMargin.top + chartHeight}
@@ -1089,22 +1039,17 @@ const SimpleBarChart = ({
                     {yLabel}
                 </text>
 
-                {/* Líneas de cuadrícula y marcas */}
                 {yAxisTicks}
                 {xAxisTicks}
-
-                {/* Barras animadas */}
                 {bars}
-
-                {/* Leyenda responsiva */}
                 {legendItems}
             </svg>
 
-            {/* Tooltip mejorado */}
             {tooltip}
         </div>
     );
 };
+
 
 export const SprintHoursChart = React.memo(({ loading, sprintOverviews }) => {
     const chartData = useMemo(() => {
