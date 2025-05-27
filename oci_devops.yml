@@ -30,8 +30,7 @@ steps:
 
   - type: Command
     name: "Docker Login"
-    command:  cd RiftSoftware/AREL;
-              oci os object get --bucket-name riftsoftware-9l0fn --name deployment_config.tgz --file deployment_config.tgz;
+    command:  oci os object get --bucket-name riftsoftware-9l0fn --name deployment_config.tgz --file deployment_config.tgz;
               tar -xzvf deployment_config.tgz;
               source env.sh;
               cd ..;
@@ -39,8 +38,11 @@ steps:
 
   - type: Command
     name: "Build"
-    command:  cd RiftSoftware/AREL;
-              source env.sh;
+    command:  source env.sh;
+              echo "Directorio actual tras env.sh";
+              pwd;
+              echo "Contenido del directorio:";
+              ls -la;
               (cd ..;source build.sh)
 
 
