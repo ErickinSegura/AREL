@@ -39,10 +39,10 @@ steps:
   - type: Command
     name: "Build"
     command:  source env.sh;
-              echo "Directorio actual tras env.sh"
-              pwd
-              echo "Contenido del directorio:"
-              ls -la
+              echo "Directorio actual tras env.sh";
+              pwd;
+              echo "Contenido del directorio:";
+              ls -la;
               (cd ..;source build.sh)
 
 
