@@ -16,21 +16,6 @@ export const Users = () => {
         setIsUserDetailsModalOpen(true);
     };
 
-    const handleRemoveUser = async (userId) => {
-        setDeleteLoading(true);
-        try {
-            console.log('Remove user with ID:', userId);
-            if (refetchUsers) {
-                await refetchUsers();
-            }
-
-            setIsUserDetailsModalOpen(false);
-        } catch (error) {
-            console.error('Error removing user:', error);
-        } finally {
-            setDeleteLoading(false);
-        }
-    };
 
     const openRegisterModal = () => {
         setIsRegisterModalOpen(true);
@@ -39,7 +24,6 @@ export const Users = () => {
     const closeRegisterModal = (success = false) => {
         setIsRegisterModalOpen(false);
 
-        // If registration was successful, refetch users
         if (success && refetchUsers) {
             refetchUsers();
         }
@@ -83,8 +67,6 @@ export const Users = () => {
                 user={selectedUser}
                 isOpen={isUserDetailsModalOpen}
                 onClose={() => setIsUserDetailsModalOpen(false)}
-                onRemoveClick={handleRemoveUser}
-                deleteLoading={deleteLoading}
             />
 
             <RegisterModal
