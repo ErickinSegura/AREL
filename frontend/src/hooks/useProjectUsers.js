@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { UserService } from '../api/userService';
+import {useEffect, useState} from 'react';
+import {UserService} from '../api/userService';
 
 export const useProjectUsers = (projectId) => {
     const [users, setUsers] = useState([]);
@@ -40,6 +40,15 @@ export const useProjectUsers = (projectId) => {
 
         fetchProjectUsers();
     }, [projectId]);
+
+    const fetchProjectsByUser = async (userId) => {
+        try {
+            return await UserService.getProjectsByUser(userId);
+        } catch (err) {
+            console.error('Error fetching projects by user:', err);
+            throw err;
+        }
+    }
 
     useEffect(() => {
         if (searchTerm.trim() === '') {
@@ -226,6 +235,7 @@ export const useProjectUsers = (projectId) => {
         userToEditRole,
         newRole,
         updatingRole,
+        fetchProjectsByUser,
         handleSearchChange,
         handleOpenAddUserModal,
         handleCloseAddUserModal,

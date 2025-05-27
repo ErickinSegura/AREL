@@ -21,6 +21,7 @@ import { Input } from '../../lib/ui/Input';
 import { Button } from '../../lib/ui/Button';
 import {createPortal} from "react-dom";
 import {AvatarRenderer} from "../../lib/AvatarRenderer";
+import {useProjectUsers} from "../../hooks/useProjectUsers";
 
 const ModalPortal = ({ children }) => {
     return typeof document !== 'undefined'
@@ -302,10 +303,54 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
     const { loading: projectsLoading } = useProjects();
     const userRole = user?.userLevel || 2;
     const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
+    const [userProjects, setUserProjects] = useState([]);
+    const [loadingUserProjects, setLoadingUserProjects] = useState(false);
 
     const userProject = user?.projectId && projects
         ? projects.find(project => project.id === user.projectId)
         : null;
+
+    useEffect(() => {
+        const fetchUserProjects = async () => {
+            if (userRole === 1 && user?.id) {
+                setLoadingUserProjects(true);
+                try {
+
+                    const { UserService } = await import('../../api/userService');
+                    const userProjectsData = await UserService.getProjectsByUser(user.id);
+                    setUserProjects(userProjectsData);
+                } catch (error) {
+                    console.error('Error fetching user projects:', error);
+                    setUserProjects([]);
+                } finally {
+                    setLoadingUserProjects(false);
+                }
+            }
+        };
+
+        fetchUserProjects();
+    }, [user?.id, userRole]);
+
+    const getAvailableProjects = () => {
+        if (!projects) return [];
+
+        switch (userRole) {
+            case 1:
+                const userProjectIds = userProjects.map(up => up.projectId);
+                return projects.filter(project => userProjectIds.includes(project.id));
+
+            case 2:
+                return [];
+
+            case 3:
+                return projects;
+
+            default:
+                return [];
+        }
+    };
+
+    const availableProjects = getAvailableProjects();
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -326,7 +371,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
         }
     };
 
-    if (projectsLoading) {
+    if (projectsLoading || (userRole === 1 && loadingUserProjects)) {
         return (
             <div className="w-full">
                 <div className={`flex items-center ${
@@ -353,53 +398,6 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
     const noProjectContainerClass = `flex items-center ${
         !isMobile && !isOpen ? 'justify-center' : ''
     } w-full ${isMobile ? 'py-2' : 'py-1.5'} rounded-lg transition-all duration-300`;
-
-    if (!projects || projects.length === 0) {
-        return (
-            <div className="w-full">
-                <div className={noProjectContainerClass}>
-                    <div
-                        className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center transition-all duration-300 text-white bg-gray-400"
-                    >
-                        <FiFolder />
-                    </div>
-
-                    <div className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out ${
-                        !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
-                    }`}>
-                        <div className="text-base font-medium text-gray-500 truncate">
-                            <span className="truncate w-full">No hay proyectos disponibles</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Add Project Modal */}
-                <AddProjectModal
-                    isOpen={isAddProjectModalOpen}
-                    onClose={() => setIsAddProjectModalOpen(false)}
-                />
-
-                {/* Add Project Button */}
-                {userRole === 1 || userRole === 3 ? (
-                    <button
-                        onClick={() => setIsAddProjectModalOpen(true)}
-                        className={`flex items-center ${
-                            !isMobile && !isOpen ? 'justify-center' : ''
-                        } w-full mt-2 py-2 rounded-lg hover:bg-gray-200 transition-all duration-300`}
-                    >
-                        <div className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center text-oracleRed">
-                            <Plus size={20}/>
-                        </div>
-                        <div className={`flex-1 font-medium transition-all duration-300 ease-in-out ${
-                            !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
-                        }`}>
-                            Add New Project
-                        </div>
-                    </button>
-                ) : null}
-            </div>
-        );
-    }
 
     if (userRole === 2) {
         if (!userProject) {
@@ -450,6 +448,83 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
         );
     }
 
+    if (!availableProjects || availableProjects.length === 0) {
+        return (
+            <div className="w-full">
+                <div className={noProjectContainerClass}>
+                    <div
+                        className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center transition-all duration-300 text-white bg-gray-400"
+                    >
+                        <FiFolder />
+                    </div>
+
+                    <div className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                        !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
+                    }`}>
+                        <div className="text-base font-medium text-gray-500 truncate">
+                            <span className="truncate w-full">
+                                {userRole === 1 ? 'No projects assigned' : 'No hay proyectos disponibles'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Add Project Modal */}
+                <AddProjectModal
+                    isOpen={isAddProjectModalOpen}
+                    onClose={() => setIsAddProjectModalOpen(false)}
+                />
+
+                {/* Add Project Button - Solo para rango 3 (admin) */}
+                {userRole === 3 && (
+                    <button
+                        onClick={() => setIsAddProjectModalOpen(true)}
+                        className={`flex items-center ${
+                            !isMobile && !isOpen ? 'justify-center' : ''
+                        } w-full mt-2 py-2 rounded-lg hover:bg-gray-200 transition-all duration-300`}
+                    >
+                        <div className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center text-oracleRed">
+                            <Plus size={20}/>
+                        </div>
+                        <div className={`flex-1 font-medium transition-all duration-300 ease-in-out ${
+                            !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
+                        }`}>
+                            Add New Project
+                        </div>
+                    </button>
+                )}
+            </div>
+        );
+    }
+
+    if (availableProjects.length === 1) {
+        const singleProject = availableProjects[0];
+        return (
+            <div className="w-full">
+                <div
+                    className={`flex items-center ${
+                        !isMobile && !isOpen ? 'justify-center' : ''
+                    } w-full ${isMobile ? 'py-2' : 'py-1.5'} rounded-lg transition-all duration-300`}
+                >
+                    <div
+                        className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center transition-all duration-300 text-white"
+                        style={{ backgroundColor: singleProject.color?.hexColor || '#4e4e4e' }}
+                    >
+                        {getProjectIcon(singleProject.icon? singleProject.icon : 1)}
+                    </div>
+
+                    <div className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                        !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
+                    }`}>
+                        <div className="text-base font-medium text-black truncate">
+                            <span className="truncate w-full">{singleProject.projectName}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div ref={projectDropdownRef} className="relative w-full">
             <button
@@ -486,7 +561,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
             {(projectDropdownOpen) && (
                 <div className={`absolute left-0 right-0 top-full mt-1 bg-white rounded-lg shadow-lg z-50 py-1 max-h-60 overflow-y-auto w-full`}>
                     <div className="text-xs text-gray-500 px-3 py-1">Projects</div>
-                    {projects && projects.map((project) => (
+                    {availableProjects.map((project) => (
                         <button
                             key={project.id}
                             onClick={() => selectProject(project)}
@@ -504,7 +579,8 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                         </button>
                     ))}
 
-                    {((userRole === 1 || userRole === 3 )) && (
+                    {/* Add Project Button - Solo para rango 3 (admin) */}
+                    {userRole === 3 && (
                         <>
                             <div className="border-t border-gray-200 my-1"></div>
                             <button
