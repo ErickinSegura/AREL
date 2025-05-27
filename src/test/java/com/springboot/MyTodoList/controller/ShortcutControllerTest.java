@@ -25,7 +25,7 @@ public class ShortcutControllerTest {
 
     @Test
     public void testGetAllShortcuts() {
-        List<Shortcut> shortcuts = List.of(new Shortcut(1, "http://localhost:8080"));
+        List<Shortcut> shortcuts = List.of(new Shortcut(1, "http://localhost:8080", "Test Shortcut"));
         when(shortcutService.getAllShortcuts()).thenReturn(ResponseEntity.ok(shortcuts));
 
         ResponseEntity<List<Shortcut>> response = shortcutController.getAllShortcuts();
@@ -36,7 +36,7 @@ public class ShortcutControllerTest {
     @Test
     public void testGetShortcutByID() {
         int id = 1;
-        Shortcut shortcut = new Shortcut(1, "http://localhost:8080");
+        Shortcut shortcut = new Shortcut(1, "http://localhost:8080", "Test Shortcut");
 
         when(shortcutService.getShortcutById(id)).thenReturn(ResponseEntity.ok(shortcut));
 
@@ -47,7 +47,7 @@ public class ShortcutControllerTest {
 
     @Test
     public void testAddShortcut() {
-        Shortcut shortcut = new Shortcut(1, "http://localhost:8080");
+        Shortcut shortcut = new Shortcut(1, "http://localhost:8080", "Test Shortcut");
 
         when(shortcutService.saveShortcut(any(Shortcut.class)))
                 .thenReturn(ResponseEntity.status(HttpStatus.CREATED).body(shortcut));
@@ -60,7 +60,9 @@ public class ShortcutControllerTest {
     @Test
     public void testUpdateShortcut() {
         int id = 1;
-        Shortcut updated = new Shortcut(1, "http://localhost:8080/updated");
+        Shortcut updated = new Shortcut(1, "http://localhost:8080/updated", "Updated Shortcut");
+
+        when(shortcutService.getShortcutById(id)).thenReturn(ResponseEntity.ok(updated));
 
         when(shortcutService.updateShortcut(eq(id), any(Shortcut.class)))
                 .thenReturn(ResponseEntity.ok(updated));

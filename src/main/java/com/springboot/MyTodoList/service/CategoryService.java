@@ -30,9 +30,6 @@ public class CategoryService {
 
     public ResponseEntity<List<Category>> getCategoriesByProject(int projectId) {
         List<Category> shortcuts = categoryRepository.findByProjectId(projectId);
-        if (shortcuts.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
         return new ResponseEntity<>(shortcuts, HttpStatus.OK);
     }
 
@@ -54,13 +51,7 @@ public class CategoryService {
         }
     }
 
-    /**
-     * Actualiza una categoría existente en la base de datos.
-     * 
-     * @param id El identificador único de la categoría a actualizar.
-     * @param categoryDetails Los detalles de la categoría que se van a actualizar.
-     * @return ResponseEntity con la categoría actualizada si se encuentra, o un error HTTP 404 si no se encuentra.
-     */
+
     public ResponseEntity<Category> updateCategory(final int id, final Category categoryDetails) {
         Optional<Category> categoryData = categoryRepository.findById(id);
         if (categoryData.isPresent()) {
@@ -68,7 +59,6 @@ public class CategoryService {
 
             category.setName(categoryDetails.getName());
             category.setProjectId(categoryDetails.getProjectId());
-            category.setColor(categoryDetails.getColor());
 
             Category updatedCategory = categoryRepository.save(category);
             return new ResponseEntity<>(updatedCategory, HttpStatus.OK);

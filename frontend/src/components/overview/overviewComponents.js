@@ -17,60 +17,7 @@ import {useAuth} from "../../contexts/AuthContext";
 import {useDeveloperCharts} from "../../hooks/useDeveloperCharts";
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
-import {UserCircle} from "lucide-react";
-import {Task} from "@mui/icons-material";
 
-const getProjectIcon = (iconID) => {
-    switch (iconID) {
-        case 1: return <FiFolder />;
-        case 2: return <FiCodesandbox />;
-        default: return <FiCodesandbox />;
-    }
-};
-
-export const ErrorState = ({ error }) => (
-    <div className="p-6 flex flex-col items-center justify-center h-full">
-        <Card className="w-full max-w-md text-center">
-            <CardHeader>
-                <CardTitle className="text-2xl">
-                    Error <span className="text-oracleRed">Loading Data</span>
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="flex justify-center mb-6">
-                    <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-red-500">
-                        <FiAlertTriangle size={32} />
-                    </div>
-                </div>
-                <div className="bg-red-50 p-4 rounded-lg mb-6">
-                    <p className="text-red-600 font-medium">{error}</p>
-                </div>
-            </CardContent>
-        </Card>
-    </div>
-);
-
-export const NoProjectState = ( { title, message } ) => (
-    <div className="p-6 flex flex-col items-center justify-center h-full">
-        <Card className="w-full max-w-md text-center">
-            <CardHeader>
-                <CardTitle className="text-2xl">
-                    No Project <span className="text-oracleRed">{title}</span>
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="flex justify-center mb-6">
-                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
-                        <FiFolder size={32} />
-                    </div>
-                </div>
-                <p className="text-gray-600 mb-6">
-                    { message }
-                </p>
-            </CardContent>
-        </Card>
-    </div>
-);
 
 export const PDFButton = ({ selectedProject }) => {
     const [loading, setLoading] = useState(false);
@@ -163,45 +110,6 @@ export const PDFButton = ({ selectedProject }) => {
         </div>
     );
 };
-
-export const ProjectHeader = ({ selectedProject, loading, isAdmin = false }) => (
-    <Card className="mb-4 sm:mb-6">
-        <CardHeader className="px-3 py-3 sm:px-6 sm:py-4">
-            <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${loading ? 'animate-pulse' : ''}`}>
-                <CardTitle className="w-full sm:w-auto">
-                    {loading ? (
-                        <div className="flex items-center">
-                            <SkeletonCircle size="md" />
-                            <div className="ml-3 w-32 sm:w-48">
-                                <SkeletonText lines={1} />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex items-center w-full">
-                            <div
-                                className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl grid place-items-center text-white flex-shrink-0"
-                                style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
-                            >
-                                {getProjectIcon(selectedProject?.icon)}
-                            </div>
-                            <h1 className="text-xl sm:text-2xl font-bold sm:px-3 ml-3 sm:ml-0 break-words max-w-full truncate">
-                                {selectedProject?.projectName}
-                            </h1>
-                        </div>
-                    )}
-                </CardTitle>
-
-                {!loading && isAdmin && (
-                    <div className="mt-2 sm:mt-0">
-                        <PDFButton
-                            selectedProject={selectedProject}
-                        />
-                    </div>
-                )}
-            </div>
-        </CardHeader>
-    </Card>
-);
 
 export const DashboardHeader = ({
                                     loading,
@@ -311,7 +219,7 @@ export const SprintSummaryCard = ({ loading, selectedSprint, formatDate }) => (
                 {loading ? (
                     <SkeletonText className="w-40" />
                 ) : (
-                    <>Sprint <span className="text-oracleRed">Summary</span></>
+                    <>Team Sprint <span className="text-oracleRed">Summary</span></>
                 )}
             </CardTitle>
         </CardHeader>
@@ -353,7 +261,6 @@ export const SprintSummaryCard = ({ loading, selectedSprint, formatDate }) => (
 
 export const LogsCard = ({ loading, logs}) => {
     const [mounted, setMounted] = useState(false);
-    console.log("loading logs", loading)
 
     useEffect(() => {
         setMounted(true);
@@ -480,12 +387,9 @@ const FadeIn = ({ children, delay = 0, duration = 300 }) => {
 const AnimatedArc = ({ progressArc, completionRateColor }) => {
     const [animatedOffset, setAnimatedOffset] = useState(progressArc.strokeDasharray);
 
-    // Resetear y animar el offset cuando cambia el sprint seleccionado
     useEffect(() => {
-        // Primero reseteamos al valor máximo (sin progreso)
         setAnimatedOffset(progressArc.strokeDasharray);
 
-        // Luego animamos hasta el offset calculado
         const timer = setTimeout(() => {
             setAnimatedOffset(progressArc.strokeDashoffset);
         }, 50);
@@ -524,7 +428,6 @@ const AnimatedProgressBar = ({ percentage, color }) => {
     const [width, setWidth] = useState(0);
 
     useEffect(() => {
-        // Animación desde 0 hasta el porcentaje final
         setTimeout(() => {
             setWidth(percentage);
         }, 300);
@@ -657,12 +560,6 @@ export const SprintGoalCard = ({ loading, selectedSprint, calculateProgressArc }
 };
 
 export const TeamPerformanceCard = ({ loading, sprintUserData }) => {
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
     return (
         <Card className="flex flex-col h-full">
             <CardHeader>
@@ -811,6 +708,10 @@ const RoundedBar = ({ x, y, width, height, fill, animationDelay = 0 }) => {
     const radius = Math.min(8, width / 2);
     const animatedHeight = animated ? height : 0;
     const animatedY = animated ? y : y + height;
+
+    if (animatedHeight <= 0) {
+        return null;
+    }
 
     return (
         <g>
@@ -1333,7 +1234,6 @@ export const DeveloperHoursChart = React.memo(({ userPerformances, loading }) =>
 });
 
 export const DeveloperTasksChart = React.memo(({ userPerformances, loading }) => {
-    // Use your existing useDeveloperCharts hook here
     const { chartData, developers, colors } = useDeveloperCharts(userPerformances, loading);
 
     const chartElement = useMemo(() => {

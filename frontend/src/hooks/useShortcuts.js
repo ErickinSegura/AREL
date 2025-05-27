@@ -13,6 +13,7 @@ export const useShortcuts = () => {
     const [formData, setFormData] = useState({
         project: null,
         url: '',
+        name: ''
     });
     const [validationError, setValidationError] = useState(null);
 
@@ -67,6 +68,7 @@ export const useShortcuts = () => {
             const shortcutToCreate = {
                 ...formData,
                 url: urlWithProtocol,
+                name: formData.name || formData.url,
                 project: parseInt(selectedProject.id) || formData.project
             };
 

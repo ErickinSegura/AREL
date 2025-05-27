@@ -64,7 +64,7 @@ public class Task {
 
     @Column(name = "REAL_HOURS")
     private Integer realHours;
-    
+
     @JsonIgnore
     public TaskType getType() {
         return this.type;
@@ -159,6 +159,16 @@ public class Task {
         }
     }
 
+    @JsonProperty("assignedTo")
+    public void setAssignedToById(Integer assignedToId) {
+        if (assignedToId == null) {
+            this.assignedTo = null;
+        } else {
+            UserProject up = new UserProject();
+            up.setID(assignedToId);
+            this.assignedTo = up;
+        }
+    }
 
     @Override
     public String toString() {

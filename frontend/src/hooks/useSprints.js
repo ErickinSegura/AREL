@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { SprintsService } from '../api/sprintsService';
 import { BacklogService } from '../api/backlogService';
 import { useProjects } from './useProjects';
 
-export const useSprints = () => {
+export const useSprints = (isBacklog = true) => {
     const { selectedProject } = useProjects();
     const [sprints, setSprints] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -51,7 +51,8 @@ export const useSprints = () => {
     };
 
     const fetchSprints = useCallback(async () => {
-        if (!selectedProject) return;
+
+        if (!selectedProject || loading) return;
 
         try {
             setLoading(true);
@@ -61,21 +62,6 @@ export const useSprints = () => {
         } catch (err) {
             console.error("Error fetching sprints:", err);
             setError("Failed to load sprints.");
-        } finally {
-            setLoading(false);
-        }
-    }, [selectedProject]);
-
-    const fetchAvailableTasks = useCallback(async () => {
-        if (!selectedProject) return;
-
-        try {
-            setLoading(true);
-            const tasks = await BacklogService.getTasksByProject(selectedProject.id);
-            setAvailableTasks(tasks.filter(task => task.sprint === null));
-        } catch (err) {
-            console.error("Error fetching available tasks:", err);
-            setError("Failed to load available tasks.");
         } finally {
             setLoading(false);
         }
@@ -93,18 +79,23 @@ export const useSprints = () => {
                 sprintNumber: sprints.length > 0 ? Math.max(...sprints.map(s => s.sprintNumber)) + 1 : 1
             }));
 
-            fetchSprints();
-            fetchAvailableTasks();
+            if (isBacklog) {
+                fetchSprints();
+            }
         }
-    }, [fetchSprints, fetchAvailableTasks, selectedProject]);
+    }, [fetchSprints, selectedProject]);
 
-    const toggleTaskSelection = (taskId) => {
+    const toggleTaskSelection = (taskId, tasksSource = availableTasks) => {
         setSelectedTasks(prevSelectedTasks => {
             const isSelected = prevSelectedTasks.some(task => task.id === taskId);
             if (isSelected) {
                 return prevSelectedTasks.filter(task => task.id !== taskId);
             } else {
-                const taskToAdd = availableTasks.find(task => task.id === taskId);
+                const taskToAdd = tasksSource.find(task => task.id === taskId);
+                if (!taskToAdd) {
+                    console.error(`Task with id ${taskId} not found in tasks source`);
+                    return prevSelectedTasks;
+                }
                 return [...prevSelectedTasks, {
                     ...taskToAdd,
                     estimatedHours: taskToAdd.estimatedHours || 0,
@@ -163,9 +154,7 @@ export const useSprints = () => {
 
                 const taskUpdatePromises = selectedTasks.map(task =>
                     BacklogService.updateTask(task.id, {
-                        ...task,
                         sprint: sprintId,
-                        estimatedHours: task.estimatedHours,
                         assignedTo: task.assignedTo
                     })
                 );
@@ -174,8 +163,7 @@ export const useSprints = () => {
 
                 resetSprintForm();
                 await fetchSprints(); // Await here to ensure refresh
-                await fetchAvailableTasks(); // Await here to ensure refresh
-                setCreateSprintModalOpen(false); // Close modal after successful creation
+                setCreateSprintModalOpen(false);
                 return true;
             } else {
                 setValidationError(result.message || "Failed to create sprint. Please try again.");

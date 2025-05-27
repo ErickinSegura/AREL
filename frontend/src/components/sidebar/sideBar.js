@@ -21,6 +21,7 @@ import { Input } from '../../lib/ui/Input';
 import { Button } from '../../lib/ui/Button';
 import {createPortal} from "react-dom";
 import {AvatarRenderer} from "../../lib/AvatarRenderer";
+import {useProjectUsers} from "../../hooks/useProjectUsers";
 
 const ModalPortal = ({ children }) => {
     return typeof document !== 'undefined'
@@ -302,10 +303,54 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
     const { loading: projectsLoading } = useProjects();
     const userRole = user?.userLevel || 2;
     const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
+    const [userProjects, setUserProjects] = useState([]);
+    const [loadingUserProjects, setLoadingUserProjects] = useState(false);
 
     const userProject = user?.projectId && projects
         ? projects.find(project => project.id === user.projectId)
         : null;
+
+    useEffect(() => {
+        const fetchUserProjects = async () => {
+            if (userRole === 1 && user?.id) {
+                setLoadingUserProjects(true);
+                try {
+
+                    const { UserService } = await import('../../api/userService');
+                    const userProjectsData = await UserService.getProjectsByUser(user.id);
+                    setUserProjects(userProjectsData);
+                } catch (error) {
+                    console.error('Error fetching user projects:', error);
+                    setUserProjects([]);
+                } finally {
+                    setLoadingUserProjects(false);
+                }
+            }
+        };
+
+        fetchUserProjects();
+    }, [user?.id, userRole]);
+
+    const getAvailableProjects = () => {
+        if (!projects) return [];
+
+        switch (userRole) {
+            case 1:
+                const userProjectIds = userProjects.map(up => up.projectId);
+                return projects.filter(project => userProjectIds.includes(project.id));
+
+            case 2:
+                return [];
+
+            case 3:
+                return projects;
+
+            default:
+                return [];
+        }
+    };
+
+    const availableProjects = getAvailableProjects();
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -326,7 +371,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
         }
     };
 
-    if (projectsLoading) {
+    if (projectsLoading || (userRole === 1 && loadingUserProjects)) {
         return (
             <div className="w-full">
                 <div className={`flex items-center ${
@@ -353,53 +398,6 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
     const noProjectContainerClass = `flex items-center ${
         !isMobile && !isOpen ? 'justify-center' : ''
     } w-full ${isMobile ? 'py-2' : 'py-1.5'} rounded-lg transition-all duration-300`;
-
-    if (!projects || projects.length === 0) {
-        return (
-            <div className="w-full">
-                <div className={noProjectContainerClass}>
-                    <div
-                        className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center transition-all duration-300 text-white bg-gray-400"
-                    >
-                        <FiFolder />
-                    </div>
-
-                    <div className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out ${
-                        !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
-                    }`}>
-                        <div className="text-base font-medium text-gray-500 truncate">
-                            <span className="truncate w-full">No hay proyectos disponibles</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Add Project Modal */}
-                <AddProjectModal
-                    isOpen={isAddProjectModalOpen}
-                    onClose={() => setIsAddProjectModalOpen(false)}
-                />
-
-                {/* Add Project Button */}
-                {userRole === 1 || userRole === 3 ? (
-                    <button
-                        onClick={() => setIsAddProjectModalOpen(true)}
-                        className={`flex items-center ${
-                            !isMobile && !isOpen ? 'justify-center' : ''
-                        } w-full mt-2 py-2 rounded-lg hover:bg-gray-200 transition-all duration-300`}
-                    >
-                        <div className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center text-oracleRed">
-                            <Plus size={20}/>
-                        </div>
-                        <div className={`flex-1 font-medium transition-all duration-300 ease-in-out ${
-                            !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
-                        }`}>
-                            Add New Project
-                        </div>
-                    </button>
-                ) : null}
-            </div>
-        );
-    }
 
     if (userRole === 2) {
         if (!userProject) {
@@ -450,6 +448,83 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
         );
     }
 
+    if (!availableProjects || availableProjects.length === 0) {
+        return (
+            <div className="w-full">
+                <div className={noProjectContainerClass}>
+                    <div
+                        className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center transition-all duration-300 text-white bg-gray-400"
+                    >
+                        <FiFolder />
+                    </div>
+
+                    <div className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                        !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
+                    }`}>
+                        <div className="text-base font-medium text-gray-500 truncate">
+                            <span className="truncate w-full">
+                                {userRole === 1 ? 'No projects assigned' : 'No hay proyectos disponibles'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Add Project Modal */}
+                <AddProjectModal
+                    isOpen={isAddProjectModalOpen}
+                    onClose={() => setIsAddProjectModalOpen(false)}
+                />
+
+                {/* Add Project Button - Solo para rango 3 (admin) */}
+                {userRole === 3 && (
+                    <button
+                        onClick={() => setIsAddProjectModalOpen(true)}
+                        className={`flex items-center ${
+                            !isMobile && !isOpen ? 'justify-center' : ''
+                        } w-full mt-2 py-2 rounded-lg hover:bg-gray-200 transition-all duration-300`}
+                    >
+                        <div className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center text-oracleRed">
+                            <Plus size={20}/>
+                        </div>
+                        <div className={`flex-1 font-medium transition-all duration-300 ease-in-out ${
+                            !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
+                        }`}>
+                            Add New Project
+                        </div>
+                    </button>
+                )}
+            </div>
+        );
+    }
+
+    if (availableProjects.length === 1) {
+        const singleProject = availableProjects[0];
+        return (
+            <div className="w-full">
+                <div
+                    className={`flex items-center ${
+                        !isMobile && !isOpen ? 'justify-center' : ''
+                    } w-full ${isMobile ? 'py-2' : 'py-1.5'} rounded-lg transition-all duration-300`}
+                >
+                    <div
+                        className="w-8 h-8 rounded-lg flex-shrink-0 grid place-items-center transition-all duration-300 text-white"
+                        style={{ backgroundColor: singleProject.color?.hexColor || '#4e4e4e' }}
+                    >
+                        {getProjectIcon(singleProject.icon? singleProject.icon : 1)}
+                    </div>
+
+                    <div className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                        !isOpen && !isMobile ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
+                    }`}>
+                        <div className="text-base font-medium text-black truncate">
+                            <span className="truncate w-full">{singleProject.projectName}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div ref={projectDropdownRef} className="relative w-full">
             <button
@@ -486,7 +561,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
             {(projectDropdownOpen) && (
                 <div className={`absolute left-0 right-0 top-full mt-1 bg-white rounded-lg shadow-lg z-50 py-1 max-h-60 overflow-y-auto w-full`}>
                     <div className="text-xs text-gray-500 px-3 py-1">Projects</div>
-                    {projects && projects.map((project) => (
+                    {availableProjects.map((project) => (
                         <button
                             key={project.id}
                             onClick={() => selectProject(project)}
@@ -504,7 +579,8 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
                         </button>
                     ))}
 
-                    {((userRole === 1 || userRole === 3 )) && (
+                    {/* Add Project Button - Solo para rango 3 (admin) */}
+                    {userRole === 3 && (
                         <>
                             <div className="border-t border-gray-200 my-1"></div>
                             <button
@@ -532,7 +608,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
     );
 };
 
-const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }) => {
+const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false, setSelectedItem }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     const { setCurrentRoute } = useRoute();
@@ -557,6 +633,7 @@ const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }
     const goToUserSettings = () => {
         setCurrentRoute('/usersettings');
         setDropdownOpen(false);
+        setSelectedItem(null);
     };
 
     return (
@@ -565,43 +642,71 @@ const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }
                 className="flex items-center h-16"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-                <div className="w-8 h-8 rounded-lg overflow-hidden">
+                <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0">
                     <AvatarRenderer config={user.avatar} className="w-full h-full" />
                 </div>
                 <div className={`ml-3 ${
                     isMobile
                         ? 'flex-1 min-w-0'
-                        : `overflow-hidden transition-all duration-300 ${isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`
+                        : `transition-all duration-300 ${isOpen ? 'opacity-100 max-w-48' : 'opacity-0 max-w-0 ml-0'}`
                 }`}>
-                    <div className="text-sm font-medium text-black truncate">
+                    <div className="text-sm font-medium text-black truncate text-left">
                         {user ? `${user.firstName} ${user.lastName}` : 'Usuario'}
                     </div>
-                    <div className="text-xs text-gray-600 truncate">
+                    <div className="text-xs text-gray-600 truncate text-left">
                         {user ? user.email : 'user@example.com'}
                     </div>
                 </div>
             </button>
 
-            {/* Dropdown Menu */}
+            {/* Improved Dropdown Menu */}
             {dropdownOpen && (
-                <div className="absolute bottom-full mb-2 right-0 w-48 bg-white rounded-lg shadow-lg overflow-hidden z-50 border border-gray-200">
-                    <div className="p-2">
+                <div className="absolute bottom-full mb-2 right-0 w-56 bg-white rounded-xl shadow-lg overflow-hidden z-50 border border-gray-200">
+                    {/* User Info Header */}
+                    <div className="p-4 border-b border-gray-100">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+                                <AvatarRenderer config={user.avatar} className="w-full h-full" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium text-gray-900 truncate">
+                                    {user ? `${user.firstName} ${user.lastName}` : 'shadon'}
+                                </div>
+                                <div className="text-xs text-gray-500 truncate">
+                                    {user ? user.email : 'm@example.com'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="py-2">
+                        {/* Account */}
                         <button
-                            className="w-full flex items-center gap-3 py-2 px-3 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                            onClick={goToUserSettings} // Updated to use the navigation function
+                            className="w-full flex items-center gap-3 py-2.5 px-4 text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
+                            onClick={goToUserSettings}
                         >
-                            <User size={18} className="text-gray-500" />
+                            <div className="w-5 h-5 flex items-center justify-center">
+                                <User size={16} className="text-oracleRed" />
+                            </div>
                             <span>Account</span>
                         </button>
 
+                        {/* Separator */}
+                        <div className="h-px bg-gray-100 my-2 mx-4"></div>
+
+                        {/* Log out */}
                         <button
-                            className="w-full flex items-center gap-3 py-2 px-3 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="w-full flex items-center gap-3 py-2.5 px-4 text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
                             onClick={() => {
+                                setCurrentRoute(null);
                                 handleLogout();
                                 setDropdownOpen(false);
                             }}
                         >
-                            <LogOut size={18} />
+                            <div className="w-5 h-5 flex items-center justify-center">
+                                <LogOut size={16} className="text-oracleRed" />
+                            </div>
                             <span>Log out</span>
                         </button>
                     </div>
@@ -616,7 +721,8 @@ const MobileSidebar = ({ mobileMenuOpen, toggleMobileMenu, menuItems, selectedIt
         <>
             <div className="fixed top-0 left-0 right-0 bg-white shadow-md z-20 h-16">
                 <div className="flex items-center justify-between px-4 h-full">
-                    <div className="flex items-center gap-x-4">
+                    {/* Botón a la izquierda */}
+                    <div>
                         <button
                             onClick={toggleMobileMenu}
                             className="p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none"
@@ -625,6 +731,24 @@ const MobileSidebar = ({ mobileMenuOpen, toggleMobileMenu, menuItems, selectedIt
                             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
                     </div>
+
+                    {/* Logo y texto RIFT centrados */}
+                    <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center">
+                        <img
+                            src="/assets/logo.png"
+                            alt="Logo"
+                            className="h-16"
+                        />
+                        <span
+                            className="font-bold text-xl"
+                            style={{ fontFamily: "'Chakra Petch', sans-serif" }}
+                        >
+            RIFT
+        </span>
+                    </div>
+
+                    {/* Espacio a la derecha para mantener el balance */}
+                    <div className="w-14"></div>
                 </div>
             </div>
 
@@ -721,13 +845,42 @@ const DesktopSidebar = ({ sidebarRef, isOpen, handleMouseEnter, handleMouseLeave
         <div
             ref={sidebarRef}
             className={`h-screen bg-gray-100 transition-all duration-300 ease-out flex flex-col fixed md:relative z-10
-        ${isOpen ? 'w-64' : 'w-16'} items-center`}
+${isOpen ? 'w-64' : 'w-16'} items-center`}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
             <div className="flex flex-col h-full w-full">
-                <div className={`px-4 py-4 transition-all duration-300 h-16`}>
-                    <div className={`relative h-12 transition-all duration-300 flex items-center ${
+                {/* Icono en la parte superior con texto RIFT */}
+                <div className={`px-4 pt-4 pb-4`}>
+                    <div className={`flex items-center ${!isOpen ? 'justify-center' : ''} w-full transition-all duration-300`}>
+                        {/* El icono siempre en la misma posición */}
+                        <div className="w-8 h-8 flex-shrink-0 grid place-items-center">
+                            <img
+                                src="/assets/logo.png"
+                                alt="Icono"
+                                className="h-8 w-8"
+                            />
+                        </div>
+
+                        {/* Texto RIFT con la fuente Chakra Petch */}
+                        <div className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                            !isOpen ? 'w-0 opacity-0' : 'w-full opacity-100 ml-2'
+                        }`}>
+                            <div
+                                className="text-base font-bold text-black text-center"
+                                style={{ fontFamily: "'Chakra Petch', sans-serif" }}
+                            >
+                                RIFT
+                            </div>
+                        </div>
+
+                        {/* Espacio para mantener el balance */}
+                        <div className="w-8"></div>
+                    </div>
+                </div>
+
+                <div className={`px-4 pb-4 transition-all duration-300`}>
+                    <div className={`relative transition-all duration-300 flex items-center ${
                         !isOpen ? 'justify-center' : ''
                     }`}>
                         <ProjectSelector {...projectSelectorProps} />
@@ -787,7 +940,7 @@ const DesktopSidebar = ({ sidebarRef, isOpen, handleMouseEnter, handleMouseLeave
                 </nav>
 
                 <div className="border-t border-gray-700 mx-4 transition-all mt-4 mb-2">
-                    <UserButtonWithDropdown user={user} handleLogout={handleLogout} isOpen={isOpen} />
+                    <UserButtonWithDropdown user={user} handleLogout={handleLogout} isOpen={isOpen} setSelectedItem={setSelectedItem} />
                 </div>
             </div>
         </div>
@@ -832,13 +985,13 @@ const Sidebar = ({
 
     const getMenuItemsByRole = () => {
         const commonItems = [
-            { icon: <FiHome size={20} />, label: 'Overview', hasSubmenu: true },
+            { icon: <FiHome size={20} />, label: 'Overview', hasSubmenu: false },
         ];
 
         const roleSpecificItems = {
             1: [
-                { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: true },
-                { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: true },
+                { icon: <FiTable size={20} />, label: 'Backlog', hasSubmenu: false },
+                { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: false },
                 { icon: <FiLink size={20} />, label: 'Shortcuts', hasSubmenu: false },
                 { icon: <FiSettings size={20} />, label: 'Settings', hasSubmenu: false }
             ],
@@ -852,7 +1005,7 @@ const Sidebar = ({
                 { icon: <FiCloudLightning size={20} />, label: 'Sprints', hasSubmenu: false },
                 { icon: <FiLink size={20} />, label: 'Shortcuts', hasSubmenu: false },
                 { icon: <FiSettings size={20} />, label: 'Settings', hasSubmenu: false },
-                { icon: <FiUsers size={20} />, label: 'Users', hasSubmenu: true }
+                { icon: <FiUsers size={20} />, label: 'Users', hasSubmenu: false }
             ]
         };
 
@@ -865,6 +1018,7 @@ const Sidebar = ({
     };
 
     const handleLogout = () => {
+        setSelectedItem(null);
         logout();
     };
 

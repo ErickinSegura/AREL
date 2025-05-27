@@ -22,19 +22,14 @@ public class Category {
     @Column(name = "ID_PROJECT")
     Integer projectId;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_COLOR", referencedColumnName = "ID_COLOR")
-    Color color;
-    
     
     public Category(){
 
     }
-    
-    public Category(String name, Integer project, Color color){ 
+
+    public Category(String name, Integer project){
         this.name = name;
         this.projectId = project;
-        this.color = color;
     }
 
     public int getID() {
@@ -61,13 +56,6 @@ public class Category {
         this.projectId = projectId;
     }
 
-    public Color getColor() {
-        return color;
-    }
-
-    public void setColor(Color color) {
-        this.color = color;
-    }
 
     @Override
     public String toString() {
@@ -75,7 +63,6 @@ public class Category {
                 "id: " + ID +
                 "name: " + name +
                 "project: " + projectId + 
-                "color: " + color.getHexColor()
-                +"}";
+                "}";
     }
 }

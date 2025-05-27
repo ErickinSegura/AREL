@@ -17,110 +17,18 @@ import {
     FiLoader,
     FiTrash2,
     FiPlus,
-    FiUser,
     FiUserPlus,
     FiSearch,
     FiCheck,
     FiUserX,
-    FiUsers
+    FiUsers,
+    FiTag,
+    FiEdit3
 } from 'react-icons/fi';
 import { FiCheck as Check } from 'react-icons/fi';
 import { Skeleton, SkeletonText, SkeletonCircle } from '../../lib/ui/Skeleton';
-
-const getProjectIcon = (iconID) => {
-    switch (iconID) {
-        case 1: return <FiFolder size={24} />;
-        case 2: return <FiCodesandbox size={24} />;
-        case 3: return <FiCode size={24} />;
-        case 4: return <FiFileText size={24} />;
-        case 5: return <FiStar size={24} />;
-        case 6: return <FiBookmark size={24} />;
-        default: return <FiFolder size={24} />;
-    }
-};
-
-export const ErrorState = ({ error }) => (
-    <div className="p-6 flex flex-col items-center justify-center h-full">
-        <Card className="w-full max-w-md text-center">
-            <CardHeader>
-                <CardTitle className="text-2xl">
-                    Error <span className="text-oracleRed">Loading Settings</span>
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="flex justify-center mb-6">
-                    <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-red-500">
-                        <FiAlertTriangle size={32} />
-                    </div>
-                </div>
-                <div className="bg-red-50 p-4 rounded-lg mb-6">
-                    <p className="text-red-600 font-medium">{error}</p>
-                </div>
-                <Button
-                    variant="outline"
-                    className="flex items-center gap-2"
-                    onClick={() => window.location.reload()}
-                >
-                    <FiRefreshCw size={16} />
-                    Retry
-                </Button>
-            </CardContent>
-        </Card>
-    </div>
-);
-
-export const NoProjectState = ({ title, message }) => (
-    <div className="p-6 flex flex-col items-center justify-center h-full">
-        <Card className="w-full max-w-md text-center">
-            <CardHeader>
-                <CardTitle className="text-2xl">
-                    No Project <span className="text-oracleRed">{title}</span>
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="flex justify-center mb-6">
-                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
-                        <FiFolder size={32} />
-                    </div>
-                </div>
-                <p className="text-gray-600 mb-6">
-                    {message}
-                </p>
-            </CardContent>
-        </Card>
-    </div>
-);
-
-export const ProjectHeader = ({ selectedProject, loading }) => (
-    <Card className="mb-6">
-        <CardHeader>
-            <div className={`flex items-center ${loading ? 'animate-pulse' : ''}`}>
-                <CardTitle>
-                    {loading ? (
-                        <div className="flex items-center">
-                            <SkeletonCircle size="md" />
-                            <div className="ml-3 w-48">
-                                <SkeletonText lines={1} />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex items-center">
-                            <div
-                                className="w-12 h-12 rounded-xl grid place-items-center text-white"
-                                style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
-                            >
-                                {getProjectIcon(selectedProject?.icon)}
-                            </div>
-                            <h1 className="text-2xl font-bold px-3">
-                                {selectedProject?.projectName} <span className="text-oracleRed">Settings</span>
-                            </h1>
-                        </div>
-                    )}
-                </CardTitle>
-            </div>
-        </CardHeader>
-    </Card>
-);
+import {useCategory} from "../../hooks/useCategory";
+import {AvatarRenderer} from "../../lib/AvatarRenderer";
 
 export const SettingsForm = ({
                                  loading,
@@ -225,7 +133,7 @@ export const SettingsForm = ({
                                     value={formData.description}
                                     onChange={handleChange}
                                     placeholder="Enter project description"
-                                    className="px-4 py-2 border rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                                    className="px-4 py-2 border rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-oracleRed"
                                     rows={3}
                                 />
                             </div>
@@ -238,7 +146,7 @@ export const SettingsForm = ({
                                     <div ref={colorMenuRef} className="relative">
                                         <button
                                             type="button"
-                                            className="flex items-center justify-between w-full px-4 py-3 border rounded-md bg-white hover:bg-gray-50 transition-colors"
+                                            className="flex items-center justify-between w-full px-4 py-3 border rounded-xl bg-white hover:bg-gray-50 transition-colors"
                                             onClick={() => {
                                                 setIsColorMenuOpen(!isColorMenuOpen);
                                                 setIsIconMenuOpen(false);
@@ -262,7 +170,7 @@ export const SettingsForm = ({
                                         </button>
 
                                         {isColorMenuOpen && (
-                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg p-3 max-h-64 overflow-y-auto">
+                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-xl shadow-lg p-3 max-h-64 overflow-y-auto">
                                                 <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
                                                     {colorOptions.map((color) => (
                                                         <button
@@ -297,7 +205,7 @@ export const SettingsForm = ({
                                     <div ref={iconMenuRef} className="relative">
                                         <button
                                             type="button"
-                                            className="flex items-center justify-between w-full px-4 py-3 border rounded-md bg-white hover:bg-gray-50 transition-colors"
+                                            className="flex items-center justify-between w-full px-4 py-3 border rounded-xl bg-white hover:bg-gray-50 transition-colors"
                                             onClick={() => {
                                                 setIsIconMenuOpen(!isIconMenuOpen);
                                                 setIsColorMenuOpen(false);
@@ -306,7 +214,7 @@ export const SettingsForm = ({
                                             aria-haspopup="true"
                                         >
                                             <div className="flex items-center gap-3">
-                                                <div className="text-gray-700 bg-gray-100 p-2 rounded-md">
+                                                <div className="text-gray-700 bg-gray-100 p-2 rounded-xl">
                                                     {getSelectedIcon().icon}
                                                 </div>
                                                 <span className="text-sm font-medium">{getSelectedIcon().label}</span>
@@ -317,13 +225,13 @@ export const SettingsForm = ({
                                         </button>
 
                                         {isIconMenuOpen && (
-                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg p-3 max-h-64 overflow-y-auto">
+                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-xl shadow-lg p-3 max-h-64 overflow-y-auto">
                                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                                     {iconOptions.map((option) => (
                                                         <button
                                                             key={option.id}
                                                             type="button"
-                                                            className={`flex items-center gap-2 p-3 rounded-md w-full transition-colors ${
+                                                            className={`flex items-center gap-2 p-3 rounded-xl w-full transition-colors ${
                                                                 formData.iconId === option.id
                                                                     ? 'bg-gray-100 ring-2 ring-oracleRed text-oracleRed'
                                                                     : 'hover:bg-gray-50'
@@ -428,7 +336,7 @@ export const DangerZoneCard = ({
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            <div className="p-4 bg-red-50 rounded-md">
+                            <div className="p-4 bg-red-50 rounded-xl">
                                 <h3 className="font-medium text-red-700 mb-2">Delete this project</h3>
                                 <p className="text-red-600 text-sm mb-4">
                                     Once you delete a project, there is no going back. This action cannot be undone.
@@ -505,19 +413,34 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
         selectedUsers,
         addingUsers,
         removingUserId,
+        loadingAvailableUsers,
+        isDeleteModalOpen,
+        userToDelete,
+        userRoles,
+        isEditRoleModalOpen,
+        userToEditRole,
+        newRole,
+        updatingRole,
         handleSearchChange,
         handleOpenAddUserModal,
         handleCloseAddUserModal,
         toggleUserSelection,
         handleAddUsers,
-        handleRemoveUser,
-        filterAvailableUsers
+        handleOpenDeleteModal,
+        handleCloseDeleteModal,
+        handleConfirmRemoveUser,
+        filterAvailableUsers,
+        handleUserRoleChange,
+        handleOpenEditRoleModal,
+        handleCloseEditRoleModal,
+        handleUpdateUserRole,
+        setNewRole
     } = useProjectUsers(projectId);
 
     const UserListSkeleton = () => (
         <div className="space-y-4">
             {[1, 2, 3, 4].map((item) => (
-                <div key={item} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                <div key={item} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                     <div className="flex items-center space-x-3">
                         <SkeletonCircle size="md" />
                         <div>
@@ -586,7 +509,7 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                                 />
                             </div>
 
-                            {filteredUsers.length === 0 ? (
+                            {filteredUsers.length < 1 ? (
                                 <div className="text-center py-8">
                                     <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mx-auto mb-4">
                                         <FiUsers size={32} />
@@ -601,29 +524,46 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                                     {filteredUsers.map(user => (
                                         <div
                                             key={user.id}
-                                            className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"
+                                            className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
                                         >
                                             <div className="flex items-center space-x-3">
                                                 <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
-                                                    <FiUser size={20} />
+                                                    <div className="w-16 aspect-square rounded-xl overflow-hidden">
+                                                        <AvatarRenderer config={user.avatar} />
+                                                    </div>
                                                 </div>
                                                 <div>
                                                     <h3 className="font-medium">{user.firstName} {user.lastName}</h3>
-                                                    <p className="text-sm text-gray-500">{user.email}</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-sm text-gray-500">{user.role}</p>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <Button
-                                                className="text-red-500 hover:bg-red-50 hover:border-red-200"
-                                                onClick={() => handleRemoveUser(user.id)}
-                                                disabled={removingUserId === user.id}
-                                            >
-                                                {removingUserId === user.id ? (
-                                                    <FiLoader className="animate-spin" size={16} />
-                                                ) : (
-                                                    <FiUserX size={16} />
-                                                )}
-                                            </Button>
+                                            <div className="flex items-center gap-2">
+                                                <Button
+                                                    onClick={() => handleOpenEditRoleModal(user)}
+                                                    disabled={removingUserId === user.id}
+                                                >
+                                                    {removingUserId === user.id ? (
+                                                        <FiLoader className="animate-spin" size={16} />
+                                                    ) : (
+                                                        <FiEdit3 size={16} />
+                                                    )}
+                                                </Button>
+                                                <Button
+                                                    className="text-red-500 hover:bg-red-50 hover:border-red-200"
+                                                    onClick={() => handleOpenDeleteModal(user)}
+                                                    disabled={removingUserId === user.id}
+                                                >
+                                                    {removingUserId === user.id ? (
+                                                        <FiLoader className="animate-spin" size={16} />
+                                                    ) : (
+                                                        <FiUserX size={16} />
+                                                    )}
+                                                </Button>
+                                            </div>
                                         </div>
+
                                     ))}
                                 </div>
                             )}
@@ -655,41 +595,77 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                         </div>
 
                         <div className="max-h-72 overflow-y-auto">
-                            {availableUsers.length === 0 ? (
+                            {loadingAvailableUsers ? (
+                                <div className="space-y-4">
+                                    {[1, 2, 3, 4].map((item) => (
+                                        <div key={item} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                            <div className="flex items-center space-x-3">
+                                                <SkeletonCircle size="md" />
+                                                <div>
+                                                    <SkeletonText className="w-32" />
+                                                    <SkeletonText className="w-48" />
+                                                </div>
+                                            </div>
+                                            <Skeleton className="w-6 h-6 rounded-full" />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : availableUsers.length === 0 ? (
                                 <div className="text-center py-8">
                                     <p className="text-gray-500">No available users found</p>
                                 </div>
                             ) : (
                                 <div className="space-y-2">
                                     {availableUsers.map(user => (
-                                        <div
-                                            key={user.id}
-                                            className={`flex items-center justify-between p-3 rounded-md cursor-pointer transition-colors ${
-                                                selectedUsers.includes(user.id)
-                                                    ? 'bg-red-50 border border-red-200'
-                                                    : 'bg-gray-50 border border-white hover:bg-gray-100'
-                                            }`}
-                                            onClick={() => toggleUserSelection(user.id)}
-                                        >
-                                            <div className="flex items-center space-x-3">
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                        <div key={user.id} className="space-y-2">
+                                            <div
+                                                className={`flex items-center justify-between p-3 rounded-xl transition-colors ${
                                                     selectedUsers.includes(user.id)
-                                                        ? 'bg-red-100 text-oracleRed'
-                                                        : 'bg-gray-200 text-gray-500'
-                                                }`}>
-                                                    <FiUser size={20} />
+                                                        ? 'bg-red-50 border border-red-200'
+                                                        : 'bg-gray-50 border border-white hover:bg-gray-100'
+                                                }`}
+                                            >
+                                                <div
+                                                    className="flex items-center space-x-3 flex-1 cursor-pointer"
+                                                    onClick={() => toggleUserSelection(user.id)}
+                                                >
+                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                                        selectedUsers.includes(user.id)
+                                                            ? 'bg-red-100 text-oracleRed'
+                                                            : 'bg-gray-200 text-gray-500'
+                                                    }`}>
+                                                        <div className="w-16 aspect-square rounded-xl overflow-hidden">
+                                                            <AvatarRenderer config={user.avatar} />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h3 className="font-medium">{user.firstName} {user.lastName}</h3>
+                                                        <p className="text-sm text-gray-500">{user.email}</p>
+                                                        {selectedUsers.includes(user.id) && (
+                                                            <div
+                                                                className="mt-3 flex items-center gap-2"
+                                                                onClick={(e) => e.stopPropagation()}
+                                                                onMouseDown={(e) => e.stopPropagation()}
+                                                            >
+                                                                <Input
+                                                                    placeholder="Enter user role (e.g., member, admin, viewer)"
+                                                                    value={userRoles[user.id] || ''}
+                                                                    onChange={(e) => handleUserRoleChange(user.id, e.target.value)}
+                                                                    className="text-sm"
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h3 className="font-medium">{user.firstName} {user.lastName}</h3>
-                                                    <p className="text-sm text-gray-500">{user.email}</p>
+                                                <div className={`w-6 h-6 rounded-full border flex items-center justify-center cursor-pointer ${
+                                                    selectedUsers.includes(user.id)
+                                                        ? 'border-oracleRed bg-oracleRed text-white'
+                                                        : 'border-gray-300'
+                                                }`}
+                                                     onClick={() => toggleUserSelection(user.id)}
+                                                >
+                                                    {selectedUsers.includes(user.id) && <FiCheck size={14} />}
                                                 </div>
-                                            </div>
-                                            <div className={`w-6 h-6 rounded-full border flex items-center justify-center ${
-                                                selectedUsers.includes(user.id)
-                                                    ? 'border-oracleRed bg-oracleRed text-white'
-                                                    : 'border-gray-300'
-                                            }`}>
-                                                {selectedUsers.includes(user.id) && <FiCheck size={14} />}
                                             </div>
                                         </div>
                                     ))}
@@ -708,7 +684,7 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                     <Button
                         variant="remarked"
                         onClick={handleAddUsers}
-                        disabled={selectedUsers.length === 0 || addingUsers}
+                        disabled={selectedUsers.length === 0 || addingUsers || loadingAvailableUsers}
                         className="flex items-center gap-2 w-40"
                     >
                         {addingUsers ? (
@@ -725,6 +701,398 @@ export const ProjectUsers = ({ projectId, loading = false }) => {
                     </Button>
                 </ModalFooter>
             </Modal>
+
+            {/* Edit Role Modal */}
+            <Modal isOpen={isEditRoleModalOpen} onClose={handleCloseEditRoleModal}>
+                <ModalClose onClick={handleCloseEditRoleModal} />
+                <ModalHeader>
+                    <ModalTitle className="flex items-center gap-2">
+                        <FiEdit3 /> Edit User Role
+                    </ModalTitle>
+                    <ModalDescription>
+                        Update the role for this user in the project
+                    </ModalDescription>
+                </ModalHeader>
+                <ModalContent>
+                    <div className="space-y-4">
+                        {userToEditRole && (
+                            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                                    <div className="w-16 aspect-square rounded-xl overflow-hidden">
+                                        <AvatarRenderer config={userToEditRole.avatar} />
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 className="font-medium">{userToEditRole.firstName} {userToEditRole.lastName}</h3>
+                                    <p className="text-sm text-gray-500">{userToEditRole.email}</p>
+                                    <p className="text-xs text-gray-400">Current role: {userToEditRole.role}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        <div>
+                            <label htmlFor="newRole" className="block text-sm font-medium text-gray-700 mb-2">
+                                New Role
+                            </label>
+                            <Input
+                                id="newRole"
+                                placeholder="Enter new role (e.g., admin, member, viewer, lead)"
+                                value={newRole}
+                                onChange={(e) => setNewRole(e.target.value)}
+                                className="w-full"
+                            />
+                        </div>
+                    </div>
+                </ModalContent>
+                <ModalFooter>
+                    <Button
+                        variant="default"
+                        onClick={handleCloseEditRoleModal}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="remarked"
+                        onClick={handleUpdateUserRole}
+                        disabled={!newRole.trim() || updatingRole}
+                        className="flex items-center gap-2"
+                    >
+                        {updatingRole ? (
+                            <>
+                                <FiLoader className="animate-spin" size={16} />
+                                <span>Updating...</span>
+                            </>
+                        ) : (
+                            <>
+                                <FiEdit3 size={16} />
+                                <span>Update Role</span>
+                            </>
+                        )}
+                    </Button>
+                </ModalFooter>
+            </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal isOpen={isDeleteModalOpen} onClose={handleCloseDeleteModal}>
+                <ModalClose onClick={handleCloseDeleteModal} />
+                <ModalHeader>
+                    <ModalTitle className="flex items-center gap-2 text-red-600">
+                        <FiAlertTriangle /> Confirm User Removal
+                    </ModalTitle>
+                    <ModalDescription>
+                        This action cannot be undone
+                    </ModalDescription>
+                </ModalHeader>
+                <ModalContent>
+                    <div>
+                        {userToDelete && (
+                            <p className="text-gray-700">
+                                Are you sure you want to remove <strong>{userToDelete.firstName} {userToDelete.lastName}</strong> from this project?
+                            </p>
+                        )}
+                    </div>
+                </ModalContent>
+                <ModalFooter>
+                    <Button
+                        variant="default"
+                        onClick={handleCloseDeleteModal}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="destructive"
+                        onClick={handleConfirmRemoveUser}
+                        disabled={removingUserId === userToDelete?.id}
+                        className="flex items-center gap-2"
+                    >
+                        {removingUserId === userToDelete?.id ? (
+                            <>
+                                <FiLoader className="animate-spin" size={16} />
+                                <span>Removing...</span>
+                            </>
+                        ) : (
+                            <>
+                                <FiUserX size={16} />
+                                <span>Remove User</span>
+                            </>
+                        )}
+                    </Button>
+                </ModalFooter>
+            </Modal>
         </>
+    );
+};
+
+export const ProjectCategories = ({ loading = false }) => {
+    const { categories, loading: categoriesLoading, error, addCategory, deleteCategory, updateCategory } = useCategory();
+    const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
+    const [formSubmitting, setFormSubmitting] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+
+    const handleOpenAddCategoryModal = () => {
+        setIsAddCategoryModalOpen(true);
+        setNewCategoryName("");
+        setErrorMessage("");
+    };
+
+    const handleCloseAddCategoryModal = () => {
+        setIsAddCategoryModalOpen(false);
+    };
+
+    const handleAddCategory = async (e) => {
+        e?.preventDefault();
+        if (!newCategoryName.trim()) return;
+
+        setFormSubmitting(true);
+        try {
+            await addCategory({ name: newCategoryName });
+            setNewCategoryName("");
+            handleCloseAddCategoryModal();
+        } catch (error) {
+            console.error("Error adding category:", error);
+            setErrorMessage(error?.message || "Failed to add category");
+        } finally {
+            setFormSubmitting(false);
+        }
+    };
+
+    const handleDeleteCategory = async (categoryId) => {
+        try {
+            await deleteCategory(categoryId);
+        } catch (error) {
+            console.error("Error deleting category:", error);
+            setErrorMessage(error?.message || "Failed to delete category");
+        }
+    };
+
+    const handleUpdateCategory = async (categoryId, category) => {
+        try {
+            await updateCategory(categoryId, category);
+        } catch (error) {
+            console.error("Error updating category:", error);
+            setErrorMessage(error?.message || "Failed to update category");
+        }
+    };
+
+    return (
+        <>
+            <Card className="mt-6">
+                <CardHeader>
+                    <div className={`flex items-center justify-between ${categoriesLoading ? 'animate-pulse' : ''}`}>
+                        <CardTitle>
+                            {categoriesLoading ? (
+                                <div className="flex items-center">
+                                    <SkeletonCircle size="md" />
+                                    <div className="ml-3 w-48">
+                                        <SkeletonText lines={1} />
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex items-center">
+                                    <h1 className="text-2xl font-bold px-2">Project <span className="text-oracleRed">Categories</span></h1>
+                                </div>
+                            )}
+                        </CardTitle>
+
+                        {!categoriesLoading && (
+                            <div className="flex space-x-2">
+                                <Button
+                                    variant="remarked"
+                                    className="flex items-center gap-2"
+                                    onClick={handleOpenAddCategoryModal}
+                                >
+                                    <FiPlus size={16} />
+                                    Add Category
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    {loading || categoriesLoading ? (
+                        <div className="space-y-4">
+                            {[1, 2, 3, 4].map((item) => (
+                                <div key={item} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                    <div className="flex items-center space-x-3">
+                                        <SkeletonCircle size="md" />
+                                        <div>
+                                            <SkeletonText className="w-32" />
+                                            <SkeletonText className="w-48" />
+                                        </div>
+                                    </div>
+                                    <Skeleton className="w-24 h-8" />
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {error && (
+                                <div className="bg-red-50 p-4 rounded-lg">
+                                    <p className="text-red-600 font-medium">
+                                        {typeof error === 'object' ? (error.message || "An error occurred while loading categories") : error}
+                                    </p>
+                                </div>
+                            )}
+
+                            {categories.length === 0 ? (
+                                <div className="text-center py-8">
+                                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mx-auto mb-4">
+                                        <FiTag size={32} />
+                                    </div>
+                                    <h3 className="text-lg font-medium text-gray-700 mb-1">No categories found</h3>
+                                    <p className="text-gray-500 text-sm mb-4">This project doesn't have any categories assigned</p>
+                                </div>
+                            ) : (
+                                categories.map(category => (
+                                    <CategoryItem
+                                        key={category.id}
+                                        category={category}
+                                        onDelete={handleDeleteCategory}
+                                        onUpdate={handleUpdateCategory}
+                                    />
+                                ))
+                            )}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Add Category Modal */}
+            <Modal isOpen={isAddCategoryModalOpen} onClose={handleCloseAddCategoryModal}>
+                <ModalClose onClick={handleCloseAddCategoryModal} />
+                <ModalHeader>
+                    <ModalTitle className="flex items-center gap-2">
+                        <FiPlus /> Add Category
+                    </ModalTitle>
+                    <ModalDescription>
+                        Create a new category for this project
+                    </ModalDescription>
+                </ModalHeader>
+
+                <form onSubmit={handleAddCategory}>
+                    <ModalContent>
+                        <div className="space-y-4">
+                            {errorMessage && (
+                                <div className="bg-red-50 p-3 rounded-lg">
+                                    <p className="text-red-600 text-sm">{errorMessage}</p>
+                                </div>
+                            )}
+                            <Input
+                                type="text"
+                                placeholder="Category Name"
+                                value={newCategoryName}
+                                onChange={(e) => setNewCategoryName(e.target.value)}
+                                required
+                            />
+                        </div>
+                    </ModalContent>
+
+                    <ModalFooter>
+                        <Button
+                            variant="remarked"
+                            type="submit"
+                            disabled={formSubmitting || !newCategoryName.trim()}
+                            className="flex items-center gap-2 w-40"
+                        >
+                            {formSubmitting ? (
+                                <>
+                                    <FiLoader className="animate-spin" size={16} />
+                                    <span>Adding...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <FiPlus size={16} />
+                                    <span>Add Category</span>
+                                </>
+                            )}
+                        </Button>
+                    </ModalFooter>
+                </form>
+            </Modal>
+        </>
+    );
+};
+
+export const CategoryItem = ({ category, onDelete, onUpdate }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [categoryName, setCategoryName] = useState(category.name);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleUpdate = async () => {
+        if (!categoryName.trim()) return;
+
+        setIsLoading(true);
+        try {
+            await onUpdate(category.id, { name: categoryName });
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Error updating category:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleCancel = () => {
+        setCategoryName(category.name);
+        setIsEditing(false);
+    };
+
+    return (
+        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+            {isEditing ? (
+                <div className="flex items-center space-x-3">
+                    <Input
+                        type="text"
+                        value={categoryName}
+                        onChange={(e) => setCategoryName(e.target.value)}
+                        className="w-1/2"
+                    />
+                </div>
+            ) : (
+                <div className="flex items-center space-x-3">
+                    <div
+                        className="w-10 h-10 rounded-full"
+                        style={{ backgroundColor: "#C74634" }}
+                    ></div>
+                    <span>{category.name}</span>
+                </div>
+            )}
+            <div className="flex items-center space-x-2">
+                {isEditing ? (
+                    <>
+                        <Button
+                            variant="default"
+                            onClick={handleUpdate}
+                            disabled={isLoading || !categoryName.trim()}
+                        >
+                            {isLoading ? <FiLoader className="animate-spin" size={16} /> : "Save"}
+                        </Button>
+                        <Button
+                            variant="default"
+                            onClick={handleCancel}
+                            disabled={isLoading}
+                        >
+                            Cancel
+                        </Button>
+                    </>
+                ) : (
+                    <>
+                        <Button
+                            variant="default"
+                            onClick={() => setIsEditing(true)}
+                        >
+                            <FiEdit3 size={16} />
+                        </Button>
+                        <Button
+                            variant="danger"
+                            onClick={() => onDelete(category.id)}
+                        >
+                            <FiTrash2 size={16} />
+                        </Button>
+                    </>
+                )}
+            </div>
+        </div>
     );
 };

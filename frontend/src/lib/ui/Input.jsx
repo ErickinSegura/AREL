@@ -32,7 +32,7 @@ export const Input = ({
                     onChange={onChange}
                     placeholder={placeholder}
                     className={`
-                        px-4 py-2 border rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-oracleRed w-full
+                        px-4 py-2 border rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-oracleRed w-full
                         ${leftIcon ? 'pl-10' : ''}
                         ${rightIcon ? 'pr-10' : ''}
                     `}

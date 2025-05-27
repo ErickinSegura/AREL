@@ -9,7 +9,7 @@ import {
 import { Html } from 'react-pdf-html';
 
 import { OPENAI_API_KEY } from './api';
-import { colors, styles, instructions } from "./PDFConstants";
+import { styles, instructions } from "./PDFConstants";
 
 // Lazy loading for OpenAI client
 let openAiClient = null;

@@ -2,18 +2,18 @@ import React from 'react';
 import { useOverview } from '../../hooks/useOverview';
 import { greeting } from '../../lib/greetings';
 import {
-    ErrorState,
-    NoProjectState,
-    ProjectHeader,
     DashboardHeader,
     SprintSummaryCard,
     SprintGoalCard,
     TeamPerformanceCard,
     SprintHoursChart,
     DeveloperHoursChart,
-    DeveloperTasksChart, LogsCard
+    DeveloperTasksChart, LogsCard, PDFButton
 } from '../../components/overview/overviewComponents';
 import {useLogs} from "../../hooks/useLogs";
+import {Header} from "../../lib/ui/Header";
+import {ErrorState} from "../../lib/ui/Error";
+import {NoProjectState} from "../../lib/ui/NoProject";
 
 const AdminOverview = () => {
     const {
@@ -29,13 +29,12 @@ const AdminOverview = () => {
         showSprintDropdown,
         setSelectedSprintNumber,
         formatDate,
-        getProjectIcon,
         calculateProgressArc,
         toggleSprintDropdown,
         closeSprintDropdown
     } = useOverview();
 
-    const {logs, loadingLogs, erroLogsr} = useLogs();
+    const {logs} = useLogs();
 
     const [currentGreeting] = React.useState(greeting());
 
@@ -49,11 +48,17 @@ const AdminOverview = () => {
 
     return (
         <div className="container mx-auto px-4 py-6">
-            <ProjectHeader
+            <Header
+                title={selectedProject.projectName}
                 selectedProject={selectedProject}
                 loading={loading}
-                getProjectIcon={getProjectIcon(selectedProject?.icon? selectedProject.icon : "")}
-                isAdmin={true}
+                props={
+                    <div className="mt-2 sm:mt-0">
+                        <PDFButton
+                            selectedProject={selectedProject}
+                        />
+                    </div>
+                }
             />
 
             <DashboardHeader

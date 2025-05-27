@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from "../../lib/ui/Card";
 import { Button } from "../../lib/ui/Button";
-import { Modal, ModalHeader, ModalTitle, ModalDescription, ModalContent, ModalFooter, ModalClose } from "../../lib/ui/Modal";
+import { Modal, ModalHeader, ModalTitle, ModalDescription, ModalContent, ModalClose } from "../../lib/ui/Modal";
 import {AlertTriangle, Trash2, Loader, PlusCircle, UserCircle} from 'lucide-react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Input } from "../../lib/ui/Input";
@@ -30,7 +30,7 @@ export const UsersHeader = ({ loading, onAddUser }) => (
                             >
                                 <UserCircle size={24} />
                             </div>
-                            <h1 className="text-2xl font-bold px-3  ">Team Members</h1>
+                            <h1 className="text-2xl font-bold px-3  ">Users</h1>
                         </div>
                     )}
                 </CardTitle>

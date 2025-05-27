@@ -22,7 +22,6 @@ export const useBacklog = () => {
         category: null
     });
 
-    // Remove the hasLoadedInitialData ref as it's preventing reloading when project changes
     const previousProjectId = useRef(null);
 
     const [taskFormData, setTaskFormData] = useState({
@@ -38,7 +37,6 @@ export const useBacklog = () => {
         sprint: null
     });
 
-    // Update the task form when project changes
     useEffect(() => {
         if (selectedProject) {
             setTaskFormData(prev => ({
@@ -124,23 +122,18 @@ export const useBacklog = () => {
         }
     }, [selectedProject?.id]);
 
-    // This effect will run whenever selectedProject changes
     useEffect(() => {
-        // Reset selectedSprint when project changes
         setSelectedSprint(null);
 
-        // Clear existing tasks when changing projects
         setBacklogTasks([]);
         setSprintTasks([]);
 
-        // Check if project ID changed and fetch new data
         if (selectedProject?.id) {
             fetchBacklogTasks();
 
-            // Update the previousProjectId ref
             previousProjectId.current = selectedProject.id;
         }
-    }, [selectedProject?.id, fetchBacklogTasks]);
+    }, [selectedProject?.id]);
 
     useEffect(() => {
         if (selectedSprint && selectedProject?.id) {
@@ -203,21 +196,38 @@ export const useBacklog = () => {
         }
     };
 
-    const handleTaskUpdate = async (taskId, taskData) => {
+    const handleTaskUpdate = async (taskId, taskData, isBacklog = false) => {
+        console.log("Updating task:", taskId, taskData);
+
+        if (taskData.state && !isBacklog) {
+            const updatedTasks = sprintTasks.map(task =>
+                task.id === taskId ? { ...task, ...taskData } : task
+            );
+            setSprintTasks(updatedTasks);
+        }
+
         try {
-            setLoading(true);
             await BacklogService.updateTask(taskId, taskData);
-            fetchBacklogTasks();
+
+            if (!isBacklog) {
+                fetchBacklogTasks();
+            }
+
             if (selectedSprint) {
-                fetchSprintTasks(selectedSprint);
+                if (!taskData.state || !isBacklog) {
+                    fetchSprintTasks(selectedSprint);
+                }
             }
             return true;
         } catch (err) {
             console.error("Error updating task:", err);
+
+            if (taskData.state && !isBacklog) {
+                fetchSprintTasks(selectedSprint);
+            }
+
             setError("Failed to update task.");
             return false;
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -310,6 +320,7 @@ export const useBacklog = () => {
         taskFormData,
         handleTaskFormChange,
         validationError,
-        resetTaskForm
+        resetTaskForm,
+        setSprintTasks
     };
 };

@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
 
         if (token) {
             try {
-                const response = await fetch('/auth/me', {
+                const response = await fetch('http://localhost:8080/auth/me', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-                const response = await fetch('/auth/login', {
+            const response = await fetch('http://localhost:8080/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (firstName, lastName, email, telegramUsername, password) => {
         try {
-            const response = await fetch('/auth/register', {
+            const response = await fetch('http://localhost:8080/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -110,6 +110,41 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    const changePassword = async (currentPassword, newPassword) => {
+        const token = localStorage.getItem('jwt_token');
+
+        if (!token) {
+            throw new Error('User not authenticated');
+        }
+
+        try {
+            const response = await fetch('http://localhost:8080/auth/change_password', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    currentPassword,
+                    newPassword,
+                    confirmPassword: newPassword
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                const errorMessage = data.error || 'Error changing password';
+                throw new Error(errorMessage);
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Error changing password:', error);
+            throw error;
+        }
+    };
+
     const logout = () => {
         localStorage.removeItem('jwt_token');
         setUser(null);
@@ -124,6 +159,7 @@ export const AuthProvider = ({ children }) => {
                 user,
                 login,
                 register,
+                changePassword,
                 logout
             }}
         >

@@ -1,12 +1,14 @@
 import React from 'react';
 import { useShortcuts } from '../hooks/useShortcuts';
 import {
-    NoProjectState,
-    ShortcutsHeader,
     ShortcutCard,
     ShortcutDetailModal,
     CreateShortcutModal, NoProjectShortcuts
 } from '../components/shortcut/shortcutComponents';
+import {Button} from "../lib/ui/Button";
+import {Plus} from "lucide-react";
+import {Header} from "../lib/ui/Header";
+import {NoProjectState} from "../lib/ui/NoProject";
 
 const Shortcuts = () => {
     const {
@@ -37,10 +39,23 @@ const Shortcuts = () => {
 
     return (
         <div className="container mx-auto px-4 py-6">
-            <ShortcutsHeader
+            <Header
+                title="Project"
+                marked={"Shortcuts"}
                 selectedProject={selectedProject}
                 loading={loading}
-                onAddShortcut={() => setIsCreateModalOpen(true)}
+                props={
+                    <div className="flex space-x-2">
+                        <Button
+                            variant="remarked"
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="flex items-center gap-2"
+                        >
+                            <Plus size={16} />
+                            Add Shortcut
+                        </Button>
+                    </div>
+                }
             />
 
             {/* Shortcuts List */}

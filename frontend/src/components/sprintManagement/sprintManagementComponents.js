@@ -1,9 +1,9 @@
 import React, {useEffect, useState, useRef} from 'react';
 import { useDrag, useDrop } from 'react-dnd';
-import {Card, CardContent, CardHeader, CardTitle} from '../../lib/ui/Card';
+import {Card, CardContent} from '../../lib/ui/Card';
 import { Button } from '../../lib/ui/Button';
 import { Input } from '../../lib/ui/Input';
-import {SkeletonCircle, SkeletonText} from '../../lib/ui/Skeleton';
+import {SkeletonText} from '../../lib/ui/Skeleton';
 import {Clock, Tag, CheckCircle, ArrowDownCircle, Loader2, User,} from 'lucide-react';
 import { FiChevronDown } from 'react-icons/fi';
 import { format } from 'date-fns';
@@ -16,8 +16,7 @@ import {
     ModalFooter,
     ModalClose
 } from '../../lib/ui/Modal';
-import {FiCodesandbox, FiFolder} from "react-icons/fi";
-import {useProjectUsers} from "../../hooks/useProjectUsers";
+import {AvatarRenderer} from "../../lib/AvatarRenderer";
 
 const priorityColors = {
     1: 'bg-green-100 text-green-800 border-green-200',
@@ -33,53 +32,6 @@ const priorityLabels = {
     4: 'Critical'
 };
 
-const categoryLabels = {
-    1: 'Web',
-    2: 'Bot'
-};
-
-const getProjectIcon = (iconID) => {
-    switch (iconID) {
-        case 1: return <FiFolder />;
-        case 2: return <FiCodesandbox />;
-        default: return <FiCodesandbox />;
-    }
-};
-
-export const SprintsHeader = ({ selectedProject, loading, onCreateTask, onCreateSprint, selector }) => (
-    <Card className="mb-6">
-        <CardHeader>
-            <div className={`flex items-center justify-between ${loading ? 'animate-pulse' : ''}`}>
-                <CardTitle>
-                    {loading ? (
-                        <div className="flex items-center">
-                            <SkeletonCircle size="md" />
-                            <div className="ml-3 w-48">
-                                <SkeletonText lines={1} />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex items-center">
-                            <div
-                                className="w-12 h-12 rounded-xl grid place-items-center text-white"
-                                style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
-                            >
-                                {getProjectIcon(selectedProject?.icon)}
-                            </div>
-                            <h1 className="text-2xl font-bold px-3">Project Sprints</h1>
-                        </div>
-                    )}
-                </CardTitle>
-
-                {!loading && (
-                    <div className="flex space-x-2">
-                        {selector}
-                    </div>
-                )}
-            </div>
-        </CardHeader>
-    </Card>
-);
 
 export const ActualHoursModal = ({ isOpen, onClose, taskId, onSubmit, loading }) => {
     const [actualHours, setActualHours] = useState('');
@@ -140,7 +92,7 @@ export const ActualHoursModal = ({ isOpen, onClose, taskId, onSubmit, loading })
     );
 };
 
-export const DraggableTaskCard = ({ task, onSelect, users, usersLoading }) => {
+export const DraggableTaskCard = ({ task, onSelect, users, usersLoading, categories }) => {
     const [{ isDragging }, dragRef] = useDrag(() => ({
         type: 'TASK',
         item: { id: task.id },
@@ -152,16 +104,23 @@ export const DraggableTaskCard = ({ task, onSelect, users, usersLoading }) => {
     const renderAssignedUserContent = () => {
         if (!task.assignedTo) return "Unassigned";
 
-        if (usersLoading) {
+        if (usersLoading ) {
             return <SkeletonText lines={1} className="w-24" />;
         }
 
-        const assignedUser = users.find(u => u.id === task.assignedTo);
+        const assignedUser = users.find(u => u.userProjectId === task.assignedTo);
         if (assignedUser) {
             return `${assignedUser.firstName} ${assignedUser.lastName}`;
         }
 
-        return "Usuario no encontrado";
+        return "User not found";
+    };
+
+    const getCategoryName = () => {
+        if (!task.category) return 'Unknown';
+
+        const category = categories.find(cat => cat.id === task.category);
+        return category ? category.name : 'Unknown';
     };
 
     return (
@@ -188,7 +147,7 @@ export const DraggableTaskCard = ({ task, onSelect, users, usersLoading }) => {
                     <div className="flex flex-wrap items-center gap-3 mt-3">
                         <div className="inline-flex items-center text-xs text-gray-600">
                             <Tag size={14} className="mr-1" />
-                            {categoryLabels[task.category] || 'Unknown'}
+                            {getCategoryName()}
                         </div>
 
                         <div className="inline-flex items-center text-xs text-gray-600">
@@ -204,10 +163,16 @@ export const DraggableTaskCard = ({ task, onSelect, users, usersLoading }) => {
                         )}
 
                         {task.assignedTo && (
-                            <div className="inline-flex items-center text-xs text-gray-600">
-                                <User size={14} className="mr-1" />
-                                {renderAssignedUserContent()}
-                            </div>
+                            <>
+                                <div className="inline-flex items-center">
+                                    <div className="w-6 h-6 rounded-full overflow-hidden mr-2">
+                                        <AvatarRenderer config={users.find(u => u.userProjectId === task.assignedTo)?.avatar} />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-600">{renderAssignedUserContent()}</p>
+                                    </div>
+                                </div>
+                            </>
                         )}
 
                     </div>
@@ -216,6 +181,7 @@ export const DraggableTaskCard = ({ task, onSelect, users, usersLoading }) => {
         </div>
     );
 };
+
 export const TaskColumn = ({
                                icon,
                                title,
@@ -225,7 +191,8 @@ export const TaskColumn = ({
                                onTaskDrop,
                                users,
                                usersLoading,
-                               projectId
+                               projectId,
+                               categories
                            }) => {
     const [{ isOver }, dropRef] = useDrop(() => ({
         accept: 'TASK',
@@ -234,6 +201,7 @@ export const TaskColumn = ({
             isOver: monitor.isOver(),
         }),
     }));
+
 
     return (
         <div
@@ -259,9 +227,9 @@ export const TaskColumn = ({
                             key={task.id}
                             task={task}
                             onSelect={onTaskSelect}
-                            // Pasamos los datos de usuarios en lugar de volver a hacer la consulta
+                            categories={categories}
                             users={users}
-                            usersLoading={usersLoading}
+                            usersLoading={usersLoading }
                             projectId={projectId}
                         />
                     ))
@@ -284,6 +252,15 @@ export const SprintSelector = ({ sprints, selectedSprint, onSprintChange, loadin
             return dateString;
         }
     };
+
+    useEffect(() => {
+        if (sprints.length > 0 && !selectedSprint) {
+            const lastSprint = sprints.reduce((prev, current) =>
+                (prev.sprintNumber > current.sprintNumber) ? prev : current
+            );
+            onSprintChange(lastSprint.id);
+        }
+    }, [sprints, selectedSprint, onSprintChange]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -365,4 +342,3 @@ export const SprintSelector = ({ sprints, selectedSprint, onSprintChange, loadin
         </div>
     );
 };
-

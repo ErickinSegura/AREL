@@ -17,10 +17,12 @@ public class TaskService {
 
     @Autowired
     private TaskRepository taskRepository;
+
     public List<Task> findAll(){
         List<Task> taskList = taskRepository.findAll();
         return taskList;
     }
+
     public ResponseEntity<Task> getTaskById(int id){
         Optional<Task> TaskData = taskRepository.findById(id);
         if (TaskData.isPresent()){
@@ -29,6 +31,7 @@ public class TaskService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
     public Task addTask(Task task){
         return taskRepository.save(task);
     }
@@ -92,19 +95,28 @@ public class TaskService {
                 existingTask.setCategoryById(taskUpdate.getCategoryId());
             }
 
-            if (taskUpdate.getAssignedToId() != null) {
+            Integer assignedToId = taskUpdate.getAssignedToId();
+
+            if (assignedToId != null) {
                 UserProject userProject = new UserProject();
-                userProject.setID(taskUpdate.getAssignedToId());
+                userProject.setID(assignedToId);
                 existingTask.setAssignedTo(userProject);
-            } else if (taskUpdate.getAssignedTo() == null &&
-                    existingTask.getAssignedTo() != null &&
-                    taskUpdate.getAssignedTo() != existingTask.getAssignedTo()) {
+            }
+            else if (fieldWasExplicitlyIncludedInRequest(taskUpdate, "assignedTo")) {
                 existingTask.setAssignedTo(null);
             }
 
             return taskRepository.save(existingTask);
         } else {
             return null;
+        }
+    }
+
+    private boolean fieldWasExplicitlyIncludedInRequest(Task task, String fieldName) {
+        try {
+            return task.toString().contains(fieldName);
+        } catch (Exception e) {
+            return false;
         }
     }
 

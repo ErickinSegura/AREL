@@ -3,15 +3,18 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../lib/ui/Card';
 import { useOverview } from '../../hooks/useOverview';
 import { greeting } from '../../lib/greetings';
 import {
-    ErrorState,
-    NoProjectState,
-    ProjectHeader,
     DashboardHeader,
     SprintSummaryCard,
-    DevStreakCard,
-    UserPerformanceItem
+    UserPerformanceItem,
+    SprintGoalCard,
+    DeveloperHoursChart,
+    DeveloperTasksChart
 } from '../../components/overview/overviewComponents';
-import { FiArrowUp } from 'react-icons/fi';
+import { Header } from "../../lib/ui/Header";
+import { useProjectUsers } from "../../hooks/useProjectUsers";
+import { Skeleton, SkeletonText } from "../../lib/ui/Skeleton";
+import {ErrorState} from "../../lib/ui/Error";
+import {NoProjectState} from "../../lib/ui/NoProject";
 
 const DeveloperOverview = () => {
     const {
@@ -25,18 +28,24 @@ const DeveloperOverview = () => {
         setSelectedSprintNumber,
         showSprintDropdown,
         formatDate,
-        getProjectIcon,
         toggleSprintDropdown,
         closeSprintDropdown,
-        currentUserPerformance,
+        userPerformances,
         calculateProgressArc
     } = useOverview();
 
-    const [currentGreeting] = React.useState(greeting());
 
-    const calculateUserProgressArc = () => {
-        return calculateProgressArc(currentUserPerformance);
-    };
+    const currentUserPerformances = React.useMemo(() => {
+        if (!user || !userPerformances) return [];
+
+        return userPerformances.filter(perf => perf.userProjectID === user.id);
+    }, [user, userPerformances]);
+
+    const currentUserPerformance = currentUserPerformances.find(
+        perf => perf.sprintNumber === selectedSprintNumber
+    ) || null;
+
+    const [currentGreeting] = React.useState(greeting());
 
     if (error) {
         return <ErrorState error={error} />;
@@ -48,10 +57,10 @@ const DeveloperOverview = () => {
 
     return (
         <div className="container mx-auto px-4 py-6">
-            <ProjectHeader
+            <Header
+                title={selectedProject.projectName}
                 selectedProject={selectedProject}
                 loading={loading}
-                getProjectIcon={getProjectIcon(selectedProject?.icon?.iconName)}
             />
 
             <DashboardHeader
@@ -74,9 +83,10 @@ const DeveloperOverview = () => {
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 mt-6">
-                <DevStreakCard
+                <SprintGoalCard
                     loading={loading}
                     selectedSprint={selectedSprint}
+                    calculateProgressArc={calculateProgressArc}
                 />
 
                 <Card className="flex flex-col h-full">
@@ -91,68 +101,25 @@ const DeveloperOverview = () => {
                     </CardHeader>
                     <CardContent className="flex-grow">
                         {loading ? (
-                            <div className="bg-gray-50 p-3 rounded-lg animate-pulse">
-                                <div className="flex justify-between mb-2">
-                                    <div className="w-32 h-4 bg-gray-200 rounded"></div>
-                                    <div className="w-24 h-4 bg-gray-200 rounded"></div>
-                                </div>
-                                <div className="grid grid-cols-3 gap-2 mt-2">
-                                    <div className="h-4 bg-gray-200 rounded"></div>
-                                    <div className="h-4 bg-gray-200 rounded"></div>
-                                    <div className="h-4 bg-gray-200 rounded"></div>
-                                </div>
-                                <div className="w-full h-2 bg-gray-200 rounded-full mt-2"></div>
+                            <div className="space-y-4">
+                                {[1].map((i) => (
+                                    <div key={i} className="bg-gray-50 p-3 rounded-lg">
+                                        <div className="flex justify-between mb-2">
+                                            <SkeletonText className="w-32" />
+                                            <SkeletonText className="w-24" />
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-2 mt-2">
+                                            <SkeletonText className="h-4" />
+                                            <SkeletonText className="h-4" />
+                                            <SkeletonText className="h-4" />
+                                        </div>
+                                        <Skeleton className="w-full h-2 mt-2" />
+                                    </div>
+                                ))}
                             </div>
                         ) : currentUserPerformance ? (
                             <div className="flex flex-col h-full">
                                 <UserPerformanceItem user={currentUserPerformance} />
-
-                                <div className="mt-6 flex flex-col items-center justify-center flex-grow">
-                                    <div className="relative w-60 h-36 mb-4">
-                                        <svg className="w-full h-full" viewBox="0 0 100 50">
-                                            <path
-                                                d="M5,45 A45,45 0 0,1 95,45"
-                                                fill="transparent"
-                                                stroke="#f0f0f0"
-                                                strokeWidth="10"
-                                                strokeLinecap="round"
-                                            />
-                                            <path
-                                                d="M5,45 A45,45 0 0,1 95,45"
-                                                fill="transparent"
-                                                stroke={calculateUserProgressArc().completionRateColor}
-                                                strokeWidth="10"
-                                                strokeDasharray={calculateUserProgressArc().strokeDasharray}
-                                                strokeDashoffset={calculateUserProgressArc().strokeDashoffset}
-                                                strokeLinecap="round"
-                                            />
-                                        </svg>
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center mt-6">
-                                            <span className="text-3xl font-bold">
-                                                {currentUserPerformance.completedTasks}/{currentUserPerformance.assignedTasks}
-                                            </span>
-                                            <span className="text-xs text-gray-500">TASKS COMPLETED</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center text-xs text-gray-600">
-                                        {currentUserPerformance.completionRate >= 75 ? (
-                                            <>
-                                                <FiArrowUp className="text-green-500 mr-1" />
-                                                <span>Great job! {currentUserPerformance.completionRate.toFixed(0)}% completion rate!</span>
-                                            </>
-                                        ) : currentUserPerformance.completionRate >= 50 ? (
-                                            <>
-                                                <FiArrowUp className="text-yellow-500 mr-1" />
-                                                <span>Good progress at {currentUserPerformance.completionRate.toFixed(0)}% completion rate</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <FiArrowUp className="text-red-500 mr-1 transform rotate-180" />
-                                                <span>You're at {currentUserPerformance.completionRate.toFixed(0)}% completion rate</span>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
                             </div>
                         ) : (
                             <div className="flex items-center justify-center h-full text-gray-500">
@@ -162,6 +129,21 @@ const DeveloperOverview = () => {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                <DeveloperHoursChart
+                    userPerformances={currentUserPerformances}
+                    loading={loading}
+                />
+
+                <DeveloperTasksChart
+                    userPerformances={currentUserPerformances}
+                    loading={loading}
+                />
+            </div>
+
+
         </div>
     );
 };

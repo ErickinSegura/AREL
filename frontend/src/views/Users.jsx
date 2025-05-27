@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useUsers } from '../hooks/useUsers';
 import { UserCard, UserDetailsModal, RegisterModal, UsersHeader } from '../components/users/usersComponents';
-import { ErrorMessage } from '../lib/ui/Loading';
 import { SkeletonCard } from '../lib/ui/Skeleton';
+import {ErrorState} from "../lib/ui/Error";
 
 export const Users = () => {
     const { users, loading, error, refetchUsers } = useUsers();
@@ -45,7 +45,9 @@ export const Users = () => {
         }
     };
 
-    if (error) return <ErrorMessage message={error} />;
+    if (error) {
+        return <ErrorState error={error} />;
+    }
 
     return (
         <div className="container mx-auto px-4 py-6">
@@ -56,7 +58,6 @@ export const Users = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loading ? (
-                    // Render skeleton cards while loading
                     [...Array(6)].map((_, index) => (
                         <SkeletonCard key={index} header={true} lines={2} />
                     ))
