@@ -262,7 +262,7 @@ export const SprintSummaryCard = ({ loading, selectedSprint, formatDate }) => (
                 {loading ? (
                     <SkeletonText className="w-40" />
                 ) : (
-                    <>Sprint <span className="text-oracleRed">Summary</span></>
+                    <>Team Sprint <span className="text-oracleRed">Summary</span></>
                 )}
             </CardTitle>
         </CardHeader>
@@ -1277,7 +1277,6 @@ export const DeveloperHoursChart = React.memo(({ userPerformances, loading }) =>
 });
 
 export const DeveloperTasksChart = React.memo(({ userPerformances, loading }) => {
-    // Use your existing useDeveloperCharts hook here
     const { chartData, developers, colors } = useDeveloperCharts(userPerformances, loading);
 
     const chartElement = useMemo(() => {

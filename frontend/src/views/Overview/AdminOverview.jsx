@@ -29,7 +29,6 @@ const AdminOverview = () => {
         showSprintDropdown,
         setSelectedSprintNumber,
         formatDate,
-        getProjectIcon,
         calculateProgressArc,
         toggleSprintDropdown,
         closeSprintDropdown
