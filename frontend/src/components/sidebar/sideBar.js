@@ -532,7 +532,7 @@ const ProjectSelector = ({ isOpen, isMobile, projectDropdownOpen, toggleProjectD
     );
 };
 
-const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }) => {
+const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false, setSelectedItem }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     const { setCurrentRoute } = useRoute();
@@ -557,6 +557,7 @@ const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }
     const goToUserSettings = () => {
         setCurrentRoute('/usersettings');
         setDropdownOpen(false);
+        setSelectedItem(null);
     };
 
     return (
@@ -565,43 +566,70 @@ const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false }
                 className="flex items-center h-16"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-                <div className="w-8 h-8 rounded-lg overflow-hidden">
+                <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0">
                     <AvatarRenderer config={user.avatar} className="w-full h-full" />
                 </div>
                 <div className={`ml-3 ${
                     isMobile
                         ? 'flex-1 min-w-0'
-                        : `overflow-hidden transition-all duration-300 ${isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`
+                        : `transition-all duration-300 ${isOpen ? 'opacity-100 max-w-48' : 'opacity-0 max-w-0 ml-0'}`
                 }`}>
-                    <div className="text-sm font-medium text-black truncate">
+                    <div className="text-sm font-medium text-black truncate text-left">
                         {user ? `${user.firstName} ${user.lastName}` : 'Usuario'}
                     </div>
-                    <div className="text-xs text-gray-600 truncate">
+                    <div className="text-xs text-gray-600 truncate text-left">
                         {user ? user.email : 'user@example.com'}
                     </div>
                 </div>
             </button>
 
-            {/* Dropdown Menu */}
+            {/* Improved Dropdown Menu */}
             {dropdownOpen && (
-                <div className="absolute bottom-full mb-2 right-0 w-48 bg-white rounded-lg shadow-lg overflow-hidden z-50 border border-gray-200">
-                    <div className="p-2">
+                <div className="absolute bottom-full mb-2 right-0 w-56 bg-white rounded-xl shadow-lg overflow-hidden z-50 border border-gray-200">
+                    {/* User Info Header */}
+                    <div className="p-4 border-b border-gray-100">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+                                <AvatarRenderer config={user.avatar} className="w-full h-full" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium text-gray-900 truncate">
+                                    {user ? `${user.firstName} ${user.lastName}` : 'shadon'}
+                                </div>
+                                <div className="text-xs text-gray-500 truncate">
+                                    {user ? user.email : 'm@example.com'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="py-2">
+                        {/* Account */}
                         <button
-                            className="w-full flex items-center gap-3 py-2 px-3 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                            onClick={goToUserSettings} // Updated to use the navigation function
+                            className="w-full flex items-center gap-3 py-2.5 px-4 text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
+                            onClick={goToUserSettings}
                         >
-                            <User size={18} className="text-gray-500" />
+                            <div className="w-5 h-5 flex items-center justify-center">
+                                <User size={16} className="text-oracleRed" />
+                            </div>
                             <span>Account</span>
                         </button>
 
+                        {/* Separator */}
+                        <div className="h-px bg-gray-100 my-2 mx-4"></div>
+
+                        {/* Log out */}
                         <button
-                            className="w-full flex items-center gap-3 py-2 px-3 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="w-full flex items-center gap-3 py-2.5 px-4 text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
                             onClick={() => {
                                 handleLogout();
                                 setDropdownOpen(false);
                             }}
                         >
-                            <LogOut size={18} />
+                            <div className="w-5 h-5 flex items-center justify-center">
+                                <LogOut size={16} className="text-oracleRed" />
+                            </div>
                             <span>Log out</span>
                         </button>
                     </div>
@@ -835,7 +863,7 @@ ${isOpen ? 'w-64' : 'w-16'} items-center`}
                 </nav>
 
                 <div className="border-t border-gray-700 mx-4 transition-all mt-4 mb-2">
-                    <UserButtonWithDropdown user={user} handleLogout={handleLogout} isOpen={isOpen} />
+                    <UserButtonWithDropdown user={user} handleLogout={handleLogout} isOpen={isOpen} setSelectedItem={setSelectedItem} />
                 </div>
             </div>
         </div>
