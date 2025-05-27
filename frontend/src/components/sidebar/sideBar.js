@@ -623,6 +623,7 @@ const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false, 
                         <button
                             className="w-full flex items-center gap-3 py-2.5 px-4 text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
                             onClick={() => {
+                                setCurrentRoute(null);
                                 handleLogout();
                                 setDropdownOpen(false);
                             }}
@@ -941,6 +942,7 @@ const Sidebar = ({
     };
 
     const handleLogout = () => {
+        setSelectedItem(null);
         logout();
     };
 
