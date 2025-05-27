@@ -13,7 +13,6 @@ const UserSettings = () => {
   const { user } = useAuth()
 
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);

@@ -100,21 +100,21 @@ export const SecuritySection = ({ security, onChangePassword }) => (
         <CardContent className="space-y-6">
             <div>
                 <label htmlFor="password" className="block text-sm font-medium mb-2">
-                    Contraseña
+                    Password
                 </label>
                 <div className="flex flex-col md:flex-row items-stretch md:items-end gap-4">
                     <div className="relative flex-1">
                         <input
                             id="password"
                             type={"password"}
-                            value={"passworddelusuario"}
+                            value={"password"}
                             onChange={(e) => security.onChange("password", e.target.value)}
                             className="w-full border rounded-md px-3 pr-10 py-2 min-h-[44px] text-sm focus:outline-none focus:ring-2 focus:ring-oracleRed focus:border-oracleRed"
                             placeholder="Password"
                         />
                     </div>
                     <Button variant="remarked" color="error" onClick={onChangePassword} className="whitespace-nowrap">
-                        Cambiar Contraseña
+                        Change Password
                     </Button>
                 </div>
             </div>
@@ -154,12 +154,12 @@ export const PasswordChangeModal = ({ isOpen, onClose, onSubmit }) => {
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalClose onClick={onClose} />
             <ModalHeader>
-                <ModalTitle>Cambiar Contraseña</ModalTitle>
+                <ModalTitle>Change Password</ModalTitle>
             </ModalHeader>
             <ModalContent className="space-y-4">
                 <div className="relative">
                     <Input
-                        label="Contraseña actual"
+                        label="Current password"
                         type={showPasswords.current ? "text" : "password"}
                         value={passwords.current}
                         onChange={(e) => handleChange("current", e.target.value)}
@@ -167,14 +167,14 @@ export const PasswordChangeModal = ({ isOpen, onClose, onSubmit }) => {
                     <button
                         type="button"
                         onClick={() => togglePasswordVisibility("current")}
-                        className="absolute right-3 top-[60%] -translate-y-1/2 text-gray-500 hover:text-gray-800"
+                        className="absolute right-3 top-[70%] -translate-y-1/2 text-gray-500 hover:text-gray-800"
                     >
                         {showPasswords.current ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                 </div>
                 <div className="relative">
                     <Input
-                        label="Nueva contraseña"
+                        label="New password"
                         type={showPasswords.new ? "text" : "password"}
                         value={passwords.new}
                         onChange={(e) => handleChange("new", e.target.value)}
@@ -182,14 +182,14 @@ export const PasswordChangeModal = ({ isOpen, onClose, onSubmit }) => {
                     <button
                         type="button"
                         onClick={() => togglePasswordVisibility("new")}
-                        className="absolute right-3 top-[60%] -translate-y-1/2 text-gray-500 hover:text-gray-800"
+                        className="absolute right-3 top-[70%] -translate-y-1/2 text-gray-500 hover:text-gray-800"
                     >
                         {showPasswords.new ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                 </div>
                 <div className="relative">
                     <Input
-                        label="Confirmar nueva contraseña"
+                        label="Confirm new password"
                         type={showPasswords.confirm ? "text" : "password"}
                         value={passwords.confirm}
                         onChange={(e) => handleChange("confirm", e.target.value)}
@@ -197,7 +197,7 @@ export const PasswordChangeModal = ({ isOpen, onClose, onSubmit }) => {
                     <button
                         type="button"
                         onClick={() => togglePasswordVisibility("confirm")}
-                        className="absolute right-3 top-[60%] -translate-y-1/2 text-gray-500 hover:text-gray-800"
+                        className="absolute right-3 top-[70%] -translate-y-1/2 text-gray-500 hover:text-gray-800"
                     >
                         {showPasswords.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -205,10 +205,10 @@ export const PasswordChangeModal = ({ isOpen, onClose, onSubmit }) => {
             </ModalContent>
             <ModalFooter>
                 <Button variant="outline" onClick={onClose}>
-                    Cancelar
+                    Cancel
                 </Button>
                 <Button variant="remarked" color="error" onClick={handleSubmit}>
-                    Actualizar contraseña
+                    Update Password
                 </Button>
             </ModalFooter>
         </Modal>
@@ -350,7 +350,7 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
         return (
             <div className="flex flex-wrap gap-2 mb-4">
                 {categories.map((category) => (
-                    <button
+                    <Button
                         key={category.id}
                         className={`px-3 py-1 text-xs sm:text-sm rounded-full transition-colors duration-200 ${
                             activeCategory === category.id
@@ -360,7 +360,7 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
                         onClick={() => handleCategoryChange(category.id)}
                     >
                         {category.name}
-                    </button>
+                    </Button>
                 ))}
             </div>
         );
