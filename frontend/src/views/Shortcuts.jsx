@@ -1,7 +1,6 @@
 import React from 'react';
 import { useShortcuts } from '../hooks/useShortcuts';
 import {
-    NoProjectState,
     ShortcutCard,
     ShortcutDetailModal,
     CreateShortcutModal, NoProjectShortcuts
@@ -9,6 +8,7 @@ import {
 import {Button} from "../lib/ui/Button";
 import {Plus} from "lucide-react";
 import {Header} from "../lib/ui/Header";
+import {NoProjectState} from "../lib/ui/NoProject";
 
 const Shortcuts = () => {
     const {

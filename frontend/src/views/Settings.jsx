@@ -1,14 +1,13 @@
 import React from 'react';
 import { useSettings } from '../hooks/useSettings';
 import {
-    ErrorState,
-    NoProjectState,
-    ProjectHeader,
     SettingsForm,
     DangerZoneCard,
     ProjectUsers, ProjectCategories
 } from '../components/settings/settingsComponents';
 import {Header} from "../lib/ui/Header";
+import {NoProjectState} from "../lib/ui/NoProject";
+import {ErrorState} from "../lib/ui/Error";
 
 const ProjectSettings = () => {
     const {

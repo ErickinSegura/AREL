@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useUsers } from '../hooks/useUsers';
 import { UserCard, UserDetailsModal, RegisterModal, UsersHeader } from '../components/users/usersComponents';
-import { ErrorMessage } from '../lib/ui/Loading';
 import { SkeletonCard } from '../lib/ui/Skeleton';
+import {ErrorState} from "../lib/ui/Error";
 
 export const Users = () => {
     const { users, loading, error, refetchUsers } = useUsers();
@@ -45,7 +45,9 @@ export const Users = () => {
         }
     };
 
-    if (error) return <ErrorMessage message={error} />;
+    if (error) {
+        return <ErrorState error={error} />;
+    }
 
     return (
         <div className="container mx-auto px-4 py-6">

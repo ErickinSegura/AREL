@@ -18,49 +18,6 @@ import {useDeveloperCharts} from "../../hooks/useDeveloperCharts";
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
-export const ErrorState = ({ error }) => (
-    <div className="p-6 flex flex-col items-center justify-center h-full">
-        <Card className="w-full max-w-md text-center">
-            <CardHeader>
-                <CardTitle className="text-2xl">
-                    Error <span className="text-oracleRed">Loading Data</span>
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="flex justify-center mb-6">
-                    <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-red-500">
-                        <FiAlertTriangle size={32} />
-                    </div>
-                </div>
-                <div className="bg-red-50 p-4 rounded-lg mb-6">
-                    <p className="text-red-600 font-medium">{error}</p>
-                </div>
-            </CardContent>
-        </Card>
-    </div>
-);
-
-export const NoProjectState = ( { title, message } ) => (
-    <div className="p-6 flex flex-col items-center justify-center h-full">
-        <Card className="w-full max-w-md text-center">
-            <CardHeader>
-                <CardTitle className="text-2xl">
-                    No Project <span className="text-oracleRed">{title}</span>
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="flex justify-center mb-6">
-                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
-                        <FiFolder size={32} />
-                    </div>
-                </div>
-                <p className="text-gray-600 mb-6">
-                    { message }
-                </p>
-            </CardContent>
-        </Card>
-    </div>
-);
 
 export const PDFButton = ({ selectedProject }) => {
     const [loading, setLoading] = useState(false);

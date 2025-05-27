@@ -3,23 +3,18 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../lib/ui/Card';
 import { useOverview } from '../../hooks/useOverview';
 import { greeting } from '../../lib/greetings';
 import {
-    ErrorState,
-    NoProjectState,
     DashboardHeader,
     SprintSummaryCard,
-    DevStreakCard,
     UserPerformanceItem,
-    PDFButton,
     SprintGoalCard,
-    SprintHoursChart,
     DeveloperHoursChart,
     DeveloperTasksChart
 } from '../../components/overview/overviewComponents';
-import { FiArrowUp } from 'react-icons/fi';
 import { Header } from "../../lib/ui/Header";
 import { useProjectUsers } from "../../hooks/useProjectUsers";
 import { Skeleton, SkeletonText } from "../../lib/ui/Skeleton";
-import { useAuth } from "../../contexts/AuthContext";
+import {ErrorState} from "../../lib/ui/Error";
+import {NoProjectState} from "../../lib/ui/NoProject";
 
 const DeveloperOverview = () => {
     const {
@@ -39,7 +34,6 @@ const DeveloperOverview = () => {
         calculateProgressArc
     } = useOverview();
 
-    const { users, usersLoading } = useProjectUsers(selectedProject?.id);
 
     const currentUserPerformances = React.useMemo(() => {
         if (!user || !userPerformances) return [];

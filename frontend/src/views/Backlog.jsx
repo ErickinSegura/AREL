@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useBacklog } from '../hooks/useBacklog';
 import { useSprints } from '../hooks/useSprints';
 import { TaskCard, CreateTaskModal, TaskDetailModal, SortControls, CreateSprintModal } from '../components/backlog/backlogComponents';
-import { NoProjectState } from "../components/overview/overviewComponents";
 import { SkeletonCard, SkeletonText } from '../lib/ui/Skeleton';
 import { Search } from 'lucide-react';
 import { useProjects } from "../hooks/useProjects";
@@ -12,6 +11,8 @@ import { useProjectUsers } from "../hooks/useProjectUsers";
 import {Header} from "../lib/ui/Header";
 import {Button} from "../lib/ui/Button";
 import {useCategory} from "../hooks/useCategory";
+import {NoProjectState} from "../lib/ui/NoProject";
+import {ErrorState} from "../lib/ui/Error";
 
 
 const Backlog = () => {
@@ -137,6 +138,10 @@ const Backlog = () => {
     const handleOpenCreateSprintModal = () => {
         setCreateSprintModalOpen(true);
     };
+
+    if (error) {
+        return <ErrorState error={error} />;
+    }
 
     if (!selectedProject) {
         return (

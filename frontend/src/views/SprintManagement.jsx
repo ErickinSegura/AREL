@@ -5,7 +5,6 @@ import {TouchBackend} from 'react-dnd-touch-backend';
 import {useBacklog} from '../hooks/useBacklog';
 import {useSprints} from '../hooks/useSprints';
 import {TaskDetailModal} from '../components/backlog/backlogComponents';
-import {NoProjectState} from "../components/overview/overviewComponents";
 import {DndProvider} from 'react-dnd';
 import {SkeletonCard, SkeletonText} from '../lib/ui/Skeleton';
 import {
@@ -18,6 +17,8 @@ import {useProjectUsers} from "../hooks/useProjectUsers";
 import {Header} from "../lib/ui/Header";
 import {useAuth} from "../contexts/AuthContext";
 import {useCategory} from "../hooks/useCategory";
+import {ErrorState} from "../lib/ui/Error";
+import {NoProjectState} from "../lib/ui/NoProject";
 
 const isTouchDevice = () => {
     return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -127,6 +128,10 @@ const SprintManagement = () => {
             setUpdateLoading(false);
         }
     };
+
+    if (error) {
+        return <ErrorState error={error} />;
+    }
 
     if (!selectedProject) {
         return <NoProjectState title={"selected"} message={"Please select a project to view its sprints."} />;

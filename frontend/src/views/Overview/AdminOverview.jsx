@@ -2,8 +2,6 @@ import React from 'react';
 import { useOverview } from '../../hooks/useOverview';
 import { greeting } from '../../lib/greetings';
 import {
-    ErrorState,
-    NoProjectState,
     DashboardHeader,
     SprintSummaryCard,
     SprintGoalCard,
@@ -14,6 +12,8 @@ import {
 } from '../../components/overview/overviewComponents';
 import {useLogs} from "../../hooks/useLogs";
 import {Header} from "../../lib/ui/Header";
+import {ErrorState} from "../../lib/ui/Error";
+import {NoProjectState} from "../../lib/ui/NoProject";
 
 const AdminOverview = () => {
     const {
