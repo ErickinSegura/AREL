@@ -19,7 +19,8 @@ steps:
     name: "Set PATH Variable"
     command: export PATH=$JAVA_HOME/bin:$PATH
 
-  - name: "mostrar_directorio"
+  - type: Command
+    name: "mostrar_directorio"
     command: |
       echo "Directorio actual:"
       pwd
