@@ -7,8 +7,6 @@ import {SkeletonText} from '../../lib/ui/Skeleton';
 import {Clock, Tag, CheckCircle, ArrowDownCircle, Loader2, User,} from 'lucide-react';
 import { FiChevronDown } from 'react-icons/fi';
 import { format } from 'date-fns';
-import {useCategory} from "../../hooks/useCategory";
-
 
 import {
     Modal,
@@ -106,11 +104,11 @@ export const DraggableTaskCard = ({ task, onSelect, users, usersLoading, categor
     const renderAssignedUserContent = () => {
         if (!task.assignedTo) return "Unassigned";
 
-        if (usersLoading) {
+        if (usersLoading ) {
             return <SkeletonText lines={1} className="w-24" />;
         }
 
-        const assignedUser = users.find(u => u.id === task.assignedTo);
+        const assignedUser = users.find(u => u.userProjectId === task.assignedTo);
         if (assignedUser) {
             return `${assignedUser.firstName} ${assignedUser.lastName}`;
         }
@@ -168,7 +166,7 @@ export const DraggableTaskCard = ({ task, onSelect, users, usersLoading, categor
                             <>
                                 <div className="inline-flex items-center">
                                     <div className="w-6 h-6 rounded-full overflow-hidden mr-2">
-                                        <AvatarRenderer config={users.find(u => u.id === task.assignedTo)?.avatar} />
+                                        <AvatarRenderer config={users.find(u => u.userProjectId === task.assignedTo)?.avatar} />
                                     </div>
                                     <div>
                                         <p className="text-xs text-gray-600">{renderAssignedUserContent()}</p>
@@ -193,7 +191,8 @@ export const TaskColumn = ({
                                onTaskDrop,
                                users,
                                usersLoading,
-                               projectId
+                               projectId,
+                               categories
                            }) => {
     const [{ isOver }, dropRef] = useDrop(() => ({
         accept: 'TASK',
@@ -203,7 +202,6 @@ export const TaskColumn = ({
         }),
     }));
 
-    const {categories} = useCategory();
 
     return (
         <div
@@ -231,7 +229,7 @@ export const TaskColumn = ({
                             onSelect={onTaskSelect}
                             categories={categories}
                             users={users}
-                            usersLoading={usersLoading}
+                            usersLoading={usersLoading }
                             projectId={projectId}
                         />
                     ))

@@ -16,6 +16,7 @@ import {FiCheckCircle, FiClock, FiList} from "react-icons/fi";
 import {useProjectUsers} from "../hooks/useProjectUsers";
 import {Header} from "../lib/ui/Header";
 import {useAuth} from "../contexts/AuthContext";
+import {useCategory} from "../hooks/useCategory";
 
 const SprintManagement = () => {
     const {
@@ -33,6 +34,7 @@ const SprintManagement = () => {
         taskDetailLoading
     } = useBacklog();
 
+    const {categories} = useCategory();
 
     const { sprints, loading: sprintsLoading } = useSprints();
     const { selectedProject } = useProjects();
@@ -80,7 +82,7 @@ const SprintManagement = () => {
 
             try {
                 setUpdateLoading(true);
-                await handleTaskUpdate(taskId, { state: newState });
+                await handleTaskUpdate(taskId, { state: newState, assignedTo: taskToUpdate.assignedTo }, );
             } catch (error) {
                 console.error("Error updating task state:", error);
             } finally {
@@ -90,11 +92,13 @@ const SprintManagement = () => {
     };
 
     const handleActualHoursSubmit = async (taskId, data) => {
+        const taskToUpdate = sprintTasks.find(task => task.id === taskId);
         try {
             setUpdateLoading(true);
             return await handleTaskUpdate(taskId, {
                 state: 3,
-                realHours: data.realHours
+                realHours: data.realHours,
+                assignedTo: taskToUpdate.assignedTo
             });
         } catch (error) {
             console.error("Error updating task hours:", error);
@@ -155,6 +159,7 @@ const SprintManagement = () => {
                                 onTaskDrop={handleTaskDrop}
                                 users={users}
                                 usersLoading={usersLoading}
+                                categories={categories}
                             />
                             <TaskColumn
                                 icon={<FiClock/>}
@@ -165,6 +170,7 @@ const SprintManagement = () => {
                                 onTaskDrop={handleTaskDrop}
                                 users={users}
                                 usersLoading={usersLoading}
+                                categories={categories}
                             />
                             <TaskColumn
                                 icon={<FiCheckCircle/>}
@@ -175,6 +181,7 @@ const SprintManagement = () => {
                                 onTaskDrop={handleTaskDrop}
                                 users={users}
                                 usersLoading={usersLoading}
+                                categories={categories}
                             />
                         </div>
                     )
@@ -195,6 +202,7 @@ const SprintManagement = () => {
                         onDelete={() => {}}
                         loading={taskDetailLoading}
                         users={users}
+                        categories={categories}
                         isAdmin={isAdmin}
                     />
                 )}

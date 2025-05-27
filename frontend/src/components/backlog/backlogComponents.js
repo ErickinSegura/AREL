@@ -385,7 +385,7 @@ export const TaskDetailModal = ({
                             {task.assignedTo && (
                                 <div className="flex items-center">
                                     <div className="w-6 h-6 rounded-full overflow-hidden mr-1">
-                                        <AvatarRenderer config={users.find(u => u.id === task.assignedTo)?.avatar} />
+                                        <AvatarRenderer config={users.find(u => u.userProjectId === task.assignedTo)?.avatar} />
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-gray-600">Assigned To</p>
@@ -806,7 +806,7 @@ export const CreateSprintModal = ({ isOpen, onClose, users, availableTasks = [] 
         const task = selectedTasks.find(t => t.id === taskId);
         if (!task || !task.assignedTo) return '';
 
-        const user = users.find(u => u.id === Number(task.assignedTo));
+        const user = users.find(u => u.userProjectId === Number(task.assignedTo));
         return user ? `${user.firstName} ${user.lastName}` : '';
     };
 
