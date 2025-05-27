@@ -8,7 +8,7 @@ env:
     JAVA_HOME: /usr/lib64/graalvm/graalvm22-ee-java17
 
   exportedVariables:
-    - BuildServiceDemoVersion
+    - dateannotation
 
 steps:
   - type: Command
