@@ -28,6 +28,10 @@ steps:
       echo "Contenido del directorio:"
       ls -la
 
+      echo "Exporting TIMESTAMP"
+      export dateannotation=$(date +%Y-%m-%dT%H:%M:%S)
+      echo "dateannotation=$dateannotation"
+
   - type: Command
     name: "Docker Login"
     command:  oci os object get --bucket-name riftsoftware-9l0fn --name deployment_config.tgz --file deployment_config.tgz;
