@@ -122,7 +122,7 @@ export const SecuritySection = ({ security, onChangePassword }) => (
     </Card>
 );
 
-export const PasswordChangeModal = ({ isOpen, onClose, onSubmit }) => {
+export const PasswordChangeModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
     const [passwords, setPasswords] = React.useState({
         current: "",
         new: "",
@@ -133,41 +133,96 @@ export const PasswordChangeModal = ({ isOpen, onClose, onSubmit }) => {
         new: false,
         confirm: false
     });
+    const [validationError, setValidationError] = React.useState('');
 
     const handleChange = (field, value) => {
         setPasswords(prev => ({ ...prev, [field]: value }));
+        if (validationError) {
+            setValidationError('');
+        }
     };
 
     const togglePasswordVisibility = (field) => {
         setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }));
     };
 
-    const handleSubmit = () => {
+    const validatePasswords = () => {
+        if (!passwords.current.trim()) {
+            setValidationError('Current password is required');
+            return false;
+        }
+        if (!passwords.new.trim()) {
+            setValidationError('New password is required');
+            return false;
+        }
+        if (passwords.new.length < 6) {
+            setValidationError('New password must be at least 6 characters long');
+            return false;
+        }
         if (passwords.new !== passwords.confirm) {
+            setValidationError('New passwords do not match');
+            return false;
+        }
+        if (passwords.current === passwords.new) {
+            setValidationError('New password must be different from current password');
+            return false;
+        }
+        return true;
+    };
+
+    const handleSubmit = async () => {
+        setValidationError('');
+
+        if (!validatePasswords()) {
             return;
         }
-        onSubmit(passwords);
+
+        try {
+            await onSubmit(passwords.new, passwords.current);
+            setPasswords({ current: "", new: "", confirm: "" });
+        } catch (error) {
+        }
+    };
+
+    const handleClose = () => {
+        setPasswords({ current: "", new: "", confirm: "" });
+        setValidationError('');
         onClose();
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose}>
-            <ModalClose onClick={onClose} />
+        <Modal isOpen={isOpen} onClose={handleClose}>
+            <ModalClose onClick={handleClose} />
             <ModalHeader>
                 <ModalTitle>Change Password</ModalTitle>
             </ModalHeader>
             <ModalContent className="space-y-4">
+                {(error || validationError) && (
+                    <div className="px-3 py-2 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
+                        <div className="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 flex-shrink-0">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            {error || validationError}
+                        </div>
+                    </div>
+                )}
+
                 <div className="relative">
                     <Input
                         label="Current password"
                         type={showPasswords.current ? "text" : "password"}
                         value={passwords.current}
                         onChange={(e) => handleChange("current", e.target.value)}
+                        disabled={isLoading}
                     />
                     <button
                         type="button"
                         onClick={() => togglePasswordVisibility("current")}
-                        className="absolute right-3 top-[70%] -translate-y-1/2 text-gray-500 hover:text-gray-800"
+                        className="absolute right-3 top-[70%] -translate-y-1/2 text-gray-500 hover:text-gray-800 disabled:opacity-50"
+                        disabled={isLoading}
                     >
                         {showPasswords.current ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -178,11 +233,13 @@ export const PasswordChangeModal = ({ isOpen, onClose, onSubmit }) => {
                         type={showPasswords.new ? "text" : "password"}
                         value={passwords.new}
                         onChange={(e) => handleChange("new", e.target.value)}
+                        disabled={isLoading}
                     />
                     <button
                         type="button"
                         onClick={() => togglePasswordVisibility("new")}
-                        className="absolute right-3 top-[70%] -translate-y-1/2 text-gray-500 hover:text-gray-800"
+                        className="absolute right-3 top-[70%] -translate-y-1/2 text-gray-500 hover:text-gray-800 disabled:opacity-50"
+                        disabled={isLoading}
                     >
                         {showPasswords.new ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -193,22 +250,33 @@ export const PasswordChangeModal = ({ isOpen, onClose, onSubmit }) => {
                         type={showPasswords.confirm ? "text" : "password"}
                         value={passwords.confirm}
                         onChange={(e) => handleChange("confirm", e.target.value)}
+                        disabled={isLoading}
                     />
                     <button
                         type="button"
                         onClick={() => togglePasswordVisibility("confirm")}
-                        className="absolute right-3 top-[70%] -translate-y-1/2 text-gray-500 hover:text-gray-800"
+                        className="absolute right-3 top-[70%] -translate-y-1/2 text-gray-500 hover:text-gray-800 disabled:opacity-50"
+                        disabled={isLoading}
                     >
                         {showPasswords.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                 </div>
             </ModalContent>
             <ModalFooter>
-                <Button variant="outline" onClick={onClose}>
+                <Button
+                    variant="outline"
+                    onClick={handleClose}
+                    disabled={isLoading}
+                >
                     Cancel
                 </Button>
-                <Button variant="remarked" color="error" onClick={handleSubmit}>
-                    Update Password
+                <Button
+                    variant="remarked"
+                    color="error"
+                    onClick={handleSubmit}
+                    disabled={isLoading}
+                >
+                    {isLoading ? 'Updating...' : 'Update Password'}
                 </Button>
             </ModalFooter>
         </Modal>
