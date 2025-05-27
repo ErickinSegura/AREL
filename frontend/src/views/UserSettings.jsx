@@ -51,20 +51,6 @@ const UserSettings = () => {
               }}
               onChangePassword={() => setPasswordModalOpen(true)}
           />
-
-
-          {/* Save Changes Button */}
-          <div className="flex justify-center">
-            <Button
-                variant="remarked"
-                color="error"
-                onClick={handleSaveChanges}
-                disabled={isSaving}
-                className="px-8"
-            >
-              {isSaving ? "Guardando..." : "Guardar cambios"}
-            </Button>
-          </div>
         </div>
 
         {/* Modals */}
