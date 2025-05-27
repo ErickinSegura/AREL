@@ -1,6 +1,7 @@
 import React, {useMemo, useState} from "react";
 import {useProjects} from "../hooks/useProjects";
 import {HTML5Backend} from 'react-dnd-html5-backend';
+import {TouchBackend} from 'react-dnd-touch-backend';
 import {useBacklog} from '../hooks/useBacklog';
 import {useSprints} from '../hooks/useSprints';
 import {TaskDetailModal} from '../components/backlog/backlogComponents';
@@ -17,6 +18,25 @@ import {useProjectUsers} from "../hooks/useProjectUsers";
 import {Header} from "../lib/ui/Header";
 import {useAuth} from "../contexts/AuthContext";
 import {useCategory} from "../hooks/useCategory";
+
+const isTouchDevice = () => {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+};
+
+const getBackend = () => {
+    return isTouchDevice() ? TouchBackend : HTML5Backend;
+};
+
+const getBackendOptions = () => {
+    if (isTouchDevice()) {
+        return {
+            enableMouseEvents: true,
+            delayTouchStart: 200,
+            touchSlop: 5
+        };
+    }
+    return {};
+};
 
 const SprintManagement = () => {
     const {
@@ -112,9 +132,8 @@ const SprintManagement = () => {
         return <NoProjectState title={"selected"} message={"Please select a project to view its sprints."} />;
     }
 
-
     return (
-        <DndProvider backend={HTML5Backend}>
+        <DndProvider backend={getBackend()} options={getBackendOptions()}>
             <div className="container mx-auto px-4 py-6 min-h-screen">
                 {error && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">

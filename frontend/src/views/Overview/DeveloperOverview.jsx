@@ -12,6 +12,7 @@ import {
 } from '../../components/overview/overviewComponents';
 import { FiArrowUp } from 'react-icons/fi';
 import {Header} from "../../lib/ui/Header";
+import {useProjectUsers} from "../../hooks/useProjectUsers";
 
 const DeveloperOverview = () => {
     const {
@@ -30,6 +31,8 @@ const DeveloperOverview = () => {
         userPerformances,
         calculateProgressArc
     } = useOverview();
+
+    const { users, usersLoading } = useProjectUsers(selectedProject?.id);
 
     const currentUserPerformance = userPerformances.find(perf => perf.sprintNumber === selectedSprintNumber) || null;
 
@@ -75,11 +78,6 @@ const DeveloperOverview = () => {
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 mt-6">
-                <DevStreakCard
-                    loading={loading}
-                    selectedSprint={selectedSprint}
-                />
-
                 <Card className="flex flex-col h-full">
                     <CardHeader>
                         <CardTitle>
