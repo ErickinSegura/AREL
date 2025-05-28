@@ -75,6 +75,7 @@ export const BacklogService = {
                 console.error('Task not found');
                 throw new Error('Task not found');
             }
+            
 
             if (!response.ok) {
                 const errorText = await response.text();
