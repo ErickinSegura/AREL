@@ -296,7 +296,10 @@ const avatarOptions = {
         { id: 'skin2', name: 'Red', color: '#BB4D63' },
         { id: 'skin3', name: 'Purple', color: '#BA4DB8' },
         { id: 'skin4', name: 'Yellow', color: '#DC9B2A' },
-        { id: 'skin5', name: 'Green', color: '#3EDB2A' }
+        { id: 'skin5', name: 'Green', color: '#3EDB2A' },
+        { id: 'skin6', name: 'Pink', color: '#FF0CC9' },
+        { id: 'skin7', name: 'Orange', color: '#D87231' },
+        { id: 'skin8', name: 'Gray', color: '#848484' }
     ],
     eyes: [
         { id: 'eyes1', name: 'Thinker', style: 'thinker' },
