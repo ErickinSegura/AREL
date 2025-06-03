@@ -306,7 +306,7 @@ const avatarOptions = {
         { id: 'eyes2', name: 'Neutral', style: 'neutral' },
         { id: 'eyes3', name: 'Baggy', style: 'baggy' },
         { id: 'eyes4', name: 'Happy', style: 'happy' },
-        { id: 'eyes5', name: 'Happy', style: 'happy' },
+        { id: 'eyes5', name: 'Closed', style: 'closed' }
     ],
     eyeColors: [
         { id: 'eyeColor1', name: 'Green', color: '#345f33' },
