@@ -313,7 +313,8 @@ const avatarOptions = {
         { id: 'eyeColor2', name: 'Blue', color: '#545fc8' },
         { id: 'eyeColor3', name: 'Black', color: '#000' },
         { id: 'eyeColor4', name: 'Brown', color: '#392424' },
-        { id: 'eyeColor5', name: 'Brown', color: '#392424' },
+        { id: 'eyeColor5', name: 'Red', color: '#c70a0a' },
+        { id: 'eyeColor6', name: 'Yellow', color: '#ffc900' },
     ],
     spineColors: [
         { id: 'spineColor1', name: 'Blue', color: '#044DBA' },
@@ -492,7 +493,7 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
                             className={`p-2 cursor-pointer rounded-lg text-center ${
                                 isSelected
                                     ? 'border-2 border-oracleRed'
-                                    : 'hover:bg-gray-100 border border-transparent'
+                                    : 'hover:bg-gray-100 border-2 border-transparent'
                             }`}
                             onClick={() => updateAvatarProperty(property, option.id)}
                         >
