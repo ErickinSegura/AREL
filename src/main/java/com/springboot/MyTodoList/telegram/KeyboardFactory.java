@@ -18,7 +18,7 @@ import com.springboot.MyTodoList.model.UserProject;
 
 public class KeyboardFactory {
 
-    public InlineKeyboardMarkup sprintList(List<Sprint> sprints, int currentSprint) {
+    public InlineKeyboardMarkup sprintList(List<Sprint> sprints, Integer currentSprint) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
@@ -37,7 +37,7 @@ public class KeyboardFactory {
                 InlineKeyboardButton button = new InlineKeyboardButton();
 
                 String currentOrDate = "";
-                if (sprint.getID() == currentSprint){
+                if (currentSprint != null && sprint.getID() == currentSprint){
                     currentOrDate = "(Current, ends " + sprint.getEndDate().format(dateFormat) + ")"; 
                 }else {
                     String endDate = sprint.getEndDate().format(dateFormat);
