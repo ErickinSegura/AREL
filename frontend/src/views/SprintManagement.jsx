@@ -50,6 +50,7 @@ const SprintManagement = () => {
         setTaskModalOpen,
         handleTaskSelect,
         handleTaskUpdate,
+        handleTaskDelete,
         selectedSprint,
         setSelectedSprint,
         taskDetailLoading
@@ -81,6 +82,13 @@ const SprintManagement = () => {
             return a.priority - b.priority;
         });
     }, [originalSprintTasks, isAdmin, user?.id]);
+
+    const handleTaskDeleteWrap = async (taskId) => {
+        const success = await handleTaskDelete(taskId);
+        if (success) {
+            handleCloseTaskModal();
+        }
+    };
 
     const todoTasks = sprintTasks.filter(task => task.state === 1);
     const doingTasks = sprintTasks.filter(task => task.state === 2);
@@ -223,7 +231,7 @@ const SprintManagement = () => {
                         onClose={handleCloseTaskModal}
                         task={selectedTask}
                         onUpdate={handleTaskUpdate}
-                        onDelete={() => {}}
+                        onDelete={handleTaskDeleteWrap}
                         loading={taskDetailLoading}
                         users={users}
                         categories={categories}
