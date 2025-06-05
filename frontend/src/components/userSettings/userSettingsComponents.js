@@ -296,21 +296,25 @@ const avatarOptions = {
         { id: 'skin2', name: 'Red', color: '#BB4D63' },
         { id: 'skin3', name: 'Purple', color: '#BA4DB8' },
         { id: 'skin4', name: 'Yellow', color: '#DC9B2A' },
-        { id: 'skin5', name: 'Green', color: '#3EDB2A' }
+        { id: 'skin5', name: 'Green', color: '#3EDB2A' },
+        { id: 'skin6', name: 'Pink', color: '#FF0CC9' },
+        { id: 'skin7', name: 'Orange', color: '#D87231' },
+        { id: 'skin8', name: 'Gray', color: '#848484' }
     ],
     eyes: [
         { id: 'eyes1', name: 'Thinker', style: 'thinker' },
         { id: 'eyes2', name: 'Neutral', style: 'neutral' },
         { id: 'eyes3', name: 'Baggy', style: 'baggy' },
         { id: 'eyes4', name: 'Happy', style: 'happy' },
-        { id: 'eyes5', name: 'Happy', style: 'happy' },
+        { id: 'eyes5', name: 'Closed', style: 'closed' }
     ],
     eyeColors: [
         { id: 'eyeColor1', name: 'Green', color: '#345f33' },
         { id: 'eyeColor2', name: 'Blue', color: '#545fc8' },
         { id: 'eyeColor3', name: 'Black', color: '#000' },
         { id: 'eyeColor4', name: 'Brown', color: '#392424' },
-        { id: 'eyeColor5', name: 'Brown', color: '#392424' },
+        { id: 'eyeColor5', name: 'Red', color: '#c70a0a' },
+        { id: 'eyeColor6', name: 'Yellow', color: '#ffc900' },
     ],
     spineColors: [
         { id: 'spineColor1', name: 'Blue', color: '#044DBA' },
@@ -326,8 +330,8 @@ const avatarOptions = {
         { id: 'mouth1', name: 'Smile', style: 'smile' },
         { id: 'mouth2', name: 'Neutral', style: 'neutral' },
         { id: 'mouth3', name: 'Surprised', style: 'surprised' },
-        { id: 'mouth4', name: 'wave', style: 'wave' },
-        { id: 'mouth5', name: 'wave', style: 'wave' }
+        { id: 'mouth4', name: 'Wave', style: 'wave' },
+        { id: 'mouth5', name: 'Mouthless', style: 'mouthless' }
     ],
     accessories: [
         { id: 'acc1', name: 'None', style: 'none' },
@@ -422,7 +426,7 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
                         key={category.id}
                         className={`px-3 py-1 text-xs sm:text-sm rounded-full transition-colors duration-200 ${
                             activeCategory === category.id
-                                ? 'bg-oracleRed text-white'
+                                ? 'bg-oracleRed hover:bg-red-700 text-white'
                                 : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
                         }`}
                         onClick={() => handleCategoryChange(category.id)}
@@ -489,7 +493,7 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
                             className={`p-2 cursor-pointer rounded-lg text-center ${
                                 isSelected
                                     ? 'border-2 border-oracleRed'
-                                    : 'hover:bg-gray-100 border border-transparent'
+                                    : 'hover:bg-gray-100 border-2 border-transparent'
                             }`}
                             onClick={() => updateAvatarProperty(property, option.id)}
                         >

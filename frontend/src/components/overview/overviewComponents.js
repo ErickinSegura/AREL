@@ -688,17 +688,17 @@ const RoundedBar = ({ x, y, width, height, fill, animationDelay = 0 }) => {
 };
 
 const SimpleBarChart = ({
-                                data,
-                                keys,
-                                colors,
-                                width = "100%",
-                                height = 320,
-                                margin = { top: 20, right: 30, left: 60, bottom: 60 },
-                                xLabel = "",
-                                yLabel = "",
-                                tooltipFormatter = (value) => value,
-                                dataKeyNames = {},
-                            }) => {
+                            data,
+                            keys,
+                            colors,
+                            width = "100%",
+                            height = 320,
+                            margin = { top: 20, right: 30, left: 60, bottom: 60 },
+                            xLabel = "",
+                            yLabel = "",
+                            tooltipFormatter = (value) => value,
+                            dataKeyNames = {},
+                        }) => {
     const chartRef = useState(() => React.createRef())[0];
     const [chartDimensions, setChartDimensions] = useState({ width: 600, height: 320 });
     const [tooltipData, setTooltipData] = useState(null);
@@ -771,28 +771,50 @@ const SimpleBarChart = ({
         );
     }
 
+    const barCategories = data.map((d) => d.name);
+    const barCount = barCategories.length;
+
+    const needsRotation = barCount > 6 || barCategories.some(cat => cat.length > 8);
+    const extraBottomSpace = needsRotation ? 40 : 0;
+
+    const keyNames = keys.map(key => dataKeyNames[key] || key);
+    const longestKeyName = Math.max(...keyNames.map(name => name.length));
+    const totalKeysWidth = keyNames.reduce((sum, name) => sum + (name.length * 8) + 30, 0);
+
+    const needsLegendStacking = totalKeysWidth > chartDimensions.width * 0.8 ||
+        keys.length > 4 ||
+        (isPortrait && keys.length > 2) ||
+        longestKeyName > 12;
+
+    const legendRows = needsLegendStacking ? Math.ceil(keys.length / (isPortrait ? 1 : 2)) : 1;
+    const extraLegendSpace = needsLegendStacking ? (legendRows - 1) * 25 : 0;
+
     const responsiveMargin = {
         top: margin.top,
         right: isPortrait ? 15 : margin.right,
         left: isPortrait ? 40 : margin.left,
-        bottom: isPortrait ? 120 : margin.bottom,
+        bottom: (isPortrait ? 120 : margin.bottom) + extraBottomSpace + extraLegendSpace,
     };
 
     const chartWidth = chartDimensions.width - responsiveMargin.left - responsiveMargin.right;
     const chartHeight = chartDimensions.height - responsiveMargin.top - responsiveMargin.bottom;
 
-    const barCategories = data.map((d) => d.name);
-    const barCount = barCategories.length;
-
-    const minBarWidth = 20;
+    const minBarWidth = 15;
     const maxBarWidth = 80;
     const idealBarWidth = (chartWidth / barCount) * 0.7;
 
     const barWidth = Math.max(minBarWidth, Math.min(maxBarWidth, idealBarWidth));
-    const groupPadding = Math.max(4, (chartWidth / barCount) * 0.3);
+    const groupPadding = Math.max(2, (chartWidth / barCount) * 0.3);
 
-    const shouldShowAllLabels = barWidth > 30;
-    const labelSkip = shouldShowAllLabels ? 1 : Math.ceil(barCount / 8);
+    const availableWidthPerLabel = chartWidth / barCount;
+    const shouldRotateLabels = availableWidthPerLabel < 60 || needsRotation;
+
+    let labelSkip = 1;
+    if (!shouldRotateLabels && availableWidthPerLabel < 40) {
+        labelSkip = Math.ceil(40 / availableWidthPerLabel);
+    } else if (shouldRotateLabels && barCount > 15) {
+        labelSkip = Math.ceil(barCount / 12);
+    }
 
     const maxValue = Math.max(
         ...data.flatMap((d) => keys.map((key) => d[key] || 0)),
@@ -828,28 +850,38 @@ const SimpleBarChart = ({
     });
 
     const xAxisTicks = barCategories.map((category, i) => {
-        if (i % labelSkip !== 0 && i !== barCount - 1) {
+        const shouldShow = i === 0 || i === barCount - 1 || i % labelSkip === 0;
+
+        if (!shouldShow) {
             return null;
         }
 
         const x = getXPosition(i) + barWidth / 2;
-        const truncatedCategory = category.length > 12 ? `${category.substring(0, 12)}...` : category;
+
+        const maxLength = shouldRotateLabels ? 15 : 10;
+        const truncatedCategory = category.length > maxLength
+            ? `${category.substring(0, maxLength)}...`
+            : category;
+
+        const baseY = responsiveMargin.top + chartHeight;
+        const labelY = baseY + (shouldRotateLabels ? 25 : 20);
 
         return (
             <g key={`x-tick-${i}`}>
                 <line
                     x1={x}
-                    y1={responsiveMargin.top + chartHeight}
+                    y1={baseY}
                     x2={x}
-                    y2={responsiveMargin.top + chartHeight + 5}
+                    y2={baseY + 5}
                     stroke="#666"
                 />
                 <text
                     x={x}
-                    y={responsiveMargin.top + chartHeight + (isPortrait ? 15 : 20)}
-                    textAnchor={isPortrait ? "end" : "middle"}
-                    fontSize={Math.max(9, Math.min(11, barWidth / 6))}
-                    transform={isPortrait ? `rotate(-45, ${x}, ${responsiveMargin.top + chartHeight + 15})` : undefined}
+                    y={labelY}
+                    textAnchor={shouldRotateLabels ? "end" : "middle"}
+                    fontSize={Math.max(9, Math.min(11, shouldRotateLabels ? 10 : barWidth / 6))}
+                    transform={shouldRotateLabels ? `rotate(-45, ${x}, ${labelY})` : undefined}
+                    fill="#666"
                 >
                     {truncatedCategory}
                 </text>
@@ -875,6 +907,7 @@ const SimpleBarChart = ({
                     y={y + 4}
                     textAnchor="end"
                     fontSize={isPortrait ? "9" : "11"}
+                    fill="#666"
                 >
                     {Math.round(value)}
                 </text>
@@ -891,20 +924,40 @@ const SimpleBarChart = ({
     });
 
     const legendItems = keys.map((key, i) => {
-        const itemsPerRow = isPortrait ? 2 : Math.min(keys.length, 4);
-        const rowIndex = Math.floor(i / itemsPerRow);
-        const colIndex = i % itemsPerRow;
+        const keyName = dataKeyNames[key] || key;
+        const truncatedKeyName = keyName.length > 15 ? `${keyName.substring(0, 15)}...` : keyName;
+
+        let itemsPerRow, rowIndex, colIndex;
+
+        if (needsLegendStacking) {
+            itemsPerRow = isPortrait ? 1 : 2;
+            rowIndex = Math.floor(i / itemsPerRow);
+            colIndex = i % itemsPerRow;
+        } else {
+            itemsPerRow = Math.min(keys.length, isPortrait ? 2 : 4);
+            rowIndex = Math.floor(i / itemsPerRow);
+            colIndex = i % itemsPerRow;
+        }
+
+        const legendX = needsLegendStacking && isPortrait ?
+            responsiveMargin.left :
+            responsiveMargin.left + (colIndex * (chartWidth / itemsPerRow));
+
+        const legendY = chartDimensions.height - 35 - (rowIndex * 25);
 
         return (
             <g
                 key={`legend-${i}`}
-                transform={`translate(${responsiveMargin.left + (colIndex * (chartWidth / itemsPerRow))}, ${
-                    chartDimensions.height - 30 - (rowIndex * 20)
-                })`}
+                transform={`translate(${legendX}, ${legendY})`}
             >
                 <rect width="10" height="10" fill={colors[key]} rx="2" />
-                <text x="15" y="8" fontSize={isPortrait ? "10" : "12"}>
-                    {dataKeyNames[key] || key}
+                <text
+                    x="15"
+                    y="8"
+                    fontSize={isPortrait ? "10" : "12"}
+                    fill="#666"
+                >
+                    {truncatedKeyName}
                 </text>
             </g>
         );
@@ -984,13 +1037,13 @@ const SimpleBarChart = ({
             <div className="font-bold mb-1">{tooltipData.item.name}</div>
             {keys.map((key) => (
                 <div key={key} className="flex items-center mt-1">
-                    <span
-                        className="inline-block w-3 h-3 mr-2 rounded-sm"
-                        style={{ backgroundColor: colors[key] }}
-                    ></span>
+          <span
+              className="inline-block w-3 h-3 mr-2 rounded-sm"
+              style={{ backgroundColor: colors[key] }}
+          ></span>
                     <span>
-                        {dataKeyNames[key] || key}: {tooltipFormatter(tooltipData.item[key] || 0, key)}
-                    </span>
+            {dataKeyNames[key] || key}: {tooltipFormatter(tooltipData.item[key] || 0, key)}
+          </span>
                 </div>
             ))}
         </div>
@@ -1035,6 +1088,7 @@ const SimpleBarChart = ({
                     textAnchor="middle"
                     fontSize={isPortrait ? "10" : "12"}
                     fontWeight="bold"
+                    fill="#666"
                 >
                     {yLabel}
                 </text>
@@ -1049,6 +1103,7 @@ const SimpleBarChart = ({
         </div>
     );
 };
+
 
 
 export const SprintHoursChart = React.memo(({ loading, sprintOverviews }) => {

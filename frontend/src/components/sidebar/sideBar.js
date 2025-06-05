@@ -665,7 +665,7 @@ const UserButtonWithDropdown = ({ user, handleLogout, isOpen, isMobile = false, 
                     {/* User Info Header */}
                     <div className="p-4 border-b border-gray-100">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
                                 <AvatarRenderer config={user.avatar} className="w-full h-full" />
                             </div>
                             <div className="flex-1 min-w-0">

@@ -68,7 +68,9 @@ export const SettingsForm = ({
     };
 
     const getSelectedColor = () => {
-        return colorOptions.find(color => color.id === formData.colorId) || colorOptions[0];
+        // Manejar tanto formData.colorId como formData.color.id
+        const colorId = formData.colorId || (formData.color && formData.color.id);
+        return colorOptions.find(color => color.id === colorId) || colorOptions[0];
     };
 
     const updateFormField = (name, value) => {
@@ -172,26 +174,29 @@ export const SettingsForm = ({
                                         {isColorMenuOpen && (
                                             <div className="absolute z-10 mt-1 w-full bg-white border rounded-xl shadow-lg p-3 max-h-64 overflow-y-auto">
                                                 <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
-                                                    {colorOptions.map((color) => (
-                                                        <button
-                                                            key={color.id}
-                                                            type="button"
-                                                            className={`w-full aspect-square rounded-full flex items-center justify-center p-1 transition-all hover:scale-110 ${
-                                                                formData.colorId === color.id ? 'ring-2 ring-offset-2 ring-oracleRed' : ''
-                                                            }`}
-                                                            style={{ backgroundColor: `#${color.hex}` }}
-                                                            onClick={() => {
-                                                                updateFormField('colorId', color.id);
-                                                                setIsColorMenuOpen(false);
-                                                            }}
-                                                            title={color.name}
-                                                            aria-label={`Select ${color.name} color`}
-                                                        >
-                                                            {formData.colorId === color.id && (
-                                                                <Check size={16} className="text-white" />
-                                                            )}
-                                                        </button>
-                                                    ))}
+                                                    {colorOptions.map((color) => {
+                                                        const currentColorId = formData.colorId || (formData.color && formData.color.id);
+                                                        return (
+                                                            <button
+                                                                key={color.id}
+                                                                type="button"
+                                                                className={`w-full aspect-square rounded-full flex items-center justify-center p-1 transition-all hover:scale-110 ${
+                                                                    currentColorId === color.id ? 'ring-2 ring-offset-2 ring-oracleRed' : ''
+                                                                }`}
+                                                                style={{ backgroundColor: `#${color.hex}` }}
+                                                                onClick={() => {
+                                                                    updateFormField('colorId', color.id);
+                                                                    setIsColorMenuOpen(false);
+                                                                }}
+                                                                title={color.name}
+                                                                aria-label={`Select ${color.name} color`}
+                                                            >
+                                                                {currentColorId === color.id && (
+                                                                    <Check size={16} className="text-white" />
+                                                                )}
+                                                            </button>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         )}

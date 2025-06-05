@@ -25,7 +25,7 @@ const useProjectsData = () => {
     const [error, setError] = useState(null);
     const { isAuthenticated, isLoading } = useAuth();
 
-    const defaultColor = { hexColor: "#4e4e4e" };
+    const defaultColor = { hexColor: "#4e4e4e", id: 1 };
     const defaultIcon = 1;
 
     useEffect(() => {
@@ -39,8 +39,12 @@ const useProjectsData = () => {
                 const data = await ProjectService.getProjects();
 
                 const adaptedProjects = data.map(project => {
+                    // ✅ CORRECCIÓN: Mantener tanto hexColor como id
                     const colorValue = project.color
-                        ? { hexColor: `#${project.color.hexColor}` }
+                        ? {
+                            hexColor: `#${project.color.hexColor}`,
+                            id: project.color.id
+                        }
                         : defaultColor;
 
                     return {
@@ -84,7 +88,11 @@ const useProjectsData = () => {
                 id: newProject.id,
                 projectName: newProject.name,
                 description: newProject.description || "No description available",
-                color: newProject.color ? { hexColor: `#${newProject.color.hexColor}` } : defaultColor,
+                // ✅ CORRECCIÓN: Mantener tanto hexColor como id
+                color: newProject.color ? {
+                    hexColor: `#${newProject.color.hexColor}`,
+                    id: newProject.color.id
+                } : defaultColor,
                 icon: newProject.icon || defaultIcon,
                 activeSprint: newProject.activeSprintId
             };
@@ -97,12 +105,37 @@ const useProjectsData = () => {
             throw error;
         }
     };
+
+    const updateProject = (updatedProject) => {
+        // Actualizar la lista de proyectos
+        setProjects(prev => prev.map(project =>
+            project.id === updatedProject.id ? updatedProject : project
+        ));
+
+        // Si es el proyecto seleccionado, también actualizarlo
+        if (selectedProject && selectedProject.id === updatedProject.id) {
+            setSelectedProject(updatedProject);
+        }
+    };
+
+    const removeProject = (projectId) => {
+        // Remover de la lista de proyectos
+        setProjects(prev => prev.filter(project => project.id !== projectId));
+
+        // Si era el proyecto seleccionado, deseleccionarlo
+        if (selectedProject && selectedProject.id === projectId) {
+            setSelectedProject(null);
+        }
+    };
+
     return {
         projects,
         selectedProject,
         setSelectedProject: selectProject,
         loading: loading || isLoading,
         error,
-        addProject
+        addProject,
+        updateProject,
+        removeProject
     };
 };

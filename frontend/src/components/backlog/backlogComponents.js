@@ -987,8 +987,11 @@ export const CreateSprintModal = ({ isOpen, onClose, users, availableTasks = [] 
                                                     <div className="flex items-center flex-1 overflow-hidden">
                                                         {task.assignedTo ? (
                                                             <>
-                                                                <div className="h-6 w-6 rounded-full bg-oracleRed/10 text-oracleRed flex items-center justify-center mr-2 flex-shrink-0">
-                                                                    <AvatarRenderer config={users.find(u => u.userProjectId === task.assignedTo)?.avatar} />
+                                                                <div className="h-6 w-6 rounded-lg bg-oracleRed/10 text-oracleRed flex items-center justify-center mr-2 flex-shrink-0 overflow-hidden">
+                                                                    <AvatarRenderer
+                                                                        config={users.find(u => u.userProjectId === task.assignedTo)?.avatar}
+                                                                        className="w-full h-full rounded-lg"
+                                                                    />
                                                                 </div>
                                                                 <span className="truncate">{getAssignedUserName(task.id)}</span>
                                                             </>
@@ -1017,8 +1020,8 @@ export const CreateSprintModal = ({ isOpen, onClose, users, availableTasks = [] 
                                                                             handleUserAssignment(task.id, user.userProjectId);
                                                                         }}
                                                                     >
-                                                                        <div className="h-6 w-6 rounded-full bg-gray-100 flex items-center justify-center mr-2">
-                                                                            <AvatarRenderer config={user.avatar} />
+                                                                        <div className="h-6 w-6 rounded-lg bg-gray-100 flex items-center justify-center mr-2 overflow-hidden">
+                                                                            <AvatarRenderer config={user.avatar} className="w-full h-full rounded-lg" />
                                                                         </div>
                                                                         <span>{user.firstName} {user.lastName}</span>
                                                                         {task.assignedTo === user.userProjectId && (

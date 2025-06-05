@@ -11,10 +11,8 @@ export const Users = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [isUserDetailsModalOpen, setIsUserDetailsModalOpen] = useState(false);
     const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
-    const [deleteLoading, setDeleteLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Filtrar usuarios basado en el término de búsqueda
     const filteredUsers = useMemo(() => {
         if (!searchTerm.trim()) return users;
 
