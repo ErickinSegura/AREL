@@ -19,7 +19,7 @@ public class ProjectService {
     private ProjectRepository projectRepository;
 
     @Autowired
-    private ColorRepository colorRepository; 
+    private ColorRepository colorRepository;
 
     public List<Project> findAll(){
         return projectRepository.findAll();
