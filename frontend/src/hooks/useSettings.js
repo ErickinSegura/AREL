@@ -70,7 +70,11 @@ export const useSettings = () => {
                 ...selectedProject,
                 projectName: response.name,
                 description: response.description,
-                color: response.color ? { hexColor: `#${response.color.hexColor}` } : { hexColor: "#4e4e4e" },
+                // ✅ CORRECCIÓN: Mantener tanto hexColor como id
+                color: response.color ? {
+                    hexColor: response.color.hexColor,
+                    id: response.color.id
+                } : { hexColor: "4e4e4e", id: 1 },
                 icon: response.icon || 1
             };
 
