@@ -28,6 +28,70 @@ const ModalPortal = ({ children }) => {
         : null;
 };
 
+// Hook personalizado para detectar la posición del dropdown
+const useDropdownPosition = (isOpen, buttonRef, dropdownHeight = 200) => {
+    const [position, setPosition] = useState({
+        direction: 'bottom',
+        top: 0,
+        left: 0,
+        width: 0
+    });
+
+    useEffect(() => {
+        if (!isOpen || !buttonRef.current) return;
+
+        const updatePosition = () => {
+            const rect = buttonRef.current.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            const spaceAbove = rect.top;
+            const dropdownWidth = rect.width;
+
+            // Determinar si abrir hacia arriba o hacia abajo
+            let direction = 'bottom';
+            let top = rect.bottom + window.scrollY + 4;
+
+            if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
+                direction = 'top';
+                top = rect.top + window.scrollY - dropdownHeight - 4;
+            }
+
+            // Ajustar posición horizontal si se sale de la pantalla
+            let left = rect.left + window.scrollX;
+            const rightEdge = left + dropdownWidth;
+
+            if (rightEdge > window.innerWidth) {
+                left = window.innerWidth - dropdownWidth - 10;
+            }
+
+            if (left < 10) {
+                left = 10;
+            }
+
+            setPosition({
+                direction,
+                top,
+                left,
+                width: dropdownWidth
+            });
+        };
+
+        updatePosition();
+
+        // Actualizar posición en scroll o resize
+        const handleUpdate = () => updatePosition();
+        window.addEventListener('scroll', handleUpdate);
+        window.addEventListener('resize', handleUpdate);
+
+        return () => {
+            window.removeEventListener('scroll', handleUpdate);
+            window.removeEventListener('resize', handleUpdate);
+        };
+    }, [isOpen, dropdownHeight]);
+
+    return position;
+};
+
+// Componente del modal con detección automática de posición
 const AddProjectModal = ({ isOpen, onClose }) => {
     const { addProject } = useProjects();
     const [projectName, setProjectName] = useState('');
@@ -40,6 +104,10 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     const iconMenuRef = useRef(null);
     const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
     const [isIconMenuOpen, setIsIconMenuOpen] = useState(false);
+
+    // Usar el hook para detectar posiciones
+    const colorPosition = useDropdownPosition(isColorMenuOpen, colorMenuRef, 200);
+    const iconPosition = useDropdownPosition(isIconMenuOpen, iconMenuRef, 250);
 
     const iconOptions = [
         { id: 1, icon: <FiFolder size={24} />, label: 'Folder' },
@@ -149,6 +217,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                             </div>
 
                             <div className="flex flex-col gap-4">
+                                {/* Color Selector */}
                                 <div className="w-full">
                                     <label className="text-sm font-medium text-gray-700 block mb-2">
                                         Project Color
@@ -179,8 +248,18 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                             />
                                         </button>
 
+                                        {/* Color Dropdown con Portal */}
                                         {isColorMenuOpen && (
-                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-lg shadow-lg p-3 max-h-64 overflow-y-auto">
+                                            <div
+                                                className={`fixed z-50 bg-white border rounded-lg shadow-lg p-3 max-h-48 overflow-y-auto ${
+                                                    colorPosition.direction === 'top' ? 'animate-slideUp' : 'animate-slideDown'
+                                                }`}
+                                                style={{
+                                                    top: colorPosition.top,
+                                                    left: colorPosition.left,
+                                                    width: colorPosition.width,
+                                                }}
+                                            >
                                                 <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
                                                     {colorOptions.map((color) => (
                                                         <button
@@ -203,11 +282,20 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                                         </button>
                                                     ))}
                                                 </div>
+
+                                                {/* Indicador visual de dirección */}
+                                                {colorPosition.direction === 'top' && (
+                                                    <div className="absolute bottom-[-6px] left-4 w-3 h-3 bg-white border-r border-b transform rotate-45"></div>
+                                                )}
+                                                {colorPosition.direction === 'bottom' && (
+                                                    <div className="absolute top-[-6px] left-4 w-3 h-3 bg-white border-l border-t transform rotate-45"></div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
                                 </div>
 
+                                {/* Icon Selector */}
                                 <div className="w-full">
                                     <label className="text-sm font-medium text-gray-700 block mb-2">
                                         Project Icon
@@ -234,8 +322,18 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                             />
                                         </button>
 
+                                        {/* Icon Dropdown con Portal */}
                                         {isIconMenuOpen && (
-                                            <div className="absolute z-10 mt-1 w-full bg-white border rounded-lg shadow-lg p-3 max-h-64 overflow-y-auto">
+                                            <div
+                                                className={`fixed z-50 bg-white border rounded-lg shadow-lg p-3 max-h-60 overflow-y-auto ${
+                                                    iconPosition.direction === 'top' ? 'animate-slideUp' : 'animate-slideDown'
+                                                }`}
+                                                style={{
+                                                    top: iconPosition.top,
+                                                    left: iconPosition.left,
+                                                    width: iconPosition.width,
+                                                }}
+                                            >
                                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                                     {iconOptions.map((option) => (
                                                         <button
@@ -259,6 +357,14 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                                         </button>
                                                     ))}
                                                 </div>
+
+                                                {/* Indicador visual de dirección */}
+                                                {iconPosition.direction === 'top' && (
+                                                    <div className="absolute bottom-[-6px] left-4 w-3 h-3 bg-white border-r border-b transform rotate-45"></div>
+                                                )}
+                                                {iconPosition.direction === 'bottom' && (
+                                                    <div className="absolute top-[-6px] left-4 w-3 h-3 bg-white border-l border-t transform rotate-45"></div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -292,6 +398,39 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                     </form>
                 </ModalContent>
             </Modal>
+
+            {/* Estilos CSS para las animaciones */}
+            <style jsx>{`
+                @keyframes slideDown {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-10px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                @keyframes slideUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(10px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                .animate-slideDown {
+                    animation: slideDown 0.15s ease-out;
+                }
+                
+                .animate-slideUp {
+                    animation: slideUp 0.15s ease-out;
+                }
+            `}</style>
         </ModalPortal>
     );
 };
