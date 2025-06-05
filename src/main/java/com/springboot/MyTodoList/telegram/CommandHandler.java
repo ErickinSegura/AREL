@@ -21,33 +21,38 @@ import com.springboot.MyTodoList.util.BotMessages;
 public class CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 
+    // Agrega campos para los comandos
+    private final TaskCreationCommands taskCreationCommands;
+    private final AgileCommands agileCommands;
+    private final TaskManagementCommands taskManagementCommands;
+    private final KPICommands kpiCommands;
+    private final AICommands aiCommands;
+    private final InactivityManager inactivityManager;
     private final MessageSender messageSender;
-    private final ServiceManager database;
-    private final KeyboardFactory keyboardFactory;
+    private final ServiceManager serviceManager;
 
-    //Commands
-    private final TaskCreationCommands createTask;
-    private final TaskManagementCommands manageTask;
-    private final AgileCommands agile;
-    private final KPICommands kpi;
-    private final AICommands ai;
-
-    public CommandHandler(MessageSender messageSender, ServiceManager serviceManager, 
-                          InactivityManager inactivityManager) {
+    public CommandHandler(
+        ServiceManager serviceManager,
+        MessageSender messageSender,
+        InactivityManager inactivityManager,
+        TaskCreationCommands taskCreationCommands,
+        AgileCommands agileCommands,
+        TaskManagementCommands taskManagementCommands,
+        KPICommands kpiCommands,
+        AICommands aiCommands
+    ) {
+        this.serviceManager = serviceManager;
         this.messageSender = messageSender;
-        this.database = serviceManager;
-        //this.inactivityManager = inactivityManager;
-        // Create a new CRUD controller using the ToDoItemService from ServiceManager
-        this.keyboardFactory = new KeyboardFactory();
-        this.createTask = new TaskCreationCommands(database, messageSender, inactivityManager);
-        this.manageTask = new TaskManagementCommands(serviceManager, messageSender, inactivityManager);
-        this.agile = new AgileCommands(serviceManager, messageSender, inactivityManager);
-        this.kpi = new KPICommands(serviceManager, messageSender);
-        this.ai = new AICommands(serviceManager, messageSender);
+        this.inactivityManager = inactivityManager;
+        this.taskCreationCommands = taskCreationCommands;
+        this.agileCommands = agileCommands;
+        this.taskManagementCommands = taskManagementCommands;
+        this.kpiCommands = kpiCommands;
+        this.aiCommands = aiCommands;
     }
 
     public void start(Long chatId, Update update){
-        agile.handleStartCommand(chatId, update);
+        agileCommands.handleStartCommand(chatId, update);
     }
 
     // Command check methods
@@ -63,185 +68,185 @@ public class CommandHandler {
 
         //Restart
         if (callbackQuery.equals("restart")) {
-            agile.handleStartCommand(chatId, update);
+            agileCommands.handleStartCommand(chatId, update);
         }
         //Developer get info on a task
         else if (callbackQuery.startsWith("taskinfo_")) {
             //Send task info
-            manageTask.handleTaskInfoCallback(callbackQuery, chatId);
+            taskManagementCommands.handleTaskInfoCallback(callbackQuery, chatId);
         }
         else if (callbackQuery.startsWith("taskManager_")){
-            manageTask.handleManagerTaskOpen(callbackQuery, chatId);
+            taskManagementCommands.handleManagerTaskOpen(callbackQuery, chatId);
         }
         //Change task state
         else if (callbackQuery.startsWith("set_task_state_")){
-            manageTask.handleSetTaskStateCallback(callbackQuery, chatId, update, state);
+            taskManagementCommands.handleSetTaskStateCallback(callbackQuery, chatId, update, state);
         }
         else if (callbackQuery.startsWith("open_project")) {
             int userProjectId = Integer.parseInt(parts[3]);
             String userLevel = parts[2];
 
-            agile.handleOpenProjectCallback(userProjectId, userLevel, chatId, state);
+            agileCommands.handleOpenProjectCallback(userProjectId, userLevel, chatId, state);
         }
         else if (callbackQuery.startsWith("create_task_project_")) {
-            createTask.handleCreateTask(callbackQuery, chatId);
+            taskCreationCommands.handleCreateTask(callbackQuery, chatId);
         }
         else if (callbackQuery.startsWith("set_statetask_category_")) {
-            createTask.handleSetCategory(chatId, callbackQuery, state);
+            taskCreationCommands.handleSetCategory(chatId, callbackQuery, state);
         }
         else if (callbackQuery.startsWith("set_statetask_type_")) {
             int type_id = Integer.parseInt(parts[3]);
             String type_label = parts[4];
 
-            createTask.handleSetType(chatId, state, type_id, type_label);
+            taskCreationCommands.handleSetType(chatId, state, type_id, type_label);
         }
         else if (callbackQuery.startsWith("set_statetask_priority_")) {
             int priorityId = Integer.parseInt(parts[3]);
             String priorityLabel = parts[4];
 
-            createTask.handleSetPriority(chatId, state, priorityId, priorityLabel);
-            createTask.previewTask(chatId, state);
+            taskCreationCommands.handleSetPriority(chatId, state, priorityId, priorityLabel);
+            taskCreationCommands.previewTask(chatId, state);
         }
         else if (callbackQuery.equals("save_task")) {
             //Save task
-            createTask.handleSave(chatId, state);
+            taskCreationCommands.handleSave(chatId, state);
         }
         else if (callbackQuery.equals("cancel_task_creation")) {
             //Cancel everything
-            createTask.handleCancel(chatId, state);
-            agile.handleStartCommand(chatId, update);
+            taskCreationCommands.handleCancel(chatId, state);
+            agileCommands.handleStartCommand(chatId, update);
         }
         else if (callbackQuery.startsWith("open_actual_sprint")) {
             int projectId = Integer.parseInt(parts[3]);
 
-            agile.showSprint(chatId, projectId);
+            agileCommands.showSprint(chatId, projectId);
         }
         else if (callbackQuery.startsWith("open_assign_task_")) {
             int task_id = Integer.parseInt(parts[3]);
 
-            manageTask.handleAssignTask(chatId, task_id);
+            taskManagementCommands.handleAssignTask(chatId, task_id);
         }
         else if (callbackQuery.startsWith("assign_task_")){
             int task_id = Integer.parseInt(parts[2]);
             int userProjectId = Integer.parseInt(parts[4]);
 
-            manageTask.assignTask(chatId, task_id, userProjectId, state);
+            taskManagementCommands.assignTask(chatId, task_id, userProjectId, state);
         }
         else if (callbackQuery.startsWith("see_backlog_")) {
             int projectId = Integer.parseInt(parts[2]);
 
-            agile.openBacklog(chatId, projectId);
+            agileCommands.openBacklog(chatId, projectId);
         }
         else if (callbackQuery.startsWith("open_backlog_item_")) {
             int taskId = Integer.parseInt(parts[3]);
 
-            agile.openBacklogItem(chatId, taskId);
+            agileCommands.openBacklogItem(chatId, taskId);
         }
         else if (callbackQuery.startsWith("open_sprints_")) { //Available Sprints from a project
             int projectId = Integer.parseInt(parts[2]);
 
-            agile.sprintList(chatId, projectId);
+            agileCommands.sprintList(chatId, projectId);
         }
         else if (callbackQuery.startsWith("open_sprint_")) {
             int sprintId = Integer.parseInt(parts[2]);
 
-            agile.openSprint(chatId, sprintId);
+            agileCommands.openSprint(chatId, sprintId);
         }
         else if (callbackQuery.startsWith("move_task_backlog_")) {
             int taskId = Integer.parseInt(parts[3]);
 
-            manageTask.moveTaskToBacklog(chatId, taskId);
+            taskManagementCommands.moveTaskToBacklog(chatId, taskId);
         }
         else if (callbackQuery.startsWith("add_next_sprint_")) {
             int taskId = Integer.parseInt(parts[3]);
 
-            manageTask.SprintAssignUser(chatId, taskId, "Next");
+            taskManagementCommands.SprintAssignUser(chatId, taskId, "Next");
         }
         else if (callbackQuery.startsWith("add_this_sprint_")) {
             int taskId = Integer.parseInt(parts[3]);
 
-            manageTask.askConfirmation(chatId, taskId);
+            taskManagementCommands.askConfirmation(chatId, taskId);
         }
         else if (callbackQuery.startsWith("confirm_this_sprint_")){
             int taskId = Integer.parseInt(parts[3]);
 
-            manageTask.SprintAssignUser(chatId, taskId, "This");
+            taskManagementCommands.SprintAssignUser(chatId, taskId, "This");
         }
         else if (callbackQuery.startsWith("create_sprint_")){
             int projectID = Integer.parseInt(parts[2]);
 
-            agile.askSprintStartDate(chatId, projectID, state);
+            agileCommands.askSprintStartDate(chatId, projectID, state);
         }
         else if (callbackQuery.startsWith("assignTaskNextSprint_")) {
             int taskId = Integer.parseInt(parts[1]);
             int userProjectId = Integer.parseInt(parts[3]);
             int projectId = Integer.parseInt(parts[5]);
 
-            manageTask.addToSprintEstimatedHours(chatId, taskId, userProjectId, projectId, state, "Next");
+            taskManagementCommands.addToSprintEstimatedHours(chatId, taskId, userProjectId, projectId, state, "Next");
         }
         else if (callbackQuery.startsWith("assignTaskThisSprint_")) {
             int taskId = Integer.parseInt(parts[1]);
             int userProjectId = Integer.parseInt(parts[3]);
             int projectId = Integer.parseInt(parts[5]);
 
-            manageTask.addToSprintEstimatedHours(chatId, taskId, userProjectId, projectId, state, "This");
+            taskManagementCommands.addToSprintEstimatedHours(chatId, taskId, userProjectId, projectId, state, "This");
         }
         else if (callbackQuery.startsWith("kpi_sprints_project_")){
             int projectId = Integer.parseInt(parts[3]);
 
-            kpi.KPIMenuSprints(chatId, projectId);
+            kpiCommands.KPIMenuSprints(chatId, projectId);
         }
         else if (callbackQuery.startsWith("kpi_users_project_")) {
             int projectId = Integer.parseInt(parts[3]);
 
-            kpi.KPIMenuUsers(chatId, projectId);
+            kpiCommands.KPIMenuUsers(chatId, projectId);
         }
         else if (callbackQuery.startsWith("kpi_sprint_")) {
             int sprintId = Integer.parseInt(parts[2]);
             int projectID = Integer.parseInt(parts[3]);
 
-            kpi.openKPISprint(chatId, projectID, sprintId);
+            kpiCommands.openKPISprint(chatId, projectID, sprintId);
         }
         else if (callbackQuery.startsWith("kpi_user_")) {
             int userProjectId = Integer.parseInt(parts[2]);
             int projectID = Integer.parseInt(parts[3]);
 
-            kpi.openKPIUser(chatId, userProjectId, projectID);
+            kpiCommands.openKPIUser(chatId, userProjectId, projectID);
         }
         else if (callbackQuery.startsWith("kpi_sprintUser_")){
             int sprintNumber = Integer.parseInt(parts[2]);
             int userProjectID = Integer.parseInt(parts[3]);
             int projectID = Integer.parseInt(parts[4]);
             
-            kpi.openKPIUserSprint(chatId, sprintNumber, userProjectID, projectID);
+            kpiCommands.openKPIUserSprint(chatId, sprintNumber, userProjectID, projectID);
         }
         else if (callbackQuery.startsWith("kpi_")) {
             int projectId = Integer.parseInt(parts[1]);
 
-            kpi.openKPIMenu(chatId, projectId);
+            kpiCommands.openKPIMenu(chatId, projectId);
         }
         else if (callbackQuery.startsWith("see_tasks_developers_")) {
             int projectId = Integer.parseInt(parts[3]);
 
-            manageTask.selectUserForTaskMonitoring(chatId, projectId);
+            taskManagementCommands.selectUserForTaskMonitoring(chatId, projectId);
         }
         else if (callbackQuery.startsWith("get_tasks_user_")) {
             int userProjectId = Integer.parseInt(parts[3]);
 
-            manageTask.openTaskListUser(chatId, userProjectId);
+            taskManagementCommands.openTaskListUser(chatId, userProjectId);
         }
     }    
 
     public void handleTextInput(UserState state, String messageText, Long chatId, Update update) {
         if (messageText.startsWith("/ai ")){
-            ai.sendPrompt(chatId, messageText);
+            aiCommands.sendPrompt(chatId, messageText);
             return;
         }
         //Reply Keyboard Buttons
         if (messageText.equals("Open this Sprint")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
             if (projectId != null) {
-                agile.showSprint(chatId, projectId);
+                agileCommands.showSprint(chatId, projectId);
             }
             return;
 
@@ -249,34 +254,34 @@ public class CommandHandler {
             Integer projectId = checkForActiveProject(state, chatId, update);
             if (projectId != null) {
                 String call = "create_task_project_"+ projectId;
-                createTask.handleCreateTask(call, chatId);
+                taskCreationCommands.handleCreateTask(call, chatId);
             }
             return;
 
         } else if (messageText.equals("See Backlog")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
             if (projectId != null) {
-                agile.openBacklog(chatId, projectId);
+                agileCommands.openBacklog(chatId, projectId);
             }
             return;
 
         } else if (messageText.equals("Sprints")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
             if (projectId != null) {
-                agile.sprintList(chatId, projectId);
+                agileCommands.sprintList(chatId, projectId);
             }
             return;
 
         } else if (messageText.equals("KPI Overview")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
             if (projectId != null) {
-                kpi.openKPIMenu(chatId, projectId);
+                kpiCommands.openKPIMenu(chatId, projectId);
             }
             return;
         } else if (messageText.equals("See developers' tasks")) {
             Integer projectId = checkForActiveProject(state, chatId, update);
             if (projectId != null) {
-                manageTask.selectUserForTaskMonitoring(chatId, projectId);
+                taskManagementCommands.selectUserForTaskMonitoring(chatId, projectId);
             }
             return;
         }
@@ -290,19 +295,19 @@ public class CommandHandler {
 
         } else if (state.getState() == UserStateType.CREATE_TASK_ENTER_NAME) {
             message.setText(BotMessages.CREATE_TASK_ENTER_DESCRIPTION.getMessage());
-            createTask.handleSetTitle(state, messageText);
+            taskCreationCommands.handleSetTitle(state, messageText);
 
         } else if (state.getState() == UserStateType.CREATE_TASK_ENTER_DESCRIPTION) {
             message.setText(BotMessages.CREATE_TASK_SET_CATEGORY.getMessage());
-            List<Category> categories = createTask.handleSetDescription(state, messageText);
-            message.setReplyMarkup(keyboardFactory.inlineKeyboardCategorySet(categories));
+            List<Category> categories = taskCreationCommands.handleSetDescription(state, messageText);
+            message.setReplyMarkup(new KeyboardFactory().inlineKeyboardCategorySet(categories));
         } else if (state.getState() == UserStateType.CREATE_TASK_ENTER_CATEGORY) {
             message.setText(messageText);
         } else if (state.getState() == UserStateType.ASSIGN_TASK_ENTER_ESTIMATED_HOURS) {
             Task taskToEdit = state.getAssignationTask();
             taskToEdit.setEstimatedHours(Integer.parseInt(messageText));
 
-            Task result = database.task.updateTask(taskToEdit.getID(), taskToEdit);
+            Task result = serviceManager.task.updateTask(taskToEdit.getID(), taskToEdit);
             if (result != null) {
                 message.setText(BotMessages.ESTIMATED_HOURS_ASSIGNED_SUCCESSFULLY.getMessage());
             }else{
@@ -312,7 +317,7 @@ public class CommandHandler {
             Task taskToAssignRealHours = state.getCompletionTask();
             taskToAssignRealHours.setRealHours(Integer.parseInt(messageText));
 
-            Task result = database.task.updateTask(taskToAssignRealHours.getID(), taskToAssignRealHours);
+            Task result = serviceManager.task.updateTask(taskToAssignRealHours.getID(), taskToAssignRealHours);
             if (result != null) {
                 message.setText(BotMessages.REAL_HOURS_ASSIGNED_SUCCESSFULLY.getMessage());
             } else {
@@ -320,11 +325,11 @@ public class CommandHandler {
             }
         } else if (state.getState() == UserStateType.CREATE_SPRINT_ENTER_STARTDATE) {
 
-            agile.setSprintStartDate(messageText, state, message);
+            agileCommands.setSprintStartDate(messageText, state, message);
             
         } else if (state.getState() == UserStateType.CREATE_SPRINT_ENTER_ENDDATE) {
 
-            agile.setSprintEndDate(messageText, state, message);
+            agileCommands.setSprintEndDate(messageText, state, message);
         }
         //default
         else {
@@ -341,7 +346,7 @@ public class CommandHandler {
 
         }else {
             logger.debug("No active project");
-            agile.noProjectSelectedManager(chatId, update);
+            agileCommands.noProjectSelectedManager(chatId, update);
             return null;
         }
     }

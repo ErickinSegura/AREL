@@ -14,6 +14,11 @@ import com.springboot.MyTodoList.telegram.MessageSender;
 import com.springboot.MyTodoList.telegram.BotSessionManager.InactivityManager;
 import com.springboot.MyTodoList.telegram.BotSessionManager.UserState;
 import com.springboot.MyTodoList.telegram.BotSessionManager.UserStateType;
+import com.springboot.MyTodoList.telegram.BotCommands.TaskCreationCommands;
+import com.springboot.MyTodoList.telegram.BotCommands.AgileCommands;
+import com.springboot.MyTodoList.telegram.BotCommands.TaskManagementCommands;
+import com.springboot.MyTodoList.telegram.BotCommands.KPICommands;
+import com.springboot.MyTodoList.telegram.BotCommands.AICommands;
 
 public class ToDoItemBotController extends TelegramLongPollingBot {
 
@@ -32,7 +37,23 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 		this.serviceManager = serviceManager;
 		this.messageSender = new MessageSender(this);
 		this.inactivityManager = new InactivityManager(messageSender);
-	    this.commandHandler = new CommandHandler(this.messageSender,this.serviceManager, this.inactivityManager);
+		
+		TaskCreationCommands taskCreationCommands = new TaskCreationCommands(serviceManager, messageSender, inactivityManager);
+		AgileCommands agileCommands = new AgileCommands(serviceManager, messageSender, inactivityManager);
+		TaskManagementCommands taskManagementCommands = new TaskManagementCommands(serviceManager, messageSender, inactivityManager);
+		KPICommands kpiCommands = new KPICommands(serviceManager, messageSender);
+		AICommands aiCommands = new AICommands(serviceManager, messageSender);
+
+		this.commandHandler = new CommandHandler(
+		    serviceManager,
+		    messageSender,
+		    inactivityManager,
+		    taskCreationCommands,
+		    agileCommands,
+		    taskManagementCommands,
+		    kpiCommands,
+		    aiCommands
+		);
 	}
 
 	public ToDoItemBotController(String botToken, String botName,
