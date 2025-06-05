@@ -151,12 +151,22 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(false);
     };
 
+    // Función para actualizar el usuario desde componentes externos
+    const updateUser = (userData) => {
+        setUser(prevUser => ({
+            ...prevUser,
+            ...userData
+        }));
+    };
+
     return (
         <AuthContext.Provider
             value={{
                 isAuthenticated,
                 isLoading,
                 user,
+                setUser,
+                updateUser,
                 login,
                 register,
                 changePassword,
