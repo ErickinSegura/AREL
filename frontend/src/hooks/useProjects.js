@@ -106,12 +106,36 @@ const useProjectsData = () => {
         }
     };
 
+    const updateProject = (updatedProject) => {
+        // Actualizar la lista de proyectos
+        setProjects(prev => prev.map(project =>
+            project.id === updatedProject.id ? updatedProject : project
+        ));
+
+        // Si es el proyecto seleccionado, también actualizarlo
+        if (selectedProject && selectedProject.id === updatedProject.id) {
+            setSelectedProject(updatedProject);
+        }
+    };
+
+    const removeProject = (projectId) => {
+        // Remover de la lista de proyectos
+        setProjects(prev => prev.filter(project => project.id !== projectId));
+
+        // Si era el proyecto seleccionado, deseleccionarlo
+        if (selectedProject && selectedProject.id === projectId) {
+            setSelectedProject(null);
+        }
+    };
+
     return {
         projects,
         selectedProject,
         setSelectedProject: selectProject,
         loading: loading || isLoading,
         error,
-        addProject
+        addProject,
+        updateProject,
+        removeProject
     };
 };

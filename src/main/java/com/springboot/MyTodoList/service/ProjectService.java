@@ -1,7 +1,9 @@
 package com.springboot.MyTodoList.service;
 
 import com.springboot.MyTodoList.model.Project;
+import com.springboot.MyTodoList.model.Color;
 import com.springboot.MyTodoList.repository.ProjectRepository;
+import com.springboot.MyTodoList.repository.ColorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,19 +17,24 @@ public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private ColorRepository colorRepository; 
+
     public List<Project> findAll(){
-        List<Project> projects = projectRepository.findAll();
-        return projects;
+        return projectRepository.findAll();
     }
+
     public ResponseEntity<Project> getItemById(int id){
         Optional<Project> projectData = projectRepository.findById(id);
-        if (projectData.isPresent()){
-            return new ResponseEntity<>(projectData.get(), HttpStatus.OK);
-        }else{
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return projectData.map(project -> new ResponseEntity<>(project, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
     public Project addProject(Project project){
+        if (project.getColor() != null && project.getColor().getID() != 0) {
+            Optional<Color> colorData = colorRepository.findById(project.getColor().getID());
+            colorData.ifPresent(project::setColor);
+        }
         return projectRepository.save(project);
     }
 
@@ -47,13 +54,21 @@ public class ProjectService {
             projectItem.setID(id);
             projectItem.setName(project.getName());
             projectItem.setDescription(project.getDescription());
-            projectItem.setColor(project.getColor());
+
+            if (project.getColor() != null && project.getColor().getID() != 0) {
+                Optional<Color> colorData = colorRepository.findById(project.getColor().getID());
+                if (colorData.isPresent()) {
+                    projectItem.setColor(colorData.get());
+                } else {
+                    System.out.println("Color with ID " + project.getColor().getID() + " not found");
+                }
+            }
+
             projectItem.setIcon(project.getIcon());
-            
+
             return projectRepository.save(projectItem);
         }else{
             return null;
         }
     }
-
 }
