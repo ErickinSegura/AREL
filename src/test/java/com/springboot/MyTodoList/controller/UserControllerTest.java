@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.List;
@@ -214,5 +216,16 @@ public class UserControllerTest {
         ResponseEntity<User> response = userController.updateUser(user, userId);
         
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    public void testGetUserByIdReturnsNotFoundWhenUserDoesNotExist() {
+        int userId = 999;
+        when(userService.getItemById(userId)).thenReturn(ResponseEntity.of(Optional.empty()));
+
+        ResponseEntity<User> response = userController.getUserByID(userId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
     }
 }
