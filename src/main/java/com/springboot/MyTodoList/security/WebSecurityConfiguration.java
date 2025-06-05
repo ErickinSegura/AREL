@@ -1,4 +1,4 @@
-package com.springboot.MyTodoList.security;
+/*package com.springboot.MyTodoList.security;
 
 import com.springboot.MyTodoList.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -41,8 +41,8 @@ public class WebSecurityConfiguration {
 
         return http.build();
     }
-}
-/*
+}*/
+
 package com.springboot.MyTodoList.security;
 
 import com.springboot.MyTodoList.security.jwt.JwtAuthenticationFilter;
@@ -82,6 +82,3 @@ public class WebSecurityConfiguration {
         return http.build();
     }
 }
-
-
-*/
