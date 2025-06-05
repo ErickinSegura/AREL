@@ -426,7 +426,7 @@ export const AvatarUpdateModal = ({ isOpen, onClose, onSubmit, initialConfig, us
                         key={category.id}
                         className={`px-3 py-1 text-xs sm:text-sm rounded-full transition-colors duration-200 ${
                             activeCategory === category.id
-                                ? 'bg-oracleRed text-white'
+                                ? 'bg-oracleRed hover:bg-red-700 text-white'
                                 : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
                         }`}
                         onClick={() => handleCategoryChange(category.id)}
