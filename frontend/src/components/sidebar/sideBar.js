@@ -28,70 +28,12 @@ const ModalPortal = ({ children }) => {
         : null;
 };
 
-// Hook personalizado para detectar la posición del dropdown
-const useDropdownPosition = (isOpen, buttonRef, dropdownHeight = 200) => {
-    const [position, setPosition] = useState({
-        direction: 'bottom',
-        top: 0,
-        left: 0,
-        width: 0
-    });
-
-    useEffect(() => {
-        if (!isOpen || !buttonRef.current) return;
-
-        const updatePosition = () => {
-            const rect = buttonRef.current.getBoundingClientRect();
-            const spaceBelow = window.innerHeight - rect.bottom;
-            const spaceAbove = rect.top;
-            const dropdownWidth = rect.width;
-
-            // Determinar si abrir hacia arriba o hacia abajo
-            let direction = 'bottom';
-            let top = rect.bottom + window.scrollY + 4;
-
-            if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
-                direction = 'top';
-                top = rect.top + window.scrollY - dropdownHeight - 4;
-            }
-
-            // Ajustar posición horizontal si se sale de la pantalla
-            let left = rect.left + window.scrollX;
-            const rightEdge = left + dropdownWidth;
-
-            if (rightEdge > window.innerWidth) {
-                left = window.innerWidth - dropdownWidth - 10;
-            }
-
-            if (left < 10) {
-                left = 10;
-            }
-
-            setPosition({
-                direction,
-                top,
-                left,
-                width: dropdownWidth
-            });
-        };
-
-        updatePosition();
-
-        // Actualizar posición en scroll o resize
-        const handleUpdate = () => updatePosition();
-        window.addEventListener('scroll', handleUpdate);
-        window.addEventListener('resize', handleUpdate);
-
-        return () => {
-            window.removeEventListener('scroll', handleUpdate);
-            window.removeEventListener('resize', handleUpdate);
-        };
-    }, [isOpen, dropdownHeight]);
-
-    return position;
+const DropdownPortal = ({ children, isOpen }) => {
+    if (!isOpen || typeof document === 'undefined') return null;
+    return createPortal(children, document.body);
 };
 
-// Componente del modal con detección automática de posición
+// Modifica tu componente para usar el portal en los dropdowns:
 const AddProjectModal = ({ isOpen, onClose }) => {
     const { addProject } = useProjects();
     const [projectName, setProjectName] = useState('');
@@ -105,9 +47,9 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
     const [isIconMenuOpen, setIsIconMenuOpen] = useState(false);
 
-    // Usar el hook para detectar posiciones
-    const colorPosition = useDropdownPosition(isColorMenuOpen, colorMenuRef, 200);
-    const iconPosition = useDropdownPosition(isIconMenuOpen, iconMenuRef, 250);
+    // Para posicionar los dropdowns correctamente
+    const [colorButtonRect, setColorButtonRect] = useState(null);
+    const [iconButtonRect, setIconButtonRect] = useState(null);
 
     const iconOptions = [
         { id: 1, icon: <FiFolder size={24} />, label: 'Folder' },
@@ -128,13 +70,30 @@ const AddProjectModal = ({ isOpen, onClose }) => {
         { id: 7, hex: '3A86FF', name: 'Blue' },
     ];
 
+    // Refs para los dropdowns portales
+    const colorDropdownRef = useRef(null);
+    const iconDropdownRef = useRef(null);
+
     useEffect(() => {
         const handleOutsideClick = (event) => {
-            if (colorMenuRef.current && !colorMenuRef.current.contains(event.target)) {
-                setIsColorMenuOpen(false);
+            // Check color dropdown
+            if (isColorMenuOpen) {
+                const isClickInsideButton = colorMenuRef.current && colorMenuRef.current.contains(event.target);
+                const isClickInsideDropdown = colorDropdownRef.current && colorDropdownRef.current.contains(event.target);
+
+                if (!isClickInsideButton && !isClickInsideDropdown) {
+                    setIsColorMenuOpen(false);
+                }
             }
-            if (iconMenuRef.current && !iconMenuRef.current.contains(event.target)) {
-                setIsIconMenuOpen(false);
+
+            // Check icon dropdown
+            if (isIconMenuOpen) {
+                const isClickInsideButton = iconMenuRef.current && iconMenuRef.current.contains(event.target);
+                const isClickInsideDropdown = iconDropdownRef.current && iconDropdownRef.current.contains(event.target);
+
+                if (!isClickInsideButton && !isClickInsideDropdown) {
+                    setIsIconMenuOpen(false);
+                }
             }
         };
 
@@ -142,7 +101,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
         return () => {
             document.removeEventListener('mousedown', handleOutsideClick);
         };
-    }, []);
+    }, [isColorMenuOpen, isIconMenuOpen]);
 
     const getSelectedIcon = () => {
         return iconOptions.find(icon => icon.id === iconId) || iconOptions[0];
@@ -181,6 +140,24 @@ const AddProjectModal = ({ isOpen, onClose }) => {
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const handleColorMenuToggle = () => {
+        if (colorMenuRef.current) {
+            const rect = colorMenuRef.current.getBoundingClientRect();
+            setColorButtonRect(rect);
+        }
+        setIsColorMenuOpen(!isColorMenuOpen);
+        setIsIconMenuOpen(false);
+    };
+
+    const handleIconMenuToggle = () => {
+        if (iconMenuRef.current) {
+            const rect = iconMenuRef.current.getBoundingClientRect();
+            setIconButtonRect(rect);
+        }
+        setIsIconMenuOpen(!isIconMenuOpen);
+        setIsColorMenuOpen(false);
     };
 
     return (
@@ -226,10 +203,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                         <button
                                             type="button"
                                             className="flex items-center justify-between w-full px-4 py-3 border rounded-lg bg-white hover:bg-gray-50 transition-colors"
-                                            onClick={() => {
-                                                setIsColorMenuOpen(!isColorMenuOpen);
-                                                setIsIconMenuOpen(false);
-                                            }}
+                                            onClick={handleColorMenuToggle}
                                             aria-expanded={isColorMenuOpen}
                                             aria-haspopup="true"
                                         >
@@ -247,51 +221,6 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                                 className={`transition-transform duration-200 ${isColorMenuOpen ? 'transform rotate-180' : ''}`}
                                             />
                                         </button>
-
-                                        {/* Color Dropdown con Portal */}
-                                        {isColorMenuOpen && (
-                                            <div
-                                                className={`fixed z-50 bg-white border rounded-lg shadow-lg p-3 max-h-48 overflow-y-auto ${
-                                                    colorPosition.direction === 'top' ? 'animate-slideUp' : 'animate-slideDown'
-                                                }`}
-                                                style={{
-                                                    top: colorPosition.top,
-                                                    left: colorPosition.left,
-                                                    width: colorPosition.width,
-                                                }}
-                                            >
-                                                <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
-                                                    {colorOptions.map((color) => (
-                                                        <button
-                                                            key={color.id}
-                                                            type="button"
-                                                            className={`w-full aspect-square rounded-full flex items-center justify-center p-1 transition-all hover:scale-110 ${
-                                                                colorId === color.id ? 'ring-2 ring-offset-2 ring-oracleRed' : ''
-                                                            }`}
-                                                            style={{ backgroundColor: `#${color.hex}` }}
-                                                            onClick={() => {
-                                                                setColorId(color.id);
-                                                                setIsColorMenuOpen(false);
-                                                            }}
-                                                            title={color.name}
-                                                            aria-label={`Select ${color.name} color`}
-                                                        >
-                                                            {colorId === color.id && (
-                                                                <Check size={16} className="text-white" />
-                                                            )}
-                                                        </button>
-                                                    ))}
-                                                </div>
-
-                                                {/* Indicador visual de dirección */}
-                                                {colorPosition.direction === 'top' && (
-                                                    <div className="absolute bottom-[-6px] left-4 w-3 h-3 bg-white border-r border-b transform rotate-45"></div>
-                                                )}
-                                                {colorPosition.direction === 'bottom' && (
-                                                    <div className="absolute top-[-6px] left-4 w-3 h-3 bg-white border-l border-t transform rotate-45"></div>
-                                                )}
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
 
@@ -304,10 +233,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                         <button
                                             type="button"
                                             className="flex items-center justify-between w-full px-4 py-3 border rounded-lg bg-white hover:bg-gray-50 transition-colors"
-                                            onClick={() => {
-                                                setIsIconMenuOpen(!isIconMenuOpen);
-                                                setIsColorMenuOpen(false);
-                                            }}
+                                            onClick={handleIconMenuToggle}
                                             aria-expanded={isIconMenuOpen}
                                             aria-haspopup="true"
                                         >
@@ -321,52 +247,6 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                                 className={`transition-transform duration-200 ${isIconMenuOpen ? 'transform rotate-180' : ''}`}
                                             />
                                         </button>
-
-                                        {/* Icon Dropdown con Portal */}
-                                        {isIconMenuOpen && (
-                                            <div
-                                                className={`fixed z-50 bg-white border rounded-lg shadow-lg p-3 max-h-60 overflow-y-auto ${
-                                                    iconPosition.direction === 'top' ? 'animate-slideUp' : 'animate-slideDown'
-                                                }`}
-                                                style={{
-                                                    top: iconPosition.top,
-                                                    left: iconPosition.left,
-                                                    width: iconPosition.width,
-                                                }}
-                                            >
-                                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                                    {iconOptions.map((option) => (
-                                                        <button
-                                                            key={option.id}
-                                                            type="button"
-                                                            className={`flex items-center gap-2 p-3 rounded-lg w-full transition-colors ${
-                                                                iconId === option.id
-                                                                    ? 'bg-gray-100 ring-2 ring-oracleRed text-oracleRed'
-                                                                    : 'hover:bg-gray-50'
-                                                            }`}
-                                                            onClick={() => {
-                                                                setIconId(option.id);
-                                                                setIsIconMenuOpen(false);
-                                                            }}
-                                                            aria-label={`Select ${option.label} icon`}
-                                                        >
-                                                            <div className={`${iconId === option.id ? 'text-oracleRed' : 'text-gray-700'}`}>
-                                                                {option.icon}
-                                                            </div>
-                                                            <span className="text-sm">{option.label}</span>
-                                                        </button>
-                                                    ))}
-                                                </div>
-
-                                                {/* Indicador visual de dirección */}
-                                                {iconPosition.direction === 'top' && (
-                                                    <div className="absolute bottom-[-6px] left-4 w-3 h-3 bg-white border-r border-b transform rotate-45"></div>
-                                                )}
-                                                {iconPosition.direction === 'bottom' && (
-                                                    <div className="absolute top-[-6px] left-4 w-3 h-3 bg-white border-l border-t transform rotate-45"></div>
-                                                )}
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -399,38 +279,82 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                 </ModalContent>
             </Modal>
 
-            {/* Estilos CSS para las animaciones */}
-            <style jsx>{`
-                @keyframes slideDown {
-                    from {
-                        opacity: 0;
-                        transform: translateY(-10px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                
-                @keyframes slideUp {
-                    from {
-                        opacity: 0;
-                        transform: translateY(10px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                
-                .animate-slideDown {
-                    animation: slideDown 0.15s ease-out;
-                }
-                
-                .animate-slideUp {
-                    animation: slideUp 0.15s ease-out;
-                }
-            `}</style>
+            {/* Color Dropdown Portal */}
+            <DropdownPortal isOpen={isColorMenuOpen}>
+                <div
+                    ref={colorDropdownRef}
+                    className="fixed z-50 bg-white border rounded-lg shadow-lg p-3 max-h-64 overflow-y-auto"
+                    style={{
+                        top: colorButtonRect ? colorButtonRect.bottom + window.scrollY + 4 : 0,
+                        left: colorButtonRect ? colorButtonRect.left + window.scrollX : 0,
+                        width: colorButtonRect ? colorButtonRect.width : 'auto',
+                    }}
+                >
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                        {colorOptions.map((color) => (
+                            <button
+                                key={color.id}
+                                type="button"
+                                className={`w-full aspect-square rounded-full flex items-center justify-center p-1 transition-all hover:scale-110 ${
+                                    colorId === color.id ? 'ring-2 ring-offset-2 ring-oracleRed' : ''
+                                }`}
+                                style={{ backgroundColor: `#${color.hex}` }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setColorId(color.id);
+                                    setIsColorMenuOpen(false);
+                                }}
+                                title={color.name}
+                                aria-label={`Select ${color.name} color`}
+                            >
+                                {colorId === color.id && (
+                                    <Check size={16} className="text-white" />
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </DropdownPortal>
+
+            {/* Icon Dropdown Portal */}
+            <DropdownPortal isOpen={isIconMenuOpen}>
+                <div
+                    ref={iconDropdownRef}
+                    className="fixed z-50 bg-white border rounded-lg shadow-lg p-3 max-h-64 overflow-y-auto"
+                    style={{
+                        top: iconButtonRect ? iconButtonRect.bottom + window.scrollY + 4 : 0,
+                        left: iconButtonRect ? iconButtonRect.left + window.scrollX : 0,
+                        width: iconButtonRect ? iconButtonRect.width : 'auto',
+                    }}
+                >
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {iconOptions.map((option) => (
+                            <button
+                                key={option.id}
+                                type="button"
+                                className={`flex items-center gap-2 p-3 rounded-lg w-full transition-colors ${
+                                    iconId === option.id
+                                        ? 'bg-gray-100 ring-2 ring-oracleRed text-oracleRed'
+                                        : 'hover:bg-gray-50'
+                                }`}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setIconId(option.id);
+                                    setIsIconMenuOpen(false);
+                                }}
+                                aria-label={`Select ${option.label} icon`}
+                            >
+                                <div className={`${iconId === option.id ? 'text-oracleRed' : 'text-gray-700'}`}>
+                                    {option.icon}
+                                </div>
+                                <span className="text-sm">{option.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </DropdownPortal>
         </ModalPortal>
     );
 };
