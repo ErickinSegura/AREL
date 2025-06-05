@@ -1,7 +1,5 @@
 package com.springboot.MyTodoList.controller;
 import com.springboot.MyTodoList.model.User;
-import com.springboot.MyTodoList.model.UserProject;
-import com.springboot.MyTodoList.service.UserProjectService;
 import com.springboot.MyTodoList.service.UserService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,29 +15,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private UserProjectService userProjectService;
-
-    @GetMapping("/userlist/{projectId}/users")
-    public ResponseEntity<List<User>> getUsersByProject(@PathVariable int projectId) {
-        try {
-            List<UserProject> userProjects = userProjectService.getUsersByProject(projectId);
-
-            if (userProjects.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-
-            List<User> users = userProjects.stream()
-                    .map(UserProject::getUser)
-                    .distinct()
-                    .collect(Collectors.toList());
-
-            return new ResponseEntity<>(users, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping(value = "/userlist/by-level")
     public ResponseEntity<List<User>> getUsersByLevel(@RequestParam(required = false) List<Integer> levelIds){
         try {
@@ -53,6 +28,24 @@ public class UserController {
             }
 
             return new ResponseEntity<>(allUsers, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "/userlist/available")
+    public ResponseEntity<List<User>> getAvailableUsersByLevel(@RequestParam(required = false) List<Integer> levelIds){
+        try {
+            List<User> availableUsers = userService.findAvailableUsers();
+
+            if (levelIds != null && !levelIds.isEmpty()) {
+                List<User> filteredUsers = availableUsers.stream()
+                        .filter(user -> user.getUserLevel() != null && levelIds.contains(user.getUserLevel().getID()))
+                        .collect(Collectors.toList());
+                return new ResponseEntity<>(filteredUsers, HttpStatus.OK);
+            }
+
+            return new ResponseEntity<>(availableUsers, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }

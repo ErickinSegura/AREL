@@ -26,11 +26,8 @@ public class ShortcutControllerTest {
     }
 
     @Test
-    void testGetAllShortcuts() {
-        List<Shortcut> shortcuts = Arrays.asList(
-            new Shortcut(1, "http://example1.com"),
-            new Shortcut(2, "http://example2.com")
-        );
+    public void testGetAllShortcuts() {
+        List<Shortcut> shortcuts = List.of(new Shortcut(1, "http://localhost:8080", "Test Shortcut"));
         when(shortcutService.getAllShortcuts()).thenReturn(ResponseEntity.ok(shortcuts));
         ResponseEntity<List<Shortcut>> response = shortcutController.getAllShortcuts();
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -38,20 +35,23 @@ public class ShortcutControllerTest {
     }
 
     @Test
-    void testGetShortcutByIdSuccess() {
-        Shortcut shortcut = new Shortcut(1, "http://example.com");
-        when(shortcutService.getShortcutById(1)).thenReturn(ResponseEntity.ok(shortcut));
-        ResponseEntity<Shortcut> response = shortcutController.getShortcutByID(1);
+    public void testGetShortcutByID() {
+        int id = 1;
+        Shortcut shortcut = new Shortcut(1, "http://localhost:8080", "Test Shortcut");
+
+        when(shortcutService.getShortcutById(id)).thenReturn(ResponseEntity.ok(shortcut));
+
+        ResponseEntity<Shortcut> response = shortcutController.getShortcutByID(id);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("http://example.com", response.getBody().getURL());
     }
 
     @Test
-    void testGetShortcutByIdNotFound() {
-        when(shortcutService.getShortcutById(999)).thenReturn(ResponseEntity.notFound().build());
-        ResponseEntity<Shortcut> response = shortcutController.getShortcutByID(999);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
+    public void testAddShortcut() {
+        Shortcut shortcut = new Shortcut(1, "http://localhost:8080", "Test Shortcut");
+
+        when(shortcutService.saveShortcut(any(Shortcut.class)))
+                .thenReturn(ResponseEntity.status(HttpStatus.CREATED).body(shortcut));
 
     @Test
     void testAddShortcutSuccess() {
@@ -65,9 +65,14 @@ public class ShortcutControllerTest {
     @Test
     void testUpdateShortcutSuccess() {
         int id = 1;
-        Shortcut shortcut = new Shortcut(id, "http://updated.com");
-        when(shortcutService.updateShortcut(id, shortcut)).thenReturn(ResponseEntity.ok(shortcut));
-        ResponseEntity<Shortcut> response = shortcutController.updateShortcut(id, shortcut);
+        Shortcut updated = new Shortcut(1, "http://localhost:8080/updated", "Updated Shortcut");
+
+        when(shortcutService.getShortcutById(id)).thenReturn(ResponseEntity.ok(updated));
+
+        when(shortcutService.updateShortcut(eq(id), any(Shortcut.class)))
+                .thenReturn(ResponseEntity.ok(updated));
+
+        ResponseEntity<Shortcut> response = shortcutController.updateShortcut(id, updated);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("http://updated.com", response.getBody().getURL());
     }

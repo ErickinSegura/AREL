@@ -3,7 +3,7 @@ import { ProjectService } from '../api/projectService';
 import { useProjects } from './useProjects';
 
 export const useSettings = () => {
-    const { selectedProject, setSelectedProject } = useProjects();
+    const { selectedProject, setSelectedProject, updateProject, removeProject } = useProjects();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
@@ -66,15 +66,26 @@ export const useSettings = () => {
 
             const response = await ProjectService.updateProjectSettings(updatedProjectData);
 
+
+            console.log('Response from API:', response);
+            console.log('Response color:', response.color);
+
             const updatedProject = {
                 ...selectedProject,
                 projectName: response.name,
                 description: response.description,
-                color: response.color ? { hexColor: `#${response.color.hexColor}` } : { hexColor: "#4e4e4e" },
+                // ✅ CORRECCIÓN: Manejar caso donde hexColor es null
+                color: response.color && response.color.hexColor ? {
+                    hexColor: response.color.hexColor.startsWith('#')
+                        ? response.color.hexColor
+                        : `#${response.color.hexColor}`,
+                    id: response.color.id
+                } : { hexColor: "#4e4e4e", id: 1 },
                 icon: response.icon || 1
             };
 
-            setSelectedProject(updatedProject);
+            // ✅ Usar updateProject para actualizar tanto la lista como el selectedProject
+            updateProject(updatedProject);
             return updatedProject;
         } catch (err) {
             console.error("Error updating project settings:", err);
@@ -100,7 +111,8 @@ export const useSettings = () => {
         try {
             setDeleteLoading(true);
             await ProjectService.deleteProject(selectedProject.id);
-            setSelectedProject(null);
+            // ✅ Usar removeProject para actualizar tanto la lista como deseleccionar
+            removeProject(selectedProject.id);
 
         } catch (err) {
             console.error("Error deleting project:", err);

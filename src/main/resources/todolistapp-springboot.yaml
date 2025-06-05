@@ -7,6 +7,7 @@ metadata:
 spec:
   type: LoadBalancer
   externalTrafficPolicy: Local
+  loadBalancerIP: 159.54.150.161
 
   ports:
     - port: 80
@@ -107,7 +108,7 @@ spec:
     spec:
       containers:
         - name: arel-ai-service
-          image: %DOCKER_REGISTRY%/arel-ai-service:0.1
+          image: %DOCKER_REGISTRY%/arel-py-ai-service:0.1
           imagePullPolicy: Always
           ports:
             - containerPort: 8080 #flask port

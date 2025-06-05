@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-                const response = await fetch('/auth/login', {
+            const response = await fetch('/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -110,10 +110,53 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    const changePassword = async (currentPassword, newPassword) => {
+        const token = localStorage.getItem('jwt_token');
+
+        if (!token) {
+            throw new Error('User not authenticated');
+        }
+
+        try {
+            const response = await fetch('/auth/change_password', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    currentPassword,
+                    newPassword,
+                    confirmPassword: newPassword
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                const errorMessage = data.error || 'Error changing password';
+                throw new Error(errorMessage);
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Error changing password:', error);
+            throw error;
+        }
+    };
+
     const logout = () => {
         localStorage.removeItem('jwt_token');
         setUser(null);
         setIsAuthenticated(false);
+    };
+
+    // Función para actualizar el usuario desde componentes externos
+    const updateUser = (userData) => {
+        setUser(prevUser => ({
+            ...prevUser,
+            ...userData
+        }));
     };
 
     return (
@@ -122,8 +165,11 @@ export const AuthProvider = ({ children }) => {
                 isAuthenticated,
                 isLoading,
                 user,
+                setUser,
+                updateUser,
                 login,
                 register,
+                changePassword,
                 logout
             }}
         >

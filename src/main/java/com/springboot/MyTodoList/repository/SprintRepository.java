@@ -27,8 +27,8 @@ public interface SprintRepository extends JpaRepository<Sprint,Integer> {
     @Query(
         "SELECT s " +
         "FROM Sprint s " +
-        "WHERE CURRENT_TIMESTAMP < s.endDate " +
-        "AND s.project = :idProject " +
+        //"WHERE CURRENT_TIMESTAMP < s.endDate " +
+        "WHERE s.project = :idProject " +
         "ORDER BY s.sprintNumber"
     )
     List<Sprint> availableSprints(@Param("idProject") Integer idProject);

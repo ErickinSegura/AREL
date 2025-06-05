@@ -7,7 +7,7 @@ import {
     FiCodesandbox,
     FiChevronDown,
     FiAlertTriangle,
-    FiArrowUp, FiActivity, FiClock, FiCheckCircle
+    FiArrowUp, FiActivity, FiClock, FiCheckCircle, FiUser
 } from 'react-icons/fi';
 import { Skeleton, SkeletonText, SkeletonCircle } from '../../lib/ui/Skeleton';
 import { AICall, PDF } from '../../lib/ui/PDF/PDF';
@@ -15,58 +15,9 @@ import { pdf } from '@react-pdf/renderer';
 import { OverviewService } from '../../api/overviewService';
 import {useAuth} from "../../contexts/AuthContext";
 import {useDeveloperCharts} from "../../hooks/useDeveloperCharts";
+import { format } from 'date-fns';
+import { enUS } from 'date-fns/locale';
 
-const getProjectIcon = (iconID) => {
-    switch (iconID) {
-        case 1: return <FiFolder />;
-        case 2: return <FiCodesandbox />;
-        default: return <FiCodesandbox />;
-    }
-};
-
-export const ErrorState = ({ error }) => (
-    <div className="p-6 flex flex-col items-center justify-center h-full">
-        <Card className="w-full max-w-md text-center">
-            <CardHeader>
-                <CardTitle className="text-2xl">
-                    Error <span className="text-oracleRed">Loading Data</span>
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="flex justify-center mb-6">
-                    <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-red-500">
-                        <FiAlertTriangle size={32} />
-                    </div>
-                </div>
-                <div className="bg-red-50 p-4 rounded-lg mb-6">
-                    <p className="text-red-600 font-medium">{error}</p>
-                </div>
-            </CardContent>
-        </Card>
-    </div>
-);
-
-export const NoProjectState = ( { title, message } ) => (
-    <div className="p-6 flex flex-col items-center justify-center h-full">
-        <Card className="w-full max-w-md text-center">
-            <CardHeader>
-                <CardTitle className="text-2xl">
-                    No Project <span className="text-oracleRed">{title}</span>
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="flex justify-center mb-6">
-                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
-                        <FiFolder size={32} />
-                    </div>
-                </div>
-                <p className="text-gray-600 mb-6">
-                    { message }
-                </p>
-            </CardContent>
-        </Card>
-    </div>
-);
 
 export const PDFButton = ({ selectedProject }) => {
     const [loading, setLoading] = useState(false);
@@ -82,18 +33,29 @@ export const PDFButton = ({ selectedProject }) => {
     const handleGenerateAndDownloadPdf = async () => {
         setLoading(true);
         try {
+            console.log("Fetching project data...");
+
             const overviewData = await OverviewService.getOverviewData(selectedProject.id);
 
             const projectData = transformOverviewDataToProjectFormat(overviewData);
 
+            const userPerformances = overviewData.userPerformances || [];
+
+            console.log("Generating AI insights...");
+
             const aiResponse = await AICall(projectData);
+
+            console.log("Creating PDF...");
 
             const pdfBlob = await pdf(
                 <PDF
                     insightsHtml={aiResponse}
                     projectData={projectData}
+                    userPerformances={userPerformances}
                 />
             ).toBlob();
+
+            console.log("Downloading PDF...");
 
             const url = URL.createObjectURL(pdfBlob);
             const link = document.createElement('a');
@@ -104,8 +66,11 @@ export const PDFButton = ({ selectedProject }) => {
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
 
+            console.log("PDF downloaded successfully!");
+
         } catch (error) {
             console.error("Error generating or downloading PDF:", error);
+            alert("There was an error generating the PDF. Please try again later.");
         }
         setLoading(false);
     };
@@ -138,45 +103,6 @@ export const PDFButton = ({ selectedProject }) => {
         </div>
     );
 };
-
-export const ProjectHeader = ({ selectedProject, loading, isAdmin = false }) => (
-    <Card className="mb-4 sm:mb-6">
-        <CardHeader className="px-3 py-3 sm:px-6 sm:py-4">
-            <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${loading ? 'animate-pulse' : ''}`}>
-                <CardTitle className="w-full sm:w-auto">
-                    {loading ? (
-                        <div className="flex items-center">
-                            <SkeletonCircle size="md" />
-                            <div className="ml-3 w-32 sm:w-48">
-                                <SkeletonText lines={1} />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex items-center w-full">
-                            <div
-                                className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl grid place-items-center text-white flex-shrink-0"
-                                style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
-                            >
-                                {getProjectIcon(selectedProject?.icon)}
-                            </div>
-                            <h1 className="text-xl sm:text-2xl font-bold sm:px-3 ml-3 sm:ml-0 break-words max-w-full truncate">
-                                {selectedProject?.projectName}
-                            </h1>
-                        </div>
-                    )}
-                </CardTitle>
-
-                {!loading && isAdmin && (
-                    <div className="mt-2 sm:mt-0">
-                        <PDFButton
-                            selectedProject={selectedProject}
-                        />
-                    </div>
-                )}
-            </div>
-        </CardHeader>
-    </Card>
-);
 
 export const DashboardHeader = ({
                                     loading,
@@ -286,7 +212,7 @@ export const SprintSummaryCard = ({ loading, selectedSprint, formatDate }) => (
                 {loading ? (
                     <SkeletonText className="w-40" />
                 ) : (
-                    <>Sprint <span className="text-oracleRed">Summary</span></>
+                    <>Team Sprint <span className="text-oracleRed">Summary</span></>
                 )}
             </CardTitle>
         </CardHeader>
@@ -326,6 +252,107 @@ export const SprintSummaryCard = ({ loading, selectedSprint, formatDate }) => (
     </Card>
 );
 
+export const LogsCard = ({ loading, logs}) => {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    return (
+        <Card className="flex flex-col h-full">
+            <CardHeader>
+                <CardTitle>
+                    {loading ? (
+                        <SkeletonText className="w-40" />
+                    ) : (
+                        <>Project <span className="text-oracleRed">Logs</span></>
+                    )}
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow overflow-y-auto max-h-96">
+                {loading ? (
+                    <div className="space-y-4">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="bg-gray-50 p-3 rounded-lg">
+                                <div className="flex justify-between mb-2">
+                                    <SkeletonText className="w-32" />
+                                    <SkeletonText className="w-24" />
+                                </div>
+                                <div className="grid grid-cols-3 gap-2 mt-2">
+                                    <SkeletonText className="h-4" />
+                                    <SkeletonText className="h-4" />
+                                    <SkeletonText className="h-4" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : logs && logs.length > 0 && mounted ? (
+                    <div className="space-y-3">
+                        {logs.map((log, index) => (
+                            <FadeIn delay={100 + index * 150} key={log.id}>
+                                <LogItem log={log} formatDate={formatDate}/>
+                            </FadeIn>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-6 text-gray-500">
+                        No logs available for this sprint
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return format(date, 'dd/MM/yyyy HH:mm', { locale: enUS });
+}
+
+const LogItem = ({ log }) => {
+    const formattedDate = formatDate(log.timeOfLog);
+    const actionText = getActionLog(log.actionLog);
+
+    return (
+        <div className="bg-white p-3 rounded-xl border border-gray-200">
+            <div className="flex justify-between items-center">
+                <div className="font-medium text-oracleRed">{actionText}</div>
+                <div className="text-sm text-gray-500">{formattedDate}</div>
+            </div>
+            <div className="text-sm text-gray-600 flex flex-wrap gap-x-4">
+                {log.title && (
+                    <div className="flex items-center">
+                        <FiCheckCircle className="mr-1 shrink-0" size={16} />
+                        <span>{log.title}</span>
+                    </div>
+                )}
+                {!(log.firstname === "Sistema") && (
+                    <div className="flex items-center">
+                        <FiUser className="mr-1 shrink-0" size={16} />
+                        <span>{log.firstname}</span>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+const getActionLog = (action) => {
+    switch (action) {
+        case 1:
+            return 'A task was set as done';
+        case 2:
+            return 'A task was set as doing';
+        case 3:
+            return 'A task was created';
+        case 4:
+            return 'A sprint was created';
+        default:
+            return 'Unknown action';
+    }
+}
+
 const FadeIn = ({ children, delay = 0, duration = 300 }) => {
     const [isVisible, setIsVisible] = useState(false);
 
@@ -353,12 +380,9 @@ const FadeIn = ({ children, delay = 0, duration = 300 }) => {
 const AnimatedArc = ({ progressArc, completionRateColor }) => {
     const [animatedOffset, setAnimatedOffset] = useState(progressArc.strokeDasharray);
 
-    // Resetear y animar el offset cuando cambia el sprint seleccionado
     useEffect(() => {
-        // Primero reseteamos al valor máximo (sin progreso)
         setAnimatedOffset(progressArc.strokeDasharray);
 
-        // Luego animamos hasta el offset calculado
         const timer = setTimeout(() => {
             setAnimatedOffset(progressArc.strokeDashoffset);
         }, 50);
@@ -397,7 +421,6 @@ const AnimatedProgressBar = ({ percentage, color }) => {
     const [width, setWidth] = useState(0);
 
     useEffect(() => {
-        // Animación desde 0 hasta el porcentaje final
         setTimeout(() => {
             setWidth(percentage);
         }, 300);
@@ -530,12 +553,6 @@ export const SprintGoalCard = ({ loading, selectedSprint, calculateProgressArc }
 };
 
 export const TeamPerformanceCard = ({ loading, sprintUserData }) => {
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
     return (
         <Card className="flex flex-col h-full">
             <CardHeader>
@@ -633,46 +650,6 @@ export const UserPerformanceItem = ({ user }) => {
     );
 };
 
-export const DevStreakCard = ({ loading, selectedSprint }) => {
-    const { BsFire } = require('react-icons/bs');
-
-    return (
-        <Card className="flex flex-col h-full">
-            <CardHeader>
-                <CardTitle>
-                    {loading ? (
-                        <SkeletonText className="w-36" />
-                    ) : (
-                        <>Dev <span className="text-oracleRed">Streak</span></>
-                    )}
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center flex-grow justify-center">
-                {loading ? (
-                    <>
-                        <SkeletonCircle size="3xl" />
-                        <div className="mt-4 w-40">
-                            <SkeletonText lines={1} />
-                        </div>
-                    </>
-                ) : selectedSprint && (
-                    <>
-                        <div className="relative mb-4">
-                            <BsFire size={80} className="text-orange-500" />
-                        </div>
-
-                        <div className="text-center">
-                            <h1 className="text-4xl font-bold mb-2">
-                                <span className="text-oracleRed">10</span> Days
-                            </h1>
-                        </div>
-                    </>
-                )}
-            </CardContent>
-        </Card>
-    );
-};
-
 const RoundedBar = ({ x, y, width, height, fill, animationDelay = 0 }) => {
     const [animated, setAnimated] = useState(false);
 
@@ -684,6 +661,10 @@ const RoundedBar = ({ x, y, width, height, fill, animationDelay = 0 }) => {
     const radius = Math.min(8, width / 2);
     const animatedHeight = animated ? height : 0;
     const animatedY = animated ? y : y + height;
+
+    if (animatedHeight <= 0) {
+        return null;
+    }
 
     return (
         <g>
@@ -790,26 +771,50 @@ const SimpleBarChart = ({
         );
     }
 
+    const barCategories = data.map((d) => d.name);
+    const barCount = barCategories.length;
+
+    const needsRotation = barCount > 6 || barCategories.some(cat => cat.length > 8);
+    const extraBottomSpace = needsRotation ? 40 : 0;
+
+    const keyNames = keys.map(key => dataKeyNames[key] || key);
+    const longestKeyName = Math.max(...keyNames.map(name => name.length));
+    const totalKeysWidth = keyNames.reduce((sum, name) => sum + (name.length * 8) + 30, 0);
+
+    const needsLegendStacking = totalKeysWidth > chartDimensions.width * 0.8 ||
+        keys.length > 4 ||
+        (isPortrait && keys.length > 2) ||
+        longestKeyName > 12;
+
+    const legendRows = needsLegendStacking ? Math.ceil(keys.length / (isPortrait ? 1 : 2)) : 1;
+    const extraLegendSpace = needsLegendStacking ? (legendRows - 1) * 25 : 0;
+
     const responsiveMargin = {
         top: margin.top,
         right: isPortrait ? 15 : margin.right,
         left: isPortrait ? 40 : margin.left,
-        bottom: isPortrait ? 100 : margin.bottom,
+        bottom: (isPortrait ? 120 : margin.bottom) + extraBottomSpace + extraLegendSpace,
     };
 
     const chartWidth = chartDimensions.width - responsiveMargin.left - responsiveMargin.right;
     const chartHeight = chartDimensions.height - responsiveMargin.top - responsiveMargin.bottom;
 
-    const barCategories = data.map((d) => d.name);
-    const barCount = barCategories.length;
-    const maxVisibleBars = isPortrait ? 6 : 12;
-    const compactMode = barCount > maxVisibleBars;
+    const minBarWidth = 15;
+    const maxBarWidth = 80;
+    const idealBarWidth = (chartWidth / barCount) * 0.7;
 
-    const barWidth = Math.max(
-        8,
-        Math.min(90, (chartWidth / barCount) * 0.7)
-    );
+    const barWidth = Math.max(minBarWidth, Math.min(maxBarWidth, idealBarWidth));
     const groupPadding = Math.max(2, (chartWidth / barCount) * 0.3);
+
+    const availableWidthPerLabel = chartWidth / barCount;
+    const shouldRotateLabels = availableWidthPerLabel < 60 || needsRotation;
+
+    let labelSkip = 1;
+    if (!shouldRotateLabels && availableWidthPerLabel < 40) {
+        labelSkip = Math.ceil(40 / availableWidthPerLabel);
+    } else if (shouldRotateLabels && barCount > 15) {
+        labelSkip = Math.ceil(barCount / 12);
+    }
 
     const maxValue = Math.max(
         ...data.flatMap((d) => keys.map((key) => d[key] || 0)),
@@ -835,7 +840,7 @@ const SimpleBarChart = ({
                     key={`bar-${i}-${key}`}
                     x={barX}
                     y={responsiveMargin.top + chartHeight - barHeight}
-                    width={barWidth / keys.length}
+                    width={Math.max(8, barWidth / keys.length)}
                     height={barHeight}
                     fill={colors[key]}
                     animationDelay={i * 50 + keyIndex * 20}
@@ -845,36 +850,46 @@ const SimpleBarChart = ({
     });
 
     const xAxisTicks = barCategories.map((category, i) => {
-        if (compactMode && i % Math.ceil(barCount / maxVisibleBars) !== 0 && i !== barCount - 1) {
+        const shouldShow = i === 0 || i === barCount - 1 || i % labelSkip === 0;
+
+        if (!shouldShow) {
             return null;
         }
 
         const x = getXPosition(i) + barWidth / 2;
+
+        const maxLength = shouldRotateLabels ? 15 : 10;
+        const truncatedCategory = category.length > maxLength
+            ? `${category.substring(0, maxLength)}...`
+            : category;
+
+        const baseY = responsiveMargin.top + chartHeight;
+        const labelY = baseY + (shouldRotateLabels ? 25 : 20);
+
         return (
             <g key={`x-tick-${i}`}>
                 <line
                     x1={x}
-                    y1={responsiveMargin.top + chartHeight}
+                    y1={baseY}
                     x2={x}
-                    y2={responsiveMargin.top + chartHeight + 5}
+                    y2={baseY + 5}
                     stroke="#666"
                 />
                 <text
                     x={x}
-                    y={responsiveMargin.top + chartHeight + (isPortrait ? 10 : 20)}
-                    textAnchor={isPortrait ? "end" : "middle"}
-                    fontSize="10"
-                    transform={isPortrait ? `rotate(-45, ${x}, ${responsiveMargin.top + chartHeight + 10})` : undefined}
-                    style={{ maxWidth: "50px", overflow: "hidden", textOverflow: "ellipsis" }}
+                    y={labelY}
+                    textAnchor={shouldRotateLabels ? "end" : "middle"}
+                    fontSize={Math.max(9, Math.min(11, shouldRotateLabels ? 10 : barWidth / 6))}
+                    transform={shouldRotateLabels ? `rotate(-45, ${x}, ${labelY})` : undefined}
+                    fill="#666"
                 >
-                    {category.length > 10 && isPortrait ? `${category.substring(0, 10)}...` : category}
+                    {truncatedCategory}
                 </text>
             </g>
         );
     });
 
-    // Determinar ticks del eje Y de forma dinámica
-    const yTicks = isPortrait ? 3 : 5;
+    const yTicks = isPortrait ? 4 : 6;
     const yAxisTicks = Array.from({ length: yTicks }).map((_, i) => {
         const value = maxValue * (1 - i / (yTicks - 1));
         const y = responsiveMargin.top + yScale(value);
@@ -892,6 +907,7 @@ const SimpleBarChart = ({
                     y={y + 4}
                     textAnchor="end"
                     fontSize={isPortrait ? "9" : "11"}
+                    fill="#666"
                 >
                     {Math.round(value)}
                 </text>
@@ -907,28 +923,46 @@ const SimpleBarChart = ({
         );
     });
 
-    // Ajustar leyenda para ser responsiva
     const legendItems = keys.map((key, i) => {
-        const itemsPerRow = isPortrait ? 2 : keys.length;
-        const rowIndex = Math.floor(i / itemsPerRow);
-        const colIndex = i % itemsPerRow;
+        const keyName = dataKeyNames[key] || key;
+        const truncatedKeyName = keyName.length > 15 ? `${keyName.substring(0, 15)}...` : keyName;
+
+        let itemsPerRow, rowIndex, colIndex;
+
+        if (needsLegendStacking) {
+            itemsPerRow = isPortrait ? 1 : 2;
+            rowIndex = Math.floor(i / itemsPerRow);
+            colIndex = i % itemsPerRow;
+        } else {
+            itemsPerRow = Math.min(keys.length, isPortrait ? 2 : 4);
+            rowIndex = Math.floor(i / itemsPerRow);
+            colIndex = i % itemsPerRow;
+        }
+
+        const legendX = needsLegendStacking && isPortrait ?
+            responsiveMargin.left :
+            responsiveMargin.left + (colIndex * (chartWidth / itemsPerRow));
+
+        const legendY = chartDimensions.height - 35 - (rowIndex * 25);
 
         return (
             <g
                 key={`legend-${i}`}
-                transform={`translate(${responsiveMargin.left + (colIndex * (chartWidth / itemsPerRow))}, ${
-                    chartDimensions.height - 20 - (rowIndex * 20)
-                })`}
+                transform={`translate(${legendX}, ${legendY})`}
             >
                 <rect width="10" height="10" fill={colors[key]} rx="2" />
-                <text x="15" y="8" fontSize={isPortrait ? "10" : "12"}>
-                    {dataKeyNames[key] || key}
+                <text
+                    x="15"
+                    y="8"
+                    fontSize={isPortrait ? "10" : "12"}
+                    fill="#666"
+                >
+                    {truncatedKeyName}
                 </text>
             </g>
         );
     });
 
-    // Manejo de eventos para el tooltip mejorado
     const handleMouseMove = (e) => {
         const svgRect = e.currentTarget.getBoundingClientRect();
         const mouseX = e.clientX - svgRect.left;
@@ -950,8 +984,7 @@ const SimpleBarChart = ({
 
     const handleTouchStart = (e) => {
         if (e.touches && e.touches[0]) {
-            // Para eventos táctiles, necesitamos manejar las coordenadas de manera diferente
-            const svgElement = e.currentTarget || e.target; // Usar e.target como fallback
+            const svgElement = e.currentTarget || e.target;
             const svgRect = svgElement.getBoundingClientRect();
             const touchX = e.touches[0].clientX - svgRect.left;
             const touchY = e.touches[0].clientY - svgRect.top;
@@ -975,7 +1008,6 @@ const SimpleBarChart = ({
         setTooltipData(null);
     };
 
-    // Crear tooltip responsivo y accesible
     const tooltip = tooltipData && (
         <div
             role="tooltip"
@@ -1034,7 +1066,6 @@ const SimpleBarChart = ({
                 role="img"
                 aria-label={`Gráfico de barras: ${xLabel} vs ${yLabel}`}
             >
-                {/* Ejes X e Y */}
                 <line
                     x1={responsiveMargin.left}
                     y1={responsiveMargin.top + chartHeight}
@@ -1057,26 +1088,23 @@ const SimpleBarChart = ({
                     textAnchor="middle"
                     fontSize={isPortrait ? "10" : "12"}
                     fontWeight="bold"
+                    fill="#666"
                 >
                     {yLabel}
                 </text>
 
-                {/* Líneas de cuadrícula y marcas */}
                 {yAxisTicks}
                 {xAxisTicks}
-
-                {/* Barras animadas */}
                 {bars}
-
-                {/* Leyenda responsiva */}
                 {legendItems}
             </svg>
 
-            {/* Tooltip mejorado */}
             {tooltip}
         </div>
     );
 };
+
+
 
 export const SprintHoursChart = React.memo(({ loading, sprintOverviews }) => {
     const chartData = useMemo(() => {
@@ -1206,7 +1234,6 @@ export const DeveloperHoursChart = React.memo(({ userPerformances, loading }) =>
 });
 
 export const DeveloperTasksChart = React.memo(({ userPerformances, loading }) => {
-    // Use your existing useDeveloperCharts hook here
     const { chartData, developers, colors } = useDeveloperCharts(userPerformances, loading);
 
     const chartElement = useMemo(() => {

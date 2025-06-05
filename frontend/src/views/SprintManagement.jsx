@@ -1,24 +1,47 @@
-import React, {useState} from "react";
+import React, {useMemo, useState} from "react";
 import {useProjects} from "../hooks/useProjects";
 import {HTML5Backend} from 'react-dnd-html5-backend';
+import {TouchBackend} from 'react-dnd-touch-backend';
 import {useBacklog} from '../hooks/useBacklog';
 import {useSprints} from '../hooks/useSprints';
 import {TaskDetailModal} from '../components/backlog/backlogComponents';
-import {NoProjectState} from "../components/overview/overviewComponents";
 import {DndProvider} from 'react-dnd';
 import {SkeletonCard, SkeletonText} from '../lib/ui/Skeleton';
 import {
     ActualHoursModal,
     SprintSelector,
-    SprintsHeader,
     TaskColumn
 } from '../components/sprintManagement/sprintManagementComponents';
 import {FiCheckCircle, FiClock, FiList} from "react-icons/fi";
 import {useProjectUsers} from "../hooks/useProjectUsers";
+import {Header} from "../lib/ui/Header";
+import {useAuth} from "../contexts/AuthContext";
+import {useCategory} from "../hooks/useCategory";
+import {ErrorState} from "../lib/ui/Error";
+import {NoProjectState} from "../lib/ui/NoProject";
+
+const isTouchDevice = () => {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+};
+
+const getBackend = () => {
+    return isTouchDevice() ? TouchBackend : HTML5Backend;
+};
+
+const getBackendOptions = () => {
+    if (isTouchDevice()) {
+        return {
+            enableMouseEvents: true,
+            delayTouchStart: 200,
+            touchSlop: 5
+        };
+    }
+    return {};
+};
 
 const SprintManagement = () => {
     const {
-        sprintTasks,
+        sprintTasks: originalSprintTasks,
         loading,
         error,
         selectedTask,
@@ -27,10 +50,13 @@ const SprintManagement = () => {
         setTaskModalOpen,
         handleTaskSelect,
         handleTaskUpdate,
+        handleTaskDelete,
         selectedSprint,
         setSelectedSprint,
         taskDetailLoading
     } = useBacklog();
+
+    const {categories} = useCategory();
 
     const { sprints, loading: sprintsLoading } = useSprints();
     const { selectedProject } = useProjects();
@@ -38,6 +64,31 @@ const SprintManagement = () => {
     const [actualHoursModalOpen, setActualHoursModalOpen] = useState(false);
     const [taskForHours, setTaskForHours] = useState(null);
     const [updateLoading, setUpdateLoading] = useState(false);
+
+    const { user } = useAuth();
+    const isAdmin = user && (user.userLevel === 1 || user.userLevel === 3);
+
+    const sprintTasks = useMemo(() => {
+        let tasks = originalSprintTasks;
+
+        if (!isAdmin && user?.id) {
+            tasks = tasks.filter(task => task.assignedTo === user.id);
+        }
+
+        return tasks.sort((a, b) => {
+            if (a.assignedTo !== b.assignedTo) {
+                return a.assignedTo - b.assignedTo;
+            }
+            return a.priority - b.priority;
+        });
+    }, [originalSprintTasks, isAdmin, user?.id]);
+
+    const handleTaskDeleteWrap = async (taskId) => {
+        const success = await handleTaskDelete(taskId);
+        if (success) {
+            handleCloseTaskModal();
+        }
+    };
 
     const todoTasks = sprintTasks.filter(task => task.state === 1);
     const doingTasks = sprintTasks.filter(task => task.state === 2);
@@ -60,7 +111,7 @@ const SprintManagement = () => {
 
             try {
                 setUpdateLoading(true);
-                await handleTaskUpdate(taskId, { state: newState });
+                await handleTaskUpdate(taskId, { state: newState, assignedTo: taskToUpdate.assignedTo }, );
             } catch (error) {
                 console.error("Error updating task state:", error);
             } finally {
@@ -70,11 +121,13 @@ const SprintManagement = () => {
     };
 
     const handleActualHoursSubmit = async (taskId, data) => {
+        const taskToUpdate = sprintTasks.find(task => task.id === taskId);
         try {
             setUpdateLoading(true);
             return await handleTaskUpdate(taskId, {
                 state: 3,
-                realHours: data.realHours
+                realHours: data.realHours,
+                assignedTo: taskToUpdate.assignedTo
             });
         } catch (error) {
             console.error("Error updating task hours:", error);
@@ -84,13 +137,16 @@ const SprintManagement = () => {
         }
     };
 
+    if (error) {
+        return <ErrorState error={error} />;
+    }
+
     if (!selectedProject) {
         return <NoProjectState title={"selected"} message={"Please select a project to view its sprints."} />;
     }
-    
 
     return (
-        <DndProvider backend={HTML5Backend}>
+        <DndProvider backend={getBackend()} options={getBackendOptions()}>
             <div className="container mx-auto px-4 py-6 min-h-screen">
                 {error && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -98,12 +154,12 @@ const SprintManagement = () => {
                     </div>
                 )}
 
-                <SprintsHeader
+                <Header
+                    title="Project"
+                    marked={"Sprints"}
                     selectedProject={selectedProject}
                     loading={loading}
-                    onCreateTask={() => {}}
-                    onCreateSprint={() => {}}
-                    selector = {
+                    props = {
                         <SprintSelector
                             sprints={sprints || []}
                             selectedSprint={selectedSprint}
@@ -135,26 +191,29 @@ const SprintManagement = () => {
                                 onTaskDrop={handleTaskDrop}
                                 users={users}
                                 usersLoading={usersLoading}
+                                categories={categories}
                             />
                             <TaskColumn
                                 icon={<FiClock/>}
                                 title="Doing"
                                 state={2}
-                                tasks={doingTasks}
+                                tasks={doingTasks.sort((a => a.priority))}
                                 onTaskSelect={handleTaskSelect}
                                 onTaskDrop={handleTaskDrop}
                                 users={users}
                                 usersLoading={usersLoading}
+                                categories={categories}
                             />
                             <TaskColumn
                                 icon={<FiCheckCircle/>}
                                 title="Done"
                                 state={3}
-                                tasks={doneTasks}
+                                tasks={doneTasks.sort((a => a.priority))}
                                 onTaskSelect={handleTaskSelect}
                                 onTaskDrop={handleTaskDrop}
                                 users={users}
                                 usersLoading={usersLoading}
+                                categories={categories}
                             />
                         </div>
                     )
@@ -172,9 +231,11 @@ const SprintManagement = () => {
                         onClose={handleCloseTaskModal}
                         task={selectedTask}
                         onUpdate={handleTaskUpdate}
-                        onDelete={() => {}}
+                        onDelete={handleTaskDeleteWrap}
                         loading={taskDetailLoading}
                         users={users}
+                        categories={categories}
+                        isAdmin={isAdmin}
                     />
                 )}
 

@@ -90,14 +90,19 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 						logger.error("Error in message: {}", e.getLocalizedMessage(), e);
 						messageSender.sendErrorMessage(chatId);
 					}
-				}
-				else{
+				} else if (update.getMessage().hasVoice()){
+					logger.debug("Voice Message Detected!!");
+					String fileId = update.getMessage().getVoice().getFileId();
+					commandHandler.transcript(update.getMessage().getChatId(), fileId);
+					return;
+				} else {
+					
 					logger.debug("message has no text, doing nothing....");
 					return;
 				}
 			}
 			else {
-				logger.debug("update has no message, doing nothing....");
+				logger.debug("Nothing detected, doing nothing...");
 				return;
 			}
 		} else {

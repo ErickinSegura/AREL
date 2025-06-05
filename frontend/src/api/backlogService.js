@@ -50,10 +50,6 @@ export const BacklogService = {
 
     async updateTask(taskId, taskData) {
         try {
-            const url = `/task/${taskId}`;
-            console.log(`Sending PUT request to ${url} with data:`, taskData);
-
-            // No use fetchWithAuth directly for update
             const token = localStorage.getItem('jwt_token');
             const headers = {
                 'Content-Type': 'application/json'
@@ -63,7 +59,7 @@ export const BacklogService = {
                 headers['Authorization'] = `Bearer ${token}`;
             }
 
-            const response = await fetch(`http://localhost:8080${url}`, {
+            const response = await fetch(`/task/${taskId}`, {
                 method: 'PUT',
                 headers,
                 body: JSON.stringify(taskData)
@@ -79,6 +75,7 @@ export const BacklogService = {
                 console.error('Task not found');
                 throw new Error('Task not found');
             }
+            
 
             if (!response.ok) {
                 const errorText = await response.text();

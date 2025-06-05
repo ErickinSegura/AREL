@@ -1,21 +1,33 @@
 import React, {useEffect, useState} from 'react';
-import {Card, CardContent, CardHeader, CardTitle} from '../../lib/ui/Card';
-import {Clock, Tag, User, CalendarDays, AlertTriangle, Calendar, Loader2, Inbox, CheckCircle, CheckSquare, Circle, AlertCircle, Save, FileText, AlignLeft, Flag} from 'lucide-react';
+import {Card, CardContent} from '../../lib/ui/Card';
 import {
-    Modal,
-    ModalHeader,
-    ModalTitle,
-    ModalContent,
-    ModalFooter,
-    ModalClose
-} from '../../lib/ui/Modal';
-import { Button } from '../../lib/ui/Button';
-import { Input } from '../../lib/ui/Input';
-import {SkeletonCircle, SkeletonText} from '../../lib/ui/Skeleton';
-import {FiCodesandbox, FiFolder} from "react-icons/fi";
-import {useBacklog} from "../../hooks/useBacklog";
-import { useSprints } from '../../hooks/useSprints';
-import { useProjectUsers } from '../../hooks/useProjectUsers';
+    AlertCircle,
+    AlertTriangle,
+    AlignLeft,
+    ArrowDownUp,
+    Book,
+    Calendar,
+    CalendarDays,
+    Check,
+    CheckCircle,
+    ChevronDown,
+    ChevronUp,
+    Circle,
+    Clock,
+    FileText,
+    Flag,
+    Inbox,
+    Loader2,
+    Save,
+    Tag,
+    User
+} from 'lucide-react';
+import {Modal, ModalClose, ModalContent, ModalFooter, ModalHeader, ModalTitle} from '../../lib/ui/Modal';
+import {Button} from '../../lib/ui/Button';
+import {Input} from '../../lib/ui/Input';
+import {SkeletonText} from '../../lib/ui/Skeleton';
+import {useSprints} from '../../hooks/useSprints';
+import {AvatarRenderer} from "../../lib/AvatarRenderer";
 
 const priorityColors = {
     1: 'bg-green-100 text-green-800 border-green-200',
@@ -23,6 +35,13 @@ const priorityColors = {
     3: 'bg-red-100 text-red-800 border-red-200',
     4: 'bg-purple-100 text-purple-800 border-purple-200'
 };
+
+const typeLabels = {
+    1: 'Bug',
+    2: 'Fix',
+    3: 'Issue',
+    4: 'Task'
+}
 
 const priorityLabels = {
     1: 'Low',
@@ -37,10 +56,6 @@ const stateLabels = {
     3: 'Done'
 };
 
-const categoryLabels = {
-    1: 'Web',
-    2: 'Bot'
-};
 
 const stateColors = {
     1: 'bg-gray-100 text-gray-800',
@@ -48,61 +63,14 @@ const stateColors = {
     3: 'bg-green-100 text-green-800'
 };
 
-const getProjectIcon = (iconID) => {
-    switch (iconID) {
-        case 1: return <FiFolder />;
-        case 2: return <FiCodesandbox />;
-        default: return <FiCodesandbox />;
-    }
+export const getCategoryName = (categoryId, categories) => {
+    if (!categoryId || !categories) return 'Unknown';
+
+    const category = categories.find(cat => cat.id === categoryId);
+    return category ? category.name : 'Unknown';
 };
 
-export const BacklogHeader = ({ selectedProject, loading, onCreateTask, onCreateSprint, isAdmin = false }) => (
-    <Card className="mb-6">
-        <CardHeader>
-            <div className={`flex items-center justify-between ${loading ? 'animate-pulse' : ''}`}>
-                <CardTitle>
-                    {loading ? (
-                        <div className="flex items-center">
-                            <SkeletonCircle size="md" />
-                            <div className="ml-3 w-48">
-                                <SkeletonText lines={1} />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex items-center">
-                            <div
-                                className="w-12 h-12 rounded-xl grid place-items-center text-white"
-                                style={{ backgroundColor: selectedProject?.color?.hexColor || '#808080' }}
-                            >
-                                {getProjectIcon(selectedProject?.icon)}
-                            </div>
-                            <h1 className="text-2xl font-bold px-3">Project Backlog</h1>
-                        </div>
-                    )}
-                </CardTitle>
-
-                {!loading && isAdmin && (
-                    <div className="flex space-x-2">
-                        <Button
-                            variant="default"
-                            onClick={onCreateSprint}
-                        >
-                            Create Sprint
-                        </Button>
-                        <Button
-                            variant="remarked"
-                            onClick={onCreateTask}
-                        >
-                            Add Task
-                        </Button>
-                    </div>
-                )}
-            </div>
-        </CardHeader>
-    </Card>
-);
-
-export const TaskCard = ({ task, onSelect }) => {
+export const TaskCard = ({ task, onSelect, categories }) => {
     return (
         <Card
             className="hover:shadow-md transition-all cursor-pointer"
@@ -116,7 +84,6 @@ export const TaskCard = ({ task, onSelect }) => {
                             <div className={`text-xs font-medium px-2 py-1 rounded-full w-20 ${priorityColors[task.priority]} border flex justify-center items-center`}>
                                 {priorityLabels[task.priority]}
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -128,7 +95,7 @@ export const TaskCard = ({ task, onSelect }) => {
 
                     <div className="inline-flex items-center text-xs text-gray-600">
                         <Tag size={14} className="mr-1" />
-                        {categoryLabels[task.category]}
+                        {getCategoryName(task.category, categories)}
                     </div>
 
                     {task.estimatedHours && (
@@ -136,8 +103,14 @@ export const TaskCard = ({ task, onSelect }) => {
                             <Clock size={14} className="mr-1" />
                             {task.estimatedHours}h
                         </div>
-                    ) }
+                    )}
 
+                    {task.type && (
+                        <div className="inline-flex items-center text-xs text-gray-600">
+                            <Book size={14} className="mr-1" />
+                            {typeLabels[task.type]}
+                        </div>
+                    )}
                 </div>
             </CardContent>
         </Card>
@@ -151,7 +124,9 @@ export const TaskDetailModal = ({
                                     onUpdate,
                                     onDelete,
                                     loading,
-                                    users
+                                    users,
+                                    categories,
+                                    isAdmin = true
                                 }) => {
     const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState({
@@ -162,13 +137,18 @@ export const TaskDetailModal = ({
         priority: task?.priority || 2,
         state: task?.state || 1,
         assignedTo: task?.assignedTo || '',
-        category: task?.category || 1,
+        category: task?.category,
         sprint: null
     });
 
-
     useEffect(() => {
-        if (task) {
+        if (task && categories) {
+            const categoryExists = categories.find(cat => cat.id === task.category);
+            const finalCategory = categoryExists ? task.category : (categories.length > 0 ? categories[0].id : null);
+
+            if (!categoryExists && categories.length > 0) {
+            }
+
             setFormData({
                 title: task.title || '',
                 description: task.description || '',
@@ -177,20 +157,25 @@ export const TaskDetailModal = ({
                 priority: task.priority || 2,
                 state: task.state || 1,
                 assignedTo: task.assignedTo || '',
-                category: task.category || 1,
+                category: finalCategory,
                 sprint: task.sprint || null
             });
         }
-    }, [task]);
+    }, [task, categories]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: name === 'estimatedHours' || name === 'priority' || name === 'state' || name === 'type' || name === 'category' || name === 'assignedTo'
-                ? Number(value)
-                : value
-        }));
+
+        setFormData(prev => {
+            return {
+                ...prev,
+                [name]: name === 'estimatedHours' || name === 'priority' || name === 'state' || name === 'type' || name === 'assignedTo'
+                    ? Number(value)
+                    : name === 'category'
+                        ? value // Mantener category como string o el tipo original
+                        : value
+            };
+        });
     };
 
     const handleSubmit = () => {
@@ -201,19 +186,19 @@ export const TaskDetailModal = ({
     const renderAssignedUserContent = () => {
         if (!task.assignedTo) return;
 
-        const assignedUser = users.find(u => u.id === task.assignedTo);
+        const assignedUser = users.find(u => u.userProjectId === task.assignedTo);
         if (assignedUser) {
             return `${assignedUser.firstName} ${assignedUser.lastName}`;
         }
 
-        return "Usuario no encontrado";
+        return "User not found";
     };
 
     if (loading) {
         return (
             <Modal isOpen={isOpen} onClose={onClose}>
                 <ModalHeader>
-                    <ModalTitle>Task Details</ModalTitle>
+                    <ModalTitle>Loading Task Details...</ModalTitle>
                     <ModalClose onClick={onClose} />
                 </ModalHeader>
                 <ModalContent>
@@ -246,7 +231,7 @@ export const TaskDetailModal = ({
                                 name="description"
                                 value={formData.description || ''}
                                 onChange={handleChange}
-                                className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-oracleRed"
                                 rows={3}
                             />
                         </div>
@@ -267,7 +252,7 @@ export const TaskDetailModal = ({
                                     name="priority"
                                     value={formData.priority}
                                     onChange={handleChange}
-                                    className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-oracleRed"
                                 >
                                     {Object.entries(priorityLabels).map(([key, value]) => (
                                         <option key={key} value={key}>{value}</option>
@@ -281,7 +266,7 @@ export const TaskDetailModal = ({
                                     name="state"
                                     value={formData.state}
                                     onChange={handleChange}
-                                    className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-oracleRed"
                                 >
                                     {Object.entries(stateLabels).map(([key, value]) => (
                                         <option key={key} value={key}>{value}</option>
@@ -295,9 +280,25 @@ export const TaskDetailModal = ({
                                     name="category"
                                     value={formData.category}
                                     onChange={handleChange}
-                                    className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-oracleRed"
                                 >
-                                    {Object.entries(categoryLabels).map(([key, value]) => (
+                                    {categories && categories.map((category) => (
+                                        <option key={category.id} value={category.id}>
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Type</label>
+                                <select
+                                    name="type"
+                                    value={formData.type}
+                                    onChange={handleChange}
+                                    className="mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                                >
+                                    {Object.entries(typeLabels).map(([key, value]) => (
                                         <option key={key} value={key}>{value}</option>
                                     ))}
                                 </select>
@@ -305,19 +306,19 @@ export const TaskDetailModal = ({
 
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Assigned To</label>
-                                    <select
-                                        name="assignedTo"
-                                        value={formData.assignedTo || ''}
-                                        onChange={handleChange}
-                                        className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        <option value="">Unassigned</option>
-                                        {users.map(user => (
-                                            <option key={user.id} value={user.id}>
-                                                {user.firstName} {user.lastName}
-                                            </option>
-                                        ))}
-                                    </select>
+                                <select
+                                    name="assignedTo"
+                                    value={formData.assignedTo || ''}
+                                    onChange={handleChange}
+                                    className="mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                                >
+                                    <option value="">Unassigned</option>
+                                    {users.map(user => (
+                                        <option key={user.userProjectId} value={user.userProjectId}>
+                                            {user.firstName} {user.lastName}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -341,7 +342,15 @@ export const TaskDetailModal = ({
                                 <Tag size={18} className="text-gray-500 mr-2" />
                                 <div>
                                     <p className="text-sm font-medium text-gray-600">Category</p>
-                                    <p>{categoryLabels[task.category]}</p>
+                                    <p>{getCategoryName(task.category, categories)}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center">
+                                <Book size={18} className="text-gray-500 mr-2" />
+                                <div>
+                                    <p className="text-sm font-medium text-gray-600">Type</p>
+                                    <p>{typeLabels[task.type]}</p>
                                 </div>
                             </div>
 
@@ -363,7 +372,6 @@ export const TaskDetailModal = ({
                                 </div>
                             )}
 
-
                             {task.realHours && (
                                 <div className="flex items-center">
                                     <Clock size={18} className="text-gray-500 mr-2" />
@@ -376,7 +384,9 @@ export const TaskDetailModal = ({
 
                             {task.assignedTo && (
                                 <div className="flex items-center">
-                                    <User size={18} className="text-gray-500 mr-2" />
+                                    <div className="w-6 h-6 rounded-full overflow-hidden mr-1">
+                                        <AvatarRenderer config={users.find(u => u.userProjectId === task.assignedTo)?.avatar} />
+                                    </div>
                                     <div>
                                         <p className="text-sm font-medium text-gray-600">Assigned To</p>
                                         <div>{renderAssignedUserContent()}</div>
@@ -395,46 +405,47 @@ export const TaskDetailModal = ({
                     </div>
                 )}
             </ModalContent>
-            <ModalFooter>
-                {editMode ? (
-                    <>
-                        <Button onClick={() => setEditMode(false)} variant="default">
-                            Cancel
-                        </Button>
-                        <Button onClick={handleSubmit} variant="remarked">
-                            Save Changes
-                        </Button>
-                    </>
-                ) : (
-                    <>
-                        <Button
-                            onClick={() => onDelete(task.id)}
-                            variant="danger"
-                        >
-                            Delete
-                        </Button>
-                        <Button onClick={() => setEditMode(true)} variant="default">
-                            Edit
-                        </Button>
-                    </>
-                )}
-            </ModalFooter>
+            {isAdmin && (
+                <ModalFooter>
+                    {editMode ? (
+                        <>
+                            <Button onClick={() => setEditMode(false)} variant="default">
+                                Cancel
+                            </Button>
+                            <Button onClick={handleSubmit} variant="remarked">
+                                Save Changes
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button
+                                onClick={() => onDelete(task.id)}
+                                variant="danger"
+                            >
+                                Delete
+                            </Button>
+                            <Button onClick={() => setEditMode(true)} variant="default">
+                                Edit
+                            </Button>
+                        </>
+                    )}
+                </ModalFooter>
+            )}
         </Modal>
     );
 };
 
 export const CreateTaskModal = ({
                                     isOpen,
-                                    onClose
+                                    onClose,
+                                    taskFormData,
+                                    handleTaskFormChange,
+                                    handleTaskCreate,
+                                    validationError,
+                                    loading,
+                                    resetTaskForm,
+                                    categories
                                 }) => {
-    const {
-        taskFormData,
-        handleTaskFormChange,
-        handleTaskCreate,
-        validationError,
-        loading,
-        resetTaskForm
-    } = useBacklog();
 
     useEffect(() => {
         if (!isOpen) {
@@ -463,7 +474,7 @@ export const CreateTaskModal = ({
             <ModalContent className="overflow-y-auto max-h-[calc(100vh-18rem)]">
                 <div className="space-y-6">
                     {validationError && (
-                        <div className="text-red-500 text-sm flex items-center p-3 bg-red-50 rounded-md">
+                        <div className="text-red-500 text-sm flex items-center p-3 bg-red-50 rounded-xl">
                             <AlertTriangle size={16} className="mr-2 flex-shrink-0" />
                             <span>{validationError}</span>
                         </div>
@@ -495,7 +506,7 @@ export const CreateTaskModal = ({
                                     name="description"
                                     value={taskFormData.description}
                                     onChange={handleTaskFormChange}
-                                    className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-oracleRed"
                                     rows={3}
                                 />
                             </div>
@@ -510,14 +521,14 @@ export const CreateTaskModal = ({
                                         name="priority"
                                         value={taskFormData.priority}
                                         onChange={handleTaskFormChange}
-                                        className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-oracleRed"
                                     >
                                         {Object.entries(priorityLabels).map(([key, value]) => (
                                             <option key={key} value={key}>{value}</option>
                                         ))}
                                     </select>
                                 </div>
-                                
+
                                 <div>
                                     <label className="text-sm font-medium text-gray-700 flex items-center">
                                         <Tag size={14} className="mr-2" />
@@ -527,9 +538,28 @@ export const CreateTaskModal = ({
                                         name="category"
                                         value={taskFormData.category}
                                         onChange={handleTaskFormChange}
-                                        className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-oracleRed"
                                     >
-                                        {Object.entries(categoryLabels).map(([key, value]) => (
+                                        {categories && categories.map((category) => (
+                                            <option key={category.id} value={category.id}>
+                                                {category.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700 flex items-center">
+                                        <Book size={14} className="mr-2" />
+                                        Type
+                                    </label>
+                                    <select
+                                        name="type"
+                                        value={taskFormData.type}
+                                        onChange={handleTaskFormChange}
+                                        className="mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-oracleRed"
+                                    >
+                                        {Object.entries(typeLabels).map(([key, value]) => (
                                             <option key={key} value={key}>{value}</option>
                                         ))}
                                     </select>
@@ -571,33 +601,123 @@ export const CreateTaskModal = ({
     );
 };
 
-export const CreateSprintModal = ({ isOpen, onClose }) => {
+export const SortControls = ({ currentSort, onSortChange }) => {
+    const [isVisible, setIsVisible] = useState(false);
+
+    const sortOptions = [
+        { value: 'priority-desc', label: 'Priority (High → Low)' },
+        { value: 'priority-asc', label: 'Priority (Low → High)' },
+    ];
+
+    return (
+        <Card className="mb-6">
+            <div className="p-4">
+                <div className="flex justify-between items-center">
+                    <div className="text-sm font-medium text-gray-700 flex items-center">
+                        <ArrowDownUp size={16} className="mr-2 text-oracleRed" />
+                        Sort by:
+                    </div>
+
+                    <Button
+                        variant="default"
+                        size="small"
+                        onClick={() => setIsVisible(!isVisible)}
+                        className="px-2 py-1"
+                    >
+                        {isVisible ?
+                            <><ChevronUp size={16} className="mr-1" /> Hide</> :
+                            <><ChevronDown size={16} className="mr-1" /> Show</>
+                        }
+                    </Button>
+                </div>
+
+                {isVisible && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                        {sortOptions.map(option => (
+                            <Button
+                                key={option.value}
+                                variant={currentSort === option.value ? 'remarked' : 'default'}
+                                size="small"
+                                onClick={() => onSortChange(option.value)}
+                            >
+                                {option.label}
+                            </Button>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </Card>
+    );
+};
+
+export const CreateSprintModal = ({ isOpen, onClose, users, availableTasks = [] }) => {
     const {
         sprintFormData,
         handleSprintFormChange,
         selectedTasks,
-        availableTasks,
         toggleTaskSelection,
         updateTaskDetails,
         handleCreateSprint,
         validationError,
         loading,
         resetSprintForm,
-        projectId
-    } = useSprints();
-
-    const { filteredUsers } = useProjectUsers(projectId);
+    } = useSprints(false);
 
     const [hoursWarnings, setHoursWarnings] = useState({});
+    const [taskValidation, setTaskValidation] = useState({});
+    const [searchQueries, setSearchQueries] = useState({});
+    const [openDropdowns, setOpenDropdowns] = useState({});
 
     useEffect(() => {
         if (!isOpen) {
             resetSprintForm();
             setHoursWarnings({});
+            setTaskValidation({});
+            setSearchQueries({});
+            setOpenDropdowns({});
         }
     }, [isOpen]);
 
+    useEffect(() => {
+        const newValidation = {};
+        selectedTasks.forEach(task => {
+            if (!task.assignedTo) {
+                newValidation[task.id] = 'Developer required';
+            }
+        });
+        setTaskValidation(newValidation);
+    }, [selectedTasks]);
+
+    // Cierra todos los dropdowns cuando se hace clic fuera
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            const dropdownContainers = document.querySelectorAll('.user-dropdown-container');
+            let clickedInsideDropdown = false;
+
+            dropdownContainers.forEach(container => {
+                if (container.contains(event.target)) {
+                    clickedInsideDropdown = true;
+                }
+            });
+
+            if (!clickedInsideDropdown && Object.values(openDropdowns).some(isOpen => isOpen)) {
+                setOpenDropdowns({});
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [openDropdowns]);
+
     const handleSubmit = async () => {
+        // Verificar que todas las tareas tienen usuario asignado
+        const unassignedTasks = selectedTasks.filter(task => !task.assignedTo);
+        if (unassignedTasks.length > 0) {
+            return false;
+        }
+
         const success = await handleCreateSprint();
         if (success) {
             onClose();
@@ -641,6 +761,55 @@ export const CreateSprintModal = ({ isOpen, onClose }) => {
         }
     };
 
+    const handleUserAssignment = (taskId, userId) => {
+        updateTaskDetails(taskId, 'assignedTo', userId);
+
+        // Actualizar validación
+        setTaskValidation(prev => {
+            const newValidation = {...prev};
+            if (userId) {
+                delete newValidation[taskId];
+            } else {
+                newValidation[taskId] = 'Usuario requerido';
+            }
+            return newValidation;
+        });
+
+        toggleDropdown(taskId, false);
+    };
+
+    const hasUnassignedTasks = Object.keys(taskValidation).length > 0;
+
+    const toggleDropdown = (taskId, forceState = null) => {
+        setOpenDropdowns(prev => {
+            const newState = { ...prev };
+            if (forceState !== null) {
+                newState[taskId] = forceState;
+            } else {
+                newState[taskId] = !prev[taskId];
+            }
+            return newState;
+        });
+    };
+
+
+    const getFilteredUsers = (taskId) => {
+        const query = searchQueries[taskId] || '';
+        if (!query) return users;
+
+        return users.filter(user =>
+            `${user.firstName} ${user.lastName}`.toLowerCase().includes(query)
+        );
+    };
+
+    const getAssignedUserName = (taskId) => {
+        const task = selectedTasks.find(t => t.id === taskId);
+        if (!task || !task.assignedTo) return '';
+
+        const user = users.find(u => u.userProjectId === Number(task.assignedTo));
+        return user ? `${user.firstName} ${user.lastName}` : '';
+    };
+
     return (
         <Modal
             isOpen={isOpen}
@@ -648,17 +817,24 @@ export const CreateSprintModal = ({ isOpen, onClose }) => {
             className="max-w-3xl w-full mx-auto max-h-screen flex flex-col"
         >
 
-        <ModalHeader className="sticky top-0 z-10 px-4 sm:px-6">
+            <ModalHeader className="sticky top-0 z-10 px-4 sm:px-6">
                 <ModalTitle className="text-xl font-semibold">Create New Sprint</ModalTitle>
                 <ModalClose onClick={onClose} className="absolute right-4 top-3" />
             </ModalHeader>
 
             <ModalContent className="overflow-y-auto max-h-[calc(100vh-18rem)]">
-            <div>
+                <div>
                     {validationError && (
                         <div className="text-red-500 text-sm flex items-center p-3 bg-red-50 rounded-xl">
                             <AlertTriangle size={16} className="mr-2 flex-shrink-0" />
                             <span>{validationError}</span>
+                        </div>
+                    )}
+
+                    {hasUnassignedTasks && (
+                        <div className="text-amber-500 text-sm flex items-center p-3 bg-amber-50 rounded-xl mb-3">
+                            <AlertCircle size={16} className="mr-2 flex-shrink-0" />
+                            <span>All tasks must have an assigned developer</span>
                         </div>
                     )}
 
@@ -705,7 +881,7 @@ export const CreateSprintModal = ({ isOpen, onClose }) => {
                             </span>
                         </h3>
 
-                        <div className="max-h-64 overflow-y-auto rounded-md border">
+                        <div className="max-h-64 overflow-y-auto rounded-xl border">
                             {availableTasks.length === 0 ? (
                                 <div className="text-center py-8 text-gray-500 flex flex-col items-center">
                                     <Inbox size={40} className="mb-2 text-gray-400" />
@@ -716,31 +892,31 @@ export const CreateSprintModal = ({ isOpen, onClose }) => {
                                     {availableTasks
                                         .sort((b, a) => a.priority - b.priority)
                                         .map(task => (
-                                        <Card
-                                            key={task.id}
-                                            className={`border-0 rounded-none cursor-pointer p-3 transition-colors duration-150 ${
-                                                isTaskSelected(task.id)
-                                                    ? 'ring-2 ring-oracleRed bg-gray-50'
-                                                    : 'hover:bg-gray-50'
-                                            }`}
-                                            onClick={() => toggleTaskSelection(task.id)}
-                                        >
-                                            <div className="flex justify-between items-center">
-                                                <div className="flex items-center">
+                                            <Card
+                                                key={task.id}
+                                                className={`border-0 rounded-none cursor-pointer p-3 transition-colors duration-150 ${
+                                                    isTaskSelected(task.id)
+                                                        ? 'ring-2 ring-oracleRed bg-gray-50'
+                                                        : 'hover:bg-gray-50'
+                                                }`}
+                                                onClick={() => toggleTaskSelection(task.id, availableTasks)}
+                                            >
+                                                <div className="flex justify-between items-center">
+                                                    <div className="flex items-center">
                                                     <span className="mr-2">
                                                         {isTaskSelected(task.id) ?
                                                             <CheckCircle size={16} className="text-oracleRed" /> :
                                                             <Circle size={16} className="text-gray-300" />
                                                         }
                                                     </span>
-                                                    <span className="font-medium truncate max-w-xs">{task.title}</span>
-                                                </div>
-                                                <span className={`text-xs px-2 py-1 rounded-full ${priorityColors[task.priority]} border flex-shrink-0`}>
+                                                        <span className="font-medium truncate max-w-xs">{task.title}</span>
+                                                    </div>
+                                                    <span className={`text-xs px-2 py-1 rounded-full ${priorityColors[task.priority]} border flex-shrink-0`}>
                                                     {priorityLabels[task.priority]}
                                                 </span>
-                                            </div>
-                                        </Card>
-                                    ))}
+                                                </div>
+                                            </Card>
+                                        ))}
                                 </div>
                             )}
                         </div>
@@ -767,27 +943,108 @@ export const CreateSprintModal = ({ isOpen, onClose }) => {
                                         </div>
 
                                         <div>
-                                                <label className="text-xs font-medium text-gray-700 flex items-center">
-                                                    <Clock size={14} className="mr-1" />
-                                                    Estimated Hours
-                                                </label>
-                                                <div className="relative">
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        step="1"
-                                                        className={`mt-1 w-full px-3 py-2 border ${hoursWarnings[task.id] ? 'border-orange-300 bg-orange-50' : 'border-gray-300'} rounded-md text-sm`}
-                                                        value={task.estimatedHours || ''}
-                                                        onChange={(e) => handleHoursChange(task.id, e.target.value)}
-                                                        onClick={(e) => e.stopPropagation()}
+                                            <label className="text-xs font-medium text-gray-700 flex items-center">
+                                                <Clock size={14} className="mr-1" />
+                                                Estimated Hours
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="1"
+                                                    className={`mt-1 w-full px-3 py-2 border ${hoursWarnings[task.id] ? 'border-orange-300 bg-orange-50' : 'border-gray-300'} rounded-xl text-sm`}
+                                                    value={task.estimatedHours || ''}
+                                                    onChange={(e) => handleHoursChange(task.id, e.target.value)}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                />
+                                                {hoursWarnings[task.id] && (
+                                                    <div className="mt-1 text-orange-600 text-xs flex items-center">
+                                                        <AlertCircle size={12} className="mr-1" />
+                                                        Consider breaking this task down (over 4 hours)
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* User Selection */}
+                                        <div className="mt-3">
+                                            <label className="text-xs font-medium text-gray-700 flex items-center">
+                                                <User size={14} className="mr-1" />
+                                                Assigned To <span className="text-red-500 ml-1">*</span>
+                                            </label>
+                                            <div className="relative user-dropdown-container">
+                                                <div
+                                                    className={`mt-1 w-full px-3 py-2 border ${
+                                                        taskValidation[task.id]
+                                                            ? 'border-red-300 bg-red-50'
+                                                            : (openDropdowns[task.id] ? 'border-oracleRed ring-1 ring-oracleRed' : 'border-gray-300')
+                                                    } rounded-xl text-sm flex justify-between items-center cursor-pointer`}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleDropdown(task.id);
+                                                    }}
+                                                >
+                                                    <div className="flex items-center flex-1 overflow-hidden">
+                                                        {task.assignedTo ? (
+                                                            <>
+                                                                <div className="h-6 w-6 rounded-lg bg-oracleRed/10 text-oracleRed flex items-center justify-center mr-2 flex-shrink-0 overflow-hidden">
+                                                                    <AvatarRenderer
+                                                                        config={users.find(u => u.userProjectId === task.assignedTo)?.avatar}
+                                                                        className="w-full h-full rounded-lg"
+                                                                    />
+                                                                </div>
+                                                                <span className="truncate">{getAssignedUserName(task.id)}</span>
+                                                            </>
+                                                        ) : (
+                                                            <span className="text-gray-500">Select a developer</span>
+                                                        )}
+                                                    </div>
+                                                    <ChevronDown
+                                                        size={16}
+                                                        className={`text-gray-500 transition-transform ${openDropdowns[task.id] ? 'transform rotate-180' : ''}`}
                                                     />
-                                                    {hoursWarnings[task.id] && (
-                                                        <div className="mt-1 text-orange-600 text-xs flex items-center">
-                                                            <AlertCircle size={12} className="mr-1" />
-                                                            Consider breaking this task down (over 4 hours)
-                                                        </div>
-                                                    )}
                                                 </div>
+
+                                                {openDropdowns[task.id] && (
+                                                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl max-h-44 overflow-y-auto">
+                                                        <div className="py-1">
+                                                            {getFilteredUsers(task.id).length > 0 ? (
+                                                                getFilteredUsers(task.id).map(user => (
+                                                                    <div
+                                                                        key={user.userProjectId}
+                                                                        className={`px-3 py-2 hover:bg-gray-100 flex items-center text-sm cursor-pointer ${
+                                                                            task.assignedTo === user.userProjectId ? 'bg-oracleRed/10' : ''
+                                                                        }`}
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleUserAssignment(task.id, user.userProjectId);
+                                                                        }}
+                                                                    >
+                                                                        <div className="h-6 w-6 rounded-lg bg-gray-100 flex items-center justify-center mr-2 overflow-hidden">
+                                                                            <AvatarRenderer config={user.avatar} className="w-full h-full rounded-lg" />
+                                                                        </div>
+                                                                        <span>{user.firstName} {user.lastName}</span>
+                                                                        {task.assignedTo === user.userProjectId && (
+                                                                            <Check size={16} className="ml-auto text-oracleRed" />
+                                                                        )}
+                                                                    </div>
+                                                                ))
+                                                            ) : (
+                                                                <div className="px-3 py-4 text-center text-gray-500 text-sm">
+                                                                    No users found
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {taskValidation[task.id] && (
+                                                    <div className="mt-1 text-red-600 text-xs flex items-center">
+                                                        <AlertCircle size={12} className="mr-1" />
+                                                        {taskValidation[task.id]}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </Card>
                                 ))}
@@ -797,7 +1054,7 @@ export const CreateSprintModal = ({ isOpen, onClose }) => {
                 </div>
             </ModalContent>
 
-            <ModalFooter className="px-4 sm:px-6 flex flex-col sm:flex-row gap-3 sm:justify-end">
+            <ModalFooter className="px-4 sm:px-6 flex flex-col sm:flex-row gap-3 sm:justify-end mt-2">
                 <Button
                     onClick={onClose}
                     variant="outline"

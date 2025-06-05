@@ -19,7 +19,6 @@ export const routes = [
         path: '/overview',
         label: 'Overview',
         component: Overview,
-        hasSubmenu: true,
         roles: [1, 2, 3] // All roles can access
     },
     {

@@ -1,12 +1,15 @@
 import React from 'react';
 import { useShortcuts } from '../hooks/useShortcuts';
 import {
-    NoProjectState,
-    ShortcutsHeader,
     ShortcutCard,
     ShortcutDetailModal,
     CreateShortcutModal, NoProjectShortcuts
 } from '../components/shortcut/shortcutComponents';
+import {Button} from "../lib/ui/Button";
+import {Plus} from "lucide-react";
+import {Header} from "../lib/ui/Header";
+import {NoProjectState} from "../lib/ui/NoProject";
+import {SkeletonCard} from "../lib/ui/Skeleton";
 
 const Shortcuts = () => {
     const {
@@ -37,25 +40,30 @@ const Shortcuts = () => {
 
     return (
         <div className="container mx-auto px-4 py-6">
-            <ShortcutsHeader
+            <Header
+                title="Project"
+                marked={"Shortcuts"}
                 selectedProject={selectedProject}
                 loading={loading}
-                onAddShortcut={() => setIsCreateModalOpen(true)}
+                props={
+                    <div className="flex space-x-2">
+                        <Button
+                            variant="remarked"
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="flex items-center gap-2"
+                        >
+                            <Plus size={16} />
+                            Add Shortcut
+                        </Button>
+                    </div>
+                }
             />
 
             {/* Shortcuts List */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {loading ? (
-                    Array(6).fill(0).map((_, index) => (
-                        <div key={index} className="bg-white rounded-lg shadow-sm p-4 animate-pulse">
-                            <div className="flex items-center mb-4">
-                                <div className="w-10 h-10 rounded-full bg-gray-200"></div>
-                                <div className="ml-3 space-y-2">
-                                    <div className="h-4 bg-gray-200 rounded w-40"></div>
-                                    <div className="h-3 bg-gray-200 rounded w-24"></div>
-                                </div>
-                            </div>
-                        </div>
+                    [...Array(6)].map((_, index) => (
+                        <SkeletonCard key={index} header={true} lines={1} />
                     ))
                 ) : shortcuts.length === 0 ? (
                     <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">

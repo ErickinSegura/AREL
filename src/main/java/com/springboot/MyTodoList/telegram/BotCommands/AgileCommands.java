@@ -143,6 +143,12 @@ public class AgileCommands {
         message.setText(BotMessages.ERROR_DATABASE.getMessage());
 
         List<Task> sprintTasks = database.task.getTasksBySprintID(sprintId);
+
+        SendMessage message2 = new SendMessage();
+        message2.setChatId(chatId);
+        message2.setText("tasks del sprint con id " + sprintId + ": " + sprintTasks);
+        messageSender.sendMessage(message2);
+
         Optional<Sprint> sprintResponse = database.sprint.getSprintsbyID(sprintId);
         DateTimeFormatter format = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH);
 
@@ -185,6 +191,11 @@ public class AgileCommands {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         ResponseEntity<List<Sprint>> sprintResponse = database.sprint.getAvailableSprints(projectId);
+
+        SendMessage message2 = new SendMessage();
+        message2.setChatId(chatId);
+        message2.setText("sprints for project " + projectId + ": " + sprintResponse.getBody());
+        messageSender.sendMessage(message2);
 
         if (sprintResponse.getStatusCode().is2xxSuccessful() && sprintResponse.hasBody()){
             List<Sprint> sprintList = sprintResponse.getBody();
@@ -248,11 +259,13 @@ public class AgileCommands {
             LocalDateTime sprintEndDateTime = sprintEndDate.atTime(23,59);
             Sprint actualSprint = state.getSprintCreation();
             actualSprint.setEndDate(sprintEndDateTime);
+
+            Integer neueNummer = database.sprint.getNewSprintNumber(actualSprint.getProject());
+            actualSprint.setSprintNumber(neueNummer);
             
             Sprint response = database.sprint.addSprint(actualSprint);
-            Integer newNumber = database.sprint.getSprintNumberById(response.getID());
 
-            message.setText(BotMessages.CREATE_SPRINT_CONFIRMATION.getMessage(newNumber));
+            message.setText(BotMessages.CREATE_SPRINT_CONFIRMATION.getMessage(response.getSprintNumber()));
             //message.setReplyMarkup(keyboardFactory.inlineKeyboardManagerOpenProject(actualSprint.getProject()));
         }
         catch (DateTimeParseException e) {

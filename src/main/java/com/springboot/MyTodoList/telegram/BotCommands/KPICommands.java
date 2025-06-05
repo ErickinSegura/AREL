@@ -33,17 +33,25 @@ public class KPICommands {
         message.setChatId(chatId);
 
         List<SprintOverview> sprintOverviews = database.kpi.getSprintOverviewsByProjectId(Long.valueOf(projectId));
-        
-        Optional<SprintOverview> activeSprintOverviewOptional = sprintOverviews.stream()
-        .filter(p -> p.getSprintNumber() == sprintId)
-        .findFirst();
+        message.setText("sprintoverviews: " + sprintOverviews);
 
-        if (activeSprintOverviewOptional.isPresent()) {
+        Optional<Sprint> sprintToCheck = database.sprint.getSprintsbyID(sprintId);
+
+        if (sprintToCheck.isPresent()) {
+            Sprint sprint = sprintToCheck.get();
+            Optional<SprintOverview> activeSprintOverviewOptional = sprintOverviews.stream()
+            .filter(p -> p.getSprintNumber() == sprint.getSprintNumber())
+            .findFirst();
+
+            if (activeSprintOverviewOptional.isPresent()) {
             SprintOverview sprintOverview = activeSprintOverviewOptional.get();
             message.setText(formatSprintOverview(sprintOverview) 
             + "\n\n"
             + BotMessages.KPI_OPEN.getMessage());
             message.setReplyMarkup(keyboardFactory.inlineKPIMenu(projectId));
+        }
+        }else{
+            message.setText("Didn't find the sprint...");
         }
 
         messageSender.sendMessage(message);

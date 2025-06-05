@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { UserConfigService } from '../api/userConfigService';
+import { useAuth } from '../contexts/AuthContext';
 
 export const useAvatarUpdate = (userId, initialAvatarConfig) => {
+    const { user, updateUser } = useAuth(); 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [avatarConfig, setAvatarConfig] = useState(initialAvatarConfig || {
         background: "bg1",
@@ -37,7 +39,15 @@ export const useAvatarUpdate = (userId, initialAvatarConfig) => {
             const updatedUser = await UserConfigService.updateUserAvatar(userId, avatarData);
 
             setAvatarConfig(newConfig);
+
+            if (user && updateUser) {
+                updateUser({
+                    avatar: newConfig
+                });
+            }
+
             setIsLoading(false);
+            console.log('Avatar actualizado:', newConfig);
             return updatedUser;
         } catch (err) {
             console.error("Error completo:", err);

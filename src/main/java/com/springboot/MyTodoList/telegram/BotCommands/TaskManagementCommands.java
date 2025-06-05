@@ -110,7 +110,11 @@ public class TaskManagementCommands {
 
         Optional<Sprint> sprintResponse;
         if (nextOrThis.equals("This")){
-            Integer thissprintId = database.sprint.getActiveSprint(projectId);
+            Integer thissprintId = database.sprint.getActiveSprintID(projectId);
+
+            
+
+
             sprintResponse = database.sprint.getSprintsbyID(thissprintId);
         }else { //next sprint
             sprintResponse = database.sprint.getNextSprint(projectId);

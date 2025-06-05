@@ -8,8 +8,9 @@ set -e
 
 # Create SSL Certs
 while ! state_done SSL; do
-  mkdir -p $MTDRWORKSHOP_LOCATION/tls
-  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $MTDRWORKSHOP_LOCATION/tls/tls.key -out $MTDRWORKSHOP_LOCATION/tls/tls.crt -subj "/CN=grabdish/O=grabdish"
+  cd "$(dirname "$MTDRWORKSHOP_LOCATION")"
+  mkdir -p tls
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls/tls.key -out tls/tls.crt -subj "/CN=grabdish/O=grabdish"
   state_set_done SSL
 done
 
@@ -65,13 +66,17 @@ done
 
 # Create OKE Namespace
 while ! state_done OKE_NAMESPACE; do
-  if kubectl create ns mtdrworkshop; then
+  if kubectl get ns mtdrworkshop >/dev/null 2>&1; then
+    echo "Namespace 'mtdrworkshop' already exists."
+    state_set_done OKE_NAMESPACE
+  elif kubectl create ns mtdrworkshop; then
     state_set_done OKE_NAMESPACE
   else
-    echo "Failed to create namespace.  Retrying..."
+    echo "Failed to create namespace. Retrying..."
     sleep 10
   fi
 done
+
 
 # Wait for TO DO User (avoid concurrent kubectl)
 while ! state_done TODO_USER; do

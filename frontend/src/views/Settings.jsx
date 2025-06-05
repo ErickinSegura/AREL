@@ -1,13 +1,13 @@
 import React from 'react';
 import { useSettings } from '../hooks/useSettings';
 import {
-    ErrorState,
-    NoProjectState,
-    ProjectHeader,
     SettingsForm,
     DangerZoneCard,
-    ProjectUsers
+    ProjectUsers, ProjectCategories
 } from '../components/settings/settingsComponents';
+import {Header} from "../lib/ui/Header";
+import {NoProjectState} from "../lib/ui/NoProject";
+import {ErrorState} from "../lib/ui/Error";
 
 const ProjectSettings = () => {
     const {
@@ -35,7 +35,9 @@ const ProjectSettings = () => {
 
     return (
         <div className="container mx-auto px-4 py-6">
-            <ProjectHeader
+            <Header
+                title="Project"
+                marked={"Settings"}
                 selectedProject={selectedProject}
                 loading={loading}
             />
@@ -52,6 +54,10 @@ const ProjectSettings = () => {
 
             <ProjectUsers
                 projectId={selectedProject.id}
+                loading={loading}
+            />
+
+            <ProjectCategories
                 loading={loading}
             />
 

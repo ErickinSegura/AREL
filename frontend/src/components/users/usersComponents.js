@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from "../../lib/ui/Card";
 import { Button } from "../../lib/ui/Button";
-import { Modal, ModalHeader, ModalTitle, ModalDescription, ModalContent, ModalFooter, ModalClose } from "../../lib/ui/Modal";
+import { Modal, ModalHeader, ModalTitle, ModalDescription, ModalContent, ModalClose } from "../../lib/ui/Modal";
 import {AlertTriangle, Trash2, Loader, PlusCircle, UserCircle} from 'lucide-react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Input } from "../../lib/ui/Input";
@@ -30,7 +30,7 @@ export const UsersHeader = ({ loading, onAddUser }) => (
                             >
                                 <UserCircle size={24} />
                             </div>
-                            <h1 className="text-2xl font-bold px-3  ">Team Members</h1>
+                            <h1 className="text-2xl font-bold px-3  ">Users</h1>
                         </div>
                     )}
                 </CardTitle>
@@ -81,29 +81,8 @@ const UserCard = ({ user, onDetailsClick }) => {
     );
 };
 
-const UserDetailsModal = ({ user, isOpen, onClose, onRemoveClick, deleteLoading = false }) => {
-    const [showDangerZone, setShowDangerZone] = useState(false);
-    const [confirmText, setConfirmText] = useState("");
-
+const UserDetailsModal = ({ user, isOpen, onClose }) => {
     if (!user) return null;
-
-    const handleToggleDangerZone = () => {
-        setShowDangerZone(!showDangerZone);
-        setConfirmText("");
-    };
-
-    const handleConfirmDelete = () => {
-        if (confirmText === user.email) {
-            onRemoveClick(user.id);
-            setShowDangerZone(false);
-            setConfirmText("");
-        }
-    };
-
-    const handleInputChange = (e) => {
-        setConfirmText(e.target.value);
-    };
-
     return (
         <Modal
             isOpen={isOpen}
@@ -141,80 +120,6 @@ const UserDetailsModal = ({ user, isOpen, onClose, onRemoveClick, deleteLoading 
                                 <span>{user.userLevel.label}</span>
                             </div>
                         </div>
-                    </div>
-
-                    {/* Danger Zone Section */}
-                    <div className="border-t pt-4">
-                        <h4 className="text-lg font-medium text-red-600 mb-2">Danger Zone</h4>
-                        {!showDangerZone ? (
-                            <div className="p-4 bg-red-50 rounded-xl">
-                                <h3 className="font-medium text-red-700 mb-2">Delete this user</h3>
-                                <p className="text-red-600 text-sm mb-4">
-                                    Once you delete a user, there is no going back. This action cannot be undone.
-                                    All data associated with this user will be permanently deleted.
-                                </p>
-                                <Button
-                                    variant="danger"
-                                    className="border-red-300 text-red-600 hover:bg-red-50 flex items-center gap-2"
-                                    onClick={handleToggleDangerZone}
-                                    disabled={deleteLoading}
-                                >
-                                    {deleteLoading ? (
-                                        <>
-                                            <Loader className="animate-spin" size={16} /> Deleting...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Trash2 size={16} /> Delete User
-                                        </>
-                                    )}
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="p-4 bg-red-50 rounded-md">
-                                <div className="flex items-center gap-2 text-red-600 mb-3">
-                                    <AlertTriangle size={18} />
-                                    <h3 className="font-medium">Confirm User Deletion</h3>
-                                </div>
-                                <p className="text-red-600 text-sm mb-4">
-                                    This action cannot be undone. All user data will be permanently deleted.
-                                </p>
-                                <div className="space-y-4">
-                                    <p className="text-sm text-gray-700">
-                                        To confirm deletion, please type the user's email: <strong>{user.email}</strong>
-                                    </p>
-                                    <Input
-                                        value={confirmText}
-                                        onChange={handleInputChange}
-                                        placeholder="Enter user email"
-                                        className="mt-2"
-                                    />
-                                    <div className="flex gap-2 justify-end">
-                                        <Button
-                                            variant="default"
-                                            onClick={handleToggleDangerZone}
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            variant="danger"
-                                            onClick={handleConfirmDelete}
-                                            disabled={confirmText !== user.email || deleteLoading}
-                                        >
-                                            {deleteLoading ? (
-                                                <>
-                                                    <Loader className="animate-spin" size={16} /> Deleting...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Trash2 size={16} /> Delete User
-                                                </>
-                                            )}
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             </ModalContent>

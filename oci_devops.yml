@@ -8,7 +8,7 @@ env:
     JAVA_HOME: /usr/lib64/graalvm/graalvm22-ee-java17
 
   exportedVariables:
-    - BuildServiceDemoVersion
+    - dateannotation
 
 steps:
   - type: Command
@@ -20,18 +20,34 @@ steps:
     command: export PATH=$JAVA_HOME/bin:$PATH
 
   - type: Command
+    name: "mostrar_directorio"
+    command: |
+      echo "Directorio actual:"
+      pwd
+      
+      echo "Contenido del directorio:"
+      ls -la
+
+      echo "Exporting TIMESTAMP"
+      export dateannotation=$(date +%Y-%m-%dT%H:%M:%S)
+      echo "dateannotation=$dateannotation"
+
+  - type: Command
     name: "Docker Login"
-    command:  cd MtdrSpring;
-              oci os object get --bucket-name reacttodo-hbita --name deployment_config.tgz --file deployment_config.tgz;
+    command:  oci os object get --bucket-name riftsoftware-9l0fn --name deployment_config.tgz --file deployment_config.tgz;
               tar -xzvf deployment_config.tgz;
               source env.sh;
-              cat at.cfg | docker login -u "axf1nn7cqwae/rocco_lpz@hotmail.com" --password-stdin mx-queretaro-1.ocir.io
+              cd ..;
+              cat at.cfg | docker login -u "axddxtcs7lw7/rocco_lpz@hotmail.com" --password-stdin mx-queretaro-1.ocir.io
 
   - type: Command
     name: "Build"
-    command:  cd MtdrSpring;
-              source env.sh;
-              (cd backend;source build.sh)
+    command:  source env.sh;
+              echo "Directorio actual tras env.sh";
+              pwd;
+              echo "Contenido del directorio:";
+              ls -la;
+              (cd ..;source build.sh)
 
 
 

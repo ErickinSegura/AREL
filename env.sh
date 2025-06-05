@@ -32,7 +32,12 @@ function set_javahome(){
 }
 
 #set mtdrworkshop_location
-export MTDRWORKSHOP_LOCATION="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+SCRIPT_PATH="${BASH_SOURCE[0]:-$0}"
+# Cambiar al directorio del script y obtener ruta absoluta
+SCRIPT_DIR="$( cd "$( dirname "$SCRIPT_PATH" )" &>/dev/null && pwd )"
+# Fijar la ruta absoluta al subdirectorio deploy
+export MTDRWORKSHOP_LOCATION="$SCRIPT_DIR/deploy"
+
 cd $MTDRWORKSHOP_LOCATION
 echo "MTDRWORKSHOP_LOCATION: $MTDRWORKSHOP_LOCATION"
 
@@ -48,14 +53,14 @@ fi
 if test -d ~/mtdrworkshop-state; then
   export MTDRWORKSHOP_STATE_HOME=~/mtdrworkshop-state
 else
-  export MTDRWORKSHOP_STATE_HOME=$MTDRWORKSHOP_LOCATION
+  export MTDRWORKSHOP_STATE_HOME="$(dirname "$MTDRWORKSHOP_LOCATION")"
 fi
 echo "MTDRWORKSOP_STATE_HOME: $MTDRWORKSHOP_STATE_HOME"
 #Log Directory
 export MTDRWORKSHOP_LOG=$MTDRWORKSHOP_STATE_HOME/log
 mkdir -p $MTDRWORKSHOP_LOG
 
-source $MTDRWORKSHOP_LOCATION/deploy/utils/state-functions.sh
+source $MTDRWORKSHOP_LOCATION/utils/state-functions.sh
 
 # SHORTCUT ALIASES AND UTILS...
 alias k='kubectl'
@@ -69,4 +74,4 @@ alias virtualservices='kubectl get virtualservices --all-namespaces'
 alias deployments='kubectl get deployments --all-namespaces'
 alias mtdrworkshop='echo deployments... ; deployments|grep mtdrworkshop ; echo pods... ; pods|grep mtdrworkshop ; echo services... ; services | grep mtdrworkshop ; echo secrets... ; secrets|grep mtdrworkshop ; echo "other shortcut commands... most can take partial podname as argument, such as [logpod front] or [deletepod order]...  pods  services secrets deployments " ; ls $MTDRWORKSHOP_LOCATION/utils/'
 
-export PATH=$PATH:$MTDRWORKSHOP_LOCATION/deploy/utils/
+export PATH=$PATH:$MTDRWORKSHOP_LOCATION/utils/
