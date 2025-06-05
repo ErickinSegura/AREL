@@ -330,8 +330,8 @@ const avatarOptions = {
         { id: 'mouth1', name: 'Smile', style: 'smile' },
         { id: 'mouth2', name: 'Neutral', style: 'neutral' },
         { id: 'mouth3', name: 'Surprised', style: 'surprised' },
-        { id: 'mouth4', name: 'wave', style: 'wave' },
-        { id: 'mouth5', name: 'wave', style: 'wave' }
+        { id: 'mouth4', name: 'Wave', style: 'wave' },
+        { id: 'mouth5', name: 'Mouthless', style: 'mouthless' }
     ],
     accessories: [
         { id: 'acc1', name: 'None', style: 'none' },
