@@ -70,13 +70,30 @@ const AddProjectModal = ({ isOpen, onClose }) => {
         { id: 7, hex: '3A86FF', name: 'Blue' },
     ];
 
+    // Refs para los dropdowns portales
+    const colorDropdownRef = useRef(null);
+    const iconDropdownRef = useRef(null);
+
     useEffect(() => {
         const handleOutsideClick = (event) => {
-            if (colorMenuRef.current && !colorMenuRef.current.contains(event.target)) {
-                setIsColorMenuOpen(false);
+            // Check color dropdown
+            if (isColorMenuOpen) {
+                const isClickInsideButton = colorMenuRef.current && colorMenuRef.current.contains(event.target);
+                const isClickInsideDropdown = colorDropdownRef.current && colorDropdownRef.current.contains(event.target);
+
+                if (!isClickInsideButton && !isClickInsideDropdown) {
+                    setIsColorMenuOpen(false);
+                }
             }
-            if (iconMenuRef.current && !iconMenuRef.current.contains(event.target)) {
-                setIsIconMenuOpen(false);
+
+            // Check icon dropdown
+            if (isIconMenuOpen) {
+                const isClickInsideButton = iconMenuRef.current && iconMenuRef.current.contains(event.target);
+                const isClickInsideDropdown = iconDropdownRef.current && iconDropdownRef.current.contains(event.target);
+
+                if (!isClickInsideButton && !isClickInsideDropdown) {
+                    setIsIconMenuOpen(false);
+                }
             }
         };
 
@@ -84,7 +101,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
         return () => {
             document.removeEventListener('mousedown', handleOutsideClick);
         };
-    }, []);
+    }, [isColorMenuOpen, isIconMenuOpen]);
 
     const getSelectedIcon = () => {
         return iconOptions.find(icon => icon.id === iconId) || iconOptions[0];
@@ -265,6 +282,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
             {/* Color Dropdown Portal */}
             <DropdownPortal isOpen={isColorMenuOpen}>
                 <div
+                    ref={colorDropdownRef}
                     className="fixed z-50 bg-white border rounded-lg shadow-lg p-3 max-h-64 overflow-y-auto"
                     style={{
                         top: colorButtonRect ? colorButtonRect.bottom + window.scrollY + 4 : 0,
@@ -281,7 +299,9 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                     colorId === color.id ? 'ring-2 ring-offset-2 ring-oracleRed' : ''
                                 }`}
                                 style={{ backgroundColor: `#${color.hex}` }}
-                                onClick={() => {
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
                                     setColorId(color.id);
                                     setIsColorMenuOpen(false);
                                 }}
@@ -300,6 +320,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
             {/* Icon Dropdown Portal */}
             <DropdownPortal isOpen={isIconMenuOpen}>
                 <div
+                    ref={iconDropdownRef}
                     className="fixed z-50 bg-white border rounded-lg shadow-lg p-3 max-h-64 overflow-y-auto"
                     style={{
                         top: iconButtonRect ? iconButtonRect.bottom + window.scrollY + 4 : 0,
@@ -317,7 +338,9 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                                         ? 'bg-gray-100 ring-2 ring-oracleRed text-oracleRed'
                                         : 'hover:bg-gray-50'
                                 }`}
-                                onClick={() => {
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
                                     setIconId(option.id);
                                     setIsIconMenuOpen(false);
                                 }}
