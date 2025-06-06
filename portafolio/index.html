@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arel Portfolio - Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+--bg-primary: #f8fafc;
+--bg-secondary: #ffffff;
+--bg-card: #ffffff;
+--text-primary: #1e293b;
+--text-secondary: #64748b;
+--text-muted: #94a3b8;
+--border-color: #e2e8f0;
+--accent-primary: #C74634;
+--accent-secondary: #d95748;
+--accent-tertiary: #eb6d5c;
+--accent-quaternary: #f28570;
+--accent-light: #f7b5a8;
+--accent-red: #dc2626;
+--accent-orange: #ea580c;
+--accent-blue: #2563eb;
+--accent-green: #16a34a;
+--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+body {
+font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+background-color: var(--bg-primary);
+color: var(--text-primary);
+line-height: 1.6;
+}
+/* Main Content */
+.main-content {
+margin-left: 64px;
+min-height: 100vh;
+padding: 24px;
+}
+/* Header Card */
+.header-card {
+background: var(--bg-card);
+border-radius: 16px;
+border: 1px solid var(--border-color);
+box-shadow: var(--shadow-sm);
+margin-bottom: 24px;
+overflow: hidden;
+}
+.header-content {
+padding: 24px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+flex-wrap: wrap;
+gap: 20px;
+}
+.header-info {
+display: flex;
+align-items: center;
+gap: 20px;
+flex: 1;
+}
+.project-icon {
+width: 64px;
+height: 64px;
+border-radius: 20px;
+display: flex;
+align-items: center;
+justify-content: center;
+color: white;
+font-size: 28px;
+flex-shrink: 0;
+background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+box-shadow: var(--shadow-md);
+}
+.header-text {
+flex: 1;
+min-width: 0;
+}
+.header-text h1 {
+font-size: 32px;
+font-weight: 700;
+color: var(--text-primary);
+margin: 0 0 4px 0;
+}
+.header-subtitle {
+color: var(--text-secondary);
+font-size: 16px;
+margin: 0;
+}
+.header-actions {
+display: flex;
+gap: 12px;
+flex-shrink: 0;
+}
+.btn {
+padding: 10px 20px;
+border-radius: 12px;
+border: 1px solid var(--border-color);
+background: var(--bg-secondary);
+color: var(--text-primary);
+font-size: 14px;
+font-weight: 500;
+cursor: pointer;
+transition: all 0.2s ease;
+display: inline-flex;
+align-items: center;
+gap: 8px;
+}
+.btn:hover {
+background: var(--bg-primary);
+border-color: var(--text-muted);
+}
+.btn.primary {
+background: var(--accent-primary);
+color: white;
+border-color: var(--accent-primary);
+}
+.btn.primary:hover {
+background: var(--accent-secondary);
+border-color: var(--accent-secondary);
+}
+.btn:disabled {
+opacity: 0.6;
+cursor: not-allowed;
+}
+/* Navigation Tabs */
+.nav-tabs {
+display: flex;
+gap: 2px;
+background: var(--bg-primary);
+padding: 4px;
+border-radius: 16px;
+margin-bottom: 24px;
+border: 1px solid var(--border-color);
+overflow-x: auto;
+justify-content: space-around;
+}
+.nav-tab {
+padding: 12px 16px;
+border-radius: 12px;
+background: transparent;
+border: none;
+color: var(--text-secondary);
+font-size: 14px;
+font-weight: 500;
+cursor: pointer;
+transition: all 0.2s ease;
+white-space: nowrap;
+flex-shrink: 0;
+}
+.nav-tab:hover {
+background: var(--bg-secondary);
+color: var(--text-primary);
+}
+.nav-tab.active {
+background: var(--accent-primary);
+color: white;
+box-shadow: var(--shadow-sm);
+}
+/* Content Cards */
+.content-grid {
+display: grid;
+gap: 24px;
+}
+.content-card {
+background: var(--bg-card);
+border: 1px solid var(--border-color);
+border-radius: 12px;
+box-shadow: var(--shadow-sm);
+overflow: hidden;
+}
+.card-content {
+padding: 24px;
+}
+/* Loading States */
+.skeleton {
+background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+background-size: 200% 100%;
+animation: loading 1.5s infinite;
+}
+.skeleton-text {
+height: 16px;
+border-radius: 4px;
+margin-bottom: 8px;
+}
+.skeleton-title {
+height: 24px;
+border-radius: 4px;
+width: 60%;
+margin-bottom: 16px;
+}
+@keyframes loading {
+ 0% {
+background-position: 200% 0;
+}
+ 100% {
+background-position: -200% 0;
+}
+}
+/* Error States */
+.error-message {
+text-align: center;
+padding: 40px 24px;
+color: var(--text-secondary);
+}
+.error-icon {
+font-size: 48px;
+color: var(--text-muted);
+margin-bottom: 16px;
+}
+/* Markdown Content Styles */
+.markdown-content {
+line-height: 1.7;
+}
+.markdown-content h1 {
+font-size: 32px;
+font-weight: 700;
+color: var(--accent-primary);
+margin: 0 0 20px 0;
+padding-bottom: 12px;
+border-bottom: 3px solid var(--accent-light);
+}
+.markdown-content h2 {
+font-size: 26px;
+font-weight: 600;
+color: var(--accent-secondary);
+margin: 32px 0 16px 0;
+padding-left: 16px;
+border-left: 4px solid var(--accent-secondary);
+}
+.markdown-content h3 {
+font-size: 22px;
+font-weight: 600;
+color: var(--accent-tertiary);
+margin: 24px 0 12px 0;
+}
+.markdown-content h4 {
+font-size: 18px;
+font-weight: 600;
+color: var(--accent-quaternary);
+margin: 20px 0 10px 0;
+}
+.markdown-content h5 {
+font-size: 16px;
+font-weight: 600;
+color: var(--accent-light);
+margin: 16px 0 8px 0;
+}
+.markdown-content h6 {
+font-size: 14px;
+font-weight: 600;
+color: var(--text-secondary);
+margin: 12px 0 6px 0;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+.markdown-content p {
+margin-bottom: 16px;
+color: var(--text-secondary);
+}
+.markdown-content ul,
+.markdown-content ol {
+margin: 16px 0;
+padding-left: 24px;
+}
+.markdown-content li {
+margin-bottom: 8px;
+color: var(--text-secondary);
+}
+.markdown-content code {
+background: var(--bg-primary);
+padding: 2px 6px;
+border-radius: 4px;
+font-family: 'SF Mono', Monaco, monospace;
+font-size: 14px;
+color: var(--accent-primary);
+}
+.markdown-content pre {
+background: var(--text-primary);
+color: white;
+padding: 16px;
+border-radius: 8px;
+overflow-x: auto;
+margin: 16px 0;
+}
+.markdown-content blockquote {
+margin: 16px 0;
+padding: 16px 20px;
+background: var(--bg-primary);
+border-radius: 8px;
+border-left: 4px solid var(--accent-primary);
+color: var(--text-secondary);
+}
+.markdown-content img {
+max-width: 100%;
+height: auto;
+border-radius: 8px;
+margin: 16px 0;
+box-shadow: var(--shadow-sm);
+}
+.markdown-content table {
+width: 100%;
+border-collapse: collapse;
+margin: 16px 0;
+border-radius: 8px;
+overflow: hidden;
+box-shadow: var(--shadow-sm);
+}
+.markdown-content th {
+background: var(--accent-primary);
+color: white;
+padding: 12px;
+font-weight: 600;
+}
+.markdown-content td {
+padding: 12px;
+border-bottom: 1px solid var(--border-color);
+color: var(--text-secondary);
+}
+.markdown-content tr:hover {
+background: var(--bg-primary);
+}
+
+/* PDF Specific Styles */
+.pdf-container {
+position: fixed;
+top: -9999px;
+left: -9999px;
+width: 210mm;
+background: white;
+font-family: 'Inter', sans-serif;
+z-index: -1;
+}
+
+.pdf-page {
+width: 210mm;
+min-height: 297mm;
+background: white;
+padding: 25mm 20mm;
+box-sizing: border-box;
+font-family: 'Inter', sans-serif;
+line-height: 1.6;
+page-break-after: always;
+display: flex;
+flex-direction: column;
+position: relative;
+}
+
+.pdf-page:last-child {
+page-break-after: avoid;
+}
+
+.pdf-header {
+display: flex;
+align-items: center;
+gap: 20px;
+margin-bottom: 30px;
+padding-bottom: 20px;
+border-bottom: 3px solid var(--accent-primary);
+}
+
+.pdf-header .project-icon {
+width: 60px;
+height: 60px;
+border-radius: 15px;
+display: flex;
+align-items: center;
+justify-content: center;
+color: white;
+font-size: 24px;
+background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+flex-shrink: 0;
+}
+
+.pdf-header .header-text h1 {
+font-size: 28px;
+font-weight: 700;
+color: var(--accent-primary);
+margin: 0 0 4px 0;
+}
+
+.pdf-header .header-subtitle {
+color: var(--text-secondary);
+font-size: 14px;
+margin: 0;
+}
+
+.pdf-section {
+flex-grow: 1;
+overflow: hidden;
+}
+
+.pdf-section-title {
+font-size: 24px;
+font-weight: 700;
+color: var(--accent-primary);
+margin: 0 0 25px 0;
+padding-bottom: 12px;
+border-bottom: 2px solid var(--accent-light);
+text-align: center;
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+
+.pdf-section h1 {
+font-size: 28px;
+font-weight: 700;
+color: var(--accent-primary);
+margin: 0 0 20px 0;
+padding-bottom: 12px;
+border-bottom: 3px solid var(--accent-light);
+}
+
+.pdf-section h2 {
+font-size: 22px;
+font-weight: 600;
+color: var(--accent-secondary);
+margin: 24px 0 14px 0;
+padding-left: 16px;
+border-left: 4px solid var(--accent-secondary);
+}
+
+.pdf-section h3 {
+font-size: 20px;
+font-weight: 600;
+color: var(--accent-tertiary);
+margin: 20px 0 12px 0;
+}
+
+.pdf-section h4 {
+font-size: 18px;
+font-weight: 600;
+color: var(--accent-quaternary);
+margin: 16px 0 10px 0;
+}
+
+.pdf-section p {
+margin-bottom: 14px;
+color: var(--text-secondary);
+line-height: 1.6;
+text-align: justify;
+}
+
+.pdf-section ul,
+.pdf-section ol {
+margin: 14px 0;
+padding-left: 24px;
+}
+
+.pdf-section li {
+margin-bottom: 8px;
+color: var(--text-secondary);
+line-height: 1.5;
+}
+
+.pdf-section img {
+max-width: 100%;
+height: auto;
+display: block;
+margin: 20px auto;
+border-radius: 8px;
+box-shadow: var(--shadow-sm);
+}
+
+.pdf-section table {
+width: 100%;
+border-collapse: collapse;
+margin: 16px 0;
+border-radius: 8px;
+overflow: hidden;
+box-shadow: var(--shadow-sm);
+}
+
+.pdf-section th {
+background: var(--accent-primary);
+color: white;
+padding: 10px;
+font-weight: 600;
+font-size: 14px;
+}
+
+.pdf-section td {
+padding: 10px;
+border-bottom: 1px solid var(--border-color);
+color: var(--text-secondary);
+font-size: 14px;
+}
+
+.pdf-section pre {
+background: var(--text-primary);
+color: white;
+padding: 16px;
+border-radius: 8px;
+margin: 16px 0;
+overflow-x: auto;
+font-size: 12px;
+}
+
+.pdf-section blockquote {
+margin: 16px 0;
+padding: 16px 20px;
+background: var(--bg-primary);
+border-radius: 8px;
+border-left: 4px solid var(--accent-primary);
+color: var(--text-secondary);
+}
+
+.pdf-footer {
+margin-top: auto;
+padding-top: 20px;
+border-top: 1px solid var(--border-color);
+font-size: 12px;
+color: var(--text-muted);
+text-align: center;
+}
+
+/* PDF Export Loading */
+.pdf-loading {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.8);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 10000;
+color: white;
+flex-direction: column;
+gap: 16px;
+}
+.pdf-spinner {
+width: 40px;
+height: 40px;
+border: 4px solid rgba(255, 255, 255, 0.3);
+border-top: 4px solid white;
+border-radius: 50%;
+animation: spin 1s linear infinite;
+}
+@keyframes spin {
+ 0% {
+transform: rotate(0deg);
+}
+ 100% {
+transform: rotate(360deg);
+}
+}
+/* Responsive */
+@media (max-width: 768px) {
+.sidebar {
+width: 100%;
+height: 64px;
+flex-direction: row;
+padding: 12px 20px;
+justify-content: space-between;
+position: relative;
+}
+.main-content {
+margin-left: 0;
+margin-top: 64px;
+padding: 16px;
+}
+.header-content {
+flex-direction: column;
+align-items: flex-start;
+gap: 16px;
+}
+.header-info {
+width: 100%;
+}
+.header-actions {
+width: 100%;
+justify-content: flex-start;
+}
+.header-text h1 {
+font-size: 24px;
+}
+.nav-tabs {
+overflow-x: auto;
+padding: 4px;
+}
+.nav-tab {
+flex-shrink: 0;
+}
+.project-icon {
+width: 48px;
+height: 48px;
+font-size: 20px;
+}
+}
+/* Icons */
+.icon {
+width: 20px;
+height: 20px;
+fill: currentColor;
+}
+</style>
+</head>
+<body>
+<!-- Main Content -->
+<div class="main-content">
+<!-- Header Card -->
+<div class="header-card">
+<div class="header-content">
+<div class="header-info">
+<div class="project-icon">
+<svg class="icon" viewBox="0 0 24 24" style="width: 28px; height: 28px;">
+<path fill="currentColor" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+</svg>
+</div>
+<div class="header-text">
+<h1 id="project-title">Arel Portafolio</h1>
+<div class="header-subtitle" id="project-subtitle">Sistema de gestión de portafolio</div>
+</div>
+</div>
+<div class="header-actions">
+<button class="btn primary" onclick="exportToPDF()" id="pdf-btn">
+<svg class="icon" viewBox="0 0 24 24">
+<path fill="currentColor"
+d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+</svg>
+ Exportar PDF
+</button>
+</div>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<div class="nav-tabs">
+<button class="nav-tab active" data-section="portada">Portada</button>
+<button class="nav-tab" data-section="resumen">Resumen</button>
+<button class="nav-tab" data-section="planteamiento">Planteamiento</button>
+<button class="nav-tab" data-section="valor">Valor Agregado</button>
+<button class="nav-tab" data-section="requerimientos">Requerimientos</button>
+<button class="nav-tab" data-section="diseno">Diseño</button>
+<button class="nav-tab" data-section="desarrollo">Desarrollo</button>
+<button class="nav-tab" data-section="pruebas">Pruebas</button>
+<button class="nav-tab" data-section="conclusiones">Conclusiones</button>
+<button class="nav-tab" data-section="anexos">Anexos</button>
+</div>
+<!-- Content Grid -->
+<div class="content-grid">
+<div class="content-card">
+<div class="card-content">
+<div id="content-area" class="markdown-content">
+<!-- Loading skeleton -->
+<div class="skeleton skeleton-title"></div>
+<div class="skeleton skeleton-text"></div>
+<div class="skeleton skeleton-text" style="width: 80%;"></div>
+<div class="skeleton skeleton-text" style="width: 90%;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- PDF Container (Hidden) -->
+<div id="pdf-container" class="pdf-container"></div>
+
+<!-- PDF Loading Modal -->
+<div id="pdf-loading" class="pdf-loading" style="display: none;">
+<div class="pdf-spinner"></div>
+<div>Generando PDF...</div>
+<div style="font-size: 14px; opacity: 0.8;">Por favor espera un momento</div>
+</div>
+
+<script>
+// Configuración de archivos markdown
+const markdownFiles = {
+'portada': 'portada.md',
+'resumen': 'resumen.md',
+'planteamiento': 'planteamiento.md',
+'valor': 'valor.md',
+'requerimientos': 'requerimientos.md',
+'diseno': 'diseno.md',
+'desarrollo': 'desarrollo.md',
+'pruebas': 'pruebas.md',
+'conclusiones': 'conclusiones.md',
+'anexos': 'anexos.md'
+};
+
+// Nombres de secciones para el PDF
+const sectionNames = {
+'portada': 'Portada del Proyecto',
+'resumen': 'Resumen Ejecutivo',
+'planteamiento': 'Planteamiento del Problema',
+'valor': 'Propuesta de Valor',
+'requerimientos': 'Análisis de Requerimientos',
+'diseno': 'Diseño del Sistema',
+'desarrollo': 'Proceso de Desarrollo',
+'pruebas': 'Pruebas y Validación',
+'conclusiones': 'Conclusiones y Resultados',
+'anexos': 'Anexos y Referencias'
+};
+
+// Cache para contenido cargado
+const contentCache = {};
+let currentSection = 'portada';
+
+// Función para mostrar skeleton loading
+function showLoading() {
+document.getElementById('content-area').innerHTML = `
+ <div class="skeleton skeleton-title"></div>
+ <div class="skeleton skeleton-text"></div>
+ <div class="skeleton skeleton-text" style="width: 80%;"></div>
+ <div class="skeleton skeleton-text" style="width: 90%;"></div>
+ <div class="skeleton skeleton-text"></div>
+ <div class="skeleton skeleton-text" style="width: 75%;"></div>
+ `;
+}
+
+// Función para mostrar error
+function showError(section, error) {
+document.getElementById('content-area').innerHTML = `
+ <div class="error-message">
+ <div class="error-icon">📄</div>
+ <h3>Contenido no encontrado</h3>
+ <p>No se pudo cargar el archivo: <strong>${markdownFiles[section]}</strong></p>
+ <p style="margin-top: 16px; font-size: 14px; color: var(--text-muted);">
+ Asegúrate de que el archivo existe en la misma carpeta que este HTML.
+ </p>
+ </div>
+ `;
+}
+
+// Función para cargar contenido markdown
+async function loadMarkdownContent(section) {
+if (contentCache[section]) {
+return contentCache[section];
+}
+
+try {
+const response = await fetch(markdownFiles[section]);
+if (!response.ok) {
+throw new Error(`HTTP ${response.status}`);
+}
+const markdownText = await response.text();
+const htmlContent = marked.parse(markdownText);
+contentCache[section] = htmlContent;
+return htmlContent;
+} catch (error) {
+console.error(`Error cargando ${section}:`, error);
+throw error;
+}
+}
+
+// Función para mostrar sección
+async function showSection(sectionId) {
+if (currentSection === sectionId) return;
+
+currentSection = sectionId;
+
+// Actualizar tabs
+document.querySelectorAll('.nav-tab').forEach(tab => {
+tab.classList.remove('active');
+});
+document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+
+// Mostrar loading
+showLoading();
+
+try {
+const content = await loadMarkdownContent(sectionId);
+document.getElementById('content-area').innerHTML = content;
+} catch (error) {
+showError(sectionId, error);
+}
+}
+
+// Función mejorada para exportar a PDF con páginas por sección
+async function exportToPDF() {
+const pdfBtn = document.getElementById('pdf-btn');
+const loadingModal = document.getElementById('pdf-loading');
+const pdfContainer = document.getElementById('pdf-container');
+
+try {
+// Deshabilitar botón y mostrar loading
+pdfBtn.disabled = true;
+pdfBtn.innerHTML = '<div class="pdf-spinner" style="width: 16px; height: 16px; border-width: 2px;"></div> Generando...';
+loadingModal.style.display = 'flex';
+
+// Cargar todo el contenido primero
+const allContent = {};
+for (const [section, file] of Object.entries(markdownFiles)) {
+try {
+allContent[section] = await loadMarkdownContent(section);
+} catch (error) {
+console.warn(`No se pudo cargar ${section}:`, error);
+allContent[section] = `<p>Error cargando contenido de ${section}</p>`;
+}
+}
+
+// Orden de las secciones
+const sectionOrder = ['portada', 'resumen', 'planteamiento', 'valor', 'requerimientos', 'diseno', 'desarrollo', 'pruebas', 'conclusiones', 'anexos'];
+
+// Crear contenido PDF con páginas separadas
+let pdfHTML = '';
+
+// Página de portada especial
+if (allContent['portada']) {
+pdfHTML += `
+<div class="pdf-page">
+<div class="pdf-header">
+<div class="project-icon">
+<svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: currentColor;">
+<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+</svg>
+</div>
+<div class="header-text">
+<h1>Arel Portafolio</h1>
+<div class="header-subtitle">Sistema de gestión de portafolio</div>
+</div>
+</div>
+<div class="pdf-section">
+${allContent['portada']}
+</div>
+<div class="pdf-footer">
+Generado el ${new Date().toLocaleDateString('es-ES', { 
+weekday: 'long', 
+year: 'numeric', 
+month: 'long', 
+day: 'numeric' 
+})}
+</div>
+</div>
+`;
+}
+
+// Páginas de contenido restante
+sectionOrder.slice(1).forEach((section, index) => {
+if (allContent[section]) {
+pdfHTML += `
+<div class="pdf-page">
+<div class="pdf-section-title">${sectionNames[section]}</div>
+<div class="pdf-section">
+${allContent[section]}
+</div>
+<div class="pdf-footer">
+Página ${index + 2} - ${sectionNames[section]}
+</div>
+</div>
+`;
+}
+});
+
+// Insertar contenido en el contenedor oculto
+pdfContainer.innerHTML = pdfHTML;
+pdfContainer.style.position = 'absolute';
+pdfContainer.style.top = '0';
+pdfContainer.style.left = '0';
+pdfContainer.style.zIndex = '9999';
+
+// Esperar a que las imágenes se carguen
+await new Promise(resolve => {
+const images = pdfContainer.querySelectorAll('img');
+if (images.length === 0) {
+resolve();
+return;
+}
+
+let loadedImages = 0;
+const checkAllLoaded = () => {
+loadedImages++;
+if (loadedImages === images.length) {
+resolve();
+}
+};
+
+images.forEach(img => {
+if (img.complete) {
+checkAllLoaded();
+} else {
+img.onload = checkAllLoaded;
+img.onerror = checkAllLoaded;
+}
+});
+
+// Timeout fallback
+setTimeout(resolve, 5000);
+});
+
+// Crear PDF página por página
+const { jsPDF } = window.jspdf;
+const pdf = new jsPDF('p', 'mm', 'a4');
+const pageWidth = 210;
+const pageHeight = 297;
+
+const pages = pdfContainer.querySelectorAll('.pdf-page');
+
+for (let i = 0; i < pages.length; i++) {
+if (i > 0) {
+pdf.addPage();
+}
+
+const page = pages[i];
+
+// Capturar cada página individualmente
+const canvas = await html2canvas(page, {
+scale: 1.5,
+useCORS: true,
+allowTaint: true,
+backgroundColor: '#ffffff',
+width: page.offsetWidth,
+height: page.offsetHeight,
+scrollX: 0,
+scrollY: 0
+});
+
+const imgData = canvas.toDataURL('image/png');
+const imgWidth = pageWidth;
+const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+// Si la imagen es más alta que una página, ajustar
+if (imgHeight > pageHeight) {
+const ratio = pageHeight / imgHeight;
+const adjustedWidth = imgWidth * ratio;
+const adjustedHeight = pageHeight;
+const offsetX = (pageWidth - adjustedWidth) / 2;
+pdf.addImage(imgData, 'PNG', offsetX, 0, adjustedWidth, adjustedHeight);
+} else {
+// Centrar verticalmente si es más pequeña
+const offsetY = (pageHeight - imgHeight) / 2;
+pdf.addImage(imgData, 'PNG', 0, offsetY, imgWidth, imgHeight);
+}
+}
+
+// Ocultar contenedor PDF
+pdfContainer.style.position = 'fixed';
+pdfContainer.style.top = '-9999px';
+pdfContainer.style.left = '-9999px';
+pdfContainer.style.zIndex = '-1';
+
+// Guardar PDF
+pdf.save('Arel_Portafolio_Estilizado.pdf');
+
+} catch (error) {
+console.error('Error generando PDF:', error);
+alert('Error al generar el PDF. Por favor intenta nuevamente.');
+} finally {
+// Restaurar botón
+pdfBtn.disabled = false;
+pdfBtn.innerHTML = `
+<svg class="icon" viewBox="0 0 24 24">
+<path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+</svg>
+ Exportar PDF
+`;
+loadingModal.style.display = 'none';
+}
+}
+
+// Event listeners para navegación
+document.querySelectorAll('.nav-tab').forEach(tab => {
+tab.addEventListener('click', () => {
+const section = tab.getAttribute('data-section');
+showSection(section);
+});
+});
+
+// Precargar contenido
+function preloadContent() {
+Object.keys(markdownFiles).forEach(async (section) => {
+if (!contentCache[section]) {
+try {
+await loadMarkdownContent(section);
+} catch (error) {
+// Silently fail for preloading
+}
+}
+});
+}
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', () => {
+showSection('portada');
+// Precargar contenido después de 1 segundo
+setTimeout(preloadContent, 1000);
+});
+</script>
+</body>
+</html>
