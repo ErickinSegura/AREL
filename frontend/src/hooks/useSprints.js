@@ -51,8 +51,7 @@ export const useSprints = (isBacklog = true) => {
     };
 
     const fetchSprints = useCallback(async () => {
-
-        if (!selectedProject || loading) return;
+        if (!selectedProject) return;
 
         try {
             setLoading(true);
@@ -79,11 +78,9 @@ export const useSprints = (isBacklog = true) => {
                 sprintNumber: sprints.length > 0 ? Math.max(...sprints.map(s => s.sprintNumber)) + 1 : 1
             }));
 
-            if (isBacklog) {
-                fetchSprints();
-            }
+            fetchSprints();
         }
-    }, [fetchSprints, selectedProject]);
+    }, [selectedProject, fetchSprints]);
 
     const toggleTaskSelection = (taskId, tasksSource = availableTasks) => {
         setSelectedTasks(prevSelectedTasks => {
@@ -139,7 +136,7 @@ export const useSprints = (isBacklog = true) => {
 
         try {
             setLoading(true);
-            setError(null); // Clear previous errors
+            setError(null);
 
             const sprintData = {
                 ...sprintFormData,
@@ -162,7 +159,7 @@ export const useSprints = (isBacklog = true) => {
                 await Promise.all(taskUpdatePromises);
 
                 resetSprintForm();
-                await fetchSprints(); // Await here to ensure refresh
+                await fetchSprints();
                 setCreateSprintModalOpen(false);
                 return true;
             } else {
@@ -173,6 +170,59 @@ export const useSprints = (isBacklog = true) => {
             console.error("Error creating sprint:", err);
             setError("Failed to create sprint. Please try again.");
             return false;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const createSprint = async (sprintData) => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const result = await SprintsService.createSprint({
+                ...sprintData,
+                project: selectedProject.id
+            });
+
+            if (result.success) {
+                return result;
+            } else {
+                throw new Error(result.message || "Failed to create sprint");
+            }
+        } catch (err) {
+            console.error("Error creating sprint:", err);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const updateSprint = async (sprintId, sprintData) => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const result = await SprintsService.updateSprint(sprintId, sprintData);
+            return result;
+        } catch (err) {
+            console.error("Error updating sprint:", err);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const deleteSprint = async (sprintId) => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const result = await SprintsService.deleteSprint(sprintId);
+            return result;
+        } catch (err) {
+            console.error("Error deleting sprint:", err);
+            throw err;
         } finally {
             setLoading(false);
         }
@@ -193,6 +243,9 @@ export const useSprints = (isBacklog = true) => {
         handleCreateSprint,
         validationError,
         resetSprintForm,
-        refreshSprints: fetchSprints
+        refreshSprints: fetchSprints,
+        createSprint,
+        updateSprint,
+        deleteSprint
     };
 };

@@ -23,12 +23,13 @@ import {
     FiUserX,
     FiUsers,
     FiTag,
-    FiEdit3
+    FiEdit3, FiCalendar
 } from 'react-icons/fi';
 import { FiCheck as Check } from 'react-icons/fi';
 import { Skeleton, SkeletonText, SkeletonCircle } from '../../lib/ui/Skeleton';
 import {useCategory} from "../../hooks/useCategory";
 import {AvatarRenderer} from "../../lib/AvatarRenderer";
+import {useSprints} from "../../hooks/useSprints";
 
 export const SettingsForm = ({
                                  loading,
@@ -1098,6 +1099,286 @@ export const CategoryItem = ({ category, onDelete, onUpdate }) => {
                     </>
                 )}
             </div>
+        </div>
+    );
+};
+
+export const ProjectSprints = ({ loading = false }) => {
+    const {
+        sprints,
+        loading: sprintsLoading,
+        error,
+        deleteSprint,
+        updateSprint,
+        refreshSprints
+    } = useSprints(true);
+
+    const [errorMessage, setErrorMessage] = useState("");
+
+    const handleDeleteSprint = async (sprintId) => {
+        try {
+            await deleteSprint(sprintId);
+            await refreshSprints();
+        } catch (error) {
+            console.error("Error deleting sprint:", error);
+            setErrorMessage(error?.message || "Failed to delete sprint");
+        }
+    };
+
+    const handleUpdateSprint = async (sprintId, sprint) => {
+        try {
+            await updateSprint(sprintId, sprint);
+            await refreshSprints();
+        } catch (error) {
+            console.error("Error updating sprint:", error);
+            setErrorMessage(error?.message || "Failed to update sprint");
+        }
+    };
+
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    };
+
+    return (
+        <>
+            <Card className="mt-6 flex flex-col h-[600px] sm:h-[700px] lg:h-[800px]">
+                <CardHeader className="flex-shrink-0">
+                    <div className={`flex items-center justify-between ${sprintsLoading ? 'animate-pulse' : ''}`}>
+                        <CardTitle>
+                            {sprintsLoading ? (
+                                <div className="flex items-center">
+                                    <SkeletonCircle size="md" />
+                                    <div className="ml-3 w-48">
+                                        <SkeletonText lines={1} />
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex items-center">
+                                    <h1 className="text-xl sm:text-2xl font-bold px-2">
+                                        Project <span className="text-oracleRed">Sprints</span>
+                                    </h1>
+                                </div>
+                            )}
+                        </CardTitle>
+                    </div>
+                </CardHeader>
+
+                <CardContent className="flex-1 min-h-0 p-0">
+                    {loading || sprintsLoading ? (
+                        <div className="space-y-4 h-full overflow-y-auto">
+                            {[1, 2, 3, 4, 5, 6].map((item) => (
+                                <div key={item} className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-xl">
+                                    <div className="flex items-center space-x-3">
+                                        <SkeletonCircle size="md" />
+                                        <div>
+                                            <SkeletonText className="w-24 sm:w-32" />
+                                            <SkeletonText className="w-32 sm:w-48" />
+                                        </div>
+                                    </div>
+                                    <Skeleton className="w-16 sm:w-24 h-8" />
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="h-full flex flex-col">
+                            {/* Mensajes de error - fijos en la parte superior */}
+                            {(error || errorMessage) && (
+                                <div className="flex-shrink-0 mx-4 sm:mx-6 mt-4 bg-red-50 rounded-lg">
+                                    <p className="text-red-600 font-medium text-sm sm:text-base">
+                                        {errorMessage || (typeof error === 'object' ? (error.message || "An error occurred while loading sprints") : error)}
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Contenido scrolleable */}
+                            <div className="flex-1 overflow-y-auto pb-4 sm:pb-6">
+                                {sprints.length === 0 ? (
+                                    <div className="flex items-center justify-center h-full min-h-[300px]">
+                                        <div className="text-center">
+                                            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mx-auto mb-4">
+                                                <FiCalendar size={24} className="sm:w-8 sm:h-8" />
+                                            </div>
+                                            <h3 className="text-base sm:text-lg font-medium text-gray-700 mb-1">No sprints found</h3>
+                                            <p className="text-gray-500 text-xs sm:text-sm mb-4 px-4">
+                                                This project doesn't have any sprints created yet
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3 sm:space-y-4 pt-4">
+                                        {sprints.map(sprint => (
+                                            <SprintItem
+                                                key={sprint.ID}
+                                                sprint={sprint}
+                                                onDelete={handleDeleteSprint}
+                                                onUpdate={handleUpdateSprint}
+                                                formatDate={formatDate}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </>
+    );
+};
+
+export const SprintItem = ({ sprint, onDelete, onUpdate, formatDate }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [sprintData, setSprintData] = useState({
+        sprintNumber: sprint.sprintNumber,
+        startDate: new Date(sprint.startDate).toISOString().split('T')[0],
+        endDate: new Date(sprint.endDate).toISOString().split('T')[0]
+    });
+
+    console.log(sprint)
+
+    const handleUpdate = async () => {
+        if (!sprintData.sprintNumber || sprintData.sprintNumber < 1) return;
+        if (new Date(sprintData.startDate) >= new Date(sprintData.endDate)) return;
+
+        setIsLoading(true);
+        try {
+            const updatedSprint = {
+                ...sprint,
+                sprintNumber: sprintData.sprintNumber,
+                startDate: new Date(sprintData.startDate).toISOString(),
+                endDate: new Date(sprintData.endDate).toISOString()
+            };
+            await onUpdate(sprint.id, updatedSprint);
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Error updating sprint:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleCancel = () => {
+        setSprintData({
+            sprintNumber: sprint.sprintNumber,
+            startDate: new Date(sprint.startDate).toISOString().split('T')[0],
+            endDate: new Date(sprint.endDate).toISOString().split('T')[0]
+        });
+        setIsEditing(false);
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setSprintData(prev => ({
+            ...prev,
+            [name]: name === 'sprintNumber' ? Number(value) : value
+        }));
+    };
+
+    return (
+        <div className="p-3 sm:p-4 bg-gray-50 rounded-xl">
+            {isEditing ? (
+                <div className="space-y-4">
+                    {/* Campos en columnas para pantallas grandes, apilados en móviles */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Sprint #</label>
+                            <Input
+                                type="number"
+                                name="sprintNumber"
+                                value={sprintData.sprintNumber}
+                                onChange={handleChange}
+                                min="1"
+                                className="w-full"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Start Date</label>
+                            <Input
+                                type="date"
+                                name="startDate"
+                                value={sprintData.startDate}
+                                onChange={handleChange}
+                                className="w-full"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">End Date</label>
+                            <Input
+                                type="date"
+                                name="endDate"
+                                value={sprintData.endDate}
+                                onChange={handleChange}
+                                className="w-full"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Botones de acción */}
+                    <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+                        <Button
+                            variant="default"
+                            onClick={handleUpdate}
+                            disabled={isLoading || !sprintData.sprintNumber || sprintData.sprintNumber < 1}
+                            className="w-full sm:w-auto order-2 sm:order-1"
+                        >
+                            {isLoading ? <FiLoader className="animate-spin" size={16} /> : "Save"}
+                        </Button>
+                        <Button
+                            variant="default"
+                            onClick={handleCancel}
+                            disabled={isLoading}
+                            className="w-full sm:w-auto order-1 sm:order-2"
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </div>
+            ) : (
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    {/* Información del sprint */}
+                    <div className="flex items-center space-x-3">
+                        <div
+                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base flex-shrink-0"
+                            style={{ backgroundColor: "#C74634" }}
+                        >
+                            {sprint.sprintNumber}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <div className="font-medium text-sm sm:text-base truncate">
+                                Sprint {sprint.sprintNumber}
+                            </div>
+                            <div className="text-xs sm:text-sm text-gray-500 truncate">
+                                {formatDate(sprint.startDate)} - {formatDate(sprint.endDate)}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Botones de acción */}
+                    <div className="flex items-center space-x-2 sm:flex-shrink-0">
+                        <Button
+                            variant="default"
+                            onClick={() => setIsEditing(true)}
+                            className="flex-1 sm:flex-none"
+                        >
+                            <FiEdit3 size={16} />
+                            <span className="ml-2 sm:hidden">Edit</span>
+                        </Button>
+                        <Button
+                            variant="danger"
+                            onClick={() => onDelete(sprint.id)}
+                            className="flex-1 sm:flex-none"
+                        >
+                            <FiTrash2 size={16} />
+                            <span className="ml-2 sm:hidden">Delete</span>
+                        </Button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

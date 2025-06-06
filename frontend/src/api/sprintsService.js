@@ -11,16 +11,6 @@ export const SprintsService = {
         }
     },
 
-    async getActiveSprints(sprintId) {
-        try {
-            const response = await fetchWithAuth(`/sprint/${sprintId}/active`);
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching sprint details:', error);
-            throw error;
-        }
-    },
-
     async createSprint(sprint) {
         try {
             const response = await fetchWithAuth('/sprint', {
@@ -38,29 +28,40 @@ export const SprintsService = {
         }
     },
 
-    async updateSprint(sprintId, sprintData) {
+    async updateSprint(sprintId, sprint) {
         try {
-            const url = `/sprint/${sprintId}`;
-            console.log(`Sending PUT request to ${url} with data:`, sprintData);
-
-            // No use fetchWithAuth directly for update
-            const token = localStorage.getItem('jwt_token');
-            const headers = {
-                'Content-Type': 'application/json'
-            };
-
-            const response = await fetch(url, {
+            const response = await fetchWithAuth(`/sprint/${sprintId}`, {
                 method: 'PUT',
                 headers: {
-                    ...headers,
-                    Authorization: `Bearer ${token}`
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(sprintData)
+                body: JSON.stringify(sprint)
             });
 
-            return { success: response.ok };
+            if (!response.ok) {
+                throw new Error('Failed to update sprint');
+            }
+
+            return await response.json();
         } catch (error) {
             console.error('Error updating sprint:', error);
+            throw error;
+        }
+    },
+
+    async deleteSprint(sprintId) {
+        try {
+            const response = await fetchWithAuth(`/sprint/${sprintId}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete sprint');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error deleting sprint:', error);
             throw error;
         }
     }

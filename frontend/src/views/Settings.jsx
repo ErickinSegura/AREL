@@ -3,7 +3,7 @@ import { useSettings } from '../hooks/useSettings';
 import {
     SettingsForm,
     DangerZoneCard,
-    ProjectUsers, ProjectCategories
+    ProjectUsers, ProjectCategories, ProjectSprints
 } from '../components/settings/settingsComponents';
 import {Header} from "../lib/ui/Header";
 import {NoProjectState} from "../lib/ui/NoProject";
@@ -58,6 +58,11 @@ const ProjectSettings = () => {
             />
 
             <ProjectCategories
+                loading={loading}
+            />
+
+            <ProjectSprints
+                projectId={selectedProject.id}
                 loading={loading}
             />
 

@@ -33,7 +33,8 @@ const Backlog = () => {
         taskFormData,
         handleTaskFormChange,
         validationError,
-        resetTaskForm
+        resetTaskForm,
+        refreshBacklog  // Agregamos refreshBacklog aquí
     } = useBacklog();
 
     const {categories} = useCategory();
@@ -266,6 +267,7 @@ const Backlog = () => {
                 projectId={selectedProject?.id}
                 users={users}
                 availableTasks={nonSprintTasks}
+                onSprintCreated={refreshBacklog}  // Agregamos este prop
             />
         </div>
     );

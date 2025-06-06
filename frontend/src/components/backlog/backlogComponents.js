@@ -650,7 +650,7 @@ export const SortControls = ({ currentSort, onSortChange }) => {
     );
 };
 
-export const CreateSprintModal = ({ isOpen, onClose, users, availableTasks = [] }) => {
+export const CreateSprintModal = ({ isOpen, onClose, users, availableTasks = [], onSprintCreated }) => {
     const {
         sprintFormData,
         handleSprintFormChange,
@@ -720,6 +720,10 @@ export const CreateSprintModal = ({ isOpen, onClose, users, availableTasks = [] 
 
         const success = await handleCreateSprint();
         if (success) {
+            // Ejecutar el refetch del backlog si se proporciona la función
+            if (onSprintCreated) {
+                onSprintCreated();
+            }
             onClose();
         }
     };

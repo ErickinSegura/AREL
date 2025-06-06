@@ -44,11 +44,11 @@ public class SprintController {
         return ResponseEntity.ok().headers(responseHeaders).build();
     }
 
-    @PostMapping("/sprint/{id}/delete")
-    public ResponseEntity deleteSprint(@PathVariable int id) throws Exception{
+    @DeleteMapping("/sprint/{id}")
+    public ResponseEntity<Sprint> deleteSprint(@PathVariable int id) {
         Sprint sprint = sprintService.deleteSprint(id);
         if(sprint == null){
-            return new ResponseEntity<>(new Sprint(), HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(sprint, HttpStatus.OK);
     }
