@@ -144,11 +144,6 @@ public class AgileCommands {
 
         List<Task> sprintTasks = database.task.getTasksBySprintID(sprintId);
 
-        SendMessage message2 = new SendMessage();
-        message2.setChatId(chatId);
-        message2.setText("tasks del sprint con id " + sprintId + ": " + sprintTasks);
-        messageSender.sendMessage(message2);
-
         Optional<Sprint> sprintResponse = database.sprint.getSprintsbyID(sprintId);
         DateTimeFormatter format = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH);
 
@@ -192,11 +187,6 @@ public class AgileCommands {
         message.setChatId(chatId);
         ResponseEntity<List<Sprint>> sprintResponse = database.sprint.getAvailableSprints(projectId);
 
-        SendMessage message2 = new SendMessage();
-        message2.setChatId(chatId);
-        message2.setText("sprints for project " + projectId + ": " + sprintResponse.getBody());
-        messageSender.sendMessage(message2);
-
         if (sprintResponse.getStatusCode().is2xxSuccessful() && sprintResponse.hasBody()){
             List<Sprint> sprintList = sprintResponse.getBody();
             if (sprintList != null && !sprintList.isEmpty() && sprintList.size()>0) {
@@ -215,7 +205,7 @@ public class AgileCommands {
     }
 
     public void showSprint(Long chatId, int projectId) {
-        Integer activeSprint = database.sprint.getActiveSprint(projectId);
+        Integer activeSprint = database.sprint.getActiveSprintID(projectId);
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
 
