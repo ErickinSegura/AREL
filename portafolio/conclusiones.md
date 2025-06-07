@@ -1,45 +1,30 @@
 # Conclusiones y Lecciones Aprendidas
 
 ## Logros del Proyecto
-En este proyecto logramos desarrollar una herramienta multiplataforma de gestión de proyectos enfocado en metodologías ágiles, implementando de manera éxitosa convenciones y estándares de calidad, además, de haber tenido un alto nivel técnico y de diseño de experiencia de usuario, así no solo haciendo fácil de utilizar la plataforma, si no que también fue fácil de desarrollar.
 
-## Objetivos Cumplidos
-| Objetivo | Estado | Comentarios |
-|----------|--------|-------------|
-| [Objetivo 1] | [Cumplido/Parcial/No cumplido] | [Comentarios adicionales] |
-| [Objetivo 2] | [Cumplido/Parcial/No cumplido] | [Comentarios adicionales] |
-| [Objetivo 3] | [Cumplido/Parcial/No cumplido] | [Comentarios adicionales] |
+En este proyecto logramos desarrollar una herramienta multiplataforma de gestión de proyectos enfocada en metodologías ágiles. Implementamos con éxito convenciones y estándares de calidad, manteniendo un alto nivel técnico y de diseño de experiencia de usuario. Esto no solo facilitó el uso de la plataforma, sino que también contribuyó a que su desarrollo fuera más sencillo y eficiente.
 
 ## Dificultades Enfrentadas
-### Desafío 1: [Nombre del Desafío]
-[Descripción detallada del desafío, su impacto en el proyecto y cómo fue abordado]
 
-### Desafío 2: [Nombre del Desafío]
-[Descripción detallada del desafío, su impacto en el proyecto y cómo fue abordado]
+Durante el desarrollo enfrentamos diversas dificultades, principalmente técnicas. Algunos temas, como Docker, Kubernetes y el uso de una nube como Oracle Cloud Infrastructure, eran completamente nuevos para nosotros. Esto generó ciertos retos, especialmente en el despliegue inicial de la aplicación.
 
-### Desafío 3: [Nombre del Desafío]
-[Descripción detallada del desafío, su impacto en el proyecto y cómo fue abordado]
+Además, surgieron desafíos organizacionales dentro del equipo. En algunos momentos no seguimos completamente la metodología SCRUM que habíamos adoptado. Sin embargo, mediante conversaciones y acuerdos internos, logramos reorganizarnos y superar estos obstáculos.
 
 ## Aprendizajes del Proceso
+
 ### Aprendizajes Técnicos
-- [Aprendizaje técnico 1]
-- [Aprendizaje técnico 2]
-- [Aprendizaje técnico 3]
+
+Desde el punto de vista técnico, el aprendizaje fue significativo. Si bien el equipo ya tenía una base sólida en React, el backend y el despliegue representaron nuevos desafíos. Aprendimos sobre:
+
+- Desarrollo backend con Java y Spring Boot.
+- Uso de contenedores para aplicaciones (Docker).
+- Implementación y gestión en la nube (OCI).
+- Automatización de despliegues con herramientas DevOps.
+- Implementación de pruebas automatizadas para detectar comportamientos no deseados.
+- Diseño de arquitectura, lo cual mejoró notablemente la calidad del proyecto.
 
 ### Aprendizajes de Gestión
-- [Aprendizaje de gestión 1]
-- [Aprendizaje de gestión 2]
-- [Aprendizaje de gestión 3]
 
-### Mejores Prácticas Identificadas
-- [Mejor práctica 1]
-- [Mejor práctica 2]
-- [Mejor práctica 3]
+En cuanto a la gestión, el proyecto nos permitió profundizar en la adopción efectiva de una metodología ágil como SCRUM. Esforzarnos por seguir esta metodología contribuyó considerablemente a mejorar la eficiencia del equipo.
 
-## Recomendaciones para Proyectos Futuros
-- [Recomendación 1]
-- [Recomendación 2]
-- [Recomendación 3]
-
-## Próximos Pasos
-[Descripción de los próximos pasos o fases del proyecto, si aplica]
+Otro aspecto importante fue el aprendizaje en la estimación de tiempos de desarrollo, lo que nos permitió planificar de forma más realista y cumplir con los objetivos propuestos.

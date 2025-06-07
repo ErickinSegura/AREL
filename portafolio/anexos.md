@@ -1,22 +1,14 @@
 # Anexos
 
 ## Código Fuente
-- **Repositorio**: [Enlace al repositorio de código]
-- **Ramas principales**:
-  - `main`: [Descripción de la rama principal]
-  - `develop`: [Descripción de la rama de desarrollo]
-  - `feature/x`: [Descripción de ramas de características importantes]
+- [Repositorio](https://github.com/ErickinSegura/AREL)
 
 ## Documentos Técnicos Adicionales
 
 ### Manuales
-- [Manual de Usuario](ruta/al/manual_usuario.pdf)
+- [software requirements specification](ruta/al/manual_usuario.pdf)
 - [Manual de Instalación](ruta/al/manual_instalacion.pdf)
 - [Manual de Administración](ruta/al/manual_admin.pdf)
-
-### Especificaciones Técnicas
-- [Especificación de API](ruta/al/api_spec.pdf)
-- [Documentación de Base de Datos](ruta/al/db_docs.pdf)
 
 ## Cronograma o Bitácora de Trabajo
 
