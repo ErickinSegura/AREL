@@ -47,7 +47,7 @@
 ![Captura Bot 3](ss_bot3.png)
 
 ## Demo del Producto Final
-- **URL de demostración**: [Enlace a la demo en vivo]
+[Ver demostración del proyecto](https://youtu.be/Nq5pGb4illA)
 
 ## ¿Cómo desplegamos nuestra aplicación?
 Gracias a los pipelines de Oracle DevOps, tenemos despliegues automatizados que nos permiten integrar y entregar nuevas versiones de nuestros servicios de forma continua, reduciendo errores humanos, mejorando la eficiencia del equipo y garantizando una entrega más rápida y confiable de nuestras aplicaciones en el entorno de Kubernetes.

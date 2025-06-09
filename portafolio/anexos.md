@@ -5,40 +5,15 @@
 
 ## Documentos Técnicos Adicionales
 
-### Manuales
-- [software requirements specification](ruta/al/manual_usuario.pdf)
-- [Manual de Instalación](ruta/al/manual_instalacion.pdf)
-- [Manual de Administración](ruta/al/manual_admin.pdf)
-
-## Cronograma o Bitácora de Trabajo
-
-### Cronograma Original
-[Insertar cronograma original del proyecto]
-```
-![Cronograma Original](ruta/al/cronograma_original.png)
-```
-
-### Bitácora de Actividades
-| Fecha | Actividad | Responsable | Estado | Observaciones |
-|-------|-----------|-------------|--------|---------------|
-| [DD/MM/AAAA] | [Descripción de la actividad] | [Responsable] | [Completado/En proceso/Pendiente] | [Observaciones] |
-| [DD/MM/AAAA] | [Descripción de la actividad] | [Responsable] | [Completado/En proceso/Pendiente] | [Observaciones] |
-| [DD/MM/AAAA] | [Descripción de la actividad] | [Responsable] | [Completado/En proceso/Pendiente] | [Observaciones] |
+- [Software Requirements Specification](ruta/al/manual_usuario.pdf)
+- [Software Design Document](ruta/al/manual_instalacion.pdf)
 
 ## Presentaciones
-- [Presentación Inicial](ruta/al/presentacion_inicial.pdf)
-- [Presentación de Avance](ruta/al/presentacion_avance.pdf)
-- [Presentación Final](ruta/al/presentacion_final.pdf)
+- [Presentación Inicial](1.pdf)
+- [Presentación Avance 1](2.pdf)
+- [Presentación Avance 2](3.pdf)
+- [Presentación CI/CD Pipelines](4.pdf)
+- [Presentación Final](5.pdf)
 
-## Glosario de Términos
-| Término | Definición |
-|---------|------------|
-| [Término 1] | [Definición del término] |
-| [Término 2] | [Definición del término] |
-| [Término 3] | [Definición del término] |
-
-## Recursos Adicionales
-- [Enlace a recurso 1]
-- [Enlace a recurso 2]
-- [Enlace a recurso 3]
-```
+## Despligue
+- [Acceso](http://159.54.150.161/)

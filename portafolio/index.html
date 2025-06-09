@@ -356,6 +356,59 @@
             box-shadow: var(--shadow-sm);
         }
 
+        /* YouTube Video Embed Styles */
+        .youtube-embed {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+        }
+
+        .youtube-embed::before {
+            content: '';
+            display: block;
+            padding-top: 56.25%; /* 16:9 aspect ratio */
+        }
+
+        .youtube-embed iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .youtube-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-primary);
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            margin: 8px 0;
+        }
+
+        .youtube-link:hover {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .youtube-link::before {
+            content: '▶';
+            font-size: 12px;
+        }
+
         /* Tabla */
         .markdown-content table {
             width: 100%;
@@ -535,26 +588,78 @@
 
         function showLoading() {
             document.getElementById('content-area').innerHTML = `
- <div class="skeleton skeleton-title"></div>
- <div class="skeleton skeleton-text"></div>
- <div class="skeleton skeleton-text" style="width: 80%;"></div>
- <div class="skeleton skeleton-text" style="width: 90%;"></div>
- <div class="skeleton skeleton-text"></div>
- <div class="skeleton skeleton-text" style="width: 75%;"></div>
- `;
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text" style="width: 80%;"></div>
+                <div class="skeleton skeleton-text" style="width: 90%;"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text" style="width: 75%;"></div>
+            `;
         }
 
         function showError(section, error) {
             document.getElementById('content-area').innerHTML = `
- <div class="error-message">
- <div class="error-icon">📄</div>
- <h3>Contenido no encontrado</h3>
- <p>No se pudo cargar el archivo: <strong>${markdownFiles[section]}</strong></p>
- <p style="margin-top: 16px; font-size: 14px; color: var(--text-muted);">
- Asegúrate de que el archivo existe en la misma carpeta que este HTML.
- </p>
- </div>
- `;
+                <div class="error-message">
+                    <div class="error-icon">📄</div>
+                    <h3>Contenido no encontrado</h3>
+                    <p>No se pudo cargar el archivo: <strong>${markdownFiles[section]}</strong></p>
+                    <p style="margin-top: 16px; font-size: 14px; color: var(--text-muted);">
+                        Asegúrate de que el archivo existe en la misma carpeta que este HTML.
+                    </p>
+                </div>
+            `;
+        }
+
+        function getYouTubeVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function convertYouTubeLinks(html) {
+            // Buscar enlaces de YouTube en el HTML y marcarlos como procesados
+            const youtubeRegex = /<a[^>]*href="(https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11}))"[^>]*>([^<]*)<\/a>/g;
+            
+            let processedHtml = html.replace(youtubeRegex, (match, fullUrl, videoId, linkText) => {
+                // Crear el iframe de YouTube con marcador para evitar procesamiento duplicado
+                const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                
+                return `
+                    <div class="youtube-embed" data-processed="true">
+                        <iframe 
+                            src="${embedUrl}" 
+                            title="YouTube video player" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <p><a href="${fullUrl}" target="_blank" class="youtube-link">Ver en YouTube: ${linkText}</a></p>
+                `;
+            });
+
+            // Buscar URLs de YouTube que no estén en enlaces (texto plano) pero que no estén ya procesadas
+            const plainUrlRegex = /(?<!data-processed="true"[\s\S]*?)https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?![\s\S]*?<\/div>)/g;
+            
+            processedHtml = processedHtml.replace(plainUrlRegex, (match, videoId) => {
+                // Verificar que no esté dentro de un div ya procesado
+                const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                
+                return `
+                    <div class="youtube-embed" data-processed="true">
+                        <iframe 
+                            src="${embedUrl}" 
+                            title="YouTube video player" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <p><a href="${match}" target="_blank" class="youtube-link">Ver en YouTube</a></p>
+                `;
+            });
+
+            return processedHtml;
         }
 
         async function loadMarkdownContent(section) {
@@ -568,7 +673,11 @@
                     throw new Error(`HTTP ${response.status}`);
                 }
                 const markdownText = await response.text();
-                const htmlContent = marked.parse(markdownText);
+                let htmlContent = marked.parse(markdownText);
+                
+                // Convertir enlaces de YouTube a iframes (una sola función que maneja ambos casos)
+                htmlContent = convertYouTubeLinks(htmlContent);
+                
                 contentCache[section] = htmlContent;
                 return htmlContent;
             } catch (error) {
@@ -619,10 +728,9 @@
         }
 
         // Cargar contenido inicial
-document.addEventListener('DOMContentLoaded', () => {
-    showSection('portada');
-});
-    
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('portada');
+        });
     </script>
 </body>
 
